@@ -86,7 +86,6 @@ class Wxuser extends Api
                     ];
                 }
                 
-                
                 $data['data'] = base64_encode(json_encode($data));
                 $data['msg'] = 'success';
                 return json($data);
