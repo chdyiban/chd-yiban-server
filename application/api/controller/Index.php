@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Api;
+use wechat\wxBizDataCrypt;
 
 /**
  * 首页接口
@@ -15,7 +16,7 @@ class Index extends Api
 
     /**
      * 首页
-     * 
+     *
      */
     public function index()
     {
