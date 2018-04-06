@@ -75,8 +75,22 @@ class Wxuser extends Api
                             'openid' => $result['openid'],
                             'type' => (strlen($bindInfo) == 6) ? '教职工' : '学生',
                             'id' => $bindInfo,
+                            'info'=>[
+                                'yxm'=>'信息工程学院',
+                            ],
+                            'more' => [
+                                'zym'=>'计算机科学与技术',
+                                'nj'=>'2009级',
+                                'bj'=>'24020902',
+                            ],
                             'name' => '杨测试'
                         ],
+                        'time' => [
+                            'term' => '2017-2018 第2学期',
+                            'week' => '3',
+                            'day' => '2'
+                        ],
+                        'token' => 'just a token',
                         'status' => 200,
                     ];
                 }else{
@@ -85,7 +99,6 @@ class Wxuser extends Api
                         'status' => 200,
                     ];
                 }
-                
                 
                 $data['data'] = base64_encode(json_encode($data));
                 $data['msg'] = 'success';
@@ -102,6 +115,10 @@ class Wxuser extends Api
         }
 
         //$this->success("ok",$data,$errCode);
+    }
+
+    public function set(){
+        
     }
 
     public function bind(){

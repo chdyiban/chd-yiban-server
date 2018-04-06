@@ -45,6 +45,19 @@ class Portal extends Api
                     ]
                 ]
                 ],
+                'time_list' => [
+                    ['begin'=>'8:00','end'=>'8:45'],
+                    ['begin'=>'8:55','end'=>'9:40'],
+                    ['begin'=>'10:05','end'=>'10:50'],
+                    ['begin'=>'11:00','end'=>'11:45'],
+                    ['begin'=>'14:00','end'=>'14:45'],
+                    ['begin'=>'14:55','end'=>'15:40'],
+                    ['begin'=>'16:05','end'=>'16:50'],
+                    ['begin'=>'17:00','end'=>'17:45'],
+                    ['begin'=>'19:00','end'=>'19:45'],
+                    ['begin'=>'19:55','end'=>'20:40'],
+                    ['begin'=>'20:50','end'=>'21:35']
+                ]
             ]
         ];
         return json($info);
@@ -75,6 +88,55 @@ class Portal extends Api
             'status' => 200,
             'message' => 'success',
             'data' => []
+        ];
+        return json($info);
+    }
+
+    //获取考试成绩
+    public function score(){
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $info = [
+            'status' => 200,
+            'message' => 'success',
+            'data' => [
+                [
+                    'term'=>'2017-2018学年 第一学期',
+                    'xh'=>'2017900000',
+                    'course_name'=>'高等数学',
+                    'score'=>'95'
+                ],
+                [
+                    'term'=>'2017-2018学年 第二学期',
+                    'xh'=>'2017900000',
+                    'course_name'=>'大学英语',
+                    'score'=>'88'
+                ],
+            ]
+        ];
+        return json($info);
+    }
+
+    //获取空闲教室
+    public function empty_room(){
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        /**
+         * [
+         *  weekNo:第几周
+         *  weekDay:周几（周一:1 周二:2 ……）
+         *  classNo:第几节课 1@2:一二节课 1@2@3@4 一二三四节课
+         *  buildingNo: 1:宏远 2:明远 3:修远
+         *  openid:微信openid
+         *  timestamp:时间戳
+         *  sign:签名验证字符串
+         * ]
+         */
+        $info = [
+            'status' => 200,
+            'message' => 'success',
+            'data' => [
+                ['room' => ['WM1211']],
+                ['room' => ['WM2501']]
+            ]
         ];
         return json($info);
     }
