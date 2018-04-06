@@ -24,7 +24,8 @@
         "phpmailer/phpmailer": "^5.2",
         "karsonzhang/fastadmin-addons": "~1.1.0",
         "overtrue/pinyin": "~3.0",
-        "phpoffice/phpexcel": "^1.8"
+        "phpoffice/phpexcel": "^1.8",
+        "qiniu/php-sdk": "^7.2"
     },
     "config": {
         "preferred-install": "dist"
