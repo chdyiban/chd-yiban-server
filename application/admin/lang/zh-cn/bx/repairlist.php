@@ -19,7 +19,7 @@ return [
     'Status'  =>  '申报状态',
     'Status waited'  =>  '未审核',
     'Status accepted'  =>  '已受理',
-    'Status dispatobed'  =>  '已派工',
+    'Status dispatched'  =>  '已派工',
     'Status finished'  =>  '已完工',
     'Status refused'  =>  '驳回'
 ];

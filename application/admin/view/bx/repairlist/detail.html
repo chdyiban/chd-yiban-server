@@ -1,0 +1,135 @@
+<style>
+    .table-bordered > thead > tr > th, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
+    border: 1px solid;
+}
+</style>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">工单详情</h3>
+        <input type="text" value="{$row.id}" class="hidden" id="id">
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <td class="text-center" ><span style="font-size:16px ;font-family:Microsoft YaHei;">申报人</span></td>
+                    <td class="text-center"><span style="font-size:16px">{$row.stu_name}</span></td>
+                    <td class="text-center"><span style="font-size:16px ;font-family:Microsoft YaHei;">地址</span></td>
+                    <td class="text-center"><span style="font-size:16px">{$row.address}</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center" colspan="1"><span style="font-size:16px ;font-family:Microsoft YaHei;">维修内容</span></td>
+                    <td class="text-center" colspan="3"><span style="font-size:16px">{$row.content}</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><span style="font-size:16px ;font-family:Microsoft YaHei;">图片</span></td>
+                    <img src="" alt="">
+                </tr>
+            </tbody>
+        </table>       
+
+        {switch name="$row.status" }
+            {case value="waited"}
+                <button class="btn btn-success btn-lg btn-accept" style="margin-left:250px; background-color:#9ad8f7;" ><span style="color:inherit">受理</span></button> 
+                <button class="btn btn-danger btn-lg btn-refuse" style="margin-left:150px;"><span style="color:inherit">驳回</span></button>         
+            {/case}
+            {case value="accepted"}
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">受理状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理人</td>
+                            <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
+                            <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+                <button class="btn btn-success btn-lg btn-dispatch"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">派遣工人</span></button>
+            </div>
+            {/case}
+            {case value="dispatched"}
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">受理状态</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理人</td>
+                        <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
+                        <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">派工状态</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修人</td>
+                        <td class="text-center" style="font-size:16px" >{$row.worker_name}</td>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
+                        <td class="text-center" style="font-size:16px" > {$row.dispatched_time}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center"style="font-size:16px ;font-family:Microsoft YaHei;" colspan="4">
+                            <span>本次任务尚在进行中</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+                <button class="btn btn-success btn-lg btn-finish"  style="margin-left:550px">任务结算</button>
+        </div>
+            {/case}
+            {case value="finished"}
+            <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">受理状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理人</td>
+                            <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
+                            <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">派工状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;" >承修人</td>
+                            <td class="text-center" style="font-size:16px" >{$row.worker_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;" >受理时间</td>
+                            <td class="text-center" style="font-size:16px" > {$row.dispatched_time}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center"style="font-size:16px ;font-family:Microsoft YaHei;" colspan="2">完工时间</td>
+                            <td class="text-center" style="font-size:16px" colspan="2">{$row.finished_time}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {/case}
+            {default/}
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">驳回状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">驳回时间</td>
+                            <td class="text-center" style="font-size:16px">{$row['refused_time']}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">驳回理由</td>
+                            <td class="text-center" style="font-size:16px"> {$row.refused_content}</td>
+                        </tr>
+                    </tbody>
+                </table>
+        </div>
+        {/switch}
+    
+</div> 
+
+

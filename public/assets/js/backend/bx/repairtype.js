@@ -5,12 +5,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'bx/servicetype/index',
-                    add_url: 'bx/servicetype/add',
-                    edit_url: 'bx/servicetype/edit',
-                    del_url: 'bx/servicetype/del',
-                    multi_url: 'bx/servicetype/multi',
-                    table: 'service_type',
+                    index_url: 'bx/repairtype/index',
+                    add_url: 'bx/repairtype/add',
+                    edit_url: 'bx/repairtype/edit',
+                    del_url: 'bx/repairtype/del',
+                    multi_url: 'bx/repairtype/multi',
+                    table: 'repair_type',
                 }
             });
 
