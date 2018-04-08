@@ -9,18 +9,18 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class Servicetype extends Backend
+class Repairareas extends Backend
 {
     
     /**
-     * ServiceType模型对象
+     * Repairareas模型对象
      */
     protected $model = null;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('ServiceType');
+        $this->model = model('RepairAreas');
 
     }
     

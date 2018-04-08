@@ -5,12 +5,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'bx/servicetype/index',
-                    add_url: 'bx/servicetype/add',
-                    edit_url: 'bx/servicetype/edit',
-                    del_url: 'bx/servicetype/del',
-                    multi_url: 'bx/servicetype/multi',
-                    table: 'service_type',
+                    index_url: 'bx/repairtype/index',
+                    add_url: 'bx/repairtype/add',
+                    edit_url: 'bx/repairtype/edit',
+                    del_url: 'bx/repairtype/del',
+                    multi_url: 'bx/repairtype/multi',
+                    table: 'repair_type',
                 }
             });
 
@@ -19,13 +19,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                pk: 'id',
-                sortName: 'id',
+                pk: 'specific_id',
+                sortName: 'specific_id',
                 columns: [
                     [
-                        {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'name', title: __('Name')},
+                      //  {checkbox: false},
+                        {field: 'specific_id', title: __('Specific_id')},
+                        {field: 'specific_name', title: __('Specific_name')},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]

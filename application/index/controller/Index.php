@@ -3,7 +3,7 @@
 namespace app\index\controller;
 
 use app\common\controller\Frontend;
-
+use think\Db;
 class Index extends Frontend
 {
 
@@ -17,7 +17,7 @@ class Index extends Frontend
     }
 
     public function index()
-    {
+    {        
         return $this->view->fetch();
     }
 

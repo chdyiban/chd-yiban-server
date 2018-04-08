@@ -5,8 +5,10 @@ namespace app\api\controller;
 use app\common\controller\Api;
 use think\Config;
 use fast\Http;
+use think\Db;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
+
 
 /**
  * 微信小程序登录接口
@@ -69,6 +71,16 @@ class Wxuser extends Api
                 unset($data);
                 $bindInfo = $this->checkBindByOpenId($result['openid']);
                 if($bindInfo){
+                    //bindInfo为学号，通过学号来查询学生信息.
+                    $info = Db::connect('chd_config')
+                    ->view('chd_stu_detail')
+                    ->where('XH', $bindInfo)
+                    ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                    ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
+                    ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                    ->find();
+                    //年级将学号的前四位截取
+                    $info['NJ'] = substr($info['XH'],0,4);
                     $data = [
                         'is_bind' => true,
                         'user' => [
@@ -76,14 +88,15 @@ class Wxuser extends Api
                             'type' => (strlen($bindInfo) == 6) ? '教职工' : '学生',
                             'id' => $bindInfo,
                             'info'=>[
-                                'yxm'=>'信息工程学院',
+                                'yxm'=>$info['YXMC'],
                             ],
                             'more' => [
-                                'zym'=>'计算机科学与技术',
-                                'nj'=>'2009级',
-                                'bj'=>'24020902',
+                                'zym'=>$info['ZYMC'],
+                                'nj'=>$info['NJ'],
+                                'bj'=>$info['BJDM'],
+                                'sex' => ($info['XBDM'] == 1) ? '男' : '女',
                             ],
-                            'name' => '杨测试'
+                            'name' => $info['XM']
                         ],
                         'time' => [
                             'term' => '2017-2018 第2学期',
@@ -212,6 +225,13 @@ class Wxuser extends Api
             //时间原因，暂时不考虑验证码的情况
             return false;
         }
+    }
+
+    private function getTime(){
+        $time = time();
+        $d = date('d', $time);
+        $m = date('m', $time);
+        $y = date('Y', $time);
     }
 
 }

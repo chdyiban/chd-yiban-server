@@ -4,10 +4,10 @@ namespace app\admin\model;
 
 use think\Model;
 
-class AddressInfo extends Model
+class RepairType extends Model
 {
     // 表名
-    protected $name = 'address_info';
+    protected $name = 'repair_type';
     
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = false;
