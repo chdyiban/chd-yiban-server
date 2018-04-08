@@ -10,7 +10,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     edit_url: 'bx/repairworker/edit',
                     del_url: 'bx/repairworker/del',
                     multi_url: 'bx/repairworker/multi',
-                    table: 'repairworker',
+                    table: 'repair_worker',
                 }
             });
 
@@ -28,8 +28,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'name', title: __('Name')},
                         {field: 'mobile', title: __('Mobile')},
                         {field: 'category_id', title: __('Category_id')},
-                        {field: 'status', title: __('Status'), visible:false, searchList: {"0":__('Status 0'),"1":__('Status 1'),"2":__('Status 2')}},
-                        {field: 'status_text', title: __('Status'), operate:false},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]

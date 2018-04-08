@@ -13,7 +13,7 @@ class Repairworker extends Backend
 {
     
     /**
-     * Worker模型对象
+     * RepairWorker模型对象
      */
     protected $model = null;
 
@@ -21,7 +21,7 @@ class Repairworker extends Backend
     {
         parent::_initialize();
         $this->model = model('RepairWorker');
-        $this->view->assign("statusList", $this->model->getStatusList());
+
     }
     
     /**

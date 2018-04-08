@@ -19,13 +19,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                pk: 'id',
-                sortName: 'id',
+                pk: 'specific_id',
+                sortName: 'specific_id',
                 columns: [
                     [
-                        {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'name', title: __('Name')},
+                      //  {checkbox: false},
+                        {field: 'specific_id', title: __('Specific_id')},
+                        {field: 'specific_name', title: __('Specific_name')},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]

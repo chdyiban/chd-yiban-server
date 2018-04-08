@@ -4,10 +4,12 @@ namespace app\api\controller;
 
 use app\common\controller\Api;
 use think\Config;
+use think\Db;
 use fast\Http;
 use fast\Random;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
+use app\api\model\Repairlist as RepairlistModel;
 
 /**
  * 获取课表
@@ -20,6 +22,9 @@ class Repair extends Api
 
     public function submit(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        //将数据写入数据库
+        $repair = new RepairlistModel;
+        $res = $repair->saveData($key);
         $info = [
             'status' => 200,
             'message' => 'success',
@@ -32,70 +37,58 @@ class Repair extends Api
 
         Http::post(Wxuser::LOGIN_URL, $params);
     }
-
+    //获取报修工单的列表
     public function get_list(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $repair = new RepairlistModel;
+        $data = $repair->getRepairList($key['id']); 
+        //dump($list);
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                ['bxID'=>'110','wx_wxztm'=>'已受理','wx_bt'=>'宿舍门锁坏掉了','wx_bxlxm'=>'1','wx_bxsj'=>'2018-03-18 17:00:00','xysj'=>'35分钟'],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
-
+    //获取报修工单的详细信息
     public function get_repair_detail(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $repair = new RepairlistModel;
+        //dump($key);
+        $data = $repair->getDetailList($key['bxID']); 
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                'wx_bt'=>'23434',
-                'wx_bxnr'=>'宿舍门锁坏掉了',
-                'wx_wxztm'=>'已完工',
-                'wx_wxgm'=>'李师傅',
-                'wx_slr'=>'王老师',
-                'wx_shr'=>'张老师',
-                'wx_cxbmm'=>'后勤处',
-                'wx_bxr'=>'杨加玉',
-                'wx_bxrrzm'=>'170049',
-                'xysj' => '45',
-
-                'wx_bxsj'=>'2018-03-08 17:00:00'
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
 
     public function get_repair_type(){
-
+        $repair = new RepairlistModel;
+        $data = $repair->getRepairType(); 
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                '电路'=> [
-                    ['Name'=>'卫生间灯','CategId'=>'9','Id'=>'10'],
-                    ['Name'=>'插座','CategId'=>'9','Id'=>'11'],
-                ],
-                '木工'=> [
-                    ['Name'=>'床','CategId'=>'7','Id'=>'13'],
-                    ['Name'=>'桌子','CategId'=>'7','Id'=>'14'],
-                ],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
-
+    //获取报修区域的信息
     public function get_repair_areas(){
+        $list = Db::name('repair_areas')
+                ->select();
+        $info = array();
+        $data = array();
+        foreach($list as $val){
+            $info['Name'] = $val['name'];
+            $info['Id'] = $val['id'];
+            $data[] = $info;
+        }
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                ['Name' => '1号楼(西区)','Id' => '1'],
-                ['Name' => '2号楼(西区)','Id' => '2'],
-                ['Name' => '15号楼(东区)','Id' => '15'],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }

@@ -13,7 +13,7 @@ class Repairtype extends Backend
 {
     
     /**
-     * Repairtype模型对象
+     * RepairType模型对象
      */
     protected $model = null;
 
@@ -21,6 +21,7 @@ class Repairtype extends Backend
     {
         parent::_initialize();
         $this->model = model('RepairType');
+
     }
     
     /**
