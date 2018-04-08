@@ -83,8 +83,8 @@ class Repairlist extends Model
                                 ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
                                 ->where('repair_list.id',$id)
                                 ->find();
-                $res['worker_name'] = "无";
-                $res['nickname'] = "无";
+                $res['worker_name'] = "";
+                $res['nickname'] = "";
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
@@ -96,7 +96,7 @@ class Repairlist extends Model
                                 ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
                                 ->where('repair_list.id',$id)
                                 ->find();
-                $res['worker_name'] = "无";
+                $res['worker_name'] = "";
                 $res['nickname'] = $res['info']['nickname'];
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
@@ -131,6 +131,15 @@ class Repairlist extends Model
                 break;
             case 'refused':
                 $res['status'] = 'refused';
+                $res['info'] = Db::view('repair_list')
+                ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
+                ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
+                ->where('repair_list.id',$id)
+                ->find();
+                $res['nickname'] = "";
+                $res['worker_name'] = ""; 
+                $res['type_name'] = $res['info']['type_name']; 
+                $res['areas_name'] = $res['info']['areas_name'];
                 break;
         }
         $data['wx_bt'] = $res['title'];
