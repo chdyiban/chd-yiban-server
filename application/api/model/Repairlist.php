@@ -77,7 +77,7 @@ class Repairlist extends Model
         $data = array();
         switch($res['status']){
             case 'waited':
-                $res['status'] = '未受理';
+                $res['status'] = 'waited';
                 $res['info'] =  Db::view('repair_list')
                                 ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
                                 ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
@@ -89,7 +89,7 @@ class Repairlist extends Model
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
             case 'accepted':
-                $res['status'] = '已受理';
+                $res['status'] = 'accepted';
                 $res['info'] = Db::view('repair_list')
                                 ->view('admin','id,nickname','repair_list.admin_id = admin.id')
                                 ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
@@ -102,7 +102,7 @@ class Repairlist extends Model
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
             case 'dispatched':
-                $res['status'] = '已派工';
+                $res['status'] = 'dispatched';
                 $res['info'] = Db::view('repair_list')
                                 ->view('admin','id,nickname','repair_list.admin_id = admin.id')
                                 ->view('repair_worker',['id'=>'id','name'=>'worker_name'],'repair_list.dispatched_id = repair_worker.id')
@@ -116,7 +116,7 @@ class Repairlist extends Model
                 $res['areas_name'] = $res['info']['areas_name'];         
                 break;
             case 'finished':
-                $res['status'] = '已完工';
+                $res['status'] = 'finished';
                 $res['info'] = Db::view('repair_list')
                                 ->view('admin','id,nickname','repair_list.admin_id = admin.id')
                                 ->view('repair_worker',['id'=>'id','name'=>'worker_name'],'repair_list.dispatched_id = repair_worker.id')
@@ -130,7 +130,7 @@ class Repairlist extends Model
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
             case 'refused':
-                $res['status'] = '已驳回';
+                $res['status'] = 'refused';
                 break;
         }
         $data['wx_bt'] = $res['title'];
