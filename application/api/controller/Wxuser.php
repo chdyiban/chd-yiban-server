@@ -89,6 +89,9 @@ class Wxuser extends Api
                             'id' => $bindInfo,
                             'info'=>[
                                 'yxm'=>$info['YXMC'],
+                                //如果注释掉这两个，则跳转到完善信息界面
+                                'ssh'=>'12#6128',
+                                'sjh'=>'13700000000'
                             ],
                             'more' => [
                                 'zym'=>$info['ZYMC'],
@@ -100,7 +103,7 @@ class Wxuser extends Api
                         ],
                         'time' => [
                             'term' => '2017-2018 第2学期',
-                            'week' => '3',
+                            'week' => get_weeks(),
                             'day' => '2'
                         ],
                         'token' => 'just a token',

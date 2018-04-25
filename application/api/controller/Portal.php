@@ -30,18 +30,23 @@ class Portal extends Api
             'status' => 200,
             'message' => 'success',
             'data' => [
-                'week' => '3',
+                'week' => get_weeks(),
                 'day' => '1',
                 'lessons' => [
                 [
                     [
-                        ['weeks' => '3','number' => '2','name' => '测试课程2','place' => 'WM1405'],
-                        ['weeks' => '3','number' => '1','name' => '测试课程1','place' => 'WH1405'],
-                        ['weeks' => '3','number' => '4','name' => '测试课程4','place' => 'WH1405'],
+                        ['weeks' => '8','number' => '2','name' => '测试课程2','place' => 'WM1405'],
+                        ['weeks' => '8','number' => '1','name' => '测试课程1','place' => 'WH1405'],
+                        ['weeks' => '8','number' => '4','name' => '测试课程4','place' => 'WH1405'],
                         // ['weeks' => '3','number' => '5','name' => '测试课程3','place' => 'WH1405'],
                         // ['weeks' => '3','number' => '6','name' => '测试课程6','place' => 'WH1405'],
                         // ['weeks' => '3','number' => '7','name' => '测试课程7','place' => 'WH1405'],
                         //['weeks' => '3','number' => '8','name' => '测试课程8','place' => 'WH1405']
+                    ],
+                    [
+                        ['weeks' => '8','number' => '2','name' => '测试课程5','place' => 'WM1405'],
+                        ['weeks' => '8','number' => '1','name' => '测试课程6','place' => 'WH1405'],
+                        ['weeks' => '8','number' => '4','name' => '测试课程7','place' => 'WH1405'],
                     ]
                 ]
                 ],
@@ -57,7 +62,8 @@ class Portal extends Api
                     ['begin'=>'19:00','end'=>'19:45'],
                     ['begin'=>'19:55','end'=>'20:40'],
                     ['begin'=>'20:50','end'=>'21:35']
-                ]
+                ],
+                'is_vacation' => 'F'
             ]
         ];
         return json($info);
@@ -71,11 +77,26 @@ class Portal extends Api
             'status' => 200,
             'message' => 'success',
             'data' => [
-                '2018-03-18 18:00:00' => [
-                    'cost' => '4:50'
+                // '2018-03-18 18:00:00' => [
+                //     'cost' => '4:50'
+                // ],
+                // 'last_time' => '2018-03-08 17:58:00',
+                // 'balance' => '0.80'
+                [
+                    'balance' => '17.4',
+                    'cost' => '-5.00',
+                    'time' => '2018-04-17 17:58:00',
                 ],
-                'last_time' => '2018-03-08 17:58:00',
-                'balance' => '0.80'
+                [
+                    'balance' => '20.6',
+                    'cost' => '-5.80',
+                    'time' => '2018-04-16 17:58:00',
+                ],
+                [
+                    'balance' => '30',
+                    'cost' => '-1.80',
+                    'time' => '2018-04-16 17:58:00',
+                ],
             ]
         ];
         return json($info);
