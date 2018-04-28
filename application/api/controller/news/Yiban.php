@@ -16,57 +16,45 @@ class Yiban extends Api
     protected $noNeedRight = ['*'];
 
     public function index(){
-        $page = $this->request->post('page');
+        $page = ($this->request->get('page')) ? $this->request->get('page') : 1;
+        $group = ($this->request->get('group')) ? ($this->request->get('group')) : '0';
         $openid = $this->request->post('openid');
+        $url = 'https://www.yiban.cn/forum/article/listAjax';
+        $post_data = array (
+            'channel_id' => '70896',
+            'puid' => '5370552',
+            'page' => $page,
+            'size' => '10',
+            'orderby' => 'updateTime',
+            'Sections_id' => '-1',
+            'need_notice' => '0',
+            'group_id' => $group,
+            'my' => '0', 
+        );
 
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => [
-                [
-                    'articleid' => '1',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况',
-                    'time'=> '2018-04-07 19:00:00',
-                ],
-                [
-                    'articleid' => '2',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-                [
-                    'articleid' => '3',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-                [
-                    'articleid' => '4',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-                [
-                    'articleid' => '5',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-                [
-                    'articleid' => '6',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-                [
-                    'articleid' => '7',
-                    'type' => 'yiban',
-                    'title'=>'关于头条的测试情况2',
-                    'time'=> '2018-04-07 20:00:00',
-                ],
-            ]
-        ];
+        $result = json_decode(Http::post($url, $post_data),true);
+        //dump($result);
+        $ret_data = [];
+        foreach($result['data']['list'] as $key => $val){
+            $ret_data[$key]['id'] = $val['id'];
+            $ret_data[$key]['type'] = 'yiban';
+            $ret_data[$key]['title'] = $val['title'];
+
+        }
+        $info = [];
+        if($result['code'] == 200){
+            $info = [
+                'status' => 200,
+                'message' => 'success',
+                'data'=>$ret_data
+            ];
+            
+        }else{
+            $info = [
+                'status' => -1,
+                'message' => 'error',
+            ];
+        } 
         return json($info);
     }
 }

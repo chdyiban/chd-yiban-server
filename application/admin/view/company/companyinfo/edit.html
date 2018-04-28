@@ -1,0 +1,70 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label for="c-name" class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" data-rule="required" class="form-control" name="row[name]" type="text" value="{$row.name}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-category_id" class="control-label col-xs-12 col-sm-2">{:__('Category_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-category_id" data-rule="required" data-source="category/selectpage" data-params='{"custom[type]":"company_info"}' class="form-control selectpage" name="row[category_id]" type="text" value="{$row.category_id}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-category_ids" class="control-label col-xs-12 col-sm-2">{:__('Category_ids')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-category_ids" data-rule="required" data-source="category/selectpage" data-params='{"custom[type]":"company_info"}' data-multiple="true" class="form-control selectpage" name="row[category_ids]" type="text" value="{$row.category_ids}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-connect_person" class="control-label col-xs-12 col-sm-2">{:__('Connect_person')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-connect_person" data-rule="required" class="form-control" name="row[connect_person]" type="text" value="{$row.connect_person}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('Mobile')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="required" class="form-control" name="row[mobile]" type="text" value="{$row.mobile}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-zone" class="control-label col-xs-12 col-sm-2">{:__('Zone')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-zone" data-rule="required" class="form-control" name="row[zone]" type="text" value="{$row.zone}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-summary" class="control-label col-xs-12 col-sm-2">{:__('Summary')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-summary" data-rule="required" class="form-control" name="row[summary]" type="text" value="{$row.summary}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-type" class="control-label col-xs-12 col-sm-2">{:__('Type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+                        
+            <select  id="c-type" data-rule="required" class="form-control selectpicker" name="row[type]">
+                {foreach name="typeList" item="vo"}
+                    <option value="{$key}" {in name="key" value="$row.type"}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-number" class="control-label col-xs-12 col-sm-2">{:__('Number')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-number" data-rule="required" class="form-control" name="row[number]" type="number" value="{$row.number}">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

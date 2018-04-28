@@ -19,6 +19,9 @@ return array (
     'page' => 'Page',
     'article' => 'Article',
     'test' => 'Test',
+    'company_info' => '公司类型',
+    'repair_list' => '服务类型',
+    'worker' => '工人类型',
   ),
   'configgroup' => 
   array (
