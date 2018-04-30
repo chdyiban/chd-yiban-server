@@ -71,6 +71,7 @@ class Wxuser extends Api
                 unset($data);
                 $bindInfo = $this->checkBindByOpenId($result['openid']);
                 if($bindInfo){
+                    $appendInfo = $user->where('open_id',$result['openid'])->field('build,room,mobile')->find();
                     //bindInfo为学号，通过学号来查询学生信息.
                     $info = Db::connect('chd_config')
                     ->view('chd_stu_detail')
@@ -90,8 +91,9 @@ class Wxuser extends Api
                             'info'=>[
                                 'yxm'=>$info['YXMC'],
                                 //如果注释掉这两个，则跳转到完善信息界面
-                                'ssh'=>'12#6128',
-                                'sjh'=>'13700000000'
+                                'build'=>$appendInfo['build'],
+                                'room'=>$appendInfo['room'],
+                                'mobile'=>$appendInfo['mobile']
                             ],
                             'more' => [
                                 'zym'=>$info['ZYMC'],
@@ -133,8 +135,31 @@ class Wxuser extends Api
         //$this->success("ok",$data,$errCode);
     }
 
-    public function set(){
+    public function append(){
+        $key = json_decode(base64_decode($this->request->post('key')),true);
         
+
+        $user = new WxuserModel;
+        $appendStatus = $user->save([
+            'build' => $key['build'],
+            'room' => $key['room'],
+            'mobile'=> $key['mobile']
+        ],['open_id' => $key['openid']]);
+
+        if($appendStatus){
+            $data = [
+                'status' => 200,
+                'message' => '更新成功',
+            ];
+        }else{
+            $data = [
+                'status' => 404,
+                'message' => '更新错误',
+            ];
+        }
+        
+
+        return json($data);
     }
 
     public function bind(){
