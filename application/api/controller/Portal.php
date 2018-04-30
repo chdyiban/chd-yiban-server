@@ -20,55 +20,6 @@ class Portal extends Api
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
 
-    public function kebiao()
-    {
-        //解析后应对签名参数进行验证
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-
-        
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => [
-                'week' => get_weeks(),
-                'day' => '1',
-                'lessons' => [
-                [
-                    [
-                        ['weeks' => '8','number' => '2','name' => '测试课程2','place' => 'WM1405'],
-                        ['weeks' => '8','number' => '1','name' => '测试课程1','place' => 'WH1405'],
-                        ['weeks' => '8','number' => '4','name' => '测试课程4','place' => 'WH1405'],
-                        // ['weeks' => '3','number' => '5','name' => '测试课程3','place' => 'WH1405'],
-                        // ['weeks' => '3','number' => '6','name' => '测试课程6','place' => 'WH1405'],
-                        // ['weeks' => '3','number' => '7','name' => '测试课程7','place' => 'WH1405'],
-                        //['weeks' => '3','number' => '8','name' => '测试课程8','place' => 'WH1405']
-                    ],
-                    [
-                        ['weeks' => '8','number' => '2','name' => '测试课程5','place' => 'WM1405'],
-                        ['weeks' => '8','number' => '1','name' => '测试课程6','place' => 'WH1405'],
-                        ['weeks' => '8','number' => '4','name' => '测试课程7','place' => 'WH1405'],
-                    ]
-                ]
-                ],
-                'time_list' => [
-                    ['begin'=>'8:00','end'=>'8:45'],
-                    ['begin'=>'8:55','end'=>'9:40'],
-                    ['begin'=>'10:05','end'=>'10:50'],
-                    ['begin'=>'11:00','end'=>'11:45'],
-                    ['begin'=>'14:00','end'=>'14:45'],
-                    ['begin'=>'14:55','end'=>'15:40'],
-                    ['begin'=>'16:05','end'=>'16:50'],
-                    ['begin'=>'17:00','end'=>'17:45'],
-                    ['begin'=>'19:00','end'=>'19:45'],
-                    ['begin'=>'19:55','end'=>'20:40'],
-                    ['begin'=>'20:50','end'=>'21:35']
-                ],
-                'is_vacation' => 'F'
-            ]
-        ];
-        return json($info);
-    }
-
     public function yikatong(){
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
@@ -77,11 +28,6 @@ class Portal extends Api
             'status' => 200,
             'message' => 'success',
             'data' => [
-                // '2018-03-18 18:00:00' => [
-                //     'cost' => '4:50'
-                // ],
-                // 'last_time' => '2018-03-08 17:58:00',
-                // 'balance' => '0.80'
                 [
                     'balance' => '17.4',
                     'cost' => '-5.00',
