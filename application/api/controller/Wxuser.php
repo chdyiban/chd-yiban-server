@@ -22,7 +22,7 @@ class Wxuser extends Api
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
 
-    public function get_info()
+    public function info()
     {
         
         $code = $this->request->post('code');

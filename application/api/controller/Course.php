@@ -17,7 +17,7 @@ class Course extends Api
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
-    public function get_list(){
+    public function index(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $info = [
             'status' => 200,
