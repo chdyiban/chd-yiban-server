@@ -114,13 +114,16 @@ class Wxuser extends Api
                 }else{
                     $data = [
                         'is_bind' => false,
+                        'user' => [
+                            'openid' => $result['openid'],
+                        ],
                         'status' => 200,
                     ];
                 }
-                
-                $data['data'] = base64_encode(json_encode($data));
-                $data['msg'] = 'success';
-                return json($data);
+                $retData['status'] = 200;
+                $retData['data'] = base64_encode(json_encode($data));
+                $retData['msg'] = 'success';
+                return json($retData);
             }
         }else{
             //未获取到openid
