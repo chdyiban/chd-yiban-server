@@ -80,37 +80,65 @@ class Wxuser extends Api
                     ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
                     ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
                     ->find();
-                    //年级将学号的前四位截取
-                    $info['NJ'] = substr($info['XH'],0,4);
-                    $data = [
-                        'is_bind' => true,
-                        'user' => [
-                            'openid' => $result['openid'],
-                            'type' => (strlen($bindInfo) == 6) ? '教职工' : '学生',
-                            'id' => $bindInfo,
-                            'info'=>[
-                                'yxm'=>$info['YXMC'],
-                                //如果注释掉这两个，则跳转到完善信息界面
-                                'build'=>$appendInfo['build'],
-                                'room'=>$appendInfo['room'],
-                                'mobile'=>$appendInfo['mobile']
+                    //先判断是教职工还是学生
+                    if(strlen($bindInfo) == 6){
+                        
+                        $data = [
+                            'is_bind' => true,
+                            'user' => [
+                                'openid' => $result['openid'],
+                                'type' => '教职工',
+                                'id' => $bindInfo,
+                                'info'=>[
+                                    'yxm'=>$info['YXMC'],
+                                    //如果注释掉这两个，则跳转到完善信息界面
+                                    'build'=>' ',
+                                    'room'=>' ',
+                                    'mobile'=>$appendInfo['mobile']
+                                ],
+                                'name' => $info['XM']
                             ],
-                            'more' => [
-                                'zym'=>$info['ZYMC'],
-                                'nj'=>$info['NJ'],
-                                'bj'=>$info['BJDM'],
-                                'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                            'time' => [
+                                'term' => '2017-2018 第2学期',
+                                'week' => get_weeks(),
+                                'day' => date("w")
                             ],
-                            'name' => $info['XM']
-                        ],
-                        'time' => [
-                            'term' => '2017-2018 第2学期',
-                            'week' => get_weeks(),
-                            'day' => '2'
-                        ],
-                        'token' => 'just a token',
-                        'status' => 200,
-                    ];
+                            'token' => rand_str_10(),
+                            'status' => 200,
+                        ];
+
+                    }else{
+                        //年级将学号的前四位截取
+                        $info['NJ'] = substr($info['XH'],0,4);
+                        $data = [
+                            'is_bind' => true,
+                            'user' => [
+                                'openid' => $result['openid'],
+                                'type' => '学生',
+                                'id' => $bindInfo,
+                                'info'=>[
+                                    'yxm'=>$info['YXMC'],
+                                    'build'=>$appendInfo['build'],
+                                    'room'=>$appendInfo['room'],
+                                    'mobile'=>$appendInfo['mobile']
+                                ],
+                                'more' => [
+                                    'zym'=>$info['ZYMC'],
+                                    'nj'=>$info['NJ'],
+                                    'bj'=>$info['BJDM'],
+                                    'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                                ],
+                                'name' => $info['XM']
+                            ],
+                            'time' => [
+                                'term' => '2017-2018 第2学期',
+                                'week' => get_weeks(),
+                                'day' => date("w")
+                            ],
+                            'token' => rand_str_10(),
+                            'status' => 200,
+                        ];
+                    }
                 }else{
                     $data = [
                         'is_bind' => false,
