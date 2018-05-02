@@ -15,6 +15,12 @@ class News extends Model
         $map['status'] = '1';
         $map['source_type'] = $type;
         $data = $this->where($map)->limit(10)->page($page)->field('id,source_type as type,title,create_time,author')->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['time'] = '2018-05-02 17:00';
+            $data[$key]['style'] = '0';
+            $data[$key]['comment'] = round(rand(1,120)/10,2).'k';
+            $data[$key]['zan'] = rand(1,400);
+        }
         return $data;
     }
 

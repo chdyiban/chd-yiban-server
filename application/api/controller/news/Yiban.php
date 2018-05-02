@@ -39,7 +39,11 @@ class Yiban extends Api
             $ret_data[$key]['id'] = $val['id'];
             $ret_data[$key]['type'] = 'yiban';
             $ret_data[$key]['title'] = $val['title'];
-
+            $ret_data[$key]['style'] = '0';
+            $ret_data[$key]['time'] = '2018-05-02 17:00';
+            $ret_data[$key]['style'] = '0';
+            $ret_data[$key]['comment'] = round(rand(1,120)/10,2).'k';
+            $ret_data[$key]['zan'] = rand(1,400);
         }
         $info = [];
         if($result['code'] == 200){
