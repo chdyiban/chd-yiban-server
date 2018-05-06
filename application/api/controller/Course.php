@@ -34,14 +34,13 @@ class Course extends Api
         return json($info);
     }
 
-    public function get_course(){
+    public function get_course($key){
         $stu_id = $key['id'];
         //测试数据
         //$stu_id = "2016900387";
         //$stu_id = '2017900301';
         $course = array();
         $res = Db::name('stu_course')->where('XH', $stu_id)->order('ZJ')->select();
-        dump($res);
         foreach($res as $val){
             $info = array();
             $info['name'] = $val['KCMC'];
