@@ -67,7 +67,7 @@ class Repair extends Api
          * 没有评价时：$info['data']['comment']['status'] = false;
          * 有评价时见如下：
          */
-        $info['data']['comment']['status'] = false;
+        //$info['data']['comment']['status'] = false;
         // $info['data']['comment']['status'] = true;
         // $info['data']['comment']['star'] = 5;
         // $info['data']['comment']['message'] = '响应及时，终于维修好了，感谢！';

@@ -142,6 +142,13 @@ class Repairlist extends Model
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
         }
+        if(empty($res['star']) && empty($res['message'])){
+            $data['comment']['status'] = false; 
+        }else{
+            $data['comment']['status'] = true; 
+            $data['comment']['star'] = $res['star'];
+            $data['comment']['message'] = $res['message'];  
+        }
         $data['wx_bt'] = $res['title'];
         $data['wx_bxnr'] = $res['content'];
         $data['wx_wxztm'] = $res['status'];
