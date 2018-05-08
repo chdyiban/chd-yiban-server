@@ -197,11 +197,12 @@ class Wxuser extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
 
         $bindInfo = $this->checkBind($key['stuid'],$key['passwd']);
+        $pwd =  _token_encrypt($key['passwd'], $key['openid']);
         if($bindInfo['status'] === true){
             $user = new WxuserModel;
             $bindStatus = $user->save([
                 'portal_id' => $key['stuid'],
-                'portal_pwd' => $key['passwd']
+                'portal_pwd' => $pwd,
             ],['open_id' => $key['openid']]);
             if($bindStatus){
                 $info = [
