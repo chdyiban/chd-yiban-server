@@ -7,7 +7,7 @@ use think\Config;
 use fast\Http;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
-
+use app\api\model\Ykt as YktModel;
 /**
  * 获取课表
  */
@@ -23,27 +23,12 @@ class Portal extends Api
     public function yikatong(){
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
-
+        $Ykt = new YktModel;
+        $data = $Ykt -> get_yikatong_data($key);
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                [
-                    'balance' => '17.4',
-                    'cost' => '-5.00',
-                    'time' => '2018-04-17 17:58:00',
-                ],
-                [
-                    'balance' => '20.6',
-                    'cost' => '-5.80',
-                    'time' => '2018-04-16 17:58:00',
-                ],
-                [
-                    'balance' => '30',
-                    'cost' => '-1.80',
-                    'time' => '2018-04-16 17:58:00',
-                ],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
