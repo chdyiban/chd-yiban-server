@@ -67,7 +67,7 @@ class Repair extends Api
          * 没有评价时：$info['data']['comment']['status'] = false;
          * 有评价时见如下：
          */
-        $info['data']['comment']['status'] = false;
+        //$info['data']['comment']['status'] = false;
         // $info['data']['comment']['status'] = true;
         // $info['data']['comment']['star'] = 5;
         // $info['data']['comment']['message'] = '响应及时，终于维修好了，感谢！';
@@ -106,6 +106,10 @@ class Repair extends Api
 
     public function submit_rate(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $repair = RepairlistModel::get((int)$key['bxID']);
+        $repair -> star = $key['star'];
+        $repair -> message = $key['message'];
+        $res = $repair -> save();
         $info = [
             'status' => 200,
             'message' => 'success',
