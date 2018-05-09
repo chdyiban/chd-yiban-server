@@ -106,6 +106,10 @@ class Repair extends Api
 
     public function submit_rate(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $repair = RepairlistModel::get((int)$key['bxID']);
+        $repair -> star = $key['star'];
+        $repair -> message = $key['message'];
+        $res = $repair -> save();
         $info = [
             'status' => 200,
             'message' => 'success',
