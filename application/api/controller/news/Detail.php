@@ -30,9 +30,9 @@ class Detail extends Api
             'data' => [
                 'title' => $data['title'],
                 'author' => $data['author'],
-                //'createtime'=> ($data['create_time'] % 3600 == 0 ) ? date('Y-m-d',$data['create_time']) : date('Y-m-d H:i:s',$data['create_time']),
-                // 'views' => '3.3k',
-                // 'likes' => '234',
+                'createtime'=> formatTime($data['create_time']),
+                'views' => isset($data['views']) ? $data['views'] : '保密',
+                'likes' => isset($data['likes']) ? $data['likes'] : '保密',
                 'body' => $data['content'],
                 'source' => $model->getSourceName($type),
                 // 'fjlist' => [
@@ -44,11 +44,7 @@ class Detail extends Api
             ]
         ];
 
-        if(is_numeric($data['create_time'])){
-            $info['data']['createtime'] = ($data['create_time'] % 3600 == 0 ) ? date('Y-m-d',$data['create_time']) : date('Y-m-d H:i:s',$data['create_time']);
-        }else{
-            $info['data']['createtime'] = $data['create_time'];
-        }
         return json($info);
     }
+    
 }
