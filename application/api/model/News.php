@@ -14,7 +14,7 @@ class News extends Model
 
         $map['status'] = '1';
         $map['source_type'] = $type;
-        $data = $this->where($map)->limit(10)->page($page)->field('id,source_type as type,title,create_time,author')->select();
+        $data = $this->where($map)->limit(10)->page($page)->field('id,source_type as type,title,create_time,author')->order('create_time desc')->select();
         foreach ($data as $key => $value) {
             $data[$key]['time'] = '2018-05-02 17:00';
             $data[$key]['style'] = '0';
