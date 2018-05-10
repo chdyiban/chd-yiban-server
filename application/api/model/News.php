@@ -1,5 +1,10 @@
 <?php
-
+/** 
+* 从数据库中获取新闻数据
+* 
+* @author      Yang
+* @version     1.0
+*/ 
 namespace app\api\model;
 
 use think\Model;
@@ -14,12 +19,12 @@ class News extends Model
 
         $map['status'] = '1';
         $map['source_type'] = $type;
-        $data = $this->where($map)->limit(10)->page($page)->field('id,source_type as type,title,create_time,author')->order('create_time desc')->select();
+        $data = $this->where($map)->limit(10)->page($page)->field('id,source_type as type,title,create_time,author,views,likes')->order('create_time desc')->select();
         foreach ($data as $key => $value) {
-            $data[$key]['time'] = '2018-05-02 17:00';
+            $data[$key]['time'] = formatTime($value['create_time']);
             $data[$key]['style'] = '0';
-            $data[$key]['comment'] = round(rand(1,120)/10,2).'k';
-            $data[$key]['zan'] = rand(1,400);
+            $data[$key]['views'] = $value['views'];
+            $data[$key]['likes'] = $value['likes'];
         }
         return $data;
     }
@@ -32,7 +37,10 @@ class News extends Model
             $map['status'] = '1';
             $map['source_type'] = $type;
             $map['id'] = $id;
-            $data = $this->where($map)->field('id,source_type as type,block_type as block,title,create_time,author,content,attachment')->find();
+            //先给阅读量+1
+            $this->where($map)->setInc('views',1);
+            //返回数据
+            $data = $this->where($map)->field('id,source_type as type,block_type as block,title,create_time,author,views,likes,content,attachment')->find();
             return $data;
         }
     }

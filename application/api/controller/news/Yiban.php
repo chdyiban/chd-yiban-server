@@ -33,17 +33,14 @@ class Yiban extends Api
         );
 
         $result = json_decode(Http::post($url, $post_data),true);
-        //dump($result);
         $ret_data = [];
         foreach($result['data']['list'] as $key => $val){
             $ret_data[$key]['id'] = $val['id'];
             $ret_data[$key]['type'] = 'yiban';
             $ret_data[$key]['title'] = $val['title'];
             $ret_data[$key]['style'] = '0';
-            $ret_data[$key]['time'] = '2018-05-02 17:00';
-            $ret_data[$key]['style'] = '0';
-            $ret_data[$key]['comment'] = round(rand(1,120)/10,2).'k';
-            $ret_data[$key]['zan'] = rand(1,400);
+            $ret_data[$key]['time'] = $val['updateTime'];
+            $ret_data[$key]['views'] = $val['clicks'];
         }
         $info = [];
         if($result['code'] == 200){
