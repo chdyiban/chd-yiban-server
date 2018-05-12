@@ -15,15 +15,25 @@ use think\Route;
 return [
     //别名配置,别名只能是映射到控制器且访问时必须加上请求的方法
     '__alias__'   => [
+        
     ],
-    //变量规则
+    // //变量规则
     '__pattern__' => [
-        'name' => '\w+',
+        // 'name' => '\w+',
+       
     ],
-    '[hello]'     => [
-        ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
-        ':name' => ['index/hello', ['method' => 'post']],
-    ],
+
+    'xfjy' => 'api/news.xfjy/index',
+    'yiban' => 'api/news.yiban/index',
+    'chdnews' => 'api/news.chdnews/index',
+    'portal'=>'api/news.portal/index',
+    'content'=>'api/news.detail/index',
+
+   
+    // '[hello]'     => [
+    //     ':id'   => ['index/hello', ['method' => 'get'], ['id' => '\d+']],
+    //     ':name' => ['index/hello', ['method' => 'post']],
+    // ],
 
 //        域名绑定到模块
 //        '__domain__'  => [
