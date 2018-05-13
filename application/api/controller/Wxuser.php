@@ -22,6 +22,57 @@ class Wxuser extends Api
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
 
+    /**
+     * 描述：2018.05.13 微信版本更新后，修改了登录方法，对此方法做出修改
+     * @url https://developers.weixin.qq.com/blogdetail?action=get_post_info&lang=zh_CN&token=&docid=000e2aac1ac838e29aa6c4eaf56409
+     * @author Yang
+     */
+    public function init(){
+        $code = $this->request->post('code');
+        $appid = Config::get('wx.appId');
+        $appsecret = Config::get('wx.appSecret');
+
+        $retData = [];
+
+        $params = [
+            'appid' => $appid,
+            'secret' => $appsecret,
+            'js_code' => $code,
+            'grant_type' => 'authorization_code'
+        ];
+        
+        $result = json_decode(Http::get(Wxuser::LOGIN_URL, $params),true);
+        if($result['openid'] != ''){
+            $user = new WxuserModel;
+            $dbResult = $user->where('open_id', $result['openid'])->find();
+
+            if($dbResult){
+                $dbResult = $user->save([
+                    'session_key' => $result['session_key'],
+                ],['open_id' => $result['openid']]);
+            }else{
+                $user->data([
+                    'open_id'  =>  $result['openid'],
+                    'session_key' =>  $result['session_key'],
+                ]);
+                $user->save();
+            }
+            $data = $this->queryStuInfoByOpenId($result['openid']);
+            $retData['status'] = 200;
+            $retData['data'] = base64_encode(json_encode($data));
+            $retData['msg'] = 'success';
+        }else{
+            $retData['status'] = 404;
+            $retData['msg'] = 'open_id missed';
+        }
+
+        return json($retData);
+    }
+
+    /**
+    * 预感要废弃
+    */
+    /*
     public function info()
     {
         
@@ -164,7 +215,7 @@ class Wxuser extends Api
         }
 
         //$this->success("ok",$data,$errCode);
-    }
+    }*/
 
     public function append(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
@@ -223,6 +274,96 @@ class Wxuser extends Api
         }
         
         return json($info);
+    }
+
+    /**
+     * 根据用户的微信openid获取数据库里存在的基本信息
+     * @param $open_id 微信open_id
+     * @return $data 数据库中用户的基本信息
+     */
+    private function queryStuInfoByOpenId($open_id){
+        $data = [];
+        $bindInfo = $this->checkBindByOpenId($open_id);
+        if($bindInfo){
+            $user = new WxuserModel;
+            $appendInfo = $user->where('open_id',$open_id)->field('build,room,mobile')->find();
+            //bindInfo为学号，通过学号来查询学生信息.
+            $info = Db::connect('chd_config')
+                ->view('chd_stu_detail')
+                ->where('XH', $bindInfo)
+                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
+                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                ->find();
+            //先判断是教职工还是学生
+            if(strlen($bindInfo) == 6){
+                        $data = [
+                            'is_bind' => true,
+                            'user' => [
+                                'openid' => $open_id,
+                                'type' => '教职工',
+                                'id' => $bindInfo,
+                                'info'=>[
+                                    'yxm'=>$info['YXMC'],
+                                    //如果注释掉这两个，则跳转到完善信息界面
+                                    'build'=>' ',
+                                    'room'=>' ',
+                                    'mobile'=>$appendInfo['mobile']
+                                ],
+                                'name' => $info['XM']
+                            ],
+                            'time' => [
+                                'term' => '2017-2018 第2学期',
+                                'week' => get_weeks(),
+                                'day' => date("w")
+                            ],
+                            'token' => rand_str_10(),
+                            'status' => 200,
+                        ];
+
+                    }else{
+                        //年级将学号的前四位截取
+                        $info['NJ'] = substr($info['XH'],0,4);
+                        $data = [
+                            'is_bind' => true,
+                            'user' => [
+                                'openid' => $open_id,
+                                'type' => '学生',
+                                'id' => $bindInfo,
+                                'info'=>[
+                                    'yxm'=>$info['YXMC'],
+                                    'build'=>$appendInfo['build'],
+                                    'room'=>$appendInfo['room'],
+                                    'mobile'=>$appendInfo['mobile']
+                                ],
+                                'more' => [
+                                    'zym'=>$info['ZYMC'],
+                                    'nj'=>$info['NJ'],
+                                    'bj'=>$info['BJDM'],
+                                    'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                                ],
+                                'name' => $info['XM']
+                            ],
+                            'time' => [
+                                'term' => '2017-2018 第2学期',
+                                'week' => get_weeks(),
+                                'day' => date("w")
+                            ],
+                            'token' => rand_str_10(),
+                            'status' => 200,
+                        ];
+                    }
+        }else{
+            $data = [
+                'is_bind' => false,
+                'user' => [
+                    'openid' => $result['openid'],
+                ],
+                'status' => 200,
+            ];
+        }
+        
+        return $data;
     }
 
     /**
