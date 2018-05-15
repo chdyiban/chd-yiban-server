@@ -47,7 +47,11 @@ class Ykt extends Model
             $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
             $params[CURLOPT_FOLLOWLOCATION] = 1;
             $response = Http::post(self::PORTAL_URL,$post_data,$params);
-            $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p56_p232';
+            if(strlen($username) == 6){
+                $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p48_p1369';
+            }else{
+                $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p56_p232';
+            }
             //先到主页通过查找js代码来找到获取校园卡的查看的按钮的url地址
             // $html = Http::get('http://portal.chd.edu.cn/index.portal', '',$params);
             // preg_match_all('/var url=\'(.*?)\';/', $html, $url_card);
