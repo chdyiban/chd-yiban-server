@@ -423,11 +423,8 @@ class Wxuser extends Api
                 preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);
                 if(strpos($errMsg[1][0],'验证码')){
                     $res = Http::get(self::CAPTCHA_URL,'',$params);
-                    $filename = RUNTIME_PATH .'/captcha/'.$username.'.jpg';
-                    $resource = fopen($filename, 'a');
-                    fwrite($resource, $res);
-                    fclose($resource);
-                    $code = recognize_captcha($filename);
+                    $base64_str = base64_encode($res);
+                    $code = recognize_captcha($base64_str);
                     $code = json_decode($code,true);
                     if($code['err_no'] != 0){
                         $return['status'] = false;
@@ -435,7 +432,6 @@ class Wxuser extends Api
                     }else{
                         $return = $this -> captcha_checkbind($username, $password, $code['pic_str'], $lt, $es);
                     }
-                    unlink($filename);
                 }else{
                     $return['status'] = false;
                     $return['message'] = $errMsg[1][0];
