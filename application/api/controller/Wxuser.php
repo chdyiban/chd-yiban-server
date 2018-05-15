@@ -288,15 +288,15 @@ class Wxuser extends Api
             $user = new WxuserModel;
             $appendInfo = $user->where('open_id',$open_id)->field('build,room,mobile')->find();
             //bindInfo为学号，通过学号来查询学生信息.
-            $info = Db::connect('chd_config')
-                ->view('chd_stu_detail')
-                ->where('XH', $bindInfo)
-                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
-                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
-                ->find();
+
             //先判断是教职工还是学生
             if(strlen($bindInfo) == 6){
+                $info = Db::connect('chd_config')
+                    ->view('chd_teacher_detail')
+                    ->where('ID',$bindInfo)
+                    //->view('chd_dict_nation','MZDM,MZMC','chd_teacher_detail.MZDM = chd_dict_nation.MZDM')
+                    ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_teacher_detail.YXDM = chd_dict_college.YXDM')
+                    ->find();
                         $data = [
                             'is_bind' => true,
                             'user' => [
@@ -322,6 +322,13 @@ class Wxuser extends Api
                         ];
 
                     }else{
+                        $info = Db::connect('chd_config')
+                            ->view('chd_stu_detail')
+                            ->where('XH', $bindInfo)
+                            ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                            ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
+                            ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                            ->find();
                         //年级将学号的前四位截取
                         $info['NJ'] = substr($info['XH'],0,4);
                         $data = [
@@ -357,7 +364,7 @@ class Wxuser extends Api
             $data = [
                 'is_bind' => false,
                 'user' => [
-                    'openid' => $result['openid'],
+                    'openid' =>  $open_id,
                 ],
                 'status' => 200,
             ];
