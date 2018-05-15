@@ -21,7 +21,7 @@ class Wxuser extends Api
 
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
-
+    const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
     /**
      * 描述：2018.05.13 微信版本更新后，修改了登录方法，对此方法做出修改
      * @url https://developers.weixin.qq.com/blogdetail?action=get_post_info&lang=zh_CN&token=&docid=000e2aac1ac838e29aa6c4eaf56409
@@ -381,7 +381,7 @@ class Wxuser extends Api
 
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
 
-        if($captcha == ''){
+        // if($captcha == ''){
             //无验证码情况下
 
             //1.获取lt es
@@ -414,18 +414,67 @@ class Wxuser extends Api
             if(stripos($response,'auth_username') === false){
                 //未绑定成功
                 preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);
+                if(strpos($errMsg[1][0],'验证码')){
+                    $res = Http::get(self::CAPTCHA_URL,'',$params);
+                    $filename = RUNTIME_PATH .'/captcha/'.$username.'.jpg';
+                    $resource = fopen($filename, 'a');
+                    fwrite($resource, $res);
+                    fclose($resource);
+                    $code = recognize_captcha($filename);
+                    $code = json_decode($code,true);
+                    if($code['err_no'] != 0){
+                        $return['status'] = false;
+                        $return['message'] = "识别验证码失败，请刷新后重试。";
+                    }else{
+                        $return = $this -> captcha_checkbind($username, $password, $code['pic_str'], $lt, $es);
+                    }
+                    unlink($filename);
+                }else{
+                    $return['status'] = false;
+                    $return['message'] = $errMsg[1][0];
+                }
 
-                $return['status'] = false;
-                $return['message'] = $errMsg[1][0];
             }else{
                 //绑定成功
                 $return['status'] = true;
             }  
             return $return;
+        //}else{
+        //     //时间原因，暂时不考虑验证码的情况
+        //     return false;
+        // }
+    }
+
+    //这个函数用来当有验证码的时候带着lt，es等参数进行请求
+    private function captcha_checkbind($username, $password, $captcha, $lt, $es){
+        $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
+        $post_data = [
+            "username" => $username,
+            "password" => $password,
+            "captchaResponse" => $captcha, 
+            "btn" => "登录",
+            "lt" => $lt,
+            "dllt" => "userNamePasswordLogin",
+            "execution" => $es,
+            "_eventId" => "submit",
+            "rmShown" => "1"
+        ];
+        $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+        $params[CURLOPT_FOLLOWLOCATION] = 1;
+        $response = Http::post(self::PORTAL_URL,$post_data,$params);
+        $return = [];
+
+        if(stripos($response,'auth_username') === false){
+            //未绑定成功
+            preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);
+            $return['status'] = false;
+            $return['message'] = $errMsg[1][0];
+
         }else{
-            //时间原因，暂时不考虑验证码的情况
-            return false;
-        }
+            //绑定成功
+            $return['status'] = true;
+        }  
+        return $return;
     }
 
     private function getTime(){
