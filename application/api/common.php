@@ -1,5 +1,6 @@
 <?php
 
+use think\config;
 /**
  * @method 获取当前周数
  * @return 
@@ -84,3 +85,31 @@ function formatTime($unix_time){
         return date('Y-m-d H:i:s', $unix_time); 
     }
 }
+
+//返回样例:{"err_no":0,"err_str":"OK","pic_id":1662228516102,"pic_str":"8vka","md5":"35d5c7f6f53223fbdc5b72783db0c2c0","str_debug":""}
+function recognize_captcha($userfile){
+	$url = 'http://upload.chaojiying.net/Upload/Processing.php' ; 
+	$fields = array( 
+	  'user' => Config::get('cjy.user'),
+	  'pass2' => md5(Config::get('cjy.pass')),
+	  'softid' => Config::get('cjy.softid') ,
+	  'codetype' => Config::get('cjy.codetype') ,
+	  //'userfile'=>"@$userfile" ,  //注意,当PHP版本高于5.5后，此行可能无效要改为下一行
+	  'userfile'=> new CURLFile(realpath($userfile)),
+	); 
+	
+	$ch = curl_init() ;  
+	curl_setopt($ch, CURLOPT_URL,$url) ;  
+	curl_setopt($ch, CURLOPT_POST,count($fields)) ;   
+	curl_setopt($ch, CURLOPT_POSTFIELDS,$fields);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true) ; // 获取数据返回  
+	curl_setopt($ch, CURLOPT_BINARYTRANSFER, true) ; // 在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回  
+	curl_setopt($ch, CURLOPT_REFERER,'') ; 
+	curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3') ;
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));  //加入这行是为了让 curl 一次发送POST包,防止发送包里出现 Expect:100-continue 造成CDN节点返回417错误
+	$result = curl_exec($ch); 
+	curl_close($ch) ;
+		
+    return $result ;
+  }
+    
