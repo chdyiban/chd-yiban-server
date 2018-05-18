@@ -42,6 +42,7 @@ class Wxuser extends Api
         ];
         
         $result = json_decode(Http::get(Wxuser::LOGIN_URL, $params),true);
+        //dump($code);
         if($result['openid'] != ''){
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $result['openid'])->find();
