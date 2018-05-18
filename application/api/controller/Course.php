@@ -26,7 +26,7 @@ class Course extends Api
             'message' => 'success',
             'data' => [
                 'week' => get_weeks(),
-                'day' => '2',
+                'day' => date("w"),
                 'lessons' => $course,
                 'is_vacation' => 'F',
             ]
