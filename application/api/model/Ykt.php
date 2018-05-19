@@ -12,58 +12,95 @@ class Ykt extends Model
     // 爬取门户上校园卡的消费记录
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
-
+    const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
     
     public function get_yikatong_data($key){
         $username = $key['id'];
         $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
-        $captcha = '';
-        if($captcha == ''){
-            //无验证码情况下
+        $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+        $params[CURLOPT_FOLLOWLOCATION] = 1;
+        //首先带着cookie去尝试获取数据，判断cookie是否过期
+        $data = $this->get_data($username, $params);
+        if($data){
+            //cookie没有过期，获取到数据。
+            return $data;
+        }else{
+             //1.获取lt es
+             $response = Http::get(self::PORTAL_URL,'',$params);
 
-            //1.获取lt es
-            $response = Http::get(self::PORTAL_URL,'',$params);
-            $lt = explode('name="lt" value="', $response);
-        	$lt = explode('"/>', $lt[1]);
-        	$lt = $lt[0];
-            
-        	$es = explode('name="execution" value="', $response);
-        	$es = explode('"/>', $es[1]);
-            $es = $es[0];
-            // 2.post
-            $post_data = [
-                "username" => $username,
-                "password" => $password,
-                "captchaResponse" => $captcha, 
-                "btn" => "登录",
-                "lt" => $lt,
-                "dllt" => "userNamePasswordLogin",
-                "execution" => $es,
-                "_eventId" => "submit",
-                "rmShown" => "1"
-            ];
-            $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
-            $params[CURLOPT_FOLLOWLOCATION] = 1;
-            $response = Http::post(self::PORTAL_URL,$post_data,$params);
-            if(strlen($username) == 6){
-                $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p48_p1369';
+             $lt = explode('name="lt" value="', $response);
+             $lt = explode('"/>', $lt[1]);
+             $lt = $lt[0];
+             
+             $es = explode('name="execution" value="', $response);
+             $es = explode('"/>', $es[1]);
+             $es = $es[0];
+
+            //判断是否需要验证码
+            $need_url = "http://ids.chd.edu.cn/authserver/needCaptcha.html?username=".$username;
+            $need = Http::get($need_url,'',$params);
+            //$need值为true或者false
+            if(strlen($need) == 5){
+                //需要验证码
+                $res = Http::get(self::CAPTCHA_URL,'',$params);
+                $base64_str = base64_encode($res);
+                $code = recognize_captcha($base64_str);
+                $code = json_decode($code,true);
+                if($code['err_no'] != 0){
+                    $captcha = '';
+                }else{
+                   $captcha = $code['pic_str'];
+                }
+
+                $post_data = [
+                    "username" => $username,
+                    "password" => $password,
+                    "captchaResponse" => $captcha, 
+                    "btn" => "登录",
+                    "lt" => $lt,
+                    "dllt" => "userNamePasswordLogin",
+                    "execution" => $es,
+                    "_eventId" => "submit",
+                    "rmShown" => "1"
+                ];
+                $response = Http::post(self::PORTAL_URL,$post_data,$params);
+                $res = $this->get_data($username, $params);
+                return $res;
             }else{
-                $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p56_p232';
+                //不需要验证码
+                $post_data = [
+                    "username" => $username,
+                    "password" => $password,
+                    "captchaResponse" => '', 
+                    "btn" => "登录",
+                    "lt" => $lt,
+                    "dllt" => "userNamePasswordLogin",
+                    "execution" => $es,
+                    "_eventId" => "submit",
+                    "rmShown" => "1"
+                ];
+                $response = Http::post(self::PORTAL_URL,$post_data,$params);
+                $res = $this->get_data($username, $params);
+                return $res;
             }
-            //先到主页通过查找js代码来找到获取校园卡的查看的按钮的url地址
-            // $html = Http::get('http://portal.chd.edu.cn/index.portal', '',$params);
-            // preg_match_all('/var url=\'(.*?)\';/', $html, $url_card);
-            // $url_card = "http://portal.chd.edu.cn/".$url_card[1][0];
-            // $html = Http::get($url_card, '',$params);
-            //匹配下面的查看的url
-            //preg_match_all('/<a target="_blank" style=".*?".*?href=\'(.*?)\'>查看<\/a>/s', $html, $url_card);
-            //$url_card = $url_card[1][0];
-            //接着到了校园卡的界面，这里将校园卡的界面写成定值.
-            //得到校园卡界面后需要找出itemid, stuid, rar等等数据来构造出校园卡消费记录的地址
-            $html = Http::get($url_card, '',$params);
-            preg_match_all('/url:"(.*?)",/', $html, $url_card_detail);
+        }
+    }
+
+    //这个方法用来获取数据并返回
+    public function get_data($username,$params){
+        if(strlen($username) == 6){
+            $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p48_p1369';
+        }else{
+            $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p56_p232';
+        }
+        $html = Http::get($url_card, '',$params);
+        preg_match_all('/url:"(.*?)",/', $html, $url_card_detail);
+        //如果此数组为空，表示未能登录成功
+        if(empty($url_card_detail[1])){
+            return false;
+        }else{
             $url_card_detail = "http://portal.chd.edu.cn/".$url_card_detail[1][1];
             preg_match_all('/<input type="hidden" name=".*?" value="(.*?)" \/>/', $html, $data);
             $item_id = $data[1][0];  
@@ -98,10 +135,6 @@ class Ykt extends Model
                 }
             }
             return $res;
-        }else{
-            //时间原因，暂时不考虑验证码的情况
-            return false;
         }
     }
-    
 }
