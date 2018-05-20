@@ -79,6 +79,42 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
                 }
             });
 
+            //读取首次登录推荐插件列表
+            if (localStorage.getItem("fastep") == "installed") {
+                $.ajax({
+                    url: Config.fastadmin.api_url + '/addon/recommend',
+                    type: 'post',
+                    dataType: 'jsonp',
+                    success: function (ret) {
+                        require(['template'], function (Template) {
+                            var install = function (name, title) {
+                                Fast.api.ajax({
+                                    url: 'addon/install',
+                                    data: {name: name, faversion: Config.fastadmin.version}
+                                }, function (data, ret) {
+                                    Fast.api.refreshmenu();
+                                });
+                            };
+                            $(document).on('click', '.btn-install', function () {
+                                $(this).prop("disabled", true).addClass("disabled");
+                                $("input[name=addon]:checked").each(function () {
+                                    install($(this).data("name"));
+                                });
+                                return false;
+                            });
+                            $(document).on('click', '.btn-notnow', function () {
+                                Layer.closeAll();
+                            });
+                            Layer.open({
+                                type: 1, skin: 'layui-layer-page', area: ["860px", "620px"], title: '',
+                                content: Template.render(ret.tpl, {addonlist: ret.rows})
+                            });
+                            localStorage.setItem("fastep", "dashboard");
+                        });
+                    }
+                });
+            }
+
             //版本检测
             var checkupdate = function (ignoreversion, tips) {
                 $.ajax({
@@ -90,7 +126,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
                         if (ret.data && ignoreversion !== ret.data.newversion) {
                             Layer.open({
                                 title: '发现新版本',
-                                area: ["500px", "auto"],
+                                maxHeight: 400,
                                 content: '<h5 style="background-color:#f7f7f7; font-size:14px; padding: 10px;">你的版本是:' + ret.data.version + '，新版本:' + ret.data.newversion + '</h5><span class="label label-danger">更新说明</span><br/>' + ret.data.upgradetext,
                                 btn: ['去下载更新', '忽略此次更新', '不再提示'],
                                 btn2: function (index, layero) {
@@ -144,10 +180,11 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
             });
 
             //清除缓存
-            $(document).on('click', "[data-toggle='wipecache']", function () {
+            $(document).on('click', "ul.wipecache li a", function () {
                 $.ajax({
                     url: 'ajax/wipecache',
                     dataType: 'json',
+                    data: {type: $(this).data("type")},
                     cache: false,
                     success: function (ret) {
                         if (ret.hasOwnProperty("code")) {
@@ -185,7 +222,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
                     data: {action: 'refreshmenu'}
                 }, function (data) {
                     $(".sidebar-menu li:not([data-rel='external'])").remove();
-                    $(data.menulist).insertBefore($(".sidebar-menu li:first"));
+                    $(".sidebar-menu").prepend(data.menulist);
                     $("#nav ul li[role='presentation'].active a").trigger('click');
                     return false;
                 }, function () {
@@ -335,6 +372,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
             }
 
             $(window).resize();
+
         },
         login: function () {
             var lastlogin = localStorage.getItem("lastlogin");
@@ -359,7 +397,11 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form'], functi
 
             //为表单绑定事件
             Form.api.bindevent($("#login-form"), function (data) {
-                localStorage.setItem("lastlogin", JSON.stringify({id: data.id, username: data.username, avatar: data.avatar}));
+                localStorage.setItem("lastlogin", JSON.stringify({
+                    id: data.id,
+                    username: data.username,
+                    avatar: data.avatar
+                }));
                 location.href = Backend.api.fixurl(data.url);
             });
         }

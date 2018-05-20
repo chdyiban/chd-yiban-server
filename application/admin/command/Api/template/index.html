@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{$config.language}">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,7 +9,15 @@
         <title>{$config.title}</title>
         <link href="https://cdn.bootcss.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
         <style type="text/css">
-            body      { padding-top: 70px; margin-bottom: 15px; }
+            body {
+                padding-top: 70px; margin-bottom: 15px;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: "Roboto", "SF Pro SC", "SF Pro Display", "SF Pro Icons", "PingFang SC", BlinkMacSystemFont, -apple-system, "Segoe UI", "Microsoft Yahei", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+                font-weight: 400;
+            }
+            h2        { font-size: 1.6em; }
+            hr        { margin-top: 10px; }
             .tab-pane { padding-top: 10px; }
             .mt0      { margin-top: 0px; }
             .footer   { font-size: 12px; color: #666; }
@@ -33,7 +41,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="http://www.fastadmin.net" target="_blank">{$config.title}</a>
+                    <a class="navbar-brand" href="https://www.fastadmin.net" target="_blank">{$config.title}</a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <form class="navbar-form navbar-right">
@@ -259,7 +267,7 @@
                     Generated on {:date('Y-m-d H:i:s')}
                 </div>
                 <div class="col-md-6" align="right">
-                    <a href="http://www.fastadmin.net" target="_blank">FastAdmin</a>
+                    <a href="https://www.fastadmin.net" target="_blank">FastAdmin</a>
                 </div>
             </div>
 
@@ -382,27 +390,31 @@
                     //instead of the initial attribute
                     var url = $(form).attr('action');
 
-                    var serializedData = new FormData();
+                    var formData = new FormData();
 
                     $(form).find('input').each(function (i, input) {
                         if ($(input).attr('type') == 'file') {
-                            serializedData.append($(input).attr('name'), $(input)[0].files[0]);
+                            formData.append($(input).attr('name'), $(input)[0].files[0]);
                         } else {
-                            serializedData.append($(input).attr('name'), $(input).val())
+                            formData.append($(input).attr('name'), $(input).val())
                         }
                     });
 
                     var index, key, value;
 
                     if (matchedParamsInRoute) {
+                        var params = {};
+                        formData.forEach(function(value, key){
+                            params[key] = value;
+                        });
                         for (index = 0; index < matchedParamsInRoute.length; ++index) {
                             try {
                                 key = matchedParamsInRoute[index];
-                                value = serializedData[key];
+                                value = params[key];
                                 if (typeof value == "undefined")
                                     value = "";
-                                url = url.replace("{" + key + "}", value);
-                                delete serializedData[key];
+                                url = url.replace("\{" + key + "\}", value);
+                                formData.delete(key);
                             } catch (err) {
                                 console.log(err);
                             }
@@ -413,7 +425,7 @@
 
                     var token = $('#token').val();
                     if (token.length > 0) {
-                        headers[token] = token;
+                        headers['token'] = token;
                     }
 
                     $("#sandbox" + theId + " .headers input[type=text]").each(function () {
@@ -425,7 +437,7 @@
 
                     $.ajax({
                         url: $('#apiUrl').val() + url,
-                        data: $(form).attr('method') == 'get' ? $(form).serialize() : serializedData,
+                        data: $(form).attr('method') == 'get' ? $(form).serialize() : formData,
                         type: $(form).attr('method') + '',
                         dataType: 'json',
                         contentType: false,
