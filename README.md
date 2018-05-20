@@ -21,6 +21,7 @@ chd-yiban 服务器端
             application/common/model/Ems.php
         这部分文件或是文件夹缺失，从新的压缩文件里复制。
             application/config.php有变动被忽略。
+            
 ### fastadmin版本从v1.0.0.20180417_beta更新到V1.0.0.20180506_beta
     注意事项：
         通过下载文件对比发现:
@@ -29,7 +30,10 @@ chd-yiban 服务器端
         文件缺失，添加。
             application/admin/controller/general/Config.php有变动忽略
             application/config.php有变动被忽略。
-
+           
+### fastadmin版本从V1.0.0.20180506_beta更新到V1.0.0.20180513_beta
+    注意事项：
+        application/config.php有变动被忽略。
 ## **特别鸣谢**
 
 感谢以下的项目,排名不分先后
