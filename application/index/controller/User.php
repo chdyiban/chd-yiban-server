@@ -67,7 +67,7 @@ class User extends Frontend
      */
     public function register()
     {
-        $url = $this->request->request('url', url('user/index'));
+        $url = $this->request->request('url');
         if ($this->auth->id)
             $this->success(__('You\'ve logged in, do not login again'), $url);
         if ($this->request->isPost()) {
@@ -107,7 +107,7 @@ class User extends Frontend
             $validate = new Validate($rule, $msg);
             $result = $validate->check($data);
             if (!$result) {
-                $this->error(__($validate->getError()));
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
             }
             if ($this->auth->register($username, $password, $email, $mobile)) {
                 $synchtml = '';
@@ -116,12 +116,18 @@ class User extends Frontend
                     $uc = new \addons\ucenter\library\client\Client();
                     $synchtml = $uc->uc_user_synregister($this->auth->id, $password);
                 }
-                $this->success(__('Sign up successful') . $synchtml, $url);
+                $this->success(__('Sign up successful') . $synchtml, $url ? $url : url('user/index'));
             } else {
-                $this->error($this->auth->getError());
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
-        Session::set('redirect_url', $url);
+        //判断来源
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$url && (strtolower(parse_url($referer, PHP_URL_HOST)) == strtolower($this->request->host()))
+            && !preg_match("/(user\/login|user\/register)/i", $referer)) {
+            $url = $referer;
+        }
+        $this->view->assign('url', $url);
         $this->view->assign('title', __('Register'));
         return $this->view->fetch();
     }
@@ -131,7 +137,7 @@ class User extends Frontend
      */
     public function login()
     {
-        $url = $this->request->request('url', url('user/index'));
+        $url = $this->request->request('url');
         if ($this->auth->id)
             $this->success(__('You\'ve logged in, do not login again'), $url);
         if ($this->request->isPost()) {
@@ -159,7 +165,7 @@ class User extends Frontend
             $validate = new Validate($rule, $msg);
             $result = $validate->check($data);
             if (!$result) {
-                $this->error(__($validate->getError()));
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
                 return FALSE;
             }
             if ($this->auth->login($account, $password)) {
@@ -169,11 +175,18 @@ class User extends Frontend
                     $uc = new \addons\ucenter\library\client\Client();
                     $synchtml = $uc->uc_user_synlogin($this->auth->id);
                 }
-                $this->success(__('Logged in successful') . $synchtml, $url);
+                $this->success(__('Logged in successful') . $synchtml, $url ? $url : url('user/index'));
             } else {
-                $this->error($this->auth->getError());
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
+        //判断来源
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$url && (strtolower(parse_url($referer, PHP_URL_HOST)) == strtolower($this->request->host()))
+            && !preg_match("/(user\/login|user\/register)/i", $referer)) {
+            $url = $referer;
+        }
+        $this->view->assign('url', $url);
         $this->view->assign('title', __('Login'));
         return $this->view->fetch();
     }
@@ -236,7 +249,7 @@ class User extends Frontend
             $validate = new Validate($rule, $msg, $field);
             $result = $validate->check($data);
             if (!$result) {
-                $this->error(__($validate->getError()));
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
                 return FALSE;
             }
 
@@ -250,7 +263,7 @@ class User extends Frontend
                 }
                 $this->success(__('Reset password successful') . $synchtml, url('user/login'));
             } else {
-                $this->error($this->auth->getError());
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
         $this->view->assign('title', __('Change password'));
