@@ -3,6 +3,12 @@ chd-yiban-server
 
 chd-yiban 服务器端
 
+## 更新说明
+fastadmin版本从V1.0.0.20180314_beta更新到V1.0.0.20180401_beta
+注意事项：
+    * application/admin/controller/general/Config.php有变动被忽略。
+    * application/config.php
+
 ## **特别鸣谢**
 
 感谢以下的项目,排名不分先后
