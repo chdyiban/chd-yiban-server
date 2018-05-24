@@ -35,7 +35,7 @@ class User extends Backend
         if ($this->request->isAjax())
         {
             //如果发送的来源是Selectpage，则转发到Selectpage
-            if ($this->request->request('pkey_name'))
+            if ($this->request->request('keyField'))
             {
                 return $this->selectpage();
             }
@@ -53,8 +53,7 @@ class User extends Backend
                     ->select();
             foreach ($list as $k => $v)
             {
-                $v->password = '';
-                $v->salt = '';
+                $v->hidden(['password', 'salt']);
             }
             $result = array("total" => $total, "rows" => $list);
 

@@ -20,6 +20,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
             pageList: [10, 25, 50, 'All'],
             pagination: true,
             clickToSelect: true, //是否启用点击选中
+            dblClickToEdit: true, //是否启用双击编辑
             singleSelect: false, //是否启用单选
             showRefresh: false,
             locale: 'zh-CN',
@@ -114,10 +115,12 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                 table.on('refresh.bs.table', function (e, settings, data) {
                     $(Table.config.refreshbtn, toolbar).find(".fa").addClass("fa-spin");
                 });
-                //当双击单元格时
-                table.on('dbl-click-row.bs.table', function (e, row, element, field) {
-                    $(Table.config.editonebtn, element).trigger("click");
-                });
+                if (options.dblClickToEdit) {
+                    //当双击单元格时
+                    table.on('dbl-click-row.bs.table', function (e, row, element, field) {
+                        $(Table.config.editonebtn, element).trigger("click");
+                    });
+                }
                 //当内容渲染完成后
                 table.on('post-body.bs.table', function (e, settings, json, xhr) {
                     $(Table.config.refreshbtn, toolbar).find(".fa").removeClass("fa-spin");
@@ -202,12 +205,12 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     var that = this;
                     var ids = Table.api.selectedids(table);
                     Layer.confirm(
-                            __('Are you sure you want to delete the %s selected item?', ids.length),
-                            {icon: 3, title: __('Warning'), offset: 0, shadeClose: true},
-                            function (index) {
-                                Table.api.multi("del", ids, table, that);
-                                Layer.close(index);
-                            }
+                        __('Are you sure you want to delete the %s selected item?', ids.length),
+                        {icon: 3, title: __('Warning'), offset: 0, shadeClose: true},
+                        function (index) {
+                            Table.api.multi("del", ids, table, that);
+                            Layer.close(index);
+                        }
                     );
                 });
                 // 拖拽排序
@@ -261,7 +264,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                 });
                 $(table).on("click", "input[data-id][name='checkbox']", function (e) {
                     var ids = $(this).data("id");
-                    var row = Table.api.getrowbyid(ids);
+                    var row = Table.api.getrowbyid(table, ids);
                     table.trigger('check.bs.table', [row, this]);
                 });
                 $(table).on("click", "[data-id].btn-change", function (e) {
@@ -271,7 +274,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                 $(table).on("click", "[data-id].btn-edit", function (e) {
                     e.preventDefault();
                     var ids = $(this).data("id");
-                    var row = Table.api.getrowbyid(ids);
+                    var row = Table.api.getrowbyid(table, ids);
                     row.ids = ids;
                     var url = Table.api.replaceurl(options.extend.edit_url, row, table);
                     Fast.api.open(url, __('Edit'), $(this).data() || {});
@@ -281,12 +284,12 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     var id = $(this).data("id");
                     var that = this;
                     Layer.confirm(
-                            __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), shadeClose: true},
-                            function (index) {
-                                Table.api.multi("del", id, table, that);
-                                Layer.close(index);
-                            }
+                        __('Are you sure you want to delete this item?'),
+                        {icon: 3, title: __('Warning'), shadeClose: true},
+                        function (index) {
+                            Table.api.multi("del", id, table, that);
+                            Layer.close(index);
+                        }
                     );
                 });
                 var id = table.attr("id");
@@ -345,14 +348,14 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                             top = left = undefined;
                         }
                         Layer.confirm(
-                                __('Are you sure you want to delete this item?'),
-                                {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
-                                function (index) {
-                                    var table = $(that).closest('table');
-                                    var options = table.bootstrapTable('getOptions');
-                                    Table.api.multi("del", row[options.pk], table, that);
-                                    Layer.close(index);
-                                }
+                            __('Are you sure you want to delete this item?'),
+                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            function (index) {
+                                var table = $(that).closest('table');
+                                var options = table.bootstrapTable('getOptions');
+                                Table.api.multi("del", row[options.pk], table, that);
+                                Layer.close(index);
+                            }
                         );
                     }
                 }
@@ -369,7 +372,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                 image: function (value, row, index) {
                     value = value ? value : '/assets/img/blank.gif';
                     var classname = typeof this.classname !== 'undefined' ? this.classname : 'img-sm img-center';
-                    return '<img class="' + classname + '" src="' + Fast.api.cdnurl(value) + '" />';
+                    return '<a href="' + Fast.api.cdnurl(value) + '" target="_blank"><img class="' + classname + '" src="' + Fast.api.cdnurl(value) + '" /></a>';
                 },
                 images: function (value, row, index) {
                     value = value === null ? '' : value.toString();
@@ -378,7 +381,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     var html = [];
                     $.each(arr, function (i, value) {
                         value = value ? value : '/assets/img/blank.gif';
-                        html.push('<img class="' + classname + '" src="' + Fast.api.cdnurl(value) + '" />');
+                        html.push('<a href="' + Fast.api.cdnurl(value) + '" target="_blank"><img class="' + classname + '" src="' + Fast.api.cdnurl(value) + '" /></a>');
                     });
                     return html.join(' ');
                 },
@@ -391,16 +394,19 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     }
                     value = value === null ? '' : value.toString();
                     var color = value && typeof colorArr[value] !== 'undefined' ? colorArr[value] : 'primary';
-                    value = value.charAt(0).toUpperCase() + value.slice(1);
+                    var newValue = value.charAt(0).toUpperCase() + value.slice(1);
                     //渲染状态
-                    var html = '<span class="text-' + color + '"><i class="fa fa-circle"></i> ' + __(value) + '</span>';
+                    var html = '<span class="text-' + color + '"><i class="fa fa-circle"></i> ' + __(newValue) + '</span>';
+                    if (this.operate != false) {
+                        html = '<a href="javascript:;" class="searchit" data-toggle="tooltip" title="' + __('Click to search %s', __(newValue)) + '" data-field="' + this.field + '" data-value="' + value + '">' + html + '</a>';
+                    }
                     return html;
                 },
                 url: function (value, row, index) {
-                    return '<div class="input-group input-group-sm" style="width:250px;"><input type="text" class="form-control input-sm" value="' + value + '"><span class="input-group-btn input-group-sm"><a href="' + value + '" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-link"></i></a></span></div>';
+                    return '<div class="input-group input-group-sm" style="width:250px;margin:0 auto;"><input type="text" class="form-control input-sm" value="' + value + '"><span class="input-group-btn input-group-sm"><a href="' + value + '" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-link"></i></a></span></div>';
                 },
                 search: function (value, row, index) {
-                    return '<a href="javascript:;" class="searchit" data-field="' + this.field + '" data-value="' + value + '">' + value + '</a>';
+                    return '<a href="javascript:;" class="searchit" data-toggle="tooltip" title="' + __('Click to search %s', value) + '" data-field="' + this.field + '" data-value="' + value + '">' + value + '</a>';
                 },
                 addtabs: function (value, row, index) {
                     var url = Table.api.replaceurl(this.url, row, this.table);
@@ -439,7 +445,12 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     return Table.api.formatter.flag.call(this, value, row, index);
                 },
                 datetime: function (value, row, index) {
-                    return value ? Moment(parseInt(value) * 1000).format("YYYY-MM-DD HH:mm:ss") : __('None');
+                    var datetimeFormat = typeof this.datetimeFormat === 'undefined' ? 'YYYY-MM-DD HH:mm:ss' : this.datetimeFormat;
+                    if (isNaN(value)) {
+                        return value ? Moment(value).format(datetimeFormat) : __('None');
+                    } else {
+                        return value ? Moment(parseInt(value) * 1000).format(datetimeFormat) : __('None');
+                    }
                 },
                 operate: function (value, row, index) {
                     var table = this.table;
@@ -449,13 +460,32 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     var buttons = $.extend([], this.buttons || []);
 
                     if (options.extend.dragsort_url !== '') {
-                        buttons.push({name: 'dragsort', icon: 'fa fa-arrows', title: __('Drag to sort'), classname: 'btn btn-xs btn-primary btn-dragsort'});
+                        buttons.push({
+                            name: 'dragsort',
+                            icon: 'fa fa-arrows',
+                            title: __('Drag to sort'),
+                            extend: 'data-toggle="tooltip"',
+                            classname: 'btn btn-xs btn-primary btn-dragsort'
+                        });
                     }
                     if (options.extend.edit_url !== '') {
-                        buttons.push({name: 'edit', icon: 'fa fa-pencil', title: __('Edit'), classname: 'btn btn-xs btn-success btn-editone', url: options.extend.edit_url});
+                        buttons.push({
+                            name: 'edit',
+                            icon: 'fa fa-pencil',
+                            title: __('Edit'),
+                            extend: 'data-toggle="tooltip"',
+                            classname: 'btn btn-xs btn-success btn-editone',
+                            url: options.extend.edit_url
+                        });
                     }
                     if (options.extend.del_url !== '') {
-                        buttons.push({name: 'del', icon: 'fa fa-trash', title: __('Del'), classname: 'btn btn-xs btn-danger btn-delone'});
+                        buttons.push({
+                            name: 'del',
+                            icon: 'fa fa-trash',
+                            title: __('Del'),
+                            extend: 'data-toggle="tooltip"',
+                            classname: 'btn btn-xs btn-danger btn-delone'
+                        });
                     }
                     return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
                 },
@@ -470,7 +500,7 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                 type = typeof type === 'undefined' ? 'buttons' : type;
                 var options = table ? table.bootstrapTable('getOptions') : {};
                 var html = [];
-                var url, classname, icon, text, title, extend;
+                var hidden, url, classname, icon, text, title, refresh, confirm, extend;
                 var fieldIndex = column.fieldIndex;
 
                 $.each(buttons, function (i, j) {
@@ -484,8 +514,12 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     }
                     var attr = table.data(type + "-" + j.name);
                     if (typeof attr === 'undefined' || attr) {
+                        hidden = typeof j.hidden === 'function' ? j.hidden.call(table, row, j) : (j.hidden ? j.hidden : false);
+                        if (hidden) {
+                            return true;
+                        }
                         url = j.url ? j.url : '';
-                        url = url ? Fast.api.fixurl(Table.api.replaceurl(url, row, table)) : 'javascript:;';
+                        url = typeof url === 'function' ? url.call(table, row, j) : (url ? Fast.api.fixurl(Table.api.replaceurl(url, row, table)) : 'javascript:;');
                         classname = j.classname ? j.classname : 'btn-primary btn-' + name + 'one';
                         icon = j.icon ? j.icon : '';
                         text = j.text ? j.text : '';

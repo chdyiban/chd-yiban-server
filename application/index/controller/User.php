@@ -3,6 +3,7 @@
 namespace app\index\controller;
 
 use app\common\controller\Frontend;
+use think\Config;
 use think\Cookie;
 use think\Hook;
 use think\Session;
@@ -23,26 +24,30 @@ class User extends Frontend
         parent::_initialize();
         $auth = $this->auth;
 
+        if (!Config::get('fastadmin.usercenter')) {
+            $this->error(__('User center already closed'));
+        }
+
         $ucenter = get_addon_info('ucenter');
-        if ($ucenter && $ucenter['state'])
-        {
+        if ($ucenter && $ucenter['state']) {
             include ADDON_PATH . 'ucenter' . DS . 'uc.php';
         }
 
         //监听注册登录注销的事件
-        Hook::add('user_login_successed', function($user) use($auth) {
+        Hook::add('user_login_successed', function ($user) use ($auth) {
+            $expire = input('post.keeplogin') ? 30 * 86400 : 0;
+            Cookie::set('uid', $user->id, $expire);
+            Cookie::set('token', $auth->getToken(), $expire);
+        });
+        Hook::add('user_register_successed', function ($user) use ($auth) {
             Cookie::set('uid', $user->id);
             Cookie::set('token', $auth->getToken());
         });
-        Hook::add('user_register_successed', function($user) use($auth) {
-            Cookie::set('uid', $user->id);
-            Cookie::set('token', $auth->getToken());
-        });
-        Hook::add('user_delete_successed', function($user) use($auth) {
+        Hook::add('user_delete_successed', function ($user) use ($auth) {
             Cookie::delete('uid');
             Cookie::delete('token');
         });
-        Hook::add('user_logout_successed', function($user) use($auth) {
+        Hook::add('user_logout_successed', function ($user) use ($auth) {
             Cookie::delete('uid');
             Cookie::delete('token');
         });
@@ -62,11 +67,10 @@ class User extends Frontend
      */
     public function register()
     {
-        $url = $this->request->request('url', url('user/index'));
+        $url = $this->request->request('url');
         if ($this->auth->id)
             $this->success(__('You\'ve logged in, do not login again'), $url);
-        if ($this->request->isPost())
-        {
+        if ($this->request->isPost()) {
             $username = $this->request->post('username');
             $password = $this->request->post('password');
             $email = $this->request->post('email');
@@ -102,27 +106,28 @@ class User extends Frontend
             ];
             $validate = new Validate($rule, $msg);
             $result = $validate->check($data);
-            if (!$result)
-            {
-                $this->error(__($validate->getError()));
+            if (!$result) {
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
             }
-            if ($this->auth->register($username, $password, $email, $mobile))
-            {
+            if ($this->auth->register($username, $password, $email, $mobile)) {
                 $synchtml = '';
                 ////////////////同步到Ucenter////////////////
-                if (defined('UC_STATUS') && UC_STATUS)
-                {
+                if (defined('UC_STATUS') && UC_STATUS) {
                     $uc = new \addons\ucenter\library\client\Client();
                     $synchtml = $uc->uc_user_synregister($this->auth->id, $password);
                 }
-                $this->success(__('Sign up successful') . $synchtml, $url);
-            }
-            else
-            {
-                $this->error($this->auth->getError());
+                $this->success(__('Sign up successful') . $synchtml, $url ? $url : url('user/index'));
+            } else {
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
-        Session::set('redirect_url', $url);
+        //判断来源
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$url && (strtolower(parse_url($referer, PHP_URL_HOST)) == strtolower($this->request->host()))
+            && !preg_match("/(user\/login|user\/register)/i", $referer)) {
+            $url = $referer;
+        }
+        $this->view->assign('url', $url);
         $this->view->assign('title', __('Register'));
         return $this->view->fetch();
     }
@@ -132,14 +137,13 @@ class User extends Frontend
      */
     public function login()
     {
-        $url = $this->request->request('url', url('user/index'));
+        $url = $this->request->request('url');
         if ($this->auth->id)
             $this->success(__('You\'ve logged in, do not login again'), $url);
-        if ($this->request->isPost())
-        {
+        if ($this->request->isPost()) {
             $account = $this->request->post('account');
             $password = $this->request->post('password');
-            $keeptime = (int) $this->request->post('keeptime');
+            $keeplogin = (int)$this->request->post('keeplogin');
             $token = $this->request->post('__token__');
             $rule = [
                 'account'   => 'require|length:3,50',
@@ -160,27 +164,29 @@ class User extends Frontend
             ];
             $validate = new Validate($rule, $msg);
             $result = $validate->check($data);
-            if (!$result)
-            {
-                $this->error(__($validate->getError()));
+            if (!$result) {
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
                 return FALSE;
             }
-            if ($this->auth->login($account, $password, $keeptime))
-            {
+            if ($this->auth->login($account, $password)) {
                 $synchtml = '';
                 ////////////////同步到Ucenter////////////////
-                if (defined('UC_STATUS') && UC_STATUS)
-                {
+                if (defined('UC_STATUS') && UC_STATUS) {
                     $uc = new \addons\ucenter\library\client\Client();
                     $synchtml = $uc->uc_user_synlogin($this->auth->id);
                 }
-                $this->success(__('Logged in successful') . $synchtml, $url);
-            }
-            else
-            {
-                $this->error($this->auth->getError());
+                $this->success(__('Logged in successful') . $synchtml, $url ? $url : url('user/index'));
+            } else {
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
+        //判断来源
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$url && (strtolower(parse_url($referer, PHP_URL_HOST)) == strtolower($this->request->host()))
+            && !preg_match("/(user\/login|user\/register)/i", $referer)) {
+            $url = $referer;
+        }
+        $this->view->assign('url', $url);
         $this->view->assign('title', __('Login'));
         return $this->view->fetch();
     }
@@ -194,63 +200,11 @@ class User extends Frontend
         $this->auth->logout();
         $synchtml = '';
         ////////////////同步到Ucenter////////////////
-        if (defined('UC_STATUS') && UC_STATUS)
-        {
+        if (defined('UC_STATUS') && UC_STATUS) {
             $uc = new \addons\ucenter\library\client\Client();
             $synchtml = $uc->uc_user_synlogout();
         }
         $this->success(__('Logout successful') . $synchtml, url('user/index'));
-    }
-
-    /**
-     * 第三方登录跳转和回调处理
-     */
-    public function third()
-    {
-        $url = url('user/index');
-        $action = $this->request->param('action');
-        $platform = $this->request->param('platform');
-        $config = get_addon_config('third');
-        if (!$config || !isset($config[$platform]))
-        {
-            $this->error(__('Invalid parameters'));
-        }
-        foreach ($config as $k => &$v)
-        {
-            $v['callback'] = url('user/third', ['action' => 'callback', 'platform' => $k], false, true);
-        }
-        unset($v);
-        $app = new \addons\third\library\Application($config);
-        if ($action == 'redirect')
-        {
-            // 跳转到登录授权页面
-            $this->redirect($app->{$platform}->getAuthorizeUrl());
-        }
-        else if ($action == 'callback')
-        {
-            // 授权成功后的回调
-            $result = $app->{$platform}->getUserInfo();
-            if ($result)
-            {
-                $loginret = \addons\third\library\Service::connect($platform, $result);
-                if ($loginret)
-                {
-                    $synchtml = '';
-                    ////////////////同步到Ucenter////////////////
-                    if (defined('UC_STATUS') && UC_STATUS)
-                    {
-                        $uc = new \addons\ucenter\library\client\Client();
-                        $synchtml = $uc->uc_user_synlogin($this->auth->id);
-                    }
-                    $this->success(__('Logged in successful') . $synchtml, $url);
-                }
-            }
-            $this->error(__('Operation failed'), $url);
-        }
-        else
-        {
-            $this->error(__('Invalid parameters'));
-        }
     }
 
     /**
@@ -263,45 +217,11 @@ class User extends Frontend
     }
 
     /**
-     * 激活邮箱
-     */
-    public function activeemail()
-    {
-        $code = $this->request->request('code');
-        $code = base64_decode($code);
-        parse_str($code, $params);
-        if (!isset($params['id']) || !isset($params['time']) || !isset($params['key']))
-        {
-            $this->error(__('Invalid parameters'));
-        }
-        $user = \app\common\model\User::get($params['id']);
-        if (!$user)
-        {
-            $this->error(__('User not found'));
-        }
-        if ($user->verification->email)
-        {
-            $this->error(__('Email already activation'));
-        }
-        if ($key !== md5(md5($user->id . $user->email . $time) . $user->salt) || time() - $params['time'] > 1800)
-        {
-            $this->error(__('Secrity code already invalid'));
-        }
-        $verification = $user->verification;
-        $verification->email = 1;
-        $user->verification = $verification;
-        $user->save();
-        $this->success(__('Active email successful'), url('user/index'));
-        return;
-    }
-
-    /**
      * 修改密码
      */
     public function changepwd()
     {
-        if ($this->request->isPost())
-        {
+        if ($this->request->isPost()) {
             $oldpassword = $this->request->post("oldpassword");
             $newpassword = $this->request->post("newpassword");
             $renewpassword = $this->request->post("renewpassword");
@@ -328,27 +248,22 @@ class User extends Frontend
             ];
             $validate = new Validate($rule, $msg, $field);
             $result = $validate->check($data);
-            if (!$result)
-            {
-                $this->error(__($validate->getError()));
+            if (!$result) {
+                $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
                 return FALSE;
             }
 
             $ret = $this->auth->changepwd($newpassword, $oldpassword);
-            if ($ret)
-            {
+            if ($ret) {
                 $synchtml = '';
                 ////////////////同步到Ucenter////////////////
-                if (defined('UC_STATUS') && UC_STATUS)
-                {
+                if (defined('UC_STATUS') && UC_STATUS) {
                     $uc = new \addons\ucenter\library\client\Client();
                     $synchtml = $uc->uc_user_synlogout();
                 }
                 $this->success(__('Reset password successful') . $synchtml, url('user/login'));
-            }
-            else
-            {
-                $this->error($this->auth->getError());
+            } else {
+                $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
         }
         $this->view->assign('title', __('Change password'));

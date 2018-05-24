@@ -19,7 +19,8 @@ class Auth
     protected $_logined = FALSE;
     protected $_user = NULL;
     protected $_token = '';
-    protected $keeptime = 0;
+    //Token默认有效时长
+    protected $keeptime = 2592000;
     protected $requestUri = '';
     protected $rules = [];
     //默认配置
@@ -127,7 +128,7 @@ class Auth
      * @param string $password  密码
      * @param string $email     邮箱
      * @param string $mobile    手机号
-     * @param string $extend    扩展参数
+     * @param array $extend    扩展参数
      * @return boolean
      */
     public function register($username, $password, $email = '', $mobile = '', $extend = [])
@@ -203,7 +204,7 @@ class Auth
 
             //设置Token
             $this->_token = Random::uuid();
-            Token::set($this->_token, $user->id);
+            Token::set($this->_token, $user->id, $this->keeptime);
 
             //注册成功的事件
             Hook::listen("user_register_successed", $this->_user);
@@ -223,7 +224,7 @@ class Auth
      *
      * @param string    $account    账号,用户名、邮箱、手机号
      * @param string    $password   密码
-     * @return array
+     * @return boolean
      */
     public function login($account, $password)
     {
@@ -255,7 +256,7 @@ class Auth
     /**
      * 注销
      * 
-     * @return bool
+     * @return boolean
      */
     public function logout()
     {
@@ -349,7 +350,7 @@ class Auth
             $this->_user = $user;
 
             $this->_token = Random::uuid();
-            Token::set($this->_token, $user->id);
+            Token::set($this->_token, $user->id, $this->keeptime);
 
             $this->_logined = TRUE;
 
@@ -381,6 +382,7 @@ class Auth
             $rules[] = $v['name'];
         }
         $url = ($module ? $module : request()->module()) . '/' . (is_null($path) ? $this->getRequestUri() : $path);
+        $url = strtolower(str_replace('.', '/', $url));
         return in_array($url, $rules) ? TRUE : FALSE;
     }
 
@@ -414,7 +416,7 @@ class Auth
         $data = $this->_user->toArray();
         $allowFields = $this->getAllowFields();
         $userinfo = array_intersect_key($data, array_flip($allowFields));
-        $userinfo['token'] = $this->getToken();
+        $userinfo = array_merge($userinfo, Token::get($this->_token));
         return $userinfo;
     }
 
@@ -475,6 +477,7 @@ class Auth
     /**
      * 删除一个指定会员
      * @param int $user_id 会员ID
+     * @return boolean
      */
     public function delete($user_id)
     {
@@ -527,6 +530,7 @@ class Auth
      * 检测当前控制器和方法是否匹配传递的数组
      *
      * @param array $arr 需要验证权限的数组
+     * @return boolean
      */
     public function match($arr = [])
     {
@@ -536,6 +540,7 @@ class Auth
         {
             return FALSE;
         }
+        $arr = array_map('strtolower', $arr);
         // 是否存在
         if (in_array(strtolower($request->action()), $arr) || in_array('*', $arr))
         {
@@ -599,6 +604,7 @@ class Auth
      * 设置错误信息
      *
      * @param $error 错误信息
+     * @return Auth
      */
     public function setError($error)
     {

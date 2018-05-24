@@ -8,6 +8,7 @@ use fast\Http;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Ykt as YktModel;
+use app\api\model\Score as ScoreModel;
 /**
  * 获取课表
  */
@@ -47,23 +48,12 @@ class Portal extends Api
     //获取考试成绩
     public function score(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $score = new ScoreModel;
+        $data = $score -> get_score($key);
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => [
-                [
-                    'term'=>'2017-2018学年 第一学期',
-                    'xh'=>'2017900000',
-                    'course_name'=>'高等数学',
-                    'score'=>'95'
-                ],
-                [
-                    'term'=>'2017-2018学年 第二学期',
-                    'xh'=>'2017900000',
-                    'course_name'=>'大学英语',
-                    'score'=>'88'
-                ],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
