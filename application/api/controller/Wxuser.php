@@ -385,22 +385,29 @@ class Wxuser extends Api
     }
 
     //模拟登录验证用户名密码正确性，暂时未考虑验证码的情况
-    private function checkBind($username, $password, $captcha = ''){
+    private function checkBind($username, $password){
 
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
+        $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+        $params[CURLOPT_FOLLOWLOCATION] = 1;
+        //判断是否需要验证码
+        $need_url = "http://ids.chd.edu.cn/authserver/needCaptcha.html?username=".$username;
+        $need = Http::get($need_url,'',$params);
+        //$need值为true或者false
+         //1.获取lt es
+         $response = Http::get(self::PORTAL_URL,'',$params);
+         $lt = explode('name="lt" value="', $response);
+         $lt = explode('"/>', $lt[1]);
+         $lt = $lt[0];
 
-        // if($captcha == ''){
+         $es = explode('name="execution" value="', $response);
+         $es = explode('"/>', $es[1]);
+         $es = $es[0];
+        //等于6说明为false
+        if(strlen($need) == 6){
+           
             //无验证码情况下
-
-            //1.获取lt es
-            $response = Http::get(self::PORTAL_URL,'',$params);
-            $lt = explode('name="lt" value="', $response);
-        	$lt = explode('"/>', $lt[1]);
-        	$lt = $lt[0];
-	
-        	$es = explode('name="execution" value="', $response);
-        	$es = explode('"/>', $es[1]);
-            $es = $es[0];
+            $captcha = '';
             // 2.post
             $post_data = [
                 "username" => $username,
@@ -413,44 +420,62 @@ class Wxuser extends Api
                 "_eventId" => "submit",
                 "rmShown" => "1"
             ];
-            $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
-            $params[CURLOPT_FOLLOWLOCATION] = 1;
+           
             $response = Http::post(self::PORTAL_URL,$post_data,$params);
 
             $return = [];
 
             if(stripos($response,'auth_username') === false){
                 //未绑定成功
-                preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);
-                if(strpos($errMsg[1][0],'验证码')){
-                    $res = Http::get(self::CAPTCHA_URL,'',$params);
-                    $filename = RUNTIME_PATH .'/captcha/'.$username.'.jpg';
-                    $resource = fopen($filename, 'a');
-                    fwrite($resource, $res);
-                    fclose($resource);
-                    $code = recognize_captcha($filename);
-                    $code = json_decode($code,true);
-                    if($code['err_no'] != 0){
-                        $return['status'] = false;
-                        $return['message'] = "识别验证码失败，请刷新后重试。";
-                    }else{
-                        $return = $this -> captcha_checkbind($username, $password, $code['pic_str'], $lt, $es);
-                    }
-                    unlink($filename);
-                }else{
-                    $return['status'] = false;
-                    $return['message'] = $errMsg[1][0];
-                }
-
+                preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);       
+                $return['status'] = false;
+                $return['message'] = $errMsg[1][0];
             }else{
                 //绑定成功
                 $return['status'] = true;
             }  
             return $return;
-        //}else{
-        //     //时间原因，暂时不考虑验证码的情况
-        //     return false;
-        // }
+        }else{
+            //有验证码情况下
+            $return = [];
+            //需要验证码
+           
+            
+            $res = Http::get(self::CAPTCHA_URL,'',$params);
+            $base64_str = base64_encode($res);
+            $code = recognize_captcha($base64_str);
+            $code = json_decode($code,true);
+            if($code['err_no'] != 0){
+                $return['status'] = false;
+                $return['message'] = "识别验证码失败，请刷新后重试！";
+            }else{
+               $captcha = $code['pic_str'];
+            }
+            // 2.post
+            $post_data = [
+                "username" => $username,
+                "password" => $password,
+                "captchaResponse" => $captcha, 
+                "btn" => "登录",
+                "lt" => $lt,
+                "dllt" => "userNamePasswordLogin",
+                "execution" => $es,
+                "_eventId" => "submit",
+                "rmShown" => "1"
+            ];
+            
+            $response = Http::post(self::PORTAL_URL,$post_data,$params);
+            if(stripos($response,'auth_username') === false){
+                //未绑定成功
+                preg_match_all('/<span.*?id=\"msg\".*?>(.*?)<\/span?>/si', $response, $errMsg);       
+                $return['status'] = false;
+                $return['message'] = $errMsg[1][0];
+            }else{
+                //绑定成功
+                $return['status'] = true;
+            }  
+            return $return;
+        }
     }
 
     //这个函数用来当有验证码的时候带着lt，es等参数进行请求

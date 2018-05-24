@@ -5,16 +5,17 @@ namespace app\api\model;
 use think\Model;
 use fast\Http;
 
-class Ykt extends Model
+class Score extends Model
 {
     // 表名
     protected $name = 'wx_user';
-    // 爬取门户上校园卡的消费记录
+    // 爬取学生成绩
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
+    const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=76";
     
-    public function get_yikatong_data($key){
+    public function get_score($key){
         $username = $key['id'];
         $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
@@ -27,16 +28,16 @@ class Ykt extends Model
             //cookie没有过期，获取到数据。
             return $data;
         }else{
-             //1.获取lt es
-             $response = Http::get(self::PORTAL_URL,'',$params);
+            //1.获取lt es
+            $response = Http::get(self::PORTAL_URL,'',$params);
 
-             $lt = explode('name="lt" value="', $response);
-             $lt = explode('"/>', $lt[1]);
-             $lt = $lt[0];
-             
-             $es = explode('name="execution" value="', $response);
-             $es = explode('"/>', $es[1]);
-             $es = $es[0];
+            $lt = explode('name="lt" value="', $response);
+            $lt = explode('"/>', $lt[1]);
+            $lt = $lt[0];
+            
+            $es = explode('name="execution" value="', $response);
+            $es = explode('"/>', $es[1]);
+            $es = $es[0];
 
             //判断是否需要验证码
             $need_url = "http://ids.chd.edu.cn/authserver/needCaptcha.html?username=".$username;
@@ -87,54 +88,51 @@ class Ykt extends Model
             }
         }
     }
-
-    //这个方法用来获取数据并返回
+     //这个方法用来获取数据并返回
     public function get_data($username,$params){
-        if(strlen($username) == 6){
-            $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p48_p1369';
+        $response = Http::get(self::SCORE_URL,'',$params);
+        preg_match_all('/<th.*?>(.*?)<\/th?>/i', $response, $matches_header);
+        preg_match_all('/<td.*?>(.*?)<\/td?>/si', $response, $matches);
+        //if(empty($matches[1])){
+        if(strpos($matches[1][0],'<strong>') !== false){
+           return false;
         }else{
-            $url_card = 'http://portal.chd.edu.cn/index.portal?.pn=p56_p232';
-        }
-        $html = Http::get($url_card, '',$params);
-        preg_match_all('/url:"(.*?)",/', $html, $url_card_detail);
-        //如果此数组为空，表示未能登录成功
-        if(empty($url_card_detail[1])){
-            return false;
-        }else{
-            $url_card_detail = "http://portal.chd.edu.cn/".$url_card_detail[1][1];
-            preg_match_all('/<input type="hidden" name=".*?" value="(.*?)" \/>/', $html, $data);
-            $item_id = $data[1][0];  
-            $child_id = $data[1][1]; 
-            $res = [];
-            //这里循环页数每页5跳数据
-            for($i = 1;$i <= 2;$i++){
-                $page = $i;
-                $get_data = [
-                    'itemId' => $item_id,
-                    'childId' => $child_id,
-                    'page' => $page,
-                ];
-                $html_card = Http::get($url_card_detail, $get_data, $params);
-                preg_match_all('/<tr>(.*?)<\/tr>/s', $html_card, $card_data);
-                $card_data = $card_data[1];   
-                foreach($card_data as $k => $v){
-                    $info = array();
-                    $result = array();
-                    if($k != 0){
-                        preg_match_all('/<td>(.*?)<\/td>/s', $v, $msg);
-                        foreach($msg[1] as $key => $value){
-                            $info[$key] = trim($value);
-                        }
-                        $result['balance'] = $info[6];
-                        $result['palce'] = $info[4];
-                        $result['cost'] = $info[5];
-                        $result['time'] = $info[2].' '.$info[3];
-                        $result['ykt_id'] = $info[1];
-                        array_push($res, $result);
-                    }
+             //通过循环判断抓出的表格有几列
+            $countColums = count($matches_header[1]);
+
+            //当前有几门课
+            $num = count($matches[1])/$countColums;
+            $none = [];
+            if($num == 0){
+                //未出成绩
+                return $none;
+            }
+            //门数循环
+            for($i=0;$i<$num;$i++){
+                //字段循环
+                for($j=0;$j<$countColums;$j++){
+                    $score[$i][$j]['key'] = $matches_header[1][$j];
+                    $score[$i][$j]['val'] = trim($matches[1][$i*$countColums+$j]);
                 }
             }
-            return $res;
+            $data = [];
+            foreach ($score as $value) {
+                $res = [];
+                foreach ($value as $k => $v) {
+                    if ($v['key'] == "学年学期") {
+                       $res['term'] = $v['val'];
+                    }
+                    if ($v['key'] == "课程名称") {
+                        $res['course_name'] = $v['val'];
+                    }
+                    if ($v['key'] == "最终") {
+                        $res['score'] = $v['val'];
+                    }
+                    $res['xh'] = $username;
+                }
+                $data[] = $res;
+            }
+            return $data;
         }
     }
 }
