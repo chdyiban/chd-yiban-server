@@ -2,6 +2,7 @@
 /thinkphp/
 /vendor/
 /runtime/*
+/addons/*
 /application/admin/command/Install/*.lock
 /public/assets/addons/*
 /public/uploads/*
