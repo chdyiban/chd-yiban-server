@@ -9,7 +9,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>FastAdmin - {:__('The fastest framework based on ThinkPHP5 and Bootstrap')}</title>
+        <title></title>
 
         <!-- Bootstrap Core CSS -->
         <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -60,10 +60,9 @@
                     <div class="col-sm-12">
                         <div class="header-content">
                             <div class="header-content-inner">
-                                <h1>FastAdmin</h1>
-                                <h3>{:__('The fastest framework based on ThinkPHP5 and Bootstrap')}</h3>
-                                <a href="{:url('admin/index/login')}" class="btn btn-warning btn-xl page-scroll">{:__('Go to Dashboard')}</a>
-                                <a href="{:url('index/user/index')}" class="btn btn-outline btn-xl page-scroll">{:__('Go to Member center')}</a>
+                                <h1>长安大学易班工作站</h1>
+                                <h3>首页跳转中....</h3>
+                                <a href="{:url('admin/index/login')}" class="btn btn-warning btn-xl page-scroll">跳转首页</a>                                <a href="{:url('index/user/index')}" class="btn btn-outline btn-xl page-scroll">{:__('Go to Member center')}</a>
                             </div>
                         </div>
                     </div>
@@ -71,92 +70,9 @@
             </div>
         </header>
 
-        <section id="features" class="features">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="section-heading">
-                            <h2>{:__('Features')}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-user text-primary"></i>
-                                        <h3>{:__('Auth')}</h3>
-                                        <p class="text-muted">{:__('Auth tips')}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-screen-smartphone text-primary"></i>
-                                        <h3>{:__('Responsive')}</h3>
-                                        <p class="text-muted">{:__('Responsive tips')}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-present text-primary"></i>
-                                        <h3>{:__('Languages')}</h3>
-                                        <p class="text-muted">{:__('Languages tips')}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-layers text-primary"></i>
-                                        <h3>{:__('Module')}</h3>
-                                        <p class="text-muted">{:__('Module tips')}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-docs text-primary"></i>
-                                        <h3>{:__('CRUD')}</h3>
-                                        <p class="text-muted">{:__('CRUD tips')}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="feature-item">
-                                        <i class="icon-puzzle text-primary"></i>
-                                        <h3>{:__('Extension')}</h3>
-                                        <p class="text-muted">{:__('Extension tips')}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta">
-            <div class="cta-content">
-                <div class="container">
-                    <h2>{:__('Do not hesitate')}<br>{:__('Start to act')}</h2>
-                    <a href="https://doc.fastadmin.net/docs/contributing.html" class="btn btn-outline btn-xl page-scroll">{:__('Contribution')}</a>
-                </div>
-            </div>
-            <div class="overlay"></div>
-        </section>
-
         <footer>
             <div class="container">
-                <p>&copy; 2017 FastAdmin. All Rights Reserved.</p>
-                <ul class="list-inline">
-                    <li>
-                        <a href="https://gitee.com/karson/fastadmin">{:__('Gitee')}</a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/karsonzhang/fastadmin">{:__('Github')}</a>
-                    </li>
-                    <li>
-                        <a href="https://shang.qq.com/wpa/qunwpa?idkey=46c326e570d0f97cfae1f8257ae82322192ec8841c79b2136446df0b3b62028c">{:__('QQ group')}</a>
-                    </li>
-                </ul>
+                <p>&copy; 2018 Yiban. All Rights Reserved.</p>
             </div>
         </footer>
 
@@ -170,46 +86,9 @@
         <script src="//cdn.bootcss.com/jquery-easing/1.4.1/jquery.easing.min.js"></script>
 
         <script>
-            $(function () {
-                $(window).on("scroll", function () {
-                    $("#mainNav").toggleClass("affix", $(window).height() - $(window).scrollTop() <= 50);
-                });
-
-                //发送版本统计信息
-                try {
-                    var installed = localStorage.getItem("installed");
-                    if (!installed) {
-                        $.ajax({
-                            url: "{$Think.config.fastadmin.api_url}/statistics/installed",
-                            data: {
-                                version: "{:config('fastadmin.version')}",
-                                os: "{$Think.PHP_OS}",
-                                sapi: "{$Think.PHP_SAPI}",
-                                tpversion: "{$Think.THINK_VERSION}",
-                                phpversion: "{$Think.PHP_VERSION}",
-                                software: "{$Request.server.SERVER_SOFTWARE}",
-                                url: location.href,
-                            },
-                            dataType: 'jsonp',
-                        });
-                        localStorage.setItem("installed", true);
-                    }
-                } catch (e) {
-
-                }
-
-            });
+                window.location.href = "/cms/";
         </script>
 
-        <script>
-            var _hmt = _hmt || [];
-            (function () {
-                var hm = document.createElement("script");
-                hm.src = "https://hm.baidu.com/hm.js?f8d0a8c400404989e195270b0bbf060a";
-                var s = document.getElementsByTagName("script")[0];
-                s.parentNode.insertBefore(hm, s);
-            })();
-        </script>
 
     </body>
 
