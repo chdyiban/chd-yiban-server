@@ -14,7 +14,7 @@ class Score extends Model
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
     const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=";
-    //本学期的id
+    //本学期的id，需要更新
     const SCORE_ITEM_ID = 77;
 
     public function get_score($key){
@@ -23,19 +23,25 @@ class Score extends Model
         $year = substr($username,0,4);
         $Y = date('Y');
         $m = date('m');
+        $temp = $Y - $year;
         //如果是下学期
         if(self::SCORE_ITEM_ID % 2 != 0){
-            $temp = $Y - $year;
             //获取入学时对应的学期id
-            $score_item_id =  self::SCORE_ITEM_ID - ($temp * 2 - 1); 
-            $score_id = array();
-            for($i = $score_item_id; $i <= self::SCORE_ITEM_ID; $i++){
-                array_push($score_id, $i);
-            }
+            $score_item_id =  self::SCORE_ITEM_ID - ($temp * 2 - 1);     
         }else{
-            //考虑第一学期，年份在变
-            $temp = $Y - $year;
+            //第一学期过了元旦后
+            if ($m < 6) {                          
+                $score_item_id =  self::SCORE_ITEM_ID - ($temp - 1) * 2; 
+            }else{
+                $score_item_id =  self::SCORE_ITEM_ID - $temp * 2; 
+            }
         }
+        //得出该学生的所有学期的id的数组
+        $score_id = array();
+        for($i = $score_item_id; $i <= self::SCORE_ITEM_ID; $i++){
+            array_push($score_id, $i);
+        }
+
         $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
@@ -109,8 +115,6 @@ class Score extends Model
     }
     public function get_stu_score($username, $params, $score_id){
         $data = [];
-        
-        //$res = $this -> get_data($username, $params, $score_id[1]);
         foreach ($score_id as $key => $value) {
             $res = $this -> get_data($username, $params, $value);
             if($res == false){
@@ -120,7 +124,6 @@ class Score extends Model
             }  
             sleep(1);
        }
-        
         return $data;
     }
      //这个方法用来获取数据并返回
@@ -130,8 +133,6 @@ class Score extends Model
         $response = Http::get($url,'',$params);
         preg_match_all('/<th.*?>(.*?)<\/th?>/i', $response, $matches_header);
         preg_match_all('/<td.*?>(.*?)<\/td?>/si', $response, $matches);
-        //dump($response);
-        //dump($matches[1]); 
         if(empty($matches[1])){
             $data = ["尚未出成绩"];
         }elseif(strpos($matches[1][0],'<strong>') !== false){
