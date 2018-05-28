@@ -12,3 +12,6 @@ composer.lock
 *.css.map
 !.gitkeep
 .env
+.user.ini
+.well-known/
+public/assets/js/addons.js
