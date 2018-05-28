@@ -13,18 +13,37 @@ class Score extends Model
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
-    const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=76";
-    
+    const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=";
+    //本学期的id
+    const SCORE_ITEM_ID = 77;
+
     public function get_score($key){
         $username = $key['id'];
+        //用来根据年级判断查询的范围
+        $year = substr($username,0,4);
+        $Y = date('Y');
+        $m = date('m');
+        //如果是下学期
+        if(self::SCORE_ITEM_ID % 2 != 0){
+            $temp = $Y - $year;
+            //获取入学时对应的学期id
+            $score_item_id =  self::SCORE_ITEM_ID - ($temp * 2 - 1); 
+            $score_id = array();
+            for($i = $score_item_id; $i <= self::SCORE_ITEM_ID; $i++){
+                array_push($score_id, $i);
+            }
+        }else{
+            //考虑第一学期，年份在变
+            $temp = $Y - $year;
+        }
         $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
         $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
         $params[CURLOPT_FOLLOWLOCATION] = 1;
         //首先带着cookie去尝试获取数据，判断cookie是否过期
-        $data = $this->get_data($username, $params);
-        if($data){
+        $data = $this->get_stu_score($username, $params, $score_id);
+        if($data != false){
             //cookie没有过期，获取到数据。
             return $data;
         }else{
@@ -67,7 +86,7 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_data($username, $params);
+                $res = $this->get_stu_score($username, $params, $score_id);
                 return $res;
             }else{
                 //不需要验证码
@@ -83,30 +102,50 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_data($username, $params);
+                $res = $this->get_stu_score($username, $params, $score_id);
                 return $res;
             }
         }
     }
+    public function get_stu_score($username, $params, $score_id){
+        $data = [];
+        
+        //$res = $this -> get_data($username, $params, $score_id[1]);
+        foreach ($score_id as $key => $value) {
+            $res = $this -> get_data($username, $params, $value);
+            if($res == false){
+                return false;
+            }else{
+                $data[$key] = $res;
+            }  
+            sleep(1);
+       }
+        
+        return $data;
+    }
      //这个方法用来获取数据并返回
-    public function get_data($username,$params){
-        $response = Http::get(self::SCORE_URL,'',$params);
+    public function get_data($username, $params, $id){
+        $data = array();
+        $url = self::SCORE_URL.(string)$id;
+        $response = Http::get($url,'',$params);
         preg_match_all('/<th.*?>(.*?)<\/th?>/i', $response, $matches_header);
         preg_match_all('/<td.*?>(.*?)<\/td?>/si', $response, $matches);
-        //if(empty($matches[1])){
-        if(strpos($matches[1][0],'<strong>') !== false){
-           return false;
+        //dump($response);
+        //dump($matches[1]); 
+        if(empty($matches[1])){
+            $data = ["尚未出成绩"];
+        }elseif(strpos($matches[1][0],'<strong>') !== false){
+            return false;
         }else{
-             //通过循环判断抓出的表格有几列
+            //通过循环判断抓出的表格有几列
             $countColums = count($matches_header[1]);
 
             //当前有几门课
             $num = count($matches[1])/$countColums;
-            $none = [];
-            if($num == 0){
-                //未出成绩
-                return $none;
-            }
+            // if($num == 0){
+            //     //未出成绩
+            //     $data = [];
+            // }
             //门数循环
             for($i=0;$i<$num;$i++){
                 //字段循环
@@ -115,12 +154,12 @@ class Score extends Model
                     $score[$i][$j]['val'] = trim($matches[1][$i*$countColums+$j]);
                 }
             }
-            $data = [];
+        
             foreach ($score as $value) {
                 $res = [];
                 foreach ($value as $k => $v) {
                     if ($v['key'] == "学年学期") {
-                       $res['term'] = $v['val'];
+                    $res['term'] = $v['val'];
                     }
                     if ($v['key'] == "课程名称") {
                         $res['course_name'] = $v['val'];
@@ -131,8 +170,8 @@ class Score extends Model
                     $res['xh'] = $username;
                 }
                 $data[] = $res;
-            }
-            return $data;
+            }              
         }
+        return $data;
     }
 }
