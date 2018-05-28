@@ -12,3 +12,5 @@ composer.lock
 *.css.map
 !.gitkeep
 .env
+.user.ini
+.well-known/
