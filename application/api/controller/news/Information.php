@@ -2,15 +2,11 @@
 
 namespace app\api\controller\news;
 
-use app\common\controller\Api;
-use think\Config;
-use fast\Http;
-
 use addons\cms\model\Archives as ArchivesModel;
 use addons\cms\model\Channel;
 use addons\cms\model\Comment;
 use addons\cms\model\Modelx;
-
+use app\common\controller\Api;
 
 /**
  * 资讯栏目控制器
@@ -20,13 +16,14 @@ class Information extends Api
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
-    public function index(){
-        $page = (int)$this->request->get('page');
+    public function index()
+    {
+        $page = (int) $this->request->get('page');
         $openid = $this->request->get('openid');
 
         $params = [];
-        $model = (int)$this->request->request('model');
-        $channel = (int)$this->request->request('channel');
+        $model = (int) $this->request->request('model');
+        $channel = (int) $this->request->request('channel');
 
         if ($model) {
             $params['model'] = $model;
@@ -43,14 +40,15 @@ class Information extends Api
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => $list
+            'data' => $list,
         ];
-      
+
         return json($info);
     }
 
     //对应CMS模块下的新闻详情
-    public function detail(){
+    public function detail()
+    {
         // $action = $this->request->post("action");
         // if ($action && $this->request->isPost()) {
         //     return $this->$action();
@@ -85,9 +83,46 @@ class Information extends Api
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => $list
+            'data' => $list,
         ];
 
         return json($info);
+    }
+
+    public function nav()
+    {
+        $list = [
+            [
+                'id' => 0,
+                'type' => 'all',
+                'name' => '🔥头条',
+                'storage' => [],
+                'channel'=> 0,
+                'enabled' => [
+                    'guest' => true,
+                    'student' => true,
+                    'teacher' => true,
+                ]
+            ],[
+                'id' => 1,
+                'type' => 'yiban',
+                'name' => '易班条',
+                'storage' => [],
+                'channel'=> 3,
+                'enabled' => [
+                    'guest' => true,
+                    'student' => false,
+                    'teacher' => true,
+                ]
+            ]
+        ];
+        $info = [
+            'status' => 200,
+            'message' => 'success',
+            'data' => $list,
+        ];
+
+        return json($info);
+
     }
 }
