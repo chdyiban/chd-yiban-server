@@ -53,7 +53,7 @@ class Portal extends Api
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => $data,
+            'data' => $data[0],
         ];
         return json($info);
     }
