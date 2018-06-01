@@ -153,6 +153,7 @@ class Score extends Model
                     $res[$k]['term'] = $v['XNXQ']; 
                     $res[$k]['course_name'] = $v['KCMC']; 
                     $res[$k]['score'] = $v['ZZ'];
+                    $res[$k]['xh'] = $username;
                 }
                 $data[$key] = $res;
             }
