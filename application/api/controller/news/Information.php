@@ -7,7 +7,7 @@ use addons\cms\model\Channel;
 use addons\cms\model\Comment;
 use addons\cms\model\Modelx;
 use app\common\controller\Api;
-
+use think\Db;
 /**
  * 资讯栏目控制器
  */
@@ -36,7 +36,10 @@ class Information extends Api
 
         $list = ArchivesModel::getArchivesList($params);
         //$list = ArchivesModel::getWeAppArchivesList($params);
-
+        foreach ($list as $key => $value) {
+            $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
+            $list[$key]['style_id'] = $style_id;
+        }
         $info = [
             'status' => 200,
             'message' => 'success',
@@ -91,31 +94,52 @@ class Information extends Api
 
     public function nav()
     {
-        $list = [
-            [
-                'id' => 0,
-                'type' => 'all',
-                'name' => '🔥头条',
-                'storage' => [],
-                'channel'=> 0,
-                'enabled' => [
-                    'guest' => true,
-                    'student' => true,
-                    'teacher' => true,
-                ]
-            ],[
-                'id' => 1,
-                'type' => 'yiban',
-                'name' => '易班条',
-                'storage' => [],
-                'channel'=> 3,
-                'enabled' => [
-                    'guest' => true,
-                    'student' => false,
-                    'teacher' => true,
-                ]
-            ]
-        ];
+        $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
+        $i = 0;
+        foreach ($all as $k => $v) {
+            $id_array = [3, 4, 5, 7];
+            if(in_array($v['id'], $id_array)){
+                $list[] = [
+                    'id'    => $i,
+                    'type'   => 'all',
+                    'name'   => $v['name'],
+                    'storage' => [],
+                    'channel' => $v['id'],
+                    'enabled' => [
+                        'guest' => true,
+                        'student' => true,
+                        'teacher' => true,
+                    ]
+                ];
+                $i = $i + 1;
+            }
+        }
+
+        // $list = [
+        //     [
+        //         'id' => 0,
+        //         'type' => 'all',
+        //         'name' => '🔥头条',
+        //         'storage' => [],
+        //         'channel'=> 0,
+        //         'enabled' => [
+        //             'guest' => true,
+        //             'student' => true,
+        //             'teacher' => true,
+        //         ]
+        //     ],[
+        //         'id' => 1,
+        //         'type' => 'yiban',
+        //         'name' => '门户新闻',
+        //         'storage' => [],
+        //         'channel'=> 7,
+        //         'enabled' => [
+        //             'guest' => true,
+        //             'student' => true,
+        //             'teacher' => true,
+        //         ]
+        //     ]
+        // ];
         $info = [
             'status' => 200,
             'message' => 'success',
