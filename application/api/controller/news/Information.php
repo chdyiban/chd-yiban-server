@@ -3,6 +3,7 @@
 namespace app\api\controller\news;
 
 use addons\cms\model\Archives as ArchivesModel;
+use app\api\model\News as NewsModel;
 use addons\cms\model\Channel;
 use addons\cms\model\Comment;
 use addons\cms\model\Modelx;
@@ -33,7 +34,11 @@ class Information extends Api
         }
         $page = max(1, $page);
         $params['limit'] = ($page - 1) * 10 . ',10';
-
+        $params['orderby'] = 'createtime';
+        if ($channel == 47) {
+            $params['channel'] = [3, 4, 5, 7];
+            $params['flag'] = 'recommend';
+        }
         $list = ArchivesModel::getArchivesList($params);
         //$list = ArchivesModel::getWeAppArchivesList($params);
         foreach ($list as $key => $value) {
@@ -97,7 +102,7 @@ class Information extends Api
         $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
         $i = 0;
         foreach ($all as $k => $v) {
-            $id_array = [3, 4, 5, 7];
+            $id_array = [3, 4, 5, 7, 47];
             if(in_array($v['id'], $id_array)){
                 $list[] = [
                     'id'    => $i,
