@@ -21,6 +21,9 @@ class Score extends Model
     public function get_score($key){
         $username = $key['id'];
         //用来根据年级判断查询的范围
+        /*
+        *先默认查找该学生当前学期成绩
+        *
         $year = substr($username,0,4);
         $Y = date('Y');
         $m = date('m');
@@ -60,13 +63,15 @@ class Score extends Model
                 }
             }
         }
+        */
         $info = Db::name('wx_user')->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
         $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
         $params[CURLOPT_FOLLOWLOCATION] = 1;
         //首先带着cookie去尝试获取数据，判断cookie是否过期
-        $data = $this->get_stu_score($username, $params, $score_id, $database_ids);
+        //$data = $this->get_stu_score($username, $params, $score_id, $database_ids);
+        $data = $this->get_data($username, $params, self::SCORE_ITEM_ID);
         if($data != false){
             //cookie没有过期，获取到数据。
             return $data;
@@ -110,7 +115,7 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_stu_score($username, $params, $score_id, $database_ids);
+                $res = $this->get_data($username, $params, $score_id, $database_ids);
                 return $res;
             }else{
                 //不需要验证码
@@ -126,11 +131,12 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_stu_score($username, $params, $score_id, $database_ids);
+                $res = $this->get_data($username, $params, $score_id, $database_ids);
                 return $res;
             }
         }
     }
+    /*
     public function get_stu_score($username, $params, $score_id, $database_ids){
         $data = [];
         if(empty($database_ids)){
@@ -169,6 +175,7 @@ class Score extends Model
         }
         return $data;
     }
+    */
      //这个方法用来获取数据并返回
     public function get_data($username, $params, $id){
         $data = array();
@@ -218,14 +225,15 @@ class Score extends Model
                     $res['xh'] = $username;
                 }
                 //把本学期之前的所有成绩已经出来的学期的数据存入数据库
-                if($id != self::SCORE_ITEM_ID){
-                    $count = $this->store_score($insert_data);
-                }
+                // if($id != self::SCORE_ITEM_ID){
+                //     $count = $this->store_score($insert_data);
+                // }
                 $data[] = $res;
             }          
         }
         return $data;
     }
+    /*
     //将爬取的数据存入数据库
     public function store_score($data){
         //在插入数据库时进行判断是否已经插入过了
@@ -251,6 +259,7 @@ class Score extends Model
             return $res;
         }
     }
+    */
 
 
 }
