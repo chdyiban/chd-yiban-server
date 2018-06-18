@@ -388,8 +388,6 @@ class Wxuser extends Api
     private function checkBind($username, $password){
 
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
-        $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
-        $params[CURLOPT_FOLLOWLOCATION] = 1;
         //判断是否需要验证码
         $need_url = "http://ids.chd.edu.cn/authserver/needCaptcha.html?username=".$username;
         $need = Http::get($need_url,'',$params);
@@ -420,7 +418,8 @@ class Wxuser extends Api
                 "_eventId" => "submit",
                 "rmShown" => "1"
             ];
-           
+            $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+            $params[CURLOPT_FOLLOWLOCATION] = 1;
             $response = Http::post(self::PORTAL_URL,$post_data,$params);
 
             $return = [];
@@ -463,7 +462,8 @@ class Wxuser extends Api
                 "_eventId" => "submit",
                 "rmShown" => "1"
             ];
-            
+            $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+            $params[CURLOPT_FOLLOWLOCATION] = 1;
             $response = Http::post(self::PORTAL_URL,$post_data,$params);
             if(stripos($response,'auth_username') === false){
                 //未绑定成功
@@ -492,8 +492,8 @@ class Wxuser extends Api
             "_eventId" => "submit",
             "rmShown" => "1"
         ];
-        $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
-        $params[CURLOPT_FOLLOWLOCATION] = 1;
+        //$params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
+       // $params[CURLOPT_FOLLOWLOCATION] = 1;
         $response = Http::post(self::PORTAL_URL,$post_data,$params);
         $return = [];
 
