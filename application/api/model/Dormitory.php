@@ -13,12 +13,12 @@ class Dormitory extends Model
     /**
      * 返回可选择宿舍楼以及宿舍号以及剩余人数
      */
-    public function show($key)
+    public function show($info, $key)
     {
         $list = [];
-        $college_id = $key['college_id'];
-        $sex = $key['sex'];
-        $place = $key['place'];
+        $college_id = $info['college_id'];
+        $sex = $info['sex'];
+        $place = $info['place'];
         $type = $key['type'];
         switch ($type) {
             //需要楼号
@@ -79,12 +79,12 @@ class Dormitory extends Model
     /**
      * 提交数据
      */
-    public function submit($key)
+    public function submit($info, $key)
     {
-        $stu_id = $key['stu_id'];
-        $college_id = $key['college_id'];
-        $sex = $key['sex'];
-        $place = $key['place'];
+        $stu_id = $info['stu_id'];
+        $college_id = $info['college_id'];
+        $sex = $info['sex'];
+        $place = $info['place'];
         $dormitory_id = $key['dormitory_id'];
         $bed_id = $key['bed_id'];
         $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
