@@ -155,6 +155,7 @@ class Dormitory extends Model
         $type = $key['type'];
         switch ($type) {
             case 'confirm':
+                //判断是否超时
                 $update_status = Db::name('fresh_list') -> where('XH', $stu_id)->update(['status' => 'finished']);
                 if ($update_status == 1) {
                     return ['宿舍确认成功', true];
