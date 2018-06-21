@@ -34,14 +34,18 @@ class Dormitory extends Api
     public function show()
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
+        $stu_id = $this -> request->get('stu_id');
+        $type = $this -> request->get('type');
+        $building = $this -> request->get('building');
+        $dormitory = $this -> request->get('dormitory');
         $key = [
-            'stu_id' => '2018900001',
+            'stu_id' => $stu_id,
             'college_id' => '2400',
             'sex'  => '1',
             'place' => '陕西省',
-            'building' => '15',
-            'dormitory' => '101',
-            'type' => 'dormitory',
+            'building' => $building,
+            'dormitory' => $dormitory,
+            'type' => $type,
         ];
         $DormitoryModel = new DormitoryModel;
         $list = $DormitoryModel -> show($key);
