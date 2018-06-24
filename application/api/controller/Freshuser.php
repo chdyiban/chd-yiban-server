@@ -41,10 +41,11 @@ class Freshuser extends Api
             $this->_token = Random::uuid();
             Token::set($this->_token, $userid, $this->keeptime);
             Hook::listen("user_login_successed", $userid);
-
-            $this->success('认证成功',$this->_token);
-        }
-        else{
+            //判断是否是否信息填完并且是否需要修改
+            $steps = $this -> getSteps($userid);
+            $info = [$steps, $this -> _token];
+            $this->success('认证成功',$info);
+        } else {
             $this->error('认证失败','请检查姓名、身份证号及准考证号等信息是否填写完成');
         }
 
@@ -75,4 +76,24 @@ class Freshuser extends Api
             return $userid;
         }
     }
+
+    private function getSteps($userId){
+        $personalMsg = Db::name('fresh_info') -> where('ID', $userId) ->find();
+        $stu_id = $personalMsg['XH'];
+        //判断信息是否完善
+        $isInfoExist = Db::name('fresh_information') -> where('XH', $stu_id) -> find();
+        $isListExist = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
+        if (empty($isInfoExist)) {
+            return 'input';
+        } elseif(!$isInfoExist['status']) {
+            return 'list';
+        } elseif ($isInfoExist['status'] && empty($isListExist)) {
+            return 'select';
+        } else {
+            return $isListExist['status'];
+        }
+        
+    }
+
+
 }

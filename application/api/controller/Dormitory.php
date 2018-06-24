@@ -101,16 +101,12 @@ class Dormitory extends Freshuser
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
         $key = [
-            'stu_id' => '2018900001',
-            'college_id' => '2400',
-            'sex'  => '1',
-            'place' => '陕西省',
             'dormitory_id' => '15#101',
             'bed_id' => '2',
             'type' => 'confirm',
         ];
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> confirm($key);
+        $info = $DormitoryModel -> confirm($this -> userInfo, $key);
         if ($info[1]) {
             $this -> success($info[0], $info[1]);
         } else {
@@ -121,20 +117,14 @@ class Dormitory extends Freshuser
 
     /**
      * 宿舍确定结束接口
-     * @param array $infomation ['stu_id', 'college_id', 'sex', 'place']
+     * @param array $token
      * 
      */
     public function finished()
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = [
-            'stu_id' => '2018900001',
-            'college_id' => '2400',
-            'sex'  => '1',
-            'place' => '陕西省',
-        ];
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> finished($key);
+        $info = $DormitoryModel -> finished($this -> userInfo);
         $this -> success('选择完成，查看室友信息', $info);
     }
 
