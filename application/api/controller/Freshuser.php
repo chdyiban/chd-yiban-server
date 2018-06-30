@@ -30,7 +30,7 @@ class Freshuser extends Api
         //$key = json_decode(base64_decode($this->request->post('key')),true);
         $user['XM'] = $this -> request -> get('XM');
         $user['XH'] = $this -> request -> get('XH');
-        $user['SFZH'] = $this -> request -> get('SFZH');
+        //$user['SFZH'] = $this -> request -> get('SFZH');
         $user['ZKZH'] = $this -> request -> get('ZKZH');
         // $user['XM'] = '杨加玉';
         // $user['XH'] = '2018900005';
@@ -66,7 +66,7 @@ class Freshuser extends Api
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
         $info = Db::name('fresh_info') -> where('XH', $user['XH'])
-                                       -> where('SFZH', $user['SFZH'])
+                                       //-> where('SFZH', $user['SFZH'])
                                        -> where('ZKZH', $user['ZKZH'])
                                        ->find(); 
         if (empty($info)) {

@@ -74,13 +74,16 @@ class Dormitory extends Freshuser
     public function submit()
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
+        $dormitory_id = $this -> request -> get('dormitory_id');
+        $dormitory_id = str_replace('_','#',$dormitory_id);
+        $bed_id = $this -> request -> get('bed_id');
         $key = [
             // 'stu_id' => '2018900001',
             // 'college_id' => '2400',
             // 'sex'  => '1',
             // 'place' => '陕西省',
-            'dormitory_id' => '15#101',
-            'bed_id' => '2',
+            'dormitory_id' => $dormitory_id,
+            'bed_id' =>  $bed_id,
         ];
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> submit($this -> userInfo, $key);
@@ -100,10 +103,9 @@ class Dormitory extends Freshuser
     public function confirm()
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
+        $type = $this -> request -> get('type');
         $key = [
-            'dormitory_id' => '15#101',
-            'bed_id' => '2',
-            'type' => 'confirm',
+            'type' => $type,
         ];
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> confirm($this -> userInfo, $key);

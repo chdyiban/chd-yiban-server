@@ -103,7 +103,7 @@ class Dormitory extends Model
             $insert_flag = false;
             $update_flag = false;
             Db::startTrans();
-            try{
+            try{       
                 //第一步，将记录写进fresh_list表中
                 $insert_flag = Db::name('fresh_list') -> insert([
                     'XH' => $stu_id,
@@ -126,10 +126,11 @@ class Dormitory extends Model
                     //说明该床位已经被选过
                     return ['该床位被选了', false];
                 } else {
-                     //指数
+                    //指数
                     $exp = (int)$length - (int)$bed_id;
                     $sub = pow(10, $exp);
                     $choice = (int)$list['CPXZ'] - $sub;
+                    $choice = sprintf("%04d", $choice);
                     $choice = (string)$choice;
                     $update_flag = $this -> where('ID', $list['ID'])
                                     -> update([
@@ -143,7 +144,7 @@ class Dormitory extends Model
             } catch (\Exception $e) {
                 // 回滚事务
                 Db::rollback();
-            }
+            }        
             if($insert_flag == 1 && $update_flag == 1){
                 return ['成功选择宿舍', true];
             }else{
@@ -161,8 +162,6 @@ class Dormitory extends Model
         $college_id = $info['college_id'];
         $sex = $info['sex'];
         $place = $info['place'];
-        $dormitory_id = $key['dormitory_id'];
-        $bed_id = $key['bed_id'];
         $type = $key['type'];
         switch ($type) {
             case 'confirm':
@@ -170,7 +169,10 @@ class Dormitory extends Model
                 $get_msg = Db::name('fresh_list') -> where('XH', $stu_id) -> where('status', 'waited') ->find();
                 if (empty($get_msg)) {
                     return ['不存在需要确认的宿舍订单', false];
-                } else {
+                } else {     
+                    $dormitory_id = $get_msg['SSDM'];
+                    $bed_id = $get_msg['CH'];
+
                     $old_time = $get_msg['SDSJ'];
                     $now_time = time();
                     //计算天数
@@ -204,6 +206,7 @@ class Dormitory extends Model
                             $exp = (int)$length - (int)$bed_id;
                             $sub = pow(10, $exp);
                             $choice = (int)$list['CPXZ'] + $sub;
+                            $choice = sprintf("%04d", $choice);
                             $choice = (string)$choice;
                             $update_flag = $this -> where('ID', $list['ID'])
                                                 -> update([
@@ -261,6 +264,7 @@ class Dormitory extends Model
                         $exp = (int)$length - (int)$bed_id;
                         $sub = pow(10, $exp);
                         $choice = (int)$list['CPXZ'] + $sub;
+                        $choice = sprintf("%04d", $choice);
                         $choice = (string)$choice;
                         $update_flag = $this -> where('ID', $list['ID'])
                                         -> update([
@@ -296,13 +300,14 @@ class Dormitory extends Model
             $room_msg = $this -> where('SSDM', $list['SSDM']) -> select();
             $max_number = strlen($room_msg[0]['CPXZ']);
             $roommate_msg = Db::view('fresh_list') 
-                                    ->view('fresh_information','XM, XH','fresh_list.XH = fresh_information.XH')
+                                    ->view('fresh_info','XM, XH','fresh_list.XH = fresh_info.XH')
                                     -> where('SSDM', $list['SSDM'])
                                     -> where('fresh_list.XH', '<>', $list['XH'])
                                     -> where('status','finished')
                                     -> select();
             
             $number = count($roommate_msg);
+            $bed = array();
             if ($max_number == 4) {
                 $bed = [1,2,3,4];
             } elseif ($max_number == 6) {
