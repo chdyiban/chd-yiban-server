@@ -26,14 +26,15 @@ class Testdormitory extends Freshuser
         $type = $this -> request -> get('type');
         if ($type = "local"){
             $url_base = self::LOCAL_URL;
-        }else{
+        }
+        if ($type = "service") {
             $url_base = self::SERVICE_URL;
         }
         $stu_info = Db::name('fresh_info') -> where('LXDH','') -> find();
         $stu_id   = $stu_info['XH'];
         $stu_name = $stu_info['XM'];
         $stu_zkzh = $stu_info['ZKZH'];
-        $login_url = self::LOCAL_URL."Freshuser/login?XM=".$stu_name."&XH=".$stu_id."&ZKZH=".$stu_zkzh;
+        $login_url = $url_base."Freshuser/login?XM=".$stu_name."&XH=".$stu_id."&ZKZH=".$stu_zkzh;
         $response_login = Http::get($login_url);
         $response_login = json_decode($response_login,true);
         $token = $response_login['data'][1];
