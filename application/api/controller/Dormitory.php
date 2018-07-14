@@ -6,7 +6,11 @@ use app\common\controller\Api;
 use think\Config;
 use fast\Http;
 use think\Db;
+use think\Validate;
 use app\api\model\Dormitory as DormitoryModel;
+
+use Qiniu\Storage\UploadManager;
+use Qiniu\Auth;
 /**
  * 
  */
@@ -60,7 +64,8 @@ class Dormitory extends Freshuser
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $DormitoryModel = new DormitoryModel;
-        $list = $DormitoryModel -> show($this->userInfo,$key);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $list = $DormitoryModel -> show($this->userInfo,$key, $steps);
         if ($list) {
             $this -> success('查询成功', $list);
         } else {
@@ -74,10 +79,33 @@ class Dormitory extends Freshuser
      */
     public function setinfo()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> setinfo($this->userInfo, $key);
-        $info[0] == 1?  $this->success($info[1]):$this->error($info[1]);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $result = $DormitoryModel -> setinfo($this->userInfo, $key, $steps);
+        $data = $result['data'];
+        $info = $result['info'];
+        $Userinfo = $this -> validate($data,'Userinfo.user');
+        $Family[0] = $Userinfo;
+        foreach ($info as $key => $value) {
+            $Familyinfo = $this -> validate($value,'Userinfo.family');
+            $Family[] = $Familyinfo;
+        }
+        foreach ($Family as $key => $value) {
+            if (gettype($value) == "string") {
+                $this->error($value);
+            }
+        }
+        $res = Db::name('fresh_info_add') -> insert($data);
+        foreach ($info as $key => $value) {
+            $res1 = Db::name('fresh_family_info') -> insert($value);
+        }
+        if ($res && $res1) {
+            $this -> success("信息录入成功");
+        }else {
+            $this -> error("信息录入失败");
+    }
+        
     }
 
     /**
@@ -85,7 +113,7 @@ class Dormitory extends Freshuser
      */
     public function giveredis()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> giveredis($this -> userInfo, $key);   
         
@@ -101,9 +129,10 @@ class Dormitory extends Freshuser
      */
     public function submit()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> submit($this -> userInfo, $key);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> submit($this -> userInfo, $key, $steps);
         if ($info[1]) {
             $this -> success($info[0], $info[1]);
         } else {
@@ -119,9 +148,10 @@ class Dormitory extends Freshuser
      */
     public function confirm()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> confirm($this -> userInfo, $key);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> confirm($this -> userInfo, $key, $steps);
         if ($info[1]) {
             $this -> success($info[0], $info[1]);
         } else {
@@ -137,11 +167,24 @@ class Dormitory extends Freshuser
      */
     public function finished()
     {
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
+        //$key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
         //$userid = $this->check($user);
-        $info = $DormitoryModel -> finished($this -> userInfo);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> finished($this -> userInfo, $steps);
         $this -> success('选择完成，查看室友信息', $info);
+    }
+
+    /**
+     * 获取七牛云上传token
+     * bucket2018 => stu2018
+     */
+    public function uploadtoken(){
+
+        $upManager = new UploadManager();
+        $auth = new Auth(Config::get('qiniu.AccessKey'), Config::get('qiniu.SecretKey'));
+        $token = $auth->uploadToken(Config::get('qiniu.bucket2018'));
+        $this -> success('success', $token);
     }
 
     /**
