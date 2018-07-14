@@ -27,7 +27,7 @@ class Freshuser extends Api
 
     public function login(){
         header('Access-Control-Allow-Origin:*');
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $userid = $this->check($key);
         if($userid){
             $this->_token = Random::uuid();
@@ -58,9 +58,9 @@ class Freshuser extends Api
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
         $info = Db::name('fresh_info')
-                            -> where('XH', $user['XH'])
-                            -> where('ZKZH', $user['ZKZH'])
-                            ->find(); 
+                    -> where('XH', $user['XH'])
+                    -> where('ZKZH', $user['ZKZH'])
+                    ->find(); 
         if (empty($info)) {
             return false;
         } else {
