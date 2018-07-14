@@ -49,7 +49,6 @@ class Archives extends Backend
         $channelOptions = $tree->getTree(0, "<option value=@id @selected @disabled>@spacer@name</option>", '', $disabledIds);
         $this->view->assign('channelOptions', $channelOptions);
         $this->assignconfig('channelList', $channelList);
-
         $this->view->assign("flagList", $this->model->getFlagList());
         $this->view->assign("statusList", $this->model->getStatusList());
     }

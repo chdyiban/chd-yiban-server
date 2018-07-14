@@ -6,6 +6,7 @@ use app\common\controller\Api;
 use think\Config;
 use fast\Http;
 use think\Db;
+
 use app\api\model\Dormitory as DormitoryModel;
 /**
  * 
@@ -21,7 +22,7 @@ class Testdormitory extends Freshuser
     const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/";
     const SERVICE_URL = "https://service.knocks.tech/api/";
 
-    function test()
+    public function test()
     {
         $type = $this -> request -> get('type');
         if ($type = "local"){
@@ -94,3 +95,4 @@ class Testdormitory extends Freshuser
     
 
 }
+    
