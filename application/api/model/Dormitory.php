@@ -11,6 +11,84 @@ class Dormitory extends Model
     // 表名
     protected $name = 'fresh_dormitory';
     /**
+     *  初始化方法，依据用户所处的位置不同，返回相应的数据
+     */
+    public function initSteps($steps, $userinfo)
+    {
+        $stuid = $userinfo['stu_id'];
+        $info = array();
+        switch ($steps) {
+            //第一步，输入自己信息
+            case 'setinfo':
+                $data = Db::view('fresh_info')
+                            -> view('dict_college', 'YXDM, YXMC', 'fresh_info.YXDM = dict_college.YXDM')
+                            -> where('XH', $stuid)
+                            -> find();
+                
+                if ($data) {
+                    $info['XH'] = $data['XH'];
+                    $info['XM'] = $data['XM'];
+                    $info['YXMC'] = $data['YXMC'];
+                    $info['XB'] = $data['XBDM'] == 1? "男":"女";
+                    $info['MZ'] = $data['MZ'];
+                    $info['SYD'] = $data['SYD'];
+                    return $info;
+                } else {
+                    return false;
+                }
+                break;
+            //第二步，选房阶段
+            //16 => [101 => [1,2], 102],
+            //15 => 
+            case 'select':
+                $msg = $this -> showAll($userinfo);
+                return $msg;
+                break;
+            //第三步, 订单已经提交等待确认
+            case 'waited':
+                $data = Db::name('fresh_list') -> where('XH', $stuid) -> find();
+                $info['XH'] = $userid;
+                $dor = explode("#", $data['SSDM']);
+                $info['LH'] = $dor[0];
+                $info['SSH'] = $dor[1];
+                $info['CH'] = $data['CH'];
+                $info['time'] = $data['SDSJ'];
+                return $info;
+                break;
+            //第四步，所有工作都已结束
+            case 'finished':
+                $info = $this -> finished($userinfo);
+                return $info;
+                break;
+
+        }
+    }
+    /**
+     *  该方法一次性返回宿舍楼以及对应的可以选择的宿舍号
+     */
+    private function showAll($info)
+    {
+        $msg = array();
+        $college_id = $info['college_id'];
+        $sex = $info['sex'];
+        $place = $info['place'];
+        $nation = $info['nation'];
+        $data = Db::name('fresh_dormitory') 
+                        -> where('YXDM',$college_id)
+                        -> where('SYRS','>','0')
+                        -> where('XB',$sex)
+                        -> select();
+                        
+        foreach ($data as $v) {
+            $building = $v['LH'];
+            $dormitory = $v['SSH'];
+            $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
+            $msg[$building][$dormitory] = $list;
+        }
+        return $msg;
+    }
+
+    /**
      * 返回可选择宿舍楼以及宿舍号以及剩余人数
      */
     public function show($info, $key)
@@ -19,6 +97,7 @@ class Dormitory extends Model
         $college_id = $info['college_id'];
         $sex = $info['sex'];
         $place = $info['place'];
+        $nation = $info['nation'];
         $type = $key['type'];
         switch ($type) {
             //需要楼号
@@ -56,36 +135,137 @@ class Dormitory extends Model
                 }else{
                     $building = $key['building'];
                     $dormitory = $key['dormitory'];
-                    //判断该宿舍陕西籍的人数是否超过2人
                     $SSDM = (string)$building.'#'.$dormitory;
-                    $shanxi_number = Db::view('fresh_list') 
-                                        -> view('fresh_info', 'XM, XH, SYD', 'fresh_list.XH = fresh_info.XH')
-                                        -> where('SSDM', $SSDM) 
-                                        -> where('SYD','LIKE', '%陕西%')
-                                        -> count();
-                    if ($shanxi_number >= 2) {
-                        return ['该宿舍陕西省人数过多，请更换！'];
-                    } else {
-                        $data = $this -> where('YXDM',$college_id)
+                    //判断该宿舍少数民族人数是否超过一人
+                    if ($nation <> "汉族") {
+                        $msg = $this -> checkNation($SSDM);
+                        if (!$msg) {
+                            return ['该宿舍少数民族人数过多，请换一间宿舍吧！'];
+                        }
+                    }
+                    $data = $this -> where('YXDM',$college_id)
                                   -> where('XB', $sex)
                                   -> where('LH', $building)
                                   -> where('SSH', $dormitory)
+                                  -> where('SYRS','>=', 1)
                                   -> find();
-                        //床铺选择情况 例如：111111
-                        $CP = $data['CPXZ'];
-                        $length = strlen($CP);
-                        for ($i=0; $i < $length ; $i++) { 
-                            if ($CP[$i] == 1) {
-                                array_push($list, $i+1);
-                            }
-                        }
+                    //判断该宿舍非陕西籍的人数是否超过2人
+                    if ($place <> "陕西") {
+                        $msg = $this -> checkNation($SSDM);
+                        if (!$msg) {
+                            return ['该宿舍同一省份人数过多，请换一间宿舍吧！'];
+                        } else {
+                            $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
+                            return $list;
+                        }   
+                        //如果是陕西人，则不必判断只需返回可选的床位号 
+                    } else {
+                        $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
                         return $list;
-                    }                    
+                    }            
                 }
                 break;
         }
         
     }
+    /**
+     *  该方法用来返回宿舍可选床号
+     *  @return [1,2,3,4]
+     */
+    private  function getBedNum($sex,$college_id, $building, $dormitory)
+    {
+        $list = [];
+        $data = $this -> where('YXDM',$college_id)
+                    -> where('XB', $sex)
+                    -> where('LH', $building)
+                    -> where('SSH', $dormitory)
+                    -> find();
+        //床铺选择情况 例如：111111
+        $CP = $data['CPXZ'];
+        $length = strlen($CP);
+        for ($i=0; $i < $length ; $i++) { 
+            if ($CP[$i] == 1) {
+                array_push($list, $i+1);
+            }
+        }
+        return $list;
+    }
+    /**
+     * 完善信息方法
+     */
+    public function setinfo($info, $key)
+    {
+        $exit_info = Db::name('fresh_info_add') -> where('XH', $info['stu_id']) -> count();
+        if ($exit_info) {
+            return [false,"你已经完善过信息了，请向下执行吧"];
+        } else {
+            $ZCYF = '';
+            foreach ($key['JJDC']['q8'] as $k => $v) {
+                $ZCYF = $k == 0 ? $v:$ZCYF.",".$v;
+            }
+            $data = array(
+                'XH' => $info['stu_id'],
+//                'CSNY' => $key['CSNY'],
+                'RXQHK' => $key['RXQHK'],
+                'JTRKS' => $key['JTRKS'],
+                'YZBM' => $key['YZBM'],
+                'SZDQ' => $key['SZDQ'],
+                'XXDZ' => $key['XXDZ'],
+                'BRDH' => $key['BRDH'],
+//                'ZP' => $key['ZP'],
+                'ZSR' => $key['ZSR'],
+                'RJSR' => $key['RJSR'],
+                'FQZY' => $key['JJDC']['q1'][0],
+                'MQZY' => $key['JJDC']['q2'][0],
+                'FQLDNL' => $key['JJDC']['q3'][0],
+                'MQLDNL' => $key['JJDC']['q4'][0],
+                'YLZC' => $key['JJDC']['q5'][0],
+                'SZQK' => $key['JJDC']['q6'][0],
+                'JTBG' => $key['JJDC']['q7'][0],
+                'ZCYF' => $ZCYF,
+            );
+            $res = Db::name('fresh_info_add') -> insert($data);
+            foreach ($key['JTRK'] as $k => $v) {
+                $family_info = array(
+                    'XH' => $info['stu_id'],
+                    'XM' => $v['name'],
+                    'NL' => $v['age'],
+                    'GX' => $v['relation'],
+                    'GZDW' => $v['unit'],
+                    'ZY' => $v['job'],
+                    'NSR' => $v['income'],
+                    'JKZK' => $v['health'],
+                    'LXDH' => $v['mobile'],
+                );
+                $family_res = Db::name('fresh_family_info') -> insert($family_info);
+            }
+            return $res == 1 && $family_res == 1?[true,"信息录入成功"]:[false, "信息录入失败"];       
+        }
+    }
+
+    /**
+     * 将数据提交给redis
+     */
+    public function giveredis($info, $key)
+    {
+        $stu_id = $info['stu_id'];
+        $college_id = $info['college_id'];
+        $sex = $info['sex'];
+        $place = $info['place'];
+        $dormitory_id = $key['dormitory_id'];
+        $bed_id = $key['bed_id'];
+        // 把记录写进redis队列中
+        // 首先加载Redis组件
+        $redis = new \Redis();
+        $redis -> connect('127.0.0.1', 6379);
+        $redis_name = "order_msg";
+        // 接收用户信息
+        $msg = array('XH' => $stu_id, 'SSDM' => $dormitory_id, 'CH' => $bed_id, 'YXDM' => $college_id, 'SDSJ' => time(), 'status' => 'waited');
+        
+        $redis -> rpush($redis_name, $msg);
+    }
+    
+
 
     /**
      * 提交数据
@@ -96,22 +276,37 @@ class Dormitory extends Model
         $college_id = $info['college_id'];
         $sex = $info['sex'];
         $place = $info['place'];
+        $nation = $info['nation'];
         $dormitory_id = $key['dormitory_id'];
         $bed_id = $key['bed_id'];
+        //如果是少数民族验证要选的宿舍是否满足要求
+        if ($nation <> "汉族") {
+            $msg = $this -> checkNation($dormitory_id);
+            if (!$msg) {
+                return ['该宿舍少数民族人数过多，无法选择！', false];
+            }
+        }
+        //如果不是陕西省的学生，则需要判断该宿同省人数
+        if ($place <> "陕西") {
+            $msg = $this -> checkNation($dormitory_id, $place);
+            if (!$msg) {
+                return ['该宿舍同一省份人数过多，请换一间宿舍吧！', false];
+            }
+        }
         $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
         if(empty($data)){
             $insert_flag = false;
             $update_flag = false;
             Db::startTrans();
             try{       
-                //第一步，将记录写进fresh_list表中
+                // 第一步，将记录写进fresh_list表中
                 $insert_flag = Db::name('fresh_list') -> insert([
                     'XH' => $stu_id,
                     'SSDM' => $dormitory_id,
                     'CH' => $bed_id,
                     'YXDM' => $college_id,
                     'SDSJ' => time(),
-                    'status' => 'waited',
+                    'status' => 'waited', 
                 ]);
                 //第二步，将frsh_dormitory中对于宿舍，剩余人数-1，宿舍选择情况更新
                 $list = $this -> where('YXDM',$college_id)
@@ -119,9 +314,9 @@ class Dormitory extends Model
                               -> find();
                 
                 $rest_num = $list['SYRS'] - 1;
-                //宿舍总人数
+                // 宿舍总人数
                 $length = strlen($list['CPXZ']);
-                //核查床位是否被选过
+                // 核查床位是否被选过
                 if ( $list['CPXZ'][$bed_id - 1] == 0 ) {
                     //说明该床位已经被选过
                     return ['该床位被选了', false];
@@ -336,6 +531,37 @@ class Dormitory extends Model
         
     }
 
+    /**
+     * 用来验证民族选择情况
+     */
+    private function checkNation($dormitory_id){
+        $place_number = Db::view('fresh_list') 
+                        -> view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                        -> where('SSDM', $dormitory_id) 
+                        -> where('MZ','<>', '汉族')
+                        -> count();
+        if ($place_number >= 1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 用来验证生源地选择情况
+     */
+    private function checkPlace ($dormitory_id, $place) {
+        $place_number = Db::view('fresh_list') 
+                        -> view('fresh_info', 'XM, XH, SYD', 'fresh_list.XH = fresh_info.XH')
+                        -> where('SSDM', $dormitory_id) 
+                        -> where('SYD','LIKE', $place)
+                        -> count();
+        if ($place_number >= 2) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 
 }

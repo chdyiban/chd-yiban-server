@@ -20,14 +20,26 @@ class Dormitory extends Freshuser
     private $userInfo = null;
 
     function _initialize(){
-        header('Access-Control-Allow-Origin:*');
+        header('Access-Control-Allow-Origin:*');   
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
         if(!$this->loginInfo){
             $this->error('失败','参数非法');
         }
-        $this -> userInfo = $this -> get_info($this -> token);
+        $this -> userInfo = $this -> get_info($this -> token);  
 
+    }
+    public function init(){
+        header('Access-Control-Allow-Origin:*');
+        $user_id = $this->loginInfo['user_id'];
+        $steps = parent::getSteps($user_id);
+        $DormitoryModel = new DormitoryModel;
+        $info = $DormitoryModel -> initSteps($steps, $this->userInfo);
+        if ($info) {
+            $this -> success('success', ['steps' => $steps, 'info' => $info]);
+        } else {
+            $this -> error('error', $steps);            
+        }
     }
     /**
      * demo 可以这样实现。
@@ -36,7 +48,6 @@ class Dormitory extends Freshuser
         dump($this->loginInfo);
         echo 'index method';
     }
-
     /**
      * 展示可选择宿舍楼以及宿舍号接口
      * @param array $infomation ['stu_id', 'college_id', 'sex', 'place']
@@ -47,15 +58,7 @@ class Dormitory extends Freshuser
      */
     public function show()
     {
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $type = $this -> request->get('type');
-        $building = $this -> request->get('building');
-        $dormitory = $this -> request->get('dormitory');
-        $key = [
-            'building' => $building,
-            'dormitory' => $dormitory,
-            'type' => $type,
-        ];
+        $key = json_decode(base64_decode($this->request->post('key')),true);
         $DormitoryModel = new DormitoryModel;
         $list = $DormitoryModel -> show($this->userInfo,$key);
         if ($list) {
@@ -64,6 +67,31 @@ class Dormitory extends Freshuser
             $this -> error('请求失败', $list);
         }   
     }
+
+    /**
+     * 补充完善信息的接口
+     * @param array $infomation
+     */
+    public function setinfo()
+    {
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $DormitoryModel = new DormitoryModel;
+        $info = $DormitoryModel -> setinfo($this->userInfo, $key);
+        $info[0] == 1?  $this->success($info[1]):$this->error($info[1]);
+    }
+
+    /**
+     * 提交选择至redis
+     */
+    public function giveredis()
+    {
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $DormitoryModel = new DormitoryModel;
+        $info = $DormitoryModel -> giveredis($this -> userInfo, $key);   
+        
+    }
+
+
     /**
      * 提交选择调用接口
      * @param array $infomation ['stu_id', 'college_id', 'sex', 'place']
@@ -73,18 +101,7 @@ class Dormitory extends Freshuser
      */
     public function submit()
     {
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $dormitory_id = $this -> request -> get('dormitory_id');
-        $dormitory_id = str_replace('_','#',$dormitory_id);
-        $bed_id = $this -> request -> get('bed_id');
-        $key = [
-            // 'stu_id' => '2018900001',
-            // 'college_id' => '2400',
-            // 'sex'  => '1',
-            // 'place' => '陕西省',
-            'dormitory_id' => $dormitory_id,
-            'bed_id' =>  $bed_id,
-        ];
+        $key = json_decode(base64_decode($this->request->post('key')),true);
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> submit($this -> userInfo, $key);
         if ($info[1]) {
@@ -102,11 +119,7 @@ class Dormitory extends Freshuser
      */
     public function confirm()
     {
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $type = $this -> request -> get('type');
-        $key = [
-            'type' => $type,
-        ];
+        $key = json_decode(base64_decode($this->request->post('key')),true);
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> confirm($this -> userInfo, $key);
         if ($info[1]) {
@@ -126,6 +139,7 @@ class Dormitory extends Freshuser
     {
         //$key = json_decode(base64_decode($this->request->post('key')),true);
         $DormitoryModel = new DormitoryModel;
+        //$userid = $this->check($user);
         $info = $DormitoryModel -> finished($this -> userInfo);
         $this -> success('选择完成，查看室友信息', $info);
     }
@@ -143,6 +157,7 @@ class Dormitory extends Freshuser
             $info['place'] = $list['SYD'];
             $info['college_id'] = $list['YXDM'];
             $info['sex'] = $list['XBDM'];
+            $info['nation'] = $list['MZ'];
             return $info;
         } else {
             return false;

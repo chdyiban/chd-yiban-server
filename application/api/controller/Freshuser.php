@@ -27,16 +27,8 @@ class Freshuser extends Api
 
     public function login(){
         header('Access-Control-Allow-Origin:*');
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $user['XM'] = $this -> request -> get('XM');
-        $user['XH'] = $this -> request -> get('XH');
-        //$user['SFZH'] = $this -> request -> get('SFZH');
-        $user['ZKZH'] = $this -> request -> get('ZKZH');
-        // $user['XM'] = '杨加玉';
-        // $user['XH'] = '2018900005';
-        // $user['SFZH'] = '610602199106150315';
-        // $user['ZKZH'] = '6100123456';
-        $userid = $this->check($user);
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $userid = $this->check($key);
         if($userid){
             $this->_token = Random::uuid();
             Token::set($this->_token, $userid, $this->keeptime);
@@ -65,10 +57,10 @@ class Freshuser extends Api
 
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
-        $info = Db::name('fresh_info') -> where('XH', $user['XH'])
-                                       //-> where('SFZH', $user['SFZH'])
-                                       -> where('ZKZH', $user['ZKZH'])
-                                       ->find(); 
+        $info = Db::name('fresh_info')
+                            -> where('XH', $user['XH'])
+                            -> where('ZKZH', $user['ZKZH'])
+                            ->find(); 
         if (empty($info)) {
             return false;
         } else {
@@ -77,19 +69,18 @@ class Freshuser extends Api
         }
     }
 
-    private function getSteps($userId){
+    protected function getSteps($userId){
         $personalMsg = Db::name('fresh_info') -> where('ID', $userId) ->find();
         $stu_id = $personalMsg['XH'];
         //判断信息是否完善
-        $isInfoExist = Db::name('fresh_information') -> where('XH', $stu_id) -> find();
+        $isInfoExist = Db::name('fresh_info_add') -> where('XH', $stu_id) -> find();
         $isListExist = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
         if (empty($isInfoExist)) {
-            return 'input';
-        } elseif(!$isInfoExist['status']) {
-            return 'list';
-        } elseif ($isInfoExist['status'] && empty($isListExist)) {
+            return 'setinfo';
+        } elseif (empty($isListExist)) {
             return 'select';
         } else {
+            //wait finished
             return $isListExist['status'];
         }
         
