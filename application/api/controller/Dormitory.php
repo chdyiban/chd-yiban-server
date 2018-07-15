@@ -50,7 +50,7 @@ class Dormitory extends Freshuser
             }
         }
     }
-    
+
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $user_id = $this->loginInfo['user_id'];

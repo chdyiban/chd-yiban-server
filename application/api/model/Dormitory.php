@@ -242,7 +242,7 @@ class Dormitory extends Model
                     'SZDQ' => $key['SZDQ'],
                     'XXDZ' => $key['XXDZ'],
                     'BRDH' => $key['BRDH'],
-                    'ZP' => $key['ZP'],
+                    'ZP' => $key['ZP'][0]['url'],
                     'ZSR' => $key['ZSR'],
                     'RJSR' => $RJSR,
                     'FQZY' => $key['JJDC'][0][0],
