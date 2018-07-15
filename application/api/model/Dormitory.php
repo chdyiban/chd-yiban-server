@@ -24,18 +24,13 @@ class Dormitory extends Model
                             -> view('dict_college', 'YXDM, YXMC', 'fresh_info.YXDM = dict_college.YXDM')
                             -> where('XH', $stuid)
                             -> find();
-                
-                if ($data) {
-                    $info['XH'] = $data['XH'];
-                    $info['XM'] = $data['XM'];
-                    $info['YXMC'] = $data['YXMC'];
-                    $info['XB'] = $data['XBDM'] == 1? "男":"女";
-                    $info['MZ'] = $data['MZ'];
-                    $info['SYD'] = $data['SYD'];
-                    return $info;
-                } else {
-                    return false;
-                }
+                $info['XH'] = $data['XH'];
+                $info['XM'] = $data['XM'];
+                $info['YXMC'] = $data['YXMC'];
+                $info['XB'] = $data['XBDM'] == 1? "男":"女";
+                $info['MZ'] = $data['MZ'];
+                $info['SYD'] = $data['SYD'];
+                return $info;
                 break;
             //第二步，选房阶段
             //16 => [101 => [1,2], 102],
@@ -94,7 +89,7 @@ class Dormitory extends Model
     public function show($info, $key, $steps)
     {
         if ($steps != 'select') {
-            return ['执行顺序出错'];
+            return ['status' => false, 'msg' => "执行顺序错误", 'data' => null];
         } else {
             $list = [];
             $college_id = $info['college_id'];
@@ -117,12 +112,12 @@ class Dormitory extends Model
                         );
                         $list[] = $info;
                     }
-                    return $list;
+                    return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                     break;
                 //需要宿舍号
                 case 'dormitory':
                     if (empty($key['building'])) {
-                        return false;
+                        return ['status' => false, 'msg' => "参数有误", 'data' => null];
                     }else{
                         $building = $key['building'];
                         $data = $this -> where('YXDM',$college_id)
@@ -133,13 +128,13 @@ class Dormitory extends Model
                         foreach ($data as $key => $value) {
                             $list[] = $value -> toArray()['SSH'];
                         }
-                        return $list;
+                        return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                     }
                     break;
                 //需要床号
                 case 'bed':
                     if (empty($key['dormitory'])) {
-                        return false;
+                        return ['status' => false, 'msg' => "参数有误", 'data' => null];
                     }else{
                         $building = $key['building'];
                         $dormitory = $key['dormitory'];
@@ -148,7 +143,7 @@ class Dormitory extends Model
                         if ($nation <> "汉族") {
                             $msg = $this -> checkNation($SSDM);
                             if (!$msg) {
-                                return ['该宿舍少数民族人数过多，请换一间宿舍吧！'];
+                                return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                             }
                         }
                         $data = $this -> where('YXDM',$college_id)
@@ -161,15 +156,15 @@ class Dormitory extends Model
                         if ($place <> "陕西") {
                             $msg = $this -> checkNation($SSDM);
                             if (!$msg) {
-                                return ['该宿舍同一省份人数过多，请换一间宿舍吧！'];
+                                return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                             } else {
                                 $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
-                                return $list;
+                                return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                             }   
                             //如果是陕西人，则不必判断只需返回可选的床位号 
                         } else {
                             $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
-                            return $list;
+                            return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                         }            
                     }
                     break;
@@ -223,15 +218,20 @@ class Dormitory extends Model
     public function setinfo($info, $key, $steps)
     {
         if ($steps != 'setinfo') {
-            return [false, "执行顺序有错误"];
+            return ['status' => false, 'msg' => "执行顺序有误", 'data' => null];
         } else {
             $exit_info = Db::name('fresh_info_add') -> where('XH', $info['stu_id']) -> count();
             if ($exit_info) {
-                return [false,"你已经完善过信息了，请向下执行吧"];
+                return ['status' => false, 'msg' => "信息已经完善", 'data' => null];
             } else {
                 $ZCYF = '';
                 foreach ($key['JJDC'][7] as $k => $v) {
                     $ZCYF = $k == 0 ? $v:$ZCYF.",".$v;
+                }
+                if ($key['JTRKS'] == 0) {
+                    return ['status' => false, 'msg' => "数据提供有问题", 'data' => null];
+                } else {
+                    $RJSR = $key['ZSR']/$key['JTRKS'];
                 }
                 $data = array(
                     'XH' => $info['stu_id'],
@@ -242,9 +242,9 @@ class Dormitory extends Model
                     'SZDQ' => $key['SZDQ'],
                     'XXDZ' => $key['XXDZ'],
                     'BRDH' => $key['BRDH'],
-    //                'ZP' => $key['ZP'],
+                    'ZP' => $key['ZP'],
                     'ZSR' => $key['ZSR'],
-                    'RJSR' => $key['RJSR'],
+                    'RJSR' => $RJSR,
                     'FQZY' => $key['JJDC'][0][0],
                     'MQZY' => $key['JJDC'][1][0],
                     'FQLDNL' => $key['JJDC'][2][0],
@@ -269,10 +269,8 @@ class Dormitory extends Model
                         'LXDH' => $v['mobile'],
                     );
                     $info_family[] = $family_info;
-                    //$family_res = Db::name('fresh_family_info') -> insert($family_info);
                 }
-                return ['data' => $data, 'info' => $info_family];
-                //return $res == 1 && $family_res == 1?[true,"信息录入成功"]:[false, "信息录入失败"];       
+                return ['status' => true, 'msg' => "返回成功", 'data' => $data, '$info' => $info_family];
             }
         }
     }
@@ -307,7 +305,7 @@ class Dormitory extends Model
     public function submit($info, $key, $steps)
     {
         if ($steps != 'select') {
-            return ['执行顺利出错', false];
+            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
         } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
@@ -320,14 +318,14 @@ class Dormitory extends Model
             if ($nation <> "汉族") {
                 $msg = $this -> checkNation($dormitory_id);
                 if (!$msg) {
-                    return ['不符合学校相关住宿规定，无法选择该宿舍！', false];
+                    return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];
                 }
             }
             //如果不是陕西省的学生，则需要判断该宿同省人数
             if ($place <> "陕西") {
                 $msg = $this -> checkNation($dormitory_id, $place);
                 if (!$msg) {
-                    return ['不符合学校相关住宿规定，无法选择该宿舍！', false];
+                    return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];                    
                 }
             }
             $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
@@ -356,7 +354,7 @@ class Dormitory extends Model
                     // 核查床位是否被选过
                     if ( $list['CPXZ'][$bed_id - 1] == 0 ) {
                         //说明该床位已经被选过
-                        return ['该床位被选了', false];
+                        return ['status' => false, 'msg' => "该床位已经被选了", 'data' => null];
                     } else {
                         //指数
                         $exp = (int)$length - (int)$bed_id;
@@ -378,12 +376,12 @@ class Dormitory extends Model
                     Db::rollback();
                 }        
                 if($insert_flag == 1 && $update_flag == 1){
-                    return ['成功选择宿舍', true];
+                    return ['status' => true, 'msg' => "成功选择宿舍", 'data' => null];
                 }else{
-                    return ['请求失败', true];
+                    return ['status' => false, 'msg' => "请求失败", 'data' => null];
                 }
             } else {
-                return ['您已经选择过宿舍', false];
+                return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
             }
         }    
     }
@@ -391,7 +389,7 @@ class Dormitory extends Model
     public function confirm($info, $key, $steps)
     {
         if ($steps != 'waited') {
-            return ['执行顺序出错', false];
+            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
         } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
@@ -403,11 +401,10 @@ class Dormitory extends Model
                     //判断是否超时
                     $get_msg = Db::name('fresh_list') -> where('XH', $stu_id) -> where('status', 'waited') ->find();
                     if (empty($get_msg)) {
-                        return ['不存在需要确认的宿舍订单', false];
+                        return ['status' => false, 'msg' => "不存在需要确认的宿舍订单", 'data' => null];
                     } else {     
                         $dormitory_id = $get_msg['SSDM'];
                         $bed_id = $get_msg['CH'];
-
                         $old_time = $get_msg['SDSJ'];
                         $now_time = time();
                         //计算天数
@@ -455,16 +452,16 @@ class Dormitory extends Model
                                 Db::rollback();
                             }
                             if ( $insert_exception == 1 && $delete_list == 1) {
-                                return ['超时，已经取消', true];
+                                return ['status' => false, 'msg' => "超时，已经取消", 'data' => null];
                             } else {
-                                return ['未因超时成功取消', false];
+                                return ['status' => false, 'msg' => "未成功取消", 'data' => null];                                
                             }   
                         } else {
                             $update_status = Db::name('fresh_list') -> where('XH', $stu_id)->update(['status' => 'finished']);
                             if ($update_status == 1) {
-                                return ['宿舍确认成功', true];
+                                return ['status' => true, 'msg' => "宿舍确认成功", 'data' => null];                                
                             } else {
-                                return ['宿舍已经确认结束', false];
+                                return ['status' => false, 'msg' => "宿舍已经确认过", 'data' => null];                                
                             }
                         }
                         break;
@@ -473,7 +470,7 @@ class Dormitory extends Model
                 case 'cancel':     
                     $data_in_list = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
                     if (empty($data_in_list)) {
-                        return ['您还未申请宿舍', false];
+                        return ['status' => false, 'msg' => "尚未申请宿舍", 'data' => null];                                
                     } else {
                         $insert_exception = false;
                         $delete_list = false;
@@ -513,9 +510,9 @@ class Dormitory extends Model
                         Db::rollback();
                         }
                         if ( $insert_exception == 1 && $delete_list == 1) {
-                            return ['已经成功取消', true];
+                            return ['status' => false, 'msg' => "已经成功取消", 'data' => null];                                
                         } else {
-                            return ['请求失败', false];
+                            return ['status' => false, 'msg' => "请求失败", 'data' => null];                                
                         }   
                     }    
                     break;
@@ -526,7 +523,7 @@ class Dormitory extends Model
     public function finished($key, $steps)
     {
         if ($steps != 'finished') {
-            return false;
+            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];                                
         } else {
             $info = [];
             $stu_id = $key['stu_id'];
@@ -534,47 +531,42 @@ class Dormitory extends Model
             $sex = $key['sex'];
             $place = $key['place'];
             $list = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
-            if ($list['status'] == 'finished') {
-                $info[0] = $list;
-                $room_msg = $this -> where('SSDM', $list['SSDM']) -> select();
-                $max_number = strlen($room_msg[0]['CPXZ']);
-                $roommate_msg = Db::view('fresh_list') 
-                                    ->view('fresh_info','XM, XH','fresh_list.XH = fresh_info.XH')
-                                    -> where('SSDM', $list['SSDM'])
-                                    -> where('fresh_list.XH', '<>', $list['XH'])
-                                    -> where('status','finished')
-                                    -> select();
-                
-                $number = count($roommate_msg);
-                $bed = array();
-                if ($max_number == 4) {
-                    $bed = [1,2,3,4];
-                } elseif ($max_number == 6) {
-                    $bed = [1,2,3,4,5,6];
-                }
-                unset($bed[$list['CH'] - 1]);
-                foreach ($roommate_msg as $key => $value) {
-                    $info[1][$value['CH']]['XM'] = $value['XM'];
-                    $info[1][$value['CH']]['CH'] = $value['CH'];
-                    $info[1][$value['CH']]['SSDM'] = $value['SSDM'];
-                    unset($bed[$value['CH'] - 1]);
-                }
-                
-                if (empty($bed)) {
-                    return $info;
-                } else {
-                    foreach ($bed as $key => $value) {
-                        $info[1][$value] = ['暂无人'];
-                    }
-                    return $info;
-                }
-                
-            } else {
-                return false;
+
+            $info[0] = $list;
+            $room_msg = $this -> where('SSDM', $list['SSDM']) -> select();
+            $max_number = strlen($room_msg[0]['CPXZ']);
+            $roommate_msg = Db::view('fresh_list') 
+                                ->view('fresh_info','XM, XH','fresh_list.XH = fresh_info.XH')
+                                -> where('SSDM', $list['SSDM'])
+                                -> where('fresh_list.XH', '<>', $list['XH'])
+                                -> where('status','finished')
+                                -> select();
+            
+            $number = count($roommate_msg);
+            $bed = array();
+            if ($max_number == 4) {
+                $bed = [1,2,3,4];
+            } elseif ($max_number == 6) {
+                $bed = [1,2,3,4,5,6];
             }
+            unset($bed[$list['CH'] - 1]);
+            foreach ($roommate_msg as $key => $value) {
+                $info[1][$value['CH']]['XM'] = $value['XM'];
+                $info[1][$value['CH']]['CH'] = $value['CH'];
+                $info[1][$value['CH']]['SSDM'] = $value['SSDM'];
+                unset($bed[$value['CH'] - 1]);
+            }
+
+            if (empty($bed)) {
+                return $info;
+            } else {
+                foreach ($bed as $key => $value) {
+                    $info[1][$value] = ['暂无人'];
+                }
+                return ['status' => ture, 'msg' => "查询成功", 'data' => $info];  
+            }    
         }
     }
-
     /**
      * 用来验证民族选择情况
      */
@@ -590,7 +582,6 @@ class Dormitory extends Model
             return true;
         }
     }
-
     /**
      * 用来验证生源地选择情况
      */
@@ -606,6 +597,4 @@ class Dormitory extends Model
             return true;
         }
     }
-
-
 }
