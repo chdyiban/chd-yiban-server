@@ -54,6 +54,7 @@ class Stuinfo extends Freshuser
     public function setinfo()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+        dump($key);
         $DormitoryModel = new DormitoryModel;
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $result = $DormitoryModel -> setinfo($this->userInfo, $key, $steps);

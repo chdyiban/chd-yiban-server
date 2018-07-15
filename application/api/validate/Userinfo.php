@@ -16,7 +16,7 @@ class Userinfo extends Validate
         'SZDQ' => 'require',
         'XXDZ' => 'require|min:5',
         'ZSR' => 'require|number',
-        'ZP' => 'require|array',
+        'ZP' => 'require|url',
         'FQZY' => 'require|between: 1,5',
         'MQZY' => 'require|between: 1,5',
         'FQLDNL' => 'require|between: 1,5',
@@ -59,7 +59,7 @@ class Userinfo extends Validate
         'ZY' => '请填写正确的职业',
         'NSR' => '年收入需要为纯数字',
         'JKZK' => '填写正确的健康状况',
-        'LXDH' => '请填写有效的手机号',
+        'LXDH' => '请填写有效的联系电话',
     ];
     protected $scene = [
         'user'  =>  ['XH','RXQHK','JTRKS', 'YZBM','BRDH','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
