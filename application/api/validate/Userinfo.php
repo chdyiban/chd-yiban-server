@@ -16,8 +16,7 @@ class Userinfo extends Validate
         'SZDQ' => 'require|chs',
         'XXDZ' => 'require|min:5',
         'ZSR' => 'require|number',
-        'RJSR' => 'require|number',
-        'ZP' => 'require|url',
+        'ZP' => 'require|array',
         'FQZY' => 'require|between: 1,5',
         'MQZY' => 'require|between: 1,5',
         'FQLDNL' => 'require|between: 1,5',
@@ -44,7 +43,6 @@ class Userinfo extends Validate
         'SZDQ' => '所在地区必须为汉字',
         'XXDZ' => '详细地址最少5字',
         'ZSR' => '总收入必须为数字',
-        'RJSR' => '人均收入必须为数字',
         'ZP' => "请输入有效照片地址",
         'FQZY' => "选项在1-5之间",
         'MQZY' => "选项在1-5之间",
@@ -88,5 +86,8 @@ class Userinfo extends Validate
             }   
         }
     }
+
+    
+
 
 }

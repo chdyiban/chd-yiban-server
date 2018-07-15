@@ -27,12 +27,30 @@ class Dormitory extends Freshuser
         header('Access-Control-Allow-Origin:*');   
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
+        $this -> userInfo = $this -> get_info($this -> token);
         if(!$this->loginInfo){
             $this->error('失败','参数非法');
         }
-        $this -> userInfo = $this -> get_info($this -> token);  
-
+        $choice_type = Config::get('dormitory.type');
+        $end_time = Config::get('dormitory.endtime'); 
+        $end_time = strtotime($end_time);
+        $now_time = strtotime('now');
+        if ($choice_type == 'sametime') {
+            $start_time = Config::get('dormitory.sametime');
+            $start_time = strtotime($start_time);
+            if ($now_time < $start_time || $now_time > $end_time) {
+                $this -> error('选宿舍尚未开始');
+            } 
+        } elseif ($choice_type == 'difftime')  {
+            $college_id = $this ->userInfo['college_id'];
+            $college_start_time = Config::get('dormitory.'.$college_id);
+            $college_start_time = strtotime($college_start_time);
+            if ($now_time < $college_start_time || $now_time > $end_time) {
+                $this -> error($this->userInfo['college_name'].'选宿舍尚未开始');
+            }
+        }
     }
+    
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $user_id = $this->loginInfo['user_id'];
@@ -40,7 +58,7 @@ class Dormitory extends Freshuser
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> initSteps($steps, $this->userInfo);
         if ($info) {
-            $this -> success('success', ['steps' => $steps, 'info' => $info]);
+            $this -> success('success', ['steps' => $steps, 'info' => $info, 'userinfo' => $this ->userInfo]);
         } else {
             $this -> error('error', $steps);            
         }
@@ -62,51 +80,25 @@ class Dormitory extends Freshuser
      */
     public function show()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $list = $DormitoryModel -> show($this->userInfo,$key, $steps);
-        if ($list) {
-            $this -> success('查询成功', $list);
+        if ($list['status']) {
+            $this -> success($list['msg'], $list['data']);
         } else {
-            $this -> error('请求失败', $list);
+            $this -> error($list['msg'], $list['data']);
         }   
     }
 
     /**
      * 补充完善信息的接口
      * @param array $infomation
+     * 迁移至 Stuinfo.php
      */
-    public function setinfo()
-    {
-        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        $DormitoryModel = new DormitoryModel;
-        $steps = parent::getSteps($this->loginInfo['user_id']);
-        $result = $DormitoryModel -> setinfo($this->userInfo, $key, $steps);
-        $data = $result['data'];
-        $info = $result['info'];
-        $Userinfo = $this -> validate($data,'Userinfo.user');
-        $Family[0] = $Userinfo;
-        foreach ($info as $key => $value) {
-            $Familyinfo = $this -> validate($value,'Userinfo.family');
-            $Family[] = $Familyinfo;
-        }
-        foreach ($Family as $key => $value) {
-            if (gettype($value) == "string") {
-                $this->error($value);
-            }
-        }
-        $res = Db::name('fresh_info_add') -> insert($data);
-        foreach ($info as $key => $value) {
-            $res1 = Db::name('fresh_family_info') -> insert($value);
-        }
-        if ($res && $res1) {
-            $this -> success("信息录入成功");
-        }else {
-            $this -> error("信息录入失败");
-    }
-        
-    }
+    // public function setinfo()
+    // {      
+    // }
 
     /**
      * 提交选择至redis
@@ -133,10 +125,10 @@ class Dormitory extends Freshuser
         $DormitoryModel = new DormitoryModel;
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $info = $DormitoryModel -> submit($this -> userInfo, $key, $steps);
-        if ($info[1]) {
-            $this -> success($info[0], $info[1]);
+        if ($info['status']) {
+            $this -> success($info['msg'], $info['data']);
         } else {
-            $this -> error($info[0], $info[1]);
+            $this -> error($info['msg'], $info['data']);
         }   
     }
 
@@ -152,10 +144,10 @@ class Dormitory extends Freshuser
         $DormitoryModel = new DormitoryModel;
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $info = $DormitoryModel -> confirm($this -> userInfo, $key, $steps);
-        if ($info[1]) {
-            $this -> success($info[0], $info[1]);
+        if ($info['status']) {
+            $this -> success($info['msg'], $info['data']);
         } else {
-            $this -> error($info[0], $info[1]);
+            $this -> error($info['msg'], $info['data']);
         }   
 
     }
@@ -172,7 +164,11 @@ class Dormitory extends Freshuser
         //$userid = $this->check($user);
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $info = $DormitoryModel -> finished($this -> userInfo, $steps);
-        $this -> success('选择完成，查看室友信息', $info);
+        if ($info['status']){
+            $this -> success($info['msg'], $info['data']);
+        } else {
+            $this -> error($info['msg'], $info['data']);
+        }
     }
 
     /**
@@ -194,11 +190,15 @@ class Dormitory extends Freshuser
     private function get_info($token)
     {
         $user_id = $this->loginInfo['user_id'];
-        $list = Db::name('fresh_info') -> where('ID', $user_id) -> find();
+        $list = Db::view('fresh_info') 
+                    -> view('dict_college', 'YXDM,YXMC','fresh_info.YXDM = dict_college.YXDM')
+                    -> where('ID', $user_id) 
+                    -> find();
         if ($list) {
             $info['stu_id'] = $list['XH'];
             $info['place'] = $list['SYD'];
             $info['college_id'] = $list['YXDM'];
+            $info['college_name'] = $list['YXMC'];
             $info['sex'] = $list['XBDM'];
             $info['nation'] = $list['MZ'];
             return $info;
