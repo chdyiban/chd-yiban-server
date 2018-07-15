@@ -34,7 +34,7 @@ class Stuinfo extends Freshuser
         $this -> userInfo = $this -> get_info($this -> token);  
 
     }
-    
+
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $user_id = $this->loginInfo['user_id'];
@@ -57,7 +57,7 @@ class Stuinfo extends Freshuser
         $DormitoryModel = new DormitoryModel;
         $steps = parent::getSteps($this->loginInfo['user_id']);
         $result = $DormitoryModel -> setinfo($this->userInfo, $key, $steps);
-        if ($result['status']) {
+        if (!$result['status']) {
             $this -> error($result['msg'], $result['data']);
         } else {
             $data = $result['data'];
