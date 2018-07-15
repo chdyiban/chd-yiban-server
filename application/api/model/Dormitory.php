@@ -270,7 +270,7 @@ class Dormitory extends Model
                     );
                     $info_family[] = $family_info;
                 }
-                return ['status' => true, 'msg' => "返回成功", 'data' => $data, '$info' => $info_family];
+                return ['status' => true, 'msg' => "返回成功", 'data' => $data, 'info' => $info_family];
             }
         }
     }
