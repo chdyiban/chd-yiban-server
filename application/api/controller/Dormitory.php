@@ -24,7 +24,8 @@ class Dormitory extends Freshuser
     private $userInfo = null;
 
     function _initialize(){
-        header('Access-Control-Allow-Origin:*');   
+        header('Access-Control-Allow-Origin:*');  
+         
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
         $this -> userInfo = $this -> get_info($this -> token);
@@ -82,8 +83,8 @@ class Dormitory extends Freshuser
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $steps = parent::getSteps($this->loginInfo['user_id']);
-        $list = $DormitoryModel -> show($this->userInfo,$key, $steps);
+        //$steps = parent::getSteps($this->loginInfo['user_id']);
+        $list = $DormitoryModel -> show($this->userInfo,$key);
         if ($list['status']) {
             $this -> success($list['msg'], $list['data']);
         } else {
@@ -123,8 +124,8 @@ class Dormitory extends Freshuser
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $steps = parent::getSteps($this->loginInfo['user_id']);
-        $info = $DormitoryModel -> submit($this -> userInfo, $key, $steps);
+        //$steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> submit($this -> userInfo, $key);
         if ($info['status']) {
             $this -> success($info['msg'], $info['data']);
         } else {
@@ -142,8 +143,8 @@ class Dormitory extends Freshuser
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        $steps = parent::getSteps($this->loginInfo['user_id']);
-        $info = $DormitoryModel -> confirm($this -> userInfo, $key, $steps);
+        //$steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> confirm($this -> userInfo, $key);
         if ($info['status']) {
             $this -> success($info['msg'], $info['data']);
         } else {
@@ -162,8 +163,8 @@ class Dormitory extends Freshuser
         //$key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
         //$userid = $this->check($user);
-        $steps = parent::getSteps($this->loginInfo['user_id']);
-        $info = $DormitoryModel -> finished($this -> userInfo, $steps);
+       // $steps = parent::getSteps($this->loginInfo['user_id']);
+        $info = $DormitoryModel -> finished($this -> userInfo);
         if ($info['status']){
             $this -> success($info['msg'], $info['data']);
         } else {
