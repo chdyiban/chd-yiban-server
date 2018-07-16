@@ -566,9 +566,9 @@ class Dormitory extends Model
             }
             unset($bed[$list['CH'] - 1]);
             foreach ($roommate_msg as $key => $value) {
-                $info['roomate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $info['roomate'][$value['CH']]['CH'] = $value['CH'];
-                $info['roomate'][$value['CH']]['LXFS'] = '****';
+                $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $info['roommate'][$value['CH']]['CH'] = $value['CH'];
+                $info['roommate'][$value['CH']]['LXFS'] = '****';
                 unset($bed[$value['CH'] - 1]);
             }
 
@@ -576,7 +576,7 @@ class Dormitory extends Model
                 return $info;
             } else {
                 foreach ($bed as $key => $value) {
-                    $info['roomate'][$value] = [
+                    $info['roommate'][$value] = [
                         'XM' => '空余',
                         'SYD' => '-',
                         'LXFS' => '-'
