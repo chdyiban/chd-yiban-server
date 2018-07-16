@@ -526,19 +526,30 @@ class Dormitory extends Model
 
     public function finished($key)
     {
-        // if ($steps != 'finished') {
-        //     return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];                                
-        // } else {
             $info = [];
             $stu_id = $key['stu_id'];
             $college_id = $key['college_id'];
             $sex = $key['XBDM'];
             $place = $key['place'];
-            $list = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
+            $list = Db::view('fresh_list') 
+                    ->view('fresh_info','XM, XH, SYD','fresh_list.XH = fresh_info.XH')
+                    -> where('fresh_info.XH', $stu_id) 
+                    -> find();
+            
+            $room_msg = $this -> where('SSDM', $list['SSDM']) -> find();
+            $max_number = strlen($room_msg['CPXZ']);
+            $money = $max_number == 4 ? 1200: 700;
 
-            $info[0] = $list;
-            $room_msg = $this -> where('SSDM', $list['SSDM']) -> select();
-            $max_number = strlen($room_msg[0]['CPXZ']);
+            $array = array();
+            $array['XH'] = $list['XH'];
+            $array['XM'] = $list['XM'];
+            $array['SYD'] = $list['SYD'];
+            $array['CH'] = $list['CH'];
+            $array['LH'] = explode('#', $list['SSDM'])[0];
+            $array['SSH'] = explode('#', $list['SSDM'])[1];
+            $array['ZSF'] = $money;
+            $info['personal'] = $array;
+           
             $roommate_msg = Db::view('fresh_list') 
                                 ->view('fresh_info','XM, XH','fresh_list.XH = fresh_info.XH')
                                 -> where('SSDM', $list['SSDM'])
@@ -555,9 +566,9 @@ class Dormitory extends Model
             }
             unset($bed[$list['CH'] - 1]);
             foreach ($roommate_msg as $key => $value) {
-                $info[1][$value['CH']]['XM'] = $value['XM'];
-                $info[1][$value['CH']]['CH'] = $value['CH'];
-                $info[1][$value['CH']]['SSDM'] = $value['SSDM'];
+                $info['roomate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $info['roomate'][$value['CH']]['CH'] = $value['CH'];
+                $info['roomate'][$value['CH']]['LXFS'] = '****';
                 unset($bed[$value['CH'] - 1]);
             }
 
@@ -565,7 +576,11 @@ class Dormitory extends Model
                 return $info;
             } else {
                 foreach ($bed as $key => $value) {
-                    $info[1][$value] = ['暂无人'];
+                    $info['roomate'][$value] = [
+                        'XM' => '空余',
+                        'SYD' => '-',
+                        'LXFS' => '-'
+                    ];
                 }
                 return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
             }    
