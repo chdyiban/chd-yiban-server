@@ -55,7 +55,6 @@ class Dormitory extends Freshuser
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $user_id = $this->loginInfo['user_id'];
-        dump($user_id);
         $steps = parent::getSteps($user_id);
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> initSteps($steps, $this->userInfo);
