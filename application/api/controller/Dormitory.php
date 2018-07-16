@@ -30,7 +30,7 @@ class Dormitory extends Freshuser
         $this -> loginInfo = $this->isLogin($this -> token);
         $this -> userInfo = $this -> get_info($this -> token);
         if(!$this->loginInfo){
-            $this->error('失败','参数非法');
+            $this->error('参数非法');
         }
         $choice_type = Config::get('dormitory.type');
         $end_time = Config::get('dormitory.endtime'); 
@@ -55,6 +55,7 @@ class Dormitory extends Freshuser
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $user_id = $this->loginInfo['user_id'];
+        dump($user_id);
         $steps = parent::getSteps($user_id);
         $DormitoryModel = new DormitoryModel;
         $info = $DormitoryModel -> initSteps($steps, $this->userInfo);
@@ -86,7 +87,7 @@ class Dormitory extends Freshuser
         //$steps = parent::getSteps($this->loginInfo['user_id']);
         $list = $DormitoryModel -> show($this->userInfo,$key);
         if ($list['status']) {
-            $this -> success($list['msg'], $list['data']);
+            $this -> success($list['msg'], ['data' => $list['data'], 'dormitory_number' => $list['dormitory_number'],'bed_number' => $list['bed_number']]);
         } else {
             $this -> error($list['msg'], $list['data']);
         }   
@@ -200,7 +201,8 @@ class Dormitory extends Freshuser
             $info['place'] = $list['SYD'];
             $info['college_id'] = $list['YXDM'];
             $info['college_name'] = $list['YXMC'];
-            $info['sex'] = $list['XBDM'];
+            $info['XBDM'] = $list['XBDM'];
+            $info['sex'] = $list['XBDM'] == '1'? '男':'女';
             $info['nation'] = $list['MZ'];
             return $info;
         } else {

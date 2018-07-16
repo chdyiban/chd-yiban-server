@@ -29,6 +29,7 @@ class Freshuser extends Api
         header('Access-Control-Allow-Origin:*');
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $userid = $this->check($key);
+
         if($userid){
             $this->_token = Random::uuid();
             Token::set($this->_token, $userid, $this->keeptime);
@@ -40,9 +41,29 @@ class Freshuser extends Api
         } else {
             $this->error('认证失败','请检查姓名、身份证号及准考证号等信息是否填写完成');
         }
-
-        
         //dump($this->_token);
+    }
+    /**
+     * 随机返回一个用户的信息
+     */
+    public function testuser()
+    {
+        $id = rand(1,551);
+        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
+        $this -> success('获取成功', $info);
+    }
+
+    public function signout()
+    {
+        $token = $this->request->param('token');
+        $loginInfo = $this -> isLogin($token);
+        $token_status = Token::has($token, $loginInfo['user_id']);
+        if ($token_status) {
+            $info = Token::rm($token);
+            return $this->success('已经退出');
+        } else {
+            $this->error('账号不存在');
+        }
     }
 
     protected function isLogin($token){
