@@ -48,6 +48,7 @@ class Freshuser extends Api
      */
     public function testuser()
     {
+        header('Access-Control-Allow-Origin:*');
         $id = rand(1,551);
         $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
         $this -> success('获取成功', $info);
@@ -55,6 +56,7 @@ class Freshuser extends Api
 
     public function signout()
     {
+        header('Access-Control-Allow-Origin:*');
         $token = $this->request->param('token');
         $loginInfo = $this -> isLogin($token);
         $token_status = Token::has($token, $loginInfo['user_id']);
