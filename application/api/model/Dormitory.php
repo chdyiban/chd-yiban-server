@@ -88,11 +88,11 @@ class Dormitory extends Model
     /**
      * 返回可选择宿舍楼以及宿舍号以及剩余人数
      */
-    public function show($info, $key, $steps)
+    public function show($info, $key)
     {
-        if ($steps != 'select') {
-            return ['status' => false, 'msg' => "执行顺序错误", 'data' => null];
-        } else {
+        // if ($steps != 'select') {
+        //     return ['status' => false, 'msg' => "执行顺序错误", 'data' => null];
+        // } else {
             $list = [];
             $college_id = $info['college_id'];
             $sex = $info['sex'];
@@ -170,7 +170,7 @@ class Dormitory extends Model
                         }            
                     }
                     break;
-            }
+           // }
         }
     }
     /**
@@ -217,7 +217,7 @@ class Dormitory extends Model
     /**
      * 完善信息方法
      */
-    public function setinfo($info, $key, $steps){
+    public function setinfo($info, $key){
     
         $exit_info = Db::name('fresh_info_add') -> where('XH', $info['stu_id']) -> count();
         if ($exit_info) {
@@ -300,11 +300,11 @@ class Dormitory extends Model
     /**
      * 提交数据
      */
-    public function submit($info, $key, $steps)
+    public function submit($info, $key)
     {
-        if ($steps != 'select') {
-            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
-        } else {
+        // if ($steps != 'select') {
+        //     return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
+        // } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
             $sex = $info['sex'];
@@ -381,14 +381,14 @@ class Dormitory extends Model
             } else {
                 return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
             }
-        }    
+        //}    
     }
 
-    public function confirm($info, $key, $steps)
+    public function confirm($info, $key)
     {
-        if ($steps != 'waited') {
-            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
-        } else {
+        // if ($steps != 'waited') {
+        //     return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];
+        // } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
             $sex = $info['sex'];
@@ -515,14 +515,14 @@ class Dormitory extends Model
                     }    
                     break;
             }
-        }
+       // }
     }
 
-    public function finished($key, $steps)
+    public function finished($key)
     {
-        if ($steps != 'finished') {
-            return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];                                
-        } else {
+        // if ($steps != 'finished') {
+        //     return ['status' => false, 'msg' => "执行顺序出错", 'data' => null];                                
+        // } else {
             $info = [];
             $stu_id = $key['stu_id'];
             $college_id = $key['college_id'];
@@ -563,7 +563,7 @@ class Dormitory extends Model
                 }
                 return ['status' => ture, 'msg' => "查询成功", 'data' => $info];  
             }    
-        }
+        //}
     }
     /**
      * 用来验证民族选择情况
