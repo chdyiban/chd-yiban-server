@@ -67,7 +67,7 @@ class Dormitory extends Model
     {
         $msg = array();
         $college_id = $info['college_id'];
-        $sex = $info['sex'];
+        $sex = $info['XBDM'];
         $place = $info['place'];
         $nation = $info['nation'];
         $data = Db::name('fresh_dormitory') 
@@ -90,87 +90,96 @@ class Dormitory extends Model
      */
     public function show($info, $key)
     {
-        // if ($steps != 'select') {
-        //     return ['status' => false, 'msg' => "执行顺序错误", 'data' => null];
-        // } else {
-            $list = [];
-            $college_id = $info['college_id'];
-            $sex = $info['sex'];
-            $place = $info['place'];
-            $nation = $info['nation'];
-            $type = $key['type'];
-            switch ($type) {
-                //需要楼号
-                case 'building':
+        $list = [];
+        $college_id = $info['college_id'];
+        $sex = $info['XBDM'];
+        $place = $info['place'];
+        $nation = $info['nation'];
+        $type = $key['type'];
+        switch ($type) {
+            //需要楼号
+            case 'building':
+                $data = $this -> where('YXDM',$college_id)
+                            -> where('XB', $sex)
+                            -> group('LH')
+                            -> select();
+                foreach ($data as $key => $value) {
+                    $build = $value -> toArray()['LH'];
+                    $info = array(
+                        'name' => $build <= 6 ? $build."号楼（西区）":$build."号楼（东区）",
+                        'value' => $build,
+                    );
+                    $list[] = $info;
+                }
+                $dormitory_info = $this -> where('SYRS','>=','1') 
+                                            -> where('XB',$sex)
+                                            -> where('YXDM',$college_id)
+                                            -> field('SYRS')
+                                            -> select();
+                if (empty($dormitory_info)) {
+                    
+                }
+                $dormitory_number = count($dormitory_info);
+                $bed_number = 0;
+                foreach ($dormitory_info as $key => $value) {
+                    $bed_number += $value -> toArray()['SYRS'];
+                }
+                return ['status' => true, 'msg' => "查询成功", 'data' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number];
+                break;
+            //需要宿舍号
+            case 'dormitory':
+                if (empty($key['building'])) {
+                    return ['status' => false, 'msg' => "参数有误", 'data' => null];
+                }else{
+                    $building = $key['building'];
                     $data = $this -> where('YXDM',$college_id)
                                 -> where('XB', $sex)
-                                -> group('LH')
+                                -> where('LH', $building)
+                                -> where('SYRS','>=', 1)
                                 -> select();
                     foreach ($data as $key => $value) {
-                        $build = $value -> toArray()['LH'];
-                        $info = array(
-                            'name' => $build <= 6 ? $build."号楼（西区）":$build."号楼（东区）",
-                            'value' => $build,
-                        );
-                        $list[] = $info;
+                        $list[] = $value -> toArray()['SSH'];
                     }
                     return ['status' => true, 'msg' => "查询成功", 'data' => $list];
-                    break;
-                //需要宿舍号
-                case 'dormitory':
-                    if (empty($key['building'])) {
-                        return ['status' => false, 'msg' => "参数有误", 'data' => null];
-                    }else{
-                        $building = $key['building'];
-                        $data = $this -> where('YXDM',$college_id)
-                                    -> where('XB', $sex)
-                                    -> where('LH', $building)
-                                    -> where('SYRS','>=', 1)
-                                    -> select();
-                        foreach ($data as $key => $value) {
-                            $list[] = $value -> toArray()['SSH'];
+                }
+                break;
+            //需要床号
+            case 'bed':
+                if (empty($key['dormitory'])) {
+                    return ['status' => false, 'msg' => "参数有误", 'data' => null];
+                }else{
+                    $building = $key['building'];
+                    $dormitory = $key['dormitory'];
+                    $SSDM = (string)$building.'#'.$dormitory;
+                    //判断该宿舍少数民族人数是否超过一人
+                    if ($nation <> "汉族") {
+                        $msg = $this -> checkNation($SSDM);
+                        if (!$msg) {
+                            return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                         }
-                        return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                     }
-                    break;
-                //需要床号
-                case 'bed':
-                    if (empty($key['dormitory'])) {
-                        return ['status' => false, 'msg' => "参数有误", 'data' => null];
-                    }else{
-                        $building = $key['building'];
-                        $dormitory = $key['dormitory'];
-                        $SSDM = (string)$building.'#'.$dormitory;
-                        //判断该宿舍少数民族人数是否超过一人
-                        if ($nation <> "汉族") {
-                            $msg = $this -> checkNation($SSDM);
-                            if (!$msg) {
-                                return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
-                            }
-                        }
-                        $data = $this -> where('YXDM',$college_id)
-                                    -> where('XB', $sex)
-                                    -> where('LH', $building)
-                                    -> where('SSH', $dormitory)
-                                    -> where('SYRS','>=', 1)
-                                    -> find();
-                        //判断该宿舍非陕西籍的人数是否超过2人
-                        if ($place <> "陕西") {
-                            $msg = $this -> checkNation($SSDM);
-                            if (!$msg) {
-                                return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
-                            } else {
-                                $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
-                                return ['status' => true, 'msg' => "查询成功", 'data' => $list];
-                            }   
-                            //如果是陕西人，则不必判断只需返回可选的床位号 
+                    $data = $this -> where('YXDM',$college_id)
+                                -> where('XB', $sex)
+                                -> where('LH', $building)
+                                -> where('SSH', $dormitory)
+                                -> where('SYRS','>=', 1)
+                                -> find();
+                    //判断该宿舍非陕西籍的人数是否超过2人
+                    if ($place <> "陕西") {
+                        $msg = $this -> checkNation($SSDM);
+                        if (!$msg) {
+                            return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                         } else {
                             $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
                             return ['status' => true, 'msg' => "查询成功", 'data' => $list];
-                        }            
-                    }
-                    break;
-           // }
+                        }   
+                        //如果是陕西人，则不必判断只需返回可选的床位号 
+                    } else {
+                        $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
+                        return ['status' => true, 'msg' => "查询成功", 'data' => $list];
+                    }            
+                }
+                break;
         }
     }
     /**
@@ -234,7 +243,6 @@ class Dormitory extends Model
             }
             $data = array(
                 'XH' => $info['stu_id'],
-//               'CSNY' => $key['CSNY'],
                 'RXQHK' => $key['RXQHK'],
                 'JTRKS' => $key['JTRKS'],
                 'YZBM' => $key['YZBM'],
@@ -280,7 +288,7 @@ class Dormitory extends Model
     {
         $stu_id = $info['stu_id'];
         $college_id = $info['college_id'];
-        $sex = $info['sex'];
+        $sex = $info['XBDM'];
         $place = $info['place'];
         $dormitory_id = $key['dormitory_id'];
         $bed_id = $key['bed_id'];
@@ -295,8 +303,6 @@ class Dormitory extends Model
         $redis -> rpush($redis_name, $msg);
     }
     
-
-
     /**
      * 提交数据
      */
@@ -307,7 +313,7 @@ class Dormitory extends Model
         // } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
-            $sex = $info['sex'];
+            $sex = $info['XBDM'];
             $place = $info['place'];
             $nation = $info['nation'];
             $dormitory_id = $key['dormitory_id'];
@@ -391,7 +397,7 @@ class Dormitory extends Model
         // } else {
             $stu_id = $info['stu_id'];
             $college_id = $info['college_id'];
-            $sex = $info['sex'];
+            $sex = $info['XBDM'];
             $place = $info['place'];
             $type = $key['type'];
             switch ($type) {
@@ -526,7 +532,7 @@ class Dormitory extends Model
             $info = [];
             $stu_id = $key['stu_id'];
             $college_id = $key['college_id'];
-            $sex = $key['sex'];
+            $sex = $key['XBDM'];
             $place = $key['place'];
             $list = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
 
@@ -561,7 +567,7 @@ class Dormitory extends Model
                 foreach ($bed as $key => $value) {
                     $info[1][$value] = ['暂无人'];
                 }
-                return ['status' => ture, 'msg' => "查询成功", 'data' => $info];  
+                return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
             }    
         //}
     }
