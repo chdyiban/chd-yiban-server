@@ -47,9 +47,8 @@ class Dormitory extends Model
                 $info['LH'] = $dor[0];
                 $info['SSH'] = $dor[1];
                 $info['CH'] = $data['CH'];
-                $info['start_time'] = date('Y-m-s h:i:s', $data['SDSJ']);
-                $info['end_time'] = date('Y-m-s h:i:s', $data['SDSJ'] + 1800);
-
+                $info['start_time'] = date('Y-m-d H:i:s', $data['SDSJ']);
+                $info['end_time'] = date('Y-m-d H:i:s', $data['SDSJ'] + 1800);
                 return $info;
                 break;
             //第四步，所有工作都已结束
@@ -75,7 +74,7 @@ class Dormitory extends Model
                         -> where('SYRS','>','0')
                         -> where('XB',$sex)
                         -> select();
-
+        
         foreach ($data as $v) {
             $building = $v['LH'];
             $dormitory = $v['SSH'];
@@ -138,7 +137,8 @@ class Dormitory extends Model
                                 -> where('SYRS','>=', 1)
                                 -> select();
                     foreach ($data as $key => $value) {
-                        $list[] = $value -> toArray()['SSH'];
+                        $rest_num = $value -> toArray()['SYRS'];
+                        $list[] = $value -> toArray()['SSH'].'（剩余床位：'.$rest_num.'）';
                     }
                     return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                 }
@@ -188,6 +188,7 @@ class Dormitory extends Model
      */
     private  function getBedNum($sex,$college_id, $building, $dormitory)
     {
+        $temp = [];
         $list = [];
         $data = $this -> where('YXDM',$college_id)
                     -> where('XB', $sex)
