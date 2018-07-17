@@ -24,7 +24,7 @@ class Dormitory extends Freshuser
     private $userInfo = null;
 
     function _initialize(){
-        header('Access-Control-Allow-Origin:*');  
+        header('Access-Control-Allow-Origin:*');    
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
         $this -> userInfo = $this -> get_info($this -> token);
