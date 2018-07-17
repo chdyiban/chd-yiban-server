@@ -111,13 +111,10 @@ class Dormitory extends Model
                     $list[] = $info;
                 }
                 $dormitory_info = $this -> where('SYRS','>=','1') 
-                                            -> where('XB',$sex)
-                                            -> where('YXDM',$college_id)
-                                            -> field('SYRS')
-                                            -> select();
-                if (empty($dormitory_info)) {
-                    
-                }
+                                        -> where('XB',$sex)
+                                        -> where('YXDM',$college_id)
+                                        -> field('SYRS')
+                                        -> select();
                 $dormitory_number = count($dormitory_info);
                 $bed_number = 0;
                 foreach ($dormitory_info as $key => $value) {
@@ -138,7 +135,8 @@ class Dormitory extends Model
                                 -> select();
                     foreach ($data as $key => $value) {
                         $rest_num = $value -> toArray()['SYRS'];
-                        $list[] = $value -> toArray()['SSH'].'（剩余床位：'.$rest_num.'）';
+                        $list[$key]['name'] = $value -> toArray()['SSH'].'（剩余床位：'.$rest_num.'）';
+                        $list[$key]['value'] = $value -> toArray()['SSH'];
                     }
                     return ['status' => true, 'msg' => "查询成功", 'data' => $list];
                 }
