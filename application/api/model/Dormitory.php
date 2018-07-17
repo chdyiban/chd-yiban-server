@@ -242,7 +242,7 @@ class Dormitory extends Model
                 }
             }
             if ($key['JTRKS'] == 0) {
-                return ['status' => false, 'msg' => "数据提供有误", 'data' => null];
+                return ['status' => false, 'msg' => "这样子不太好哦！", 'data' => null];
             } else {
                 $RJSR = $key['ZSR']/$key['JTRKS'];
             }
@@ -257,7 +257,7 @@ class Dormitory extends Model
             $data['ZSR'] = $key['ZSR'];
             $data['RJSR'] = $RJSR;
             if (empty($key['JJDC'][0]) ||empty($key['JJDC'][1]) ||empty($key['JJDC'][2]) ||empty($key['JJDC'][3]) ||empty($key['JJDC'][4]) ||empty($key['JJDC'][5]) ||empty($key['JJDC'][6]) ) {
-                return ['status' => false, 'msg' => "数据提供有误", 'data' => null];
+                return ['status' => false, 'msg' => "请不要这样子哦！", 'data' => null];
             } else {
                 $data['FQZY'] = !empty($key['JJDC'][0][0]);
                 $data['MQZY'] = $key['JJDC'][1][0];
