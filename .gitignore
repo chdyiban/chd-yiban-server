@@ -3,6 +3,8 @@
 /vendor/
 /runtime/*
 /addons/*
+/sjkglrj/*
+/2018/*
 /application/admin/command/Install/*.lock
 /public/assets/addons/*
 /public/uploads/*
