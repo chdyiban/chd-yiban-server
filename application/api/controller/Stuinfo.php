@@ -64,23 +64,31 @@ class Stuinfo extends Freshuser
             $info = $result['info'];
             $Userinfo = $this -> validate($data,'Userinfo.user');
             $Family[0] = $Userinfo;
-            foreach ($info as $key => $value) {
-                $Familyinfo = $this -> validate($value,'Userinfo.family');
-                $Family[] = $Familyinfo;
-            }
-            foreach ($Family as $key => $value) {
-                if (gettype($value) == "string") {
-                    $this->error($value);
+            if (empty($info)) {
+                if (gettype($Userinfo) == 'string') {
+                    $this->error($Userinfo);
+                } 
+                $res = Db::name('fresh_info_add') -> insert($data);
+                $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
+            } else {
+                foreach ($info as $key => $value) {
+                    $Familyinfo = $this -> validate($value,'Userinfo.family');
+                    $Family[] = $Familyinfo;
                 }
-            }
-            $res = Db::name('fresh_info_add') -> insert($data);
-            foreach ($info as $key => $value) {
-                $res1 = Db::name('fresh_family_info') -> insert($value);
-            }
-            if ($res && $res1) {
-                $this -> success("信息录入成功");
-            }else {
-                $this -> error("信息录入失败");
+                foreach ($Family as $key => $value) {
+                    if (gettype($value) == "string") {
+                        $this->error($value);
+                    }
+                }
+                $res = Db::name('fresh_info_add') -> insert($data);
+                foreach ($info as $key => $value) {
+                    $res1 = Db::name('fresh_family_info') -> insert($value);
+                }
+                if ($res && $res1) {
+                    $this -> success("信息录入成功");
+                }else {
+                    $this -> error("信息录入失败");
+                }
             }
         }
         
