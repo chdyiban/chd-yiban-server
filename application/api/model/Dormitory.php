@@ -483,9 +483,11 @@ class Dormitory extends Model
                 case 'cancel':     
                     $data_in_list = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
                     if (empty($data_in_list)) {
-                        return ['status' => false, 'msg' => "尚未申请宿舍", 'data' => null];                                
+                       return ['status' => false, 'msg' => "尚未申请宿舍", 'data' => null];                                
                     } else {
                         $insert_exception = false;
+                        $dormitory_id = $data_in_list['SSDM'];
+                        $bed_id = $data_in_list['CH'];
                         $delete_list = false;
                         // 启动事务
                         Db::startTrans();            
@@ -500,6 +502,7 @@ class Dormitory extends Model
                             $delete_list = Db::name('fresh_list') -> where('XH', $stu_id)->delete();
                             //第三步 把该宿舍的剩余人数以及床铺选择情况更新
                             $list = $this -> where('YXDM',$college_id)
+                                        -> where('XB',$sex)
                                         -> where('SSDM', $dormitory_id)
                                         -> find();
                             $rest_num = $list['SYRS'] + 1;
@@ -510,7 +513,7 @@ class Dormitory extends Model
                             $sub = pow(10, $exp);
                             $choice = (int)$list['CPXZ'] + $sub;
                             $choice = sprintf("%04d", $choice);
-                            $choice = (string)$choice;
+                            $choice = (string)$choice;         
                             $update_flag = $this -> where('ID', $list['ID'])
                                             -> update([
                                                 'SYRS' => $rest_num,
@@ -520,10 +523,10 @@ class Dormitory extends Model
                             Db::commit();  
                         } catch (\Exception $e) {
                             // 回滚事务
-                        Db::rollback();
+                            Db::rollback();
                         }
-                        if ( $insert_exception == 1 && $delete_list == 1) {
-                            return ['status' => false, 'msg' => "已经成功取消", 'data' => null];                                
+                        if ( $insert_exception == 1 && $delete_list == 1 && $update_flag == 1) {
+                            return ['status' => true, 'msg' => "已经成功取消", 'data' => null];                                
                         } else {
                             return ['status' => false, 'msg' => "请求失败", 'data' => null];                                
                         }   
