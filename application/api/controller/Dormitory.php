@@ -86,7 +86,11 @@ class Dormitory extends Freshuser
         //$steps = parent::getSteps($this->loginInfo['user_id']);
         $list = $DormitoryModel -> show($this->userInfo,$key);
         if ($list['status']) {
-            $this -> success($list['msg'], ['data' => $list['data'], 'dormitory_number' => $list['dormitory_number'],'bed_number' => $list['bed_number']]);
+            if ($key['type'] == 'building') {
+                $this -> success($list['msg'], ['data' => $list['data'], 'dormitory_number' => $list['dormitory_number'],'bed_number' => $list['bed_number']]);
+            } else {
+                $this -> success($list['msg'], ['data' => $list['data']]);
+            }
         } else {
             $this -> error($list['msg'], $list['data']);
         }   
