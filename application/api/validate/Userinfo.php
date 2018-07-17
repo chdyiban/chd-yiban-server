@@ -62,7 +62,7 @@ class Userinfo extends Validate
         'LXDH' => '请填写有效的联系电话',
     ];
     protected $scene = [
-        'user'  =>  ['XH','RXQHK','JTRKS', 'YZBM','BRDH','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
+        'user'  =>  ['XH','RXQHK','ZP', 'JTRKS', 'YZBM','BRDH','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
         'family' => ['XM', 'NL','GX','ZY','NSR','JKZK','LXDH'],
     ];
      // 自定义验证规则
