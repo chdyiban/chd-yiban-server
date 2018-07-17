@@ -60,7 +60,7 @@ class Dormitory extends Freshuser
         if ($info) {
             $this -> success('success', ['steps' => $steps, 'info' => $info, 'userinfo' => $this ->userInfo]);
         } else {
-            $this -> error('error', $steps);            
+            $this -> error('error', ['steps' => $steps]);            
         }
     }
     /**
