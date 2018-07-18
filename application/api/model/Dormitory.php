@@ -566,7 +566,7 @@ class Dormitory extends Model
             $info['personal'] = $array;
            
             $roommate_msg = Db::view('fresh_list') 
-                                ->view('fresh_info','XM, XH','fresh_list.XH = fresh_info.XH')
+                                ->view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
                                 -> where('SSDM', $list['SSDM'])
                                 -> where('fresh_list.XH', '<>', $list['XH'])
                                 -> where('status','finished')
@@ -582,7 +582,7 @@ class Dormitory extends Model
             unset($bed[$list['CH'] - 1]);
             foreach ($roommate_msg as $key => $value) {
                 $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $info['roommate'][$value['CH']]['CH'] = $value['CH'];
+                $info['roommate'][$value['CH']]['SYD'] = $value['SYD'];
                 $info['roommate'][$value['CH']]['LXFS'] = '****';
                 unset($bed[$value['CH'] - 1]);
             }
