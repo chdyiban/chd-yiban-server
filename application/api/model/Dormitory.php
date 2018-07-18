@@ -578,7 +578,7 @@ class Dormitory extends Model
                 $bed = [1,2,3,4];
             } elseif ($max_number == 6) {
                 $bed = [1,2,3,4,5,6];
-            }
+            }   
             unset($bed[$list['CH'] - 1]);
             foreach ($roommate_msg as $key => $value) {
                 $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
@@ -588,7 +588,7 @@ class Dormitory extends Model
             }
 
             if (empty($bed)) {
-                return $info;
+                return ['status' => true, 'msg' => "查询成功", 'data' => $info]; 
             } else {
                 foreach ($bed as $key => $value) {
                     $info['roommate'][$value] = [
