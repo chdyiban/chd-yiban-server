@@ -243,6 +243,7 @@ class Dormitory extends Model
                 return ['status' => false, 'msg' => "这样子不太好哦！", 'data' => null];
             } else {
                 $RJSR = $key['ZSR']/$key['JTRKS'];
+                $RJSR = round($RJSR, 2);
             }
             $data['XH'] = $info['stu_id'];
             $data['RXQHK'] = !empty($key['RXQHK']) ? $key['RXQHK']:null;
