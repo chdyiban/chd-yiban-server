@@ -54,7 +54,7 @@ class Dormitoryadmin extends Api
                         break;
                 }
             } else {
-                $this -> errror('尚未选择宿舍');
+                $this -> error('尚未选择宿舍');
             }
         } else {
             $this -> error('参数有误');

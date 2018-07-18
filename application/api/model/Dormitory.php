@@ -550,56 +550,58 @@ class Dormitory extends Model
                     ->view('fresh_info','XM, XH, SYD','fresh_list.XH = fresh_info.XH')
                     -> where('fresh_info.XH', $stu_id) 
                     -> find();
-            
-            $room_msg = $this -> where('SSDM', $list['SSDM']) -> find();
-            $max_number = strlen($room_msg['CPXZ']);
-            $money = $max_number == 4 ? 1200: 700;
-
-            $array = array();
-            $array['XH'] = $list['XH'];
-            $array['XM'] = $list['XM'];
-            $array['SYD'] = $list['SYD'];
-            $array['CH'] = $list['CH'];
-            $array['LH'] = explode('#', $list['SSDM'])[0];
-            $array['SSH'] = explode('#', $list['SSDM'])[1];
-            $array['ZSF'] = $money;
-            $info['personal'] = $array;
-           
-            $roommate_msg = Db::view('fresh_list') 
-                                ->view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
-                                -> where('SSDM', $list['SSDM'])
-                                -> where('fresh_list.XH', '<>', $list['XH'])
-                                -> where('status','finished')
-                                -> select();
-            
-            $number = count($roommate_msg);
-            $bed = array();
-            if ($max_number == 4) {
-                $bed = [1,2,3,4];
-            } elseif ($max_number == 6) {
-                $bed = [1,2,3,4,5,6];
-            }   
-            unset($bed[$list['CH'] - 1]);
-            foreach ($roommate_msg as $key => $value) {
-                $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $info['roommate'][$value['CH']]['SYD'] = $value['SYD'];
-                $info['roommate'][$value['CH']]['LXFS'] = '****';
-                unset($bed[$value['CH'] - 1]);
-            }
-
-            if (empty($bed)) {
-                return ['status' => true, 'msg' => "查询成功", 'data' => $info]; 
+            if (empty($list)){
+                return ['status' => false, 'msg' => "没有找到你宿舍哦", 'data' => '']; 
             } else {
-                foreach ($bed as $key => $value) {
-                    $info['roommate'][$value] = [
-                        'XM' => '空余',
-                        'SYD' => '-',
-                        'LXFS' => '-'
-                    ];
+                $room_msg = $this -> where('SSDM', $list['SSDM']) -> find();
+                $max_number = strlen($room_msg['CPXZ']);
+                $money = $max_number == 4 ? 1200: 700;
+
+                $array = array();
+                $array['XH'] = $list['XH'];
+                $array['XM'] = $list['XM'];
+                $array['SYD'] = $list['SYD'];
+                $array['CH'] = $list['CH'];
+                $array['LH'] = explode('#', $list['SSDM'])[0];
+                $array['SSH'] = explode('#', $list['SSDM'])[1];
+                $array['ZSF'] = $money;
+                $info['personal'] = $array;
+            
+                $roommate_msg = Db::view('fresh_list') 
+                                    ->view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
+                                    -> where('SSDM', $list['SSDM'])
+                                    -> where('fresh_list.XH', '<>', $list['XH'])
+                                    -> where('status','finished')
+                                    -> select();
+                
+                $number = count($roommate_msg);
+                $bed = array();
+                if ($max_number == 4) {
+                    $bed = [1,2,3,4];
+                } elseif ($max_number == 6) {
+                    $bed = [1,2,3,4,5,6];
+                }   
+                unset($bed[$list['CH'] - 1]);
+                foreach ($roommate_msg as $key => $value) {
+                    $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                    $info['roommate'][$value['CH']]['SYD'] = $value['SYD'];
+                    $info['roommate'][$value['CH']]['LXFS'] = '****';
+                    unset($bed[$value['CH'] - 1]);
                 }
-                return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
-            }    
-        //}
+
+                if (empty($bed)) {
+                    return ['status' => true, 'msg' => "查询成功", 'data' => $info]; 
+                } else {
+                    foreach ($bed as $key => $value) {
+                        $info['roommate'][$value] = [
+                            'XM' => '空余',
+                            'SYD' => '-',
+                            'LXFS' => '-'
+                        ];
+                    }
+                    return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
+                }    
+            }
     }
     /**
      * 用来验证民族选择情况

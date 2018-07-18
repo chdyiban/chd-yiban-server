@@ -60,6 +60,50 @@ class FreshList extends Model
         return $college;
     }
     
+    /**
+     * 获取统计信息根据楼号
+     */
+    public function getBuilding()
+    {
+        $info = array();
+        $building = Db::name('fresh_dormitory') ->field('LH')-> group('LH') -> select();
+        foreach ($building as $key => $value) {
+            $info[$key]['building'] = $value['LH'];
+            $dormitory = Db::name('fresh_dormitory') 
+                            -> where('LH', $value['LH']) 
+                            -> where('SYRS', '>=', '1')
+                            -> field('SYRS')
+                            -> select();
+            $rest_dormitory_num = count($dormitory);
+            $rest_bed_num = 0;
+            foreach ($dormitory as $k => $v) {
+                $rest_bed_num += $v['SYRS']; 
+            }
+            $info[$key]['rest_dormitory_num'] = $rest_dormitory_num;
+            $info[$key]['rest_bed_num'] = $rest_bed_num;
+           // $info[$key]['dormitory_number'] = 
+        }
+        return $info;
+
+    }
+    /**
+     * 获取所有订单列表
+     */
+
+    public function getList()
+    {
+        $info =  array();
+        $list = Db::view('fresh_list') 
+                -> view('fresh_info','XM, XH, SYD, XBDM','fresh_list.XH = fresh_info.XH')
+                -> view('dict_college','YXJC,YXDM','fresh_list.YXDM = dict_college.YXDM')
+                -> select();
+        foreach ($list as $key => $value) {
+            $info[$key] = $value;
+            $info[$key]['XB'] = $info[$key]['XBDM'] == 1 ? '男' : '女';
+        }
+        return $info;
+    }
+
     public function getStatusList()
     {
         return ['waited' => __('Waited'),'finished' => __('Finished')];
