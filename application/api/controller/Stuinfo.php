@@ -29,7 +29,7 @@ class Stuinfo extends Freshuser
         $this -> loginInfo = $this->isLogin($this -> token);
         
         if(!$this->loginInfo){
-            $this->error('失败','参数非法');
+            $this->error('参数非法');
         }
         $this -> userInfo = $this -> get_info($this -> token);  
 
@@ -82,7 +82,7 @@ class Stuinfo extends Freshuser
                 }
                 $res = Db::name('fresh_info_add') -> insert($data);
                 foreach ($info as $key => $value) {
-                    $res1 = Db::name('fresh_family_info') -> insert($value);
+                   $res1 = Db::name('fresh_family_info') -> insert($value);
                 }
                 if ($res && $res1) {
                     $this -> success("信息录入成功");

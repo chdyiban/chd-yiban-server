@@ -271,8 +271,9 @@ class Dormitory extends Model
                 $family_info = array();
                 $info_family = array();
             } else {
-                foreach ($key['JTRK'] as $k => $v) {
-                    $info_family = array(); 
+                $info_family = array(); 
+                $family_info = array();
+                foreach ($key['JTRK'] as $k => $v) {        
                     $family_info = array(
                         'XH' => $info['stu_id'],
                         'XM' => $v['name'],
