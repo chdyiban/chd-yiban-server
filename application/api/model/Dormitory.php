@@ -186,7 +186,6 @@ class Dormitory extends Model
      */
     private  function getBedNum($sex,$college_id, $building, $dormitory)
     {
-        $temp = [];
         $list = [];
         $data = $this -> where('YXDM',$college_id)
                     -> where('XB', $sex)
@@ -199,25 +198,27 @@ class Dormitory extends Model
         if ($length == 4) {
             for ($i=0; $i < $length ; $i++) { 
                 $k = $i + 1;
-                if ($CP[$i] == 1) {
+                if ($CP[$i] == "1") {
+                    $temp = [];
                     $temp = array(
                         'name' => $k."号床（上床下柜）",                    
                         'value' => $k,
                     );
+                    $list[] = $temp;
                 }
-                $list[] = $temp;
             }
             return $list;
         } elseif ($length == 6) {
             for ($i=0; $i < $length ; $i++) { 
                 $k = $i + 1;
                 if ($CP[$i] == 1) {
+                    $temp = [];
                     $temp = array(
                         'name' =>( $k == 1 || $k == 2 ) ? ($k."号床（上床下柜）") : ( ($k == 3 || $k == 5) ?  ($k."号床（上铺）"): ($k."号床（下铺）")),
                         'value' => $k,
                     );
+                    $list[] = $temp;
                 }
-                $list[] = $temp;
             }
             return $list;
         }
