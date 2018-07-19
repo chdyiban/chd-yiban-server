@@ -234,7 +234,7 @@ class Dormitory extends Model
         } else {
             $ZCYF = '';
             if (empty($key['JJDC'][7])) {
-                return ['status' => false, 'msg' => "数据有误", 'data' => null];
+                $ZCYF = '';
             } else{
                 foreach ($key['JJDC'][7] as $k => $v) {
                     $ZCYF = $k == 0 ? $v:$ZCYF.",".$v;
@@ -247,17 +247,17 @@ class Dormitory extends Model
                 $RJSR = round($RJSR, 2);
             }
             $data['XH'] = $info['stu_id'];
-            $data['RXQHK'] = !empty($key['RXQHK']) ? $key['RXQHK']:null;
-            $data['JTRKS'] = !empty($key['JTRKS']) ? $key['JTRKS']:null;
-            $data['YZBM'] = !empty($key['YZBM']) ? $key['YZBM']:null;
+            $data['RXQHK'] = !empty($key['RXQHK']) ? $key['RXQHK'] : null;
+            $data['JTRKS'] = !empty($key['JTRKS']) ? $key['JTRKS'] : null;
+            $data['YZBM'] = !empty($key['YZBM']) ? $key['YZBM'] : null;
             $data['SZDQ'] = !empty($key['SZDQ']) ? $key['SZDQ'] : null;
             $data['XXDZ'] = !empty($key['XXDZ']) ? $key['XXDZ'] : null;
-            $data['BRDH'] = !empty($key['BRDH'])?$key['BRDH']:null;
+            $data['BRDH'] = !empty($key['BRDH']) ? $key['BRDH'] : null;
             $data['ZP'] =  !empty($key['ZP'][0]['url']) ? $key['ZP'][0]['url'] : '';
             $data['ZSR'] = $key['ZSR'];
             $data['RJSR'] = $RJSR;
             if (empty($key['JJDC'][0]) ||empty($key['JJDC'][1]) ||empty($key['JJDC'][2]) ||empty($key['JJDC'][3]) ||empty($key['JJDC'][4]) ||empty($key['JJDC'][5]) ||empty($key['JJDC'][6]) ) {
-                return ['status' => false, 'msg' => "请不要这样子哦！", 'data' => null];
+                return ['status' => false, 'msg' => "请先完成家庭经济情况调查", 'data' => null];
             } else {
                 $data['FQZY'] = !empty($key['JJDC'][0][0]);
                 $data['MQZY'] = $key['JJDC'][1][0];

@@ -24,6 +24,44 @@ class Dormitory extends Freshuser
     private $userInfo = null;
 
     function _initialize(){
+        
+        $data = array(
+            'RXQHK' => "农村",
+            'JTRKS' => 4,
+            'YZBM' => 456000,
+            'BRDH' => 15023909823,
+            'SZDQ' => "西安",
+            'XXDZ' => "长安大学长",
+            'ZSR' => 111111,
+            'RJSR' => 1111,
+            'ZP'  => [['url' => 'www.badiu.com']],
+            'JJDC' => [
+               [1],[2],[1],[1],[1],[1],[1],[],
+            ],
+            'JTRK' => [
+                [
+                    'age' => 35,
+                    'name' => "王",
+                    'health' => "健康",
+                    'income' => 11111,
+                    'relation' => "父亲",
+                    'job' => "黑客",
+                    'unit' => "长安大学",
+                    'mobile' => 15039173824,
+                ],
+                [
+                    'age' => 33,
+                    'name' => "张",
+                    'health' => "健康",
+                    'income' => 111111,
+                    'relation' => "母亲",
+                    'job' => "黑客",
+                    'unit' => "长安大学",
+                    'mobile' => 15039173824,
+                ],
+            ]
+        );
+        dump(base64_encode(json_encode($data))); 
         header('Access-Control-Allow-Origin:*');    
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);

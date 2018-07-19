@@ -24,7 +24,7 @@ class Userinfo extends Validate
         'YLZC' => 'require|between: 1,4',
         'SZQK' => 'require|between: 1,4',
         'JTBG' => 'require|between: 1,3',
-        'ZCYF' => 'require|checkquestion:',  
+        'ZCYF' => 'checkquestion:',  
         'XM' =>  'require|chs',
         'NL' => 'require|number|between:1,120',
         'GX' => 'require|chs',
@@ -36,7 +36,7 @@ class Userinfo extends Validate
     
     protected $message  =   [
         'XH' => '学号必须为数字',
-        'RXQHK' => "请选择正确选项",
+        'RXQHK' => "请选择入学前户口",
         'JTRKS' => "人口数只能在1-20之间",
         'YZBM'  => "邮政编码为6位数字",
         'BRDH' => "请输入有效联系方式",
@@ -74,7 +74,7 @@ class Userinfo extends Validate
      protected function checkquestion($value)
      {
         if (empty($value)) {
-            return false;
+            return true;
         } else {
             $array = explode(',', $value);
             foreach ($array as $key => $value) {
