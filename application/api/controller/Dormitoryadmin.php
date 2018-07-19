@@ -24,7 +24,7 @@ class Dormitoryadmin extends Api
      * @param ['XH' => number] -> base64加密
      * @return array
      */
-    public function getinfo()
+    public function info()
     {
         //提示开发公司此时的token具有管理员权限，不可以写到前端
         $info = array();
@@ -38,7 +38,7 @@ class Dormitoryadmin extends Api
                 $info['XH'] = $data['XH'];
                 $info['SSDM'] = !empty($data['SSDM']) ? $data['SSDM'] : $this->error('参数有误');
                 $info['CH'] = !empty($data['CH']) ? $data['CH'].'号床' : $this->error('参数有误');
-                $info['YYDM'] = $data['YXDM'];
+                $info['YXDM'] = $data['YXDM'];
                 $info['YXMC'] = $data['YXMC'];
                 $type = Db::name('fresh_dormitory') -> where('SSDM', $info['SSDM'])-> field('CPXZ') -> find();
                 $type = !empty($type['CPXZ']) ? strlen($type['CPXZ']) : $this->error('参数有误');
@@ -47,10 +47,10 @@ class Dormitoryadmin extends Api
                 $info['status'] = $data['status'];
                 switch ($data['status']) {
                     case 'waited':
-                        $this -> success('你有尚待确认的宿舍', $info);
+                        $this -> success('存在尚待确认的宿舍', $info);
                         break;       
                     case 'finished':
-                        $this -> success('你已经选好了宿舍', $info);
+                        $this -> success('宿舍选择完成', $info);
                         break;
                 }
             } else {
