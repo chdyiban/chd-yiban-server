@@ -44,13 +44,18 @@ class Dormitoryadmin extends Api
                 $type = !empty($type['CPXZ']) ? strlen($type['CPXZ']) : $this->error('参数有误');
                 $money = $type == 4 ? 1200 : 700;
                 $info['ZSF'] = $money;
+                $info['origin'] = $data['origin'];
                 $info['status'] = $data['status'];
                 switch ($data['status']) {
                     case 'waited':
                         $this -> success('存在尚待确认的宿舍', $info);
                         break;       
                     case 'finished':
-                        $this -> success('宿舍选择完成', $info);
+                        if ($info['origin'] == 'selection') {
+                            $this -> success('宿舍由学生选择完成', $info);
+                        } else {
+                            $this -> success('宿舍由系统随机分配完成', $info);
+                        }
                         break;
                 }
             } else {
