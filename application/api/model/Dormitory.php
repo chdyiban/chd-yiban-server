@@ -344,6 +344,12 @@ class Dormitory extends Model
                     return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];                    
                 }
             }
+
+            if (empty($key['origin'])) {
+                $origin = 'selection';
+            } else {
+                $origin = $key['origin'];
+            }
             $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
             if(empty($data)){
                 $insert_flag = false;
@@ -357,6 +363,7 @@ class Dormitory extends Model
                         'CH' => $bed_id,
                         'YXDM' => $college_id,
                         'SDSJ' => time(),
+                        'origin' => $origin,
                         'status' => 'waited', 
                     ]);
                     //第二步，将frsh_dormitory中对于宿舍，剩余人数-1，宿舍选择情况更新
@@ -565,6 +572,7 @@ class Dormitory extends Model
                 $array['LH'] = explode('#', $list['SSDM'])[0];
                 $array['SSH'] = explode('#', $list['SSDM'])[1];
                 $array['ZSF'] = $money;
+                $array['origin'] = $list['origin'];
                 $info['personal'] = $array;
             
                 $roommate_msg = Db::view('fresh_list') 
