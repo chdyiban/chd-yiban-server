@@ -133,6 +133,9 @@ class Dormitory extends Model
                                 -> where('LH', $building)
                                 -> where('SYRS','>=', 1)
                                 -> select();
+                    if (empty($data)) {
+                        return ['status' => false, 'msg' => $building.'号楼已经没有空宿舍了', 'data' => null];
+                    }
                     foreach ($data as $key => $value) {
                         $rest_num = $value -> toArray()['SYRS'];
                         $list[$key]['name'] = $value -> toArray()['SSH'].'（剩余床位：'.$rest_num.'）';
@@ -143,7 +146,7 @@ class Dormitory extends Model
                 break;
             //需要床号
             case 'bed':
-                if (empty($key['dormitory'] ||empty($key['building']))) {
+                if (empty($key['dormitory'] || empty($key['building']))) {
                     return ['status' => false, 'msg' => "参数有误", 'data' => null];
                 }else{
                     $building = $key['building'];
@@ -151,7 +154,7 @@ class Dormitory extends Model
                     $SSDM = (string)$building.'#'.$dormitory;
                     //判断该宿舍少数民族人数是否超过一人
                     if ($nation <> "汉族") {
-                        $msg = $this -> checkNation($SSDM);
+                        $msg = $this -> checkNation($SSDM, $nation);
                         if (!$msg) {
                             return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                         }
@@ -164,7 +167,7 @@ class Dormitory extends Model
                                 -> find();
                     //判断该宿舍非陕西籍的人数是否超过2人
                     if ($place <> "陕西") {
-                        $msg = $this -> checkNation($SSDM);
+                        $msg = $this -> checkNation($SSDM, $nation);
                         if (!$msg) {
                             return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
                         } else {
@@ -332,14 +335,14 @@ class Dormitory extends Model
             $bed_id = $key['bed_id'];
             //如果是少数民族验证要选的宿舍是否满足要求
             if ($nation <> "汉族") {
-                $msg = $this -> checkNation($dormitory_id);
+                $msg = $this -> checkNation($dormitory_id, $nation);
                 if (!$msg) {
                     return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];
                 }
             }
             //如果不是陕西省的学生，则需要判断该宿同省人数
             if ($place <> "陕西") {
-                $msg = $this -> checkNation($dormitory_id, $place);
+                $msg = $this -> checkPlace($dormitory_id, $place);
                 if (!$msg) {
                     return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];                    
                 }
@@ -383,7 +386,7 @@ class Dormitory extends Model
                         $exp = (int)$length - (int)$bed_id;
                         $sub = pow(10, $exp);
                         $choice = (int)$list['CPXZ'] - $sub;
-                        $choice = sprintf("%04d", $choice);
+                        $choice = sprintf("%0".$length."d", $choice);
                         $choice = (string)$choice;
                         $update_flag = $this -> where('ID', $list['ID'])
                                         -> update([
@@ -477,7 +480,7 @@ class Dormitory extends Model
                             if ( $insert_exception == 1 && $delete_list == 1) {
                                 return ['status' => false, 'msg' => "超时，已经取消", 'data' => null];
                             } else {
-                                return ['status' => false, 'msg' => "未成功取消", 'data' => null];                                
+                                return ['status' => false, 'msg' => "超时，未成功取消", 'data' => null];                                
                             }   
                         } else {
                             $update_status = Db::name('fresh_list') -> where('XH', $stu_id)->update(['status' => 'finished']);
@@ -495,6 +498,7 @@ class Dormitory extends Model
                     if (empty($data_in_list)) {
                        return ['status' => false, 'msg' => "尚未申请宿舍", 'data' => null];                                
                     } else {
+                        $update_flag = false;
                         $insert_exception = false;
                         $dormitory_id = $data_in_list['SSDM'];
                         $bed_id = $data_in_list['CH'];
@@ -502,12 +506,12 @@ class Dormitory extends Model
                         // 启动事务
                         Db::startTrans();            
                         try{
-                            $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
+                            $data = Db::name('fresh_list') -> where('XH', $stu_id) ->find();
                             $data['status'] = 'cancelled';
                             $data['CZSJ'] = time();
                             unset($data['ID']);
                             //第一步 把取消的选择插入特殊列表
-                            $insert_exception = Db::name('fresh_exception') -> insert($data);
+                            $insert_exception = Db::name('fresh_exception') -> insert($data);  
                             //第二步 将原先锁定的数据删除
                             $delete_list = Db::name('fresh_list') -> where('XH', $stu_id)->delete();
                             //第三步 把该宿舍的剩余人数以及床铺选择情况更新
@@ -523,7 +527,7 @@ class Dormitory extends Model
                             $sub = pow(10, $exp);
                             $choice = (int)$list['CPXZ'] + $sub;
                             $choice = sprintf("%04d", $choice);
-                            $choice = (string)$choice;         
+                            $choice = (string)$choice;    
                             $update_flag = $this -> where('ID', $list['ID'])
                                             -> update([
                                                 'SYRS' => $rest_num,
@@ -614,11 +618,12 @@ class Dormitory extends Model
     /**
      * 用来验证民族选择情况
      */
-    private function checkNation($dormitory_id){
+    private function checkNation($dormitory_id, $nation){
         $place_number = Db::view('fresh_list') 
                         -> view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
                         -> where('SSDM', $dormitory_id) 
                         -> where('MZ','<>', '汉族')
+                        -> where('MZ', $nation)
                         -> count();
         if ($place_number >= 1) {
             return false;
