@@ -49,7 +49,8 @@ class Freshuser extends Api
     public function testuser()
     {
         header('Access-Control-Allow-Origin:*');
-        $id = rand(1,551);
+        $count = Db::name('fresh_info') -> count();
+        $id = rand(1,$count);
         $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
         $this -> success('获取成功', $info);
     }
