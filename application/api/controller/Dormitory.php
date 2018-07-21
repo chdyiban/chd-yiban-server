@@ -223,6 +223,7 @@ class Dormitory extends Freshuser
                     -> where('ID', $user_id) 
                     -> find();
         if ($list) {
+            $info['name'] = $list['XM'];
             $info['stu_id'] = $list['XH'];
             $info['place'] = $list['SYD'];
             $info['college_id'] = $list['YXDM'];
