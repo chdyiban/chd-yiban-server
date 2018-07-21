@@ -22,54 +22,82 @@ class Dormitory extends Freshuser
     private $loginInfo = null;
     private $token = null;
     private $userInfo = null;
+    private $steps = null;
 
     function _initialize(){
         header('Access-Control-Allow-Origin:*');    
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
         $this -> userInfo = $this -> get_info($this -> token);
-        if(!$this->loginInfo){
-            $this->error('参数非法');
-        }
-        $choice_type = Config::get('dormitory.type');
-        $end_time = Config::get('dormitory.endtime'); 
-        $end_time = strtotime($end_time);
-        $now_time = strtotime('now');
-        if ($choice_type == 'sametime') {
-            $start_time = Config::get('dormitory.sametime');
-            $start_time = strtotime($start_time);
-            if ($now_time < $start_time || $now_time > $end_time) {
-                $this -> error('选宿舍尚未开始');
-            } 
-        } elseif ($choice_type == 'difftime')  {
-            $college_id = $this ->userInfo['college_id'];
-            $college_start_time = Config::get('dormitory.'.$college_id);
-            $college_start_time = strtotime($college_start_time);
-            if ($now_time < $college_start_time || $now_time > $end_time) {
-                $this -> error($this->userInfo['college_name'].'选宿舍尚未开始');
+        $user_id = $this->loginInfo['user_id'];
+        $this -> steps = parent::getSteps($user_id);
+        if ($this->steps != 'setinfo') {
+            if(!$this->loginInfo){
+                $this->error('参数非法');
+            }
+            $choice_type = Config::get('dormitory.type');
+            $end_time = Config::get('dormitory.endtime'); 
+            $end_time = strtotime($end_time);
+            $now_time = strtotime('now');
+            if ($choice_type == 'sametime') {
+                $start_time = Config::get('dormitory.sametime');
+                $start_time = strtotime($start_time);
+                if ($now_time < $start_time || $now_time > $end_time) {
+                    $this -> error('选宿舍尚未开始');
+                } 
+            } elseif ($choice_type == 'difftime')  {
+                $college_id = $this ->userInfo['college_id'];
+                $college_start_time = Config::get('dormitory.'.$college_id);
+                $college_start_time = strtotime($college_start_time);
+                if ($now_time < $college_start_time || $now_time > $end_time) {
+                    $this -> error($this->userInfo['college_name'].'选宿舍尚未开始');
+                }
+            }
+        }else {
+            if(!$this->loginInfo){
+                $this->error('参数非法');
             }
         }
     }
 
     public function init(){
         header('Access-Control-Allow-Origin:*');
-        $user_id = $this->loginInfo['user_id'];
-        $steps = parent::getSteps($user_id);
         $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> initSteps($steps, $this->userInfo);
-        if ($info) {
-            $this -> success('success', ['steps' => $steps, 'info' => $info, 'userinfo' => $this ->userInfo]);
-        } else {
-            $this -> error('error', ['steps' => $steps]);            
+        switch ($this -> steps) {
+            case 'setinfo':
+                $this -> success('success', ['steps' => $this->steps, 'info' => $this ->userInfo]);
+                break;
+            case 'select':
+                $info = $DormitoryModel -> initSteps($this->steps, $this->userInfo);
+                $this -> success($info['msg'], ['steps' => $this->steps, 'list' => $info['data'], 'dormitory_number' => $info['dormitory_number'], 'bed_number' => $info['bed_number'], 'userinfo' => $this ->userInfo]);
+                break;
+
+            case 'waited':
+                $info = $DormitoryModel -> initSteps($this->steps, $this->userInfo);
+                if ($info['status']) {
+                    $this -> success($info['msg'], ['steps' => $this->steps, 'info' => $info['data']]);
+                } else {
+                    $this -> error($info['msg'], ['steps' => $this->steps, 'info' => $info['data']]);
+                }
+                break;
+            
+            case 'finished':
+                $info = $DormitoryModel -> initSteps($this->steps, $this->userInfo);
+                if ($info['status']) {
+                    $this -> success($info['msg'], ['steps' => $this->steps, 'info' => $info['data']]);
+                } else {
+                    $this -> error($info['msg'], ['steps' => $this->steps, 'info' => $info['data']]);
+                }
+                break;
         }
     }
     /**
      * demo 可以这样实现。
      */
-    public function index(){
-        dump($this->loginInfo);
-        echo 'index method';
-    }
+    // public function index(){
+    //     dump($this->loginInfo);
+    //     echo 'index method';
+    // }
     /**
      * 展示可选择宿舍楼以及宿舍号接口
      * @param array $infomation ['stu_id', 'college_id', 'sex', 'place']
@@ -84,12 +112,8 @@ class Dormitory extends Freshuser
         $DormitoryModel = new DormitoryModel;
         //$steps = parent::getSteps($this->loginInfo['user_id']);
         $list = $DormitoryModel -> show($this->userInfo,$key);
-        if ($list['status']) {
-            if ($key['type'] == 'building') {
-                $this -> success($list['msg'], ['data' => $list['data'], 'dormitory_number' => $list['dormitory_number'],'bed_number' => $list['bed_number']]);
-            } else {
-                $this -> success($list['msg'], ['data' => $list['data']]);
-            }
+        if ($list['status']) {      
+            $this -> success($list['msg'], $list['data']);
         } else {
             $this -> error($list['msg'], $list['data']);
         }   
