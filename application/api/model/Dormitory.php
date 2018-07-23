@@ -288,6 +288,7 @@ class Dormitory extends Model
                 $RJSR = round($RJSR, 2);
             }
             $data['XH'] = $info['stu_id'];
+            $data['SFGC'] = !empty($key['SFGC']) ? $key['SFGC'] : null;
             $data['RXQHK'] = !empty($key['RXQHK']) ? $key['RXQHK'] : null;
             $data['JTRKS'] = !empty($key['JTRKS']) ? $key['JTRKS'] : null;
             $data['YZBM'] = !empty($key['YZBM']) ? $key['YZBM'] : null;
