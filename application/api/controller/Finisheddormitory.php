@@ -13,6 +13,7 @@ use app\api\model\Dormitory as DormitoryModel;
  */
 class Finisheddormitory extends Freshuser
 {
+    //记得该权限
     protected $noNeedLogin = [];
     protected $noNeedRight = [];
 

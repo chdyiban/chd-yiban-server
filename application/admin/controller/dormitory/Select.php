@@ -9,7 +9,7 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class Dormitorylist extends Backend
+class Dormitory extends Backend
 {
     
     /**
@@ -22,6 +22,7 @@ class Dormitorylist extends Backend
     {
         parent::_initialize();
         $this->model = model('FreshList');
+        $this->view->assign("statusList", $this->model->getStatusList());
     }
     
     /**
@@ -43,25 +44,24 @@ class Dormitorylist extends Backend
             {
                 return $this->selectpage();
             }
-            $filter = urldecode($this -> request -> request('filter'));
-            $op = urldecode($this -> request -> request('op'));
-            $filter = json_decode($filter, true);
-            $keys = array_keys($filter);
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $total = $this->model
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->count();
 
-            $info = $this -> model -> getList($keys, $filter);
-            $total = $info['count'];
-            $data = $info['data'];
+            $list = $this->model
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->limit($offset, $limit)
+                    ->select();
 
-            //遍历进行分页
-            $list = array();
-            foreach ($data as $key => $value) {
-                if ($key >=  $offset && $key < ($offset + $limit) ) {
-                    $list[] = $value;
-                }
-            } 
+            $list = collection($list)->toArray();
             $result = array("total" => $total, "rows" => $list);
-            return json($result);
+            $data = $this -> model -> getTableData();
+            //return json($result);
+            $data = array("total" => $total, "rows" => $data);
+            return json($data);
 
         }
         return $this->view->fetch();
