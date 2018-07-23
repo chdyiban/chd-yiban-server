@@ -13,14 +13,12 @@ use app\api\model\Dormitory as DormitoryModel;
  */
 class Finisheddormitory extends Freshuser
 {
-    protected $noNeedLogin = ['*'];
-    protected $noNeedRight = ['*'];
+    protected $noNeedLogin = [];
+    protected $noNeedRight = [];
 
     private $loginInfo = null;
     private $token = null;
     private $userInfo = null;
-    const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/";
-    const SERVICE_URL = "http://yiban.chd.edu.cn/api/";
 
     public function finish()
     {
@@ -45,10 +43,10 @@ class Finisheddormitory extends Freshuser
             $stu_name = $v['XM'];
             $stu_zkzh = $v['ZKZH'];
             $DormitoryModel = new DormitoryModel;
-            $building_choice = $this -> getBuilding($info);
+            $building_choice = $this -> getBuilding('select', $info);
             $dormitory = $this -> getDormitory($info, $building_choice);
             while (!$dormitory['status']) {
-                $building_choice = $this -> getBuilding($info);
+                $building_choice = $this -> getBuilding('select',$info);
                 $dormitory = $this -> getDormitory($info, $building_choice);
             }
 
@@ -60,10 +58,10 @@ class Finisheddormitory extends Freshuser
             $bed = $this -> getBed($info, $building_choice, $dormitory_choice);
             //将楼号构造数组得到随机分配的宿舍
             while (!$bed['status']) {
-                $building_choice = $this -> getBuilding($info);
+                $building_choice = $this -> getBuilding('select', $info);
                 $dormitory = $this -> getDormitory($info, $building_choice);
                 while (!$dormitory['status']) {
-                    $building_choice = $this -> getBuilding($info);
+                    $building_choice = $this -> getBuilding('select', $info);
                     $dormitory = $this -> getDormitory($info, $building_choice);
                 }
 
@@ -90,14 +88,15 @@ class Finisheddormitory extends Freshuser
                 continue;
             }
         }
+        return "本次处理数据".count($stu_info)."个";
     }
 
-    private function getBuilding($info)
+    private function getBuilding($steps, $info)
     {
         $DormitoryModel = new DormitoryModel;
         //得出所选楼号
-        $key = array('type' => 'building');
-        $building = $DormitoryModel -> show($info, $key);
+        $key = array('type' => '');
+        $building = $DormitoryModel -> initSteps($steps, $info);
         $building = $building['data'];
         $count = count($building);
         $building_choice = rand(0, $count-1);
