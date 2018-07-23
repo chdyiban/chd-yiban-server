@@ -9,6 +9,7 @@ class Userinfo extends Validate
 {
     protected $rule =   [
         'XH' => 'require|number',
+        'SFGC' => 'require',
         'RXQHK' => 'require|checkHK:',
         'JTRKS' => 'require|between:1,20',
         'YZBM'  => 'require|number|length:6',
@@ -36,6 +37,7 @@ class Userinfo extends Validate
     
     protected $message  =   [
         'XH' => '学号必须为数字',
+        'SFGC' => '请选择是否孤残',
         'RXQHK' => "请选择入学前户口",
         'JTRKS' => "人口数只能在1-20之间",
         'YZBM'  => "邮政编码为6位数字",
@@ -53,6 +55,7 @@ class Userinfo extends Validate
         'JTBG' => "选项在1-3之间",
         'ZCYF' => "请选择正确的选项",
         'XM' =>  '姓名必须为汉字',
+        'NL.require' => '年龄不可以为空',
         'NL.number' => '年龄必须为数字',
         'NL.between' => '年龄必须在1-120间',
         'GX' => '请填写正确的关系',
