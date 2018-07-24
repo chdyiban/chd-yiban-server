@@ -105,12 +105,15 @@ class FreshList extends Model
                 $info[$key]['LH'] = '-';
                 $info[$key]['SSH'] = '-';
                 $info[$key]['CH'] = '-';
+                
             } else {
                 $info[$key]['LH'] = explode('#', $data['SSDM'])[0];
                 $info[$key]['SSH'] = explode('#', $data['SSDM'])[1];
                 $info[$key]['CH'] = $data['CH'];
                 $info[$key]['option'] = '是';
             }
+            $info[$key]['SYD'] =  $info[$key]['SYD'];
+            $info[$key]['MZ'] =  $info[$key]['MZ'];
             $info[$key]['XB'] = $info[$key]['XBDM'] == 1 ? '男' : '女';
         }
         //遍历进行筛选

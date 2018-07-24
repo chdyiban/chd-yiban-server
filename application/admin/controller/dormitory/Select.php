@@ -9,7 +9,7 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class Dormitory extends Backend
+class Select extends Backend
 {
     
     /**
@@ -65,6 +65,32 @@ class Dormitory extends Backend
 
         }
         return $this->view->fetch();
+    }
+
+    /**
+     * 读取楼号,联动列表
+     */
+    public function building()
+    {
+        $province = $this->request->get('building');
+        $city = $this->request->get('dormitory');
+        // $where = ['pid' => 0, 'level' => 1];
+        // $provincelist = null;
+        // if ($province !== '') {
+        //     if ($province) {
+        //         $where['pid'] = $province;
+        //         $where['level'] = 2;
+        //     }
+        //     if ($city !== '') {
+        //         if ($city) {
+        //             $where['pid'] = $city;
+        //             $where['level'] = 3;
+        //         }
+        //         $provincelist = Db::name('area')->where($where)->field('id as value,name')->select();
+        //     }
+        // }
+        $buildinglist = Db::name('fresh_dormitory') -> group('LH') -> select();
+        $this->success('', null, $buildinglist);
     }
 
 }

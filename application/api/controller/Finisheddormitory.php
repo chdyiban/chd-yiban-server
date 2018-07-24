@@ -20,9 +20,9 @@ class Finisheddormitory extends Freshuser
     private $loginInfo = null;
     private $token = null;
     private $userInfo = null;
-
     public function finish()
     {
+        set_time_limit(100);
         $stu_info = Db::name('fresh_info') -> select();
         foreach ($stu_info as $k => $value) {
             $stu_id   = $value['XH'];
