@@ -90,18 +90,51 @@ class FreshList extends Model
      * 获取所有订单列表
      */
 
-    public function getList()
+    public function getList($keys, $filter)
     {
         $info =  array();
-        $list = Db::view('fresh_list') 
-                -> view('fresh_info','XM, XH, SYD, XBDM','fresh_list.XH = fresh_info.XH')
-                -> view('dict_college','YXJC,YXDM','fresh_list.YXDM = dict_college.YXDM')
+        $list = Db::view('fresh_info') 
+                //-> view('fresh_info','XM, XH, SYD, XBDM','fresh_list.XH = fresh_info.XH')
+                -> view('dict_college','YXJC,YXDM','fresh_info.YXDM = dict_college.YXDM')
                 -> select();
         foreach ($list as $key => $value) {
+            $data = Db::name('fresh_list') -> where('XH', $value['XH']) ->  where('status','finished') -> find();
             $info[$key] = $value;
+            if (empty($data)) {
+                $info[$key]['option'] = '否';
+                $info[$key]['LH'] = '-';
+                $info[$key]['SSH'] = '-';
+                $info[$key]['CH'] = '-';
+                
+            } else {
+                $info[$key]['LH'] = explode('#', $data['SSDM'])[0];
+                $info[$key]['SSH'] = explode('#', $data['SSDM'])[1];
+                $info[$key]['CH'] = $data['CH'];
+                $info[$key]['option'] = '是';
+            }
+            $info[$key]['SYD'] =  $info[$key]['SYD'];
+            $info[$key]['MZ'] =  $info[$key]['MZ'];
             $info[$key]['XB'] = $info[$key]['XBDM'] == 1 ? '男' : '女';
         }
-        return $info;
+        //遍历进行筛选
+        if (empty($keys) || empty($filter)) {
+            return ['data' => $info, 'count' => count($info)];
+        } else {
+            foreach ($info as $key => $value) {
+                foreach ($keys as $v) {
+                    $map = $filter[$v];
+                    if ($value[$v] != $map) {
+                        unset($info[$key]);
+                    }
+                }
+            }
+            $list = array();
+            foreach ($info as $k => $v) {
+                $list[] = $v;
+            }
+            
+            return ['data' => $list, 'count' => $list];
+        }
     }
 
     public function getStatusList()

@@ -23,12 +23,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'YXDM',
                 columns: [
                     [
-                        // {checkbox: true},                       
+                        {checkbox: true},                       
                         {field: 'XM', title: __('姓名')},
                         {field: 'XB', title: __('性别')},
+                        {field: 'MZ', title: __('民族')},
+                        {field: 'SYD', title: __('生源地')},
+                        {field: 'option', title: __('是否选择宿舍')},
                         {field: 'XH', title: __('学号')},
-                        {field: 'SSDM', title: __('所选宿舍')},
-                        {field: 'CH', title: __('床号')},
+                        {field: 'LH', title: __('楼号'), formatter: Table.api.formatter.search, operate: 'RANGE'},
+                        {field: 'SSH', title: __('宿舍号'), operate: 'RANGE'},
+                        {field: 'CH', title: __('床号'), operate: 'RANGE',},
                         {field: 'YXJC', title: __('学院')},
                         // {field: 'rest_num', title: __('剩余床铺数量')},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

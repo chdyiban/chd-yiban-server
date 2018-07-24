@@ -16,3 +16,7 @@ composer.lock
 .user.ini
 .well-known/
 public/assets/js/addons.js
+public/assets/js/backend/example/*
+application/admin/controller/example/*
+application/admin/view/example/*
+

@@ -27,19 +27,18 @@ class Bootstraptable extends Backend
      */
     public function index()
     {
-        if ($this->request->isAjax())
-        {
+        if ($this->request->isAjax()) {
             list($where, $sort, $order, $offset, $limit) = $this->buildparams(NULL);
             $total = $this->model
-                    ->where($where)
-                    ->order($sort, $order)
-                    ->count();
+                ->where($where)
+                ->order($sort, $order)
+                ->count();
             $list = $this->model
-                    ->where($where)
-                    ->order($sort, $order)
-                    ->limit($offset, $limit)
-                    ->select();
-            $result = array("total" => $total, "rows" => $list, "extend" => ['id' => 1]);
+                ->where($where)
+                ->order($sort, $order)
+                ->limit($offset, $limit)
+                ->select();
+            $result = array("total" => $total, "rows" => $list, "extend" => ['money' => mt_rand(100000,999999), 'price' => 200]);
 
             return json($result);
         }
@@ -54,8 +53,7 @@ class Bootstraptable extends Backend
         $row = $this->model->get(['id' => $ids]);
         if (!$row)
             $this->error(__('No Results were found'));
-        if ($this->request->isAjax())
-        {
+        if ($this->request->isAjax()) {
             $this->success("Ajax请求成功", null, ['id' => $ids]);
         }
         $this->view->assign("row", $row->toArray());
@@ -94,15 +92,11 @@ class Bootstraptable extends Backend
         $type = $this->request->get('type');
         $group_id = $this->request->get('group_id');
         $list = null;
-        if ($group_id !== '')
-        {
-            if ($type == 'group')
-            {
+        if ($group_id !== '') {
+            if ($type == 'group') {
                 $groupIds = $this->auth->getChildrenGroupIds(true);
                 $list = \app\admin\model\AuthGroup::where('id', 'in', $groupIds)->field('id as value, name')->select();
-            }
-            else
-            {
+            } else {
                 $adminIds = \app\admin\model\AuthGroupAccess::where('group_id', 'in', $group_id)->column('uid');
                 $list = \app\admin\model\Admin::where('id', 'in', $adminIds)->field('id as value, username AS name')->select();
             }
@@ -117,8 +111,7 @@ class Bootstraptable extends Backend
     {
         $result = $this->model->limit(10)->select();
         $searchlist = [];
-        foreach ($result as $key => $value)
-        {
+        foreach ($result as $key => $value) {
             $searchlist[] = ['id' => $value['url'], 'name' => $value['url']];
         }
         $data = ['searchlist' => $searchlist];
