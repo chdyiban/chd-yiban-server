@@ -35,6 +35,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+
+            $("#cxselect-example .col-xs-12").each(function () {
+                $("textarea", this).val($(this).prev().prev().html().replace(/[ ]{2}/g, ''));
+            });
+            
+            //这里需要手动为Form绑定上元素事件
+            Form.api.bindevent($("form#cxselectform"));
+
         },
         add: function () {
             Controller.api.bindevent();

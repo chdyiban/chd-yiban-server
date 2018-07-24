@@ -39,7 +39,7 @@ class Freshuser extends Api
             $info = [$steps, $this -> _token];
             $this->success('认证成功',$info);
         } else {
-            $this->error('认证失败','请检查姓名、身份证号及准考证号等信息是否填写完成');
+            $this->error('认证失败','请检查学号以及密码是否正确');
         }
         //dump($this->_token);
     }
@@ -51,7 +51,8 @@ class Freshuser extends Api
         header('Access-Control-Allow-Origin:*');
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
-        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
+        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH, SFZH') -> find();
+        $info['password'] = !empty($info['SFZH']) ? substr($info['SFZH'], -6) : null;
         $this -> success('获取成功', $info);
     }
 
@@ -81,15 +82,34 @@ class Freshuser extends Api
 
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
-        $info = Db::name('fresh_info')
-                    -> where('XH', $user['XH'])
-                    -> where('ZKZH', $user['ZKZH'])
-                    ->find(); 
-        if (empty($info)) {
-            return false;
+        //身份证号没有提供则登录方式为准考证号登录
+        if (!empty($user['SFZH'])) {
+            $info = Db::name('fresh_info')
+                        -> where('XH', $user['XH'])
+                        -> where('ZKZH', $user['ZKZH'])
+                        ->find(); 
+            if (empty($info)) {
+                return false;
+            } else {
+                $userid = $info['ID'];
+                return $userid;
+            }
         } else {
-            $userid = $info['ID'];
-            return $userid;
+            $info = Db::name('fresh_info')
+                        -> where('XH', $user['XH'])
+                        ->find(); 
+            if (empty($info)) {
+                return false;
+            } else {
+                $id_card = $info['SFZH'];
+                $password = substr($id_card, -6);
+                if ($password == $id_card) {
+                    return false;
+                } else {
+                    $userid = $info['ID'];
+                    return $userid;
+                }
+            }
         }
     }
 

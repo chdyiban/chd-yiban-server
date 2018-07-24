@@ -205,6 +205,7 @@ class Dormitory extends Model
             if (!$msg) {
                 return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
             } else {
+                $list = $this -> getBedNum($sex,$college_id, $building, $dormitory);
                 if (empty($list)) {
                     return ['status' => false, 'msg' => "该宿舍没有空床位请换一间", 'data' => null];
                 } else {
