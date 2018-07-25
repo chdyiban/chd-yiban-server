@@ -93,6 +93,31 @@ class Testdormitory extends Freshuser
         
     }
     
+    /**
+     * 测试并发登录
+     */
+    public function testlogin()
+    {
+        header('Access-Control-Allow-Origin:*');
+        $type = $this -> request -> get('type');
+        if ($type == "local"){
+            $url_base = self::LOCAL_URL;
+        } elseif ($type == "service") {
+            $url_base = self::SERVICE_URL;
+        } 
+        $count = Db::name('fresh_info') -> count();
+        $id = rand(1,$count);
+        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
+        $XH = $info['XH'];
+        $ZKZH = $info['ZKZH'];
+        $array = array('XH' => $XH, 'ZKZH' => $ZKZH);
+        $key = base64_encode(urlencode(json_encode($array)));
+        $param = array('key' => $key);
+        $login_url = $url_base.'Freshuser/login';
+        $result = Http::post($login_url, $param);
+        return $result;
+
+    }
 
 }
     
