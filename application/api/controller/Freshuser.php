@@ -55,7 +55,7 @@ class Freshuser extends Api
         $info['password'] = !empty($info['SFZH']) ? substr($info['SFZH'], -6) : null;
         $this -> success('获取成功', $info);
     }
-
+    
     public function signout()
     {
         header('Access-Control-Allow-Origin:*');
@@ -83,7 +83,7 @@ class Freshuser extends Api
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
         //身份证号没有提供则登录方式为准考证号登录
-        if (!empty($user['SFZH'])) {
+        if (empty($user['SFZH'])) {
             $info = Db::name('fresh_info')
                         -> where('XH', $user['XH'])
                         -> where('ZKZH', $user['ZKZH'])
