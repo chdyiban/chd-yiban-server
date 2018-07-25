@@ -6,6 +6,9 @@ use app\common\controller\Api;
 use think\Config;
 use fast\Http;
 use think\Db;
+use think\Hook;
+use fast\Random;
+use app\common\library\Token;
 
 use app\api\model\Dormitory as DormitoryModel;
 /**
@@ -99,24 +102,35 @@ class Testdormitory extends Freshuser
     public function testlogin()
     {
         header('Access-Control-Allow-Origin:*');
-        $type = $this -> request -> get('type');
-        if ($type == "local"){
-            $url_base = self::LOCAL_URL;
-        } elseif ($type == "service") {
-            $url_base = self::SERVICE_URL;
-        } 
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
         $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
         $XH = $info['XH'];
         $ZKZH = $info['ZKZH'];
-        $array = array('XH' => $XH, 'ZKZH' => $ZKZH);
-        $key = base64_encode(urlencode(json_encode($array)));
-        $param = array('key' => $key);
-        $login_url = $url_base.'Freshuser/login';
-        $result = Http::post($login_url, $param);
-        return $result;
+        $userid = $this -> loginself($XH, $ZKZH);
+        if($userid){
+            $this->_token = Random::uuid();
+            Token::set($this->_token, $userid, $this->keeptime);
+            Hook::listen("user_login_successed", $userid);
+            $info = $this -> _token;
+            $this->success('认证成功',$info);
+        } else {
+            $this->error('认证失败','请检查学号以及密码是否正确');
+        } 
+    }
 
+    private function loginself($XH, $ZKZH)
+    {
+        $info = Db::name('fresh_info')
+                    -> where('XH', $XH)
+                    -> where('ZKZH', $ZKZH)
+                    ->find(); 
+        if (empty($info)) {
+            return false;
+        } else {
+            $userid = $info['ID'];
+            return $userid;
+        }
     }
 
 }
