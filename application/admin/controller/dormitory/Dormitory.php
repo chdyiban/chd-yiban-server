@@ -45,23 +45,33 @@ class Dormitory extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
-            $total = $this->model
-                    ->where($where)
-                    ->order($sort, $order)
-                    ->count();
+            // $total = $this->model
+            //         ->where($where)
+            //         ->order($sort, $order)
+            //         ->count();
 
-            $list = $this->model
-                    ->where($where)
-                    ->order($sort, $order)
-                    ->limit($offset, $limit)
-                    ->select();
+            // $list = $this->model
+            //         ->where($where)
+            //         ->order($sort, $order)
+            //         ->limit($offset, $limit)
+            //         ->select();
 
-            $list = collection($list)->toArray();
-            $result = array("total" => $total, "rows" => $list);
-            $data = $this -> model -> getTableData();
+            // $list = collection($list)->toArray();
+            // $result = array("total" => $total, "rows" => $list);
+
+            $info = $this -> model -> getTableData();
             //return json($result);
-            $data = array("total" => $total, "rows" => $data);
-            return json($data);
+            $total = $info['count'];
+            $data = $info['data'];
+            //遍历进行分页
+            $list = array();
+            foreach ($data as $key => $value) {
+                if ($key >=  $offset && $key < ($offset + $limit) ) {
+                    $list[] = $value;
+                }
+            } 
+            $result = array("total" => $total, "rows" => $list);
+            return json($result);
 
         }
         return $this->view->fetch();
