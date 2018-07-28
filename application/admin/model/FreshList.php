@@ -57,7 +57,7 @@ class FreshList extends Model
             $college[$key]['finished_num'] = $finished_num;
             $college[$key]['rest_num'] = $value['bed_num'] - $finished_num;
         }
-        return $college;
+        return ['data' => $college, 'count' => count($college)];
     }
     
     /**
@@ -83,14 +83,14 @@ class FreshList extends Model
             $info[$key]['rest_bed_num'] = $rest_bed_num;
            // $info[$key]['dormitory_number'] = 
         }
-        return $info;
+        return ['data' => $info, 'count' => count($info)];
 
     }
     /**
      * 获取所有订单列表
      */
 
-    public function getList($keys, $filter)
+    public function getList($keys_op, $op, $keys_filter, $filter)
     {
         $info =  array();
         $list = Db::view('fresh_info') 
@@ -116,14 +116,22 @@ class FreshList extends Model
             $info[$key]['MZ'] =  $info[$key]['MZ'];
             $info[$key]['XB'] = $info[$key]['XBDM'] == 1 ? '男' : '女';
         }
+
+
         //遍历进行筛选
-        if (empty($keys) || empty($filter)) {
+        if (empty($keys_op) || empty($op) || empty($keys_filter) || empty($filter)) {
             return ['data' => $info, 'count' => count($info)];
         } else {
+            foreach ($keys_op as $k => $v) {
+                $map[$k]['key'] = $v;
+                $map[$k]['op'] = $op[$v];
+                $map[$k]['filter'] = $filter[$v];
+            }
+
             foreach ($info as $key => $value) {
-                foreach ($keys as $v) {
-                    $map = $filter[$v];
-                    if ($value[$v] != $map) {
+                foreach ($map as $k => $v) {
+                    //$op = $v['op'];
+                    if ($value[$v['key']] !=  $v['filter']) {
                         unset($info[$key]);
                     }
                 }
@@ -133,7 +141,7 @@ class FreshList extends Model
                 $list[] = $v;
             }
             
-            return ['data' => $list, 'count' => $list];
+            return ['data' => $list, 'count' => count($list)];
         }
     }
 

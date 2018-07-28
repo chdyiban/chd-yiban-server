@@ -31,3 +31,134 @@
         </div>
     </div>
 </div>
+
+<script id="customformtpl" type="text/html">
+    <!--form表单必须添加form-commsearch这个类-->
+    <form action="" class="form-commonsearch">
+        <div style="border-radius:2px;margin-bottom:10px;background:#f5f5f5;padding:20px;">
+            <h4>搜索</h4>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">楼号</label>
+                        <input type="hidden" class="operate" data-name="LH" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/building" data-primary-key="LH"
+                                data-field="LH" class="form-control selectpage" name="LH" type="text"
+                                value="">
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">宿舍号</label>
+                        <!--显式的operate操作符-->
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <select class="form-control operate" data-name="SSH" style="width:auto;">
+                                    <option value="=" selected>等于</option>
+                                    <option value=">">大于</option>
+                                    <option value="<">小于</option>
+                                </select>
+                            </div>
+                            <input class="form-control" type="text" name="SSH" placeholder="" value=""/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">床号</label>
+                        <!--隐式的operate操作符，必须携带一个class为operate隐藏的文本框,且它的data-name="字段",值为操作符-->
+                        <input class="operate" type="hidden" data-name="CH" value="="/>
+                        <input class="form-control" type="text" name="CH" placeholder="请输入查找的床号" value=""/>
+                    </div>
+                </div>
+                
+                <!-- <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">学院</label>
+                        <div class="row" data-toggle="cxselect" data-selects="group,admin">
+                            <div class="col-xs-6">
+                                <select class="group form-control" name="group"
+                                        data-url="example/bootstraptable/cxselect?type=group"></select>
+                            </div>
+                            <div class="col-xs-6">
+                                <select class="admin form-control" name="admin_id"
+                                        data-url="example/bootstraptable/cxselect?type=admin"
+                                        data-query-name="group_id"></select>
+                            </div>
+                            <input type="hidden" class="operate" data-name="admin_id" value="="/>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">学院</label>
+                        <input type="hidden" class="operate" data-name="YXJC" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/college" data-primary-key="YXJC"
+                               data-field="YXJC" class="form-control selectpage" name="YXJC" type="text"
+                               value="">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">性别</label>
+                        <input type="hidden" class="operate" data-name="XB" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/sex" data-primary-key="XB"
+                               data-field="XB" class="form-control selectpage" name="XB" type="text"
+                               value="">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">学号</label>
+                        <!--隐式的operate操作符，必须携带一个class为operate隐藏的文本框,且它的data-name="字段",值为操作符-->
+                        <input class="operate" type="hidden" data-name="XH" value="="/>
+                        <input class="form-control" type="text" name="XH" placeholder="请输入查找的学号" value=""/>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">是否选择宿舍</label>
+                        <input type="hidden" class="operate" data-name="option" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/option" data-primary-key="option"
+                               data-field="option" class="form-control selectpage" name="option" type="text"
+                               value="">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">民族</label>
+                        <input type="hidden" class="operate" data-name="MZ" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/nation" data-primary-key="MZ"
+                               data-field="MZ" class="form-control selectpage" name="MZ" type="text"
+                               value="">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">生源地</label>
+                        <input type="hidden" class="operate" data-name="SYD" value="="/>
+                        <input id="c-category_id" data-source="dormitory/Dormitorylist/place" data-primary-key="SYD"
+                               data-field="SYD" class="form-control selectpage" name="SYD" type="text"
+                               value="">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <input type="submit" class="btn btn-success btn-block" value="提交"/>
+                            </div>
+                            <div class="col-xs-6">
+                                <input type="reset" class="btn btn-primary btn-block" value="重置"/>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </form>
+</script>

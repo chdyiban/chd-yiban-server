@@ -21,15 +21,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'YXDM',
                 sortName: 'YXDM',
+                searchFormVisible: true,
+                searchFormTemplate: 'customformtpl',
                 columns: [
                     [
                         {checkbox: true},                       
                         {field: 'XM', title: __('姓名')},
+                        {field: 'XH', title: __('学号')},
                         {field: 'XB', title: __('性别')},
                         {field: 'MZ', title: __('民族')},
                         {field: 'SYD', title: __('生源地')},
                         {field: 'option', title: __('是否选择宿舍')},
-                        {field: 'XH', title: __('学号')},
                         {field: 'LH', title: __('楼号'), formatter: Table.api.formatter.search, operate: 'RANGE'},
                         {field: 'SSH', title: __('宿舍号'), operate: 'RANGE'},
                         {field: 'CH', title: __('床号'), operate: 'RANGE',},

@@ -3,6 +3,7 @@
 namespace app\admin\controller\dormitory;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 
@@ -43,16 +44,18 @@ class Dormitorylist extends Backend
             {
                 return $this->selectpage();
             }
+            set_time_limit(0);
             $filter = urldecode($this -> request -> request('filter'));
             $op = urldecode($this -> request -> request('op'));
             $filter = json_decode($filter, true);
-            $keys = array_keys($filter);
+            $op = json_decode($op, true);
+            $keys_op = array_keys($op);
+            $keys_filter = array_keys($filter);
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $info = $this -> model -> getList($keys_op, $op, $keys_filter, $filter);
 
-            $info = $this -> model -> getList($keys, $filter);
             $total = $info['count'];
             $data = $info['data'];
-
             //遍历进行分页
             $list = array();
             foreach ($data as $key => $value) {
@@ -62,9 +65,82 @@ class Dormitorylist extends Backend
             } 
             $result = array("total" => $total, "rows" => $list);
             return json($result);
-
         }
         return $this->view->fetch();
     }
+
+
+    public function college()
+    {
+        $info = array();
+        $data = Db::name('dict_college') -> field('YXDM, YXJC') -> select();
+        foreach ($data as $key => $value) {
+            if ($value['YXDM'] == 9999 || $value['YXDM'] == 5100 || $value['YXDM'] == 1800 || $value['YXDM'] == 1801 || $value['YXDM'] == 1700) {
+                unset($data[$key]);
+            } else {
+                $info[] = $value;
+            }
+            // $info[$key]['value'] = $value['YXDM'];
+        }
+        $total = count($info);
+        $result = array("total" => $total, "rows" => $info);
+        return json($result);
+    }
+
+    public function building()
+    {
+        $info = array();
+        $data = Db::name('fresh_dormitory') -> group('LH') -> field('LH') -> select();
+        foreach ($data as $key => $value) {
+            $info[] = $value;
+        }
+        $total = count($info);
+        $result = array("total" => $total, "rows" => $info);
+        return json($result);
+    }
+
+    public function sex()
+    {
+        $info = array(
+            ['XB' => '男'],
+            ['XB' => '女'],
+        );
+        $result = array('total' => 2, 'rows' => $info);
+        return json($result);
+    }
+
+    public function nation()
+    {
+        $nation = Db::name('fresh_info') -> group('MZ') ->field('MZ') -> select();
+        $info = array();
+        foreach ($nation as $key => $value) {
+            $info[] = $value;
+        }
+        $total = count($info);
+        $result = array('total' => $total, 'rows' => $info);
+        return json($result);
+    }
+
+    public function place()
+    {
+        $nation = Db::name('fresh_info') -> group('SYD') ->field('SYD') -> select();
+        $info = array();
+        foreach ($nation as $key => $value) {
+            $info[] = $value;
+        }
+        $total = count($info);
+        $result = array('total' => $total, 'rows' => $info);
+        return json($result);
+    }
+    public function option()
+    {
+        $info = array(
+            ['option' => '是'],
+            ['option' => '否'],
+        );
+        $result = array('total' => 2, 'rows' => $info);
+        return json($result);
+    }
+    
 
 }
