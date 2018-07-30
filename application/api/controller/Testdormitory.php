@@ -137,7 +137,7 @@ class Testdormitory extends Freshuser
      */
     public function testshow(){
         header('Access-Control-Allow-Origin:*');
-        memory_get_peak_usage();
+        echo '开始内存：'.memory_get_usage(), '';
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
         $data = Db::name('fresh_info') -> where('id',$id) ->field('XBDM,YXDM') -> find();
@@ -179,6 +179,7 @@ class Testdormitory extends Freshuser
         foreach ($dormitory_info as $key => $value) {
             $bed_number += $value['SYRS'];
         }
+        echo '运行后内存：'.memory_get_usage(), '';
         //return ['status' => true, 'msg' => "查询成功", 'data' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number];
         $this -> success('查询成功', ['list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
     }
