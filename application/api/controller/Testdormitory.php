@@ -137,6 +137,7 @@ class Testdormitory extends Freshuser
      */
     public function testshow(){
         header('Access-Control-Allow-Origin:*');
+        memory_get_peak_usage();
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
         $data = Db::name('fresh_info') -> where('id',$id) ->field('XBDM,YXDM') -> find();
