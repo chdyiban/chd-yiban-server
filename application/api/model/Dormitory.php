@@ -394,6 +394,10 @@ class Dormitory extends Model
             } else {
                 $origin = $key['origin'];
             }
+            // $list = $this -> where('YXDM',$college_id)
+            //                     -> where('SSDM', $dormitory_id)
+            //                     -> find();
+            // return ['status' => false, 'msg' => "", 'data' => $key];
             $data = Db::name('fresh_list') -> where('XH', $stu_id)->find();
             if(empty($data)){
                 $insert_flag = false;

@@ -14,13 +14,56 @@ use app\api\model\Dormitory as DormitoryModel;
 class Finisheddormitory extends Freshuser
 {
     //记得该权限
-    protected $noNeedLogin = ['distribute'];
-    protected $noNeedRight = ['distribute'];
+    //distribute
+    protected $noNeedLogin = [];
+    protected $noNeedRight = [];
 
     private $loginInfo = null;
     private $token = null;
     private $userInfo = null;
 
+    
+  
+    private  function getBedNum($sex,$college_id, $building, $dormitory)
+    {
+        $list = [];
+        $data = Db::name('fresh_dormitory') 
+                    -> where('YXDM',$college_id)
+                    -> where('XB', $sex)
+                    -> where('LH', $building)
+                    -> where('SSH', $dormitory)
+                    -> find();
+        //床铺选择情况 例如：111111
+        $CP = $data['CPXZ'];
+        $length = strlen($CP);
+        if ($length == 4) {
+            for ($i=0; $i < $length ; $i++) { 
+                $k = $i + 1;
+                if ($CP[$i] == "1") {
+                    $temp = [];
+                    $temp = array(
+                        'name' => $k."号床（上床下柜）",                    
+                        'value' => $k,
+                    );
+                    $list[] = $temp;
+                }
+            }
+            return $list;
+        } elseif ($length == 6) {
+            for ($i=0; $i < $length ; $i++) { 
+                $k = $i + 1;
+                if ($CP[$i] == 1) {
+                    $temp = [];
+                    $temp = array(
+                        'name' =>( $k == 1 || $k == 2 ) ? ($k."号床（上床下柜）") : ( ($k == 3 || $k == 5) ?  ($k."号床（上铺）"): ($k."号床（下铺）")),
+                        'value' => $k,
+                    );
+                    $list[] = $temp;
+                }
+            }
+            return $list;
+        }
+    }
     /**
      * 宿舍分配方法
      * @author Yang
@@ -310,7 +353,7 @@ class Finisheddormitory extends Freshuser
             //3.顺序选择床铺并插入
             $bedNum = 0;//床号
             $bedArray = str_split($v['CPXZ']);
-            foreach ($bedArray as $key => &$value) {
+            foreach ($bedArray as $key => $value) {
                 if($value != '0'){
                     //符合宣传条件
                     $bedNum = $key + 1;
@@ -366,6 +409,7 @@ class Finisheddormitory extends Freshuser
         $lessnation = array();
         $stu_info = Db::name('fresh_info') -> select();
         //将已经选过的人从数组中去掉
+        //使用联查的方法，然后进行过滤
         foreach ($stu_info as $k => $value) {
             $stu_id   = $value['XH'];
             $exit_stu = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
@@ -381,7 +425,7 @@ class Finisheddormitory extends Freshuser
         //         $lessnation[] = $value;
         //     }
         // }
-
+        
 
         //对于没有选择宿舍的人进行遍历
         foreach ($stu_info as $k => $v) {
@@ -394,11 +438,13 @@ class Finisheddormitory extends Freshuser
             $stu_id   = $v['XH'];
             $stu_name = $v['XM'];
             $stu_zkzh = $v['ZKZH'];
+            
             $DormitoryModel = new DormitoryModel;
             //此方法返回一个选择的楼号
             $building_choice = $this -> getBuilding('select', $info);
             //返回该楼号能否选择以及能选的宿舍号
             $dormitory = $this -> getDormitory($info, $building_choice);
+            
             //如果此楼无法选择，则进行循环重新获取楼号
             while (!$dormitory['status']) {
 
@@ -412,6 +458,7 @@ class Finisheddormitory extends Freshuser
             $dormitory_choice = $dormitory[$dormitory_choice]['value'];
             //将楼号以及宿舍号作为参数获取能选的床号或者返回错误            
             $bed = $this -> getBed($info, $building_choice, $dormitory_choice);
+            $this->success($dormitory,$bed);
             //当该宿舍不能选择时，重新随机选择楼号，重新选择宿舍号，直到有床能选为止
             while (!$bed['status']) {
                 $building_choice = $this -> getBuilding('select', $info);
@@ -436,9 +483,11 @@ class Finisheddormitory extends Freshuser
             //将结果构造并且提交给submit方法
             $dormitory_id = $building_choice.'#'.$dormitory_choice;
             $key = array('dormitory_id' => $dormitory_id, 'bed_id' => $bed_choice, 'origin' => 'system');
-            $result[$k]['info'] = $info;
-            $result[$k]['key'] = $key;
+            // $result[$k]['info'] = $info;
+            // $result[$k]['key'] = $key;
             $response = $DormitoryModel -> submit($info, $key);
+            //$array = ['response' => $response, 'dormitory' => $dormitory, 'bed'=> $bed];
+          
             if ($response['status']) {
                $key = array('type' => 'confirm');
                $response = $DormitoryModel -> confirm($info, $key);

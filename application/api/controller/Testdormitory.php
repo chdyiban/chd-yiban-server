@@ -132,6 +132,55 @@ class Testdormitory extends Freshuser
             return $userid;
         }
     }
+    /**
+     * 测试返回剩余房间数和床位数
+     */
+    public function testshow(){
+        header('Access-Control-Allow-Origin:*');
+        $count = Db::name('fresh_info') -> count();
+        $id = rand(1,$count);
+        $data = Db::name('fresh_info') -> where('id',$id) ->field('XBDM,YXDM') -> find();
+        $college_id = $data['YXDM'];
+        $sex = $data['XBDM'];
+
+        $data = Db::name('fresh_dormitory')
+                    -> where('YXDM',$college_id)
+                    -> where('XB', $sex)
+                    -> group('LH')
+                    -> select();
+        foreach ($data as $key => $value) {
+            $build = $value['LH'];
+            if ($build <= 6 && $build > 0) {
+                $info = array(
+                    'name' =>  $build."号楼（西区）",
+                    'value' => $build,
+                );   
+            } elseif ($build <=15) {
+                $info = array(
+                    'name' =>  $build."号楼（东区）",
+                    'value' => $build,
+                );   
+            } elseif ( $build <= 19) {
+                $info = array(
+                    'name' =>  $build."号楼（高层）",
+                    'value' => $build,
+                );   
+            }
+            $list[] = $info;
+        }
+        $dormitory_info = Db::name('fresh_dormitory') -> where('SYRS','>=','1') 
+                                -> where('XB',$sex)
+                                -> where('YXDM',$college_id)
+                                -> field('SYRS')
+                                -> select();
+        $dormitory_number = count($dormitory_info);
+        $bed_number = 0;
+        foreach ($dormitory_info as $key => $value) {
+            $bed_number += $value['SYRS'];
+        }
+        //return ['status' => true, 'msg' => "查询成功", 'data' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number];
+        $this -> success('查询成功', ['list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
+    }
 
 }
     
