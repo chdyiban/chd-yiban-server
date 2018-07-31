@@ -193,5 +193,9 @@ class Testdormitory extends Freshuser
         $this->success('success',$result);
     }
 
+    public function testPHP(){
+        $this->success('success');
+    }
+
 }
     
