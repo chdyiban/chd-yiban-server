@@ -137,7 +137,7 @@ class Testdormitory extends Freshuser
      */
     public function testshow(){
         header('Access-Control-Allow-Origin:*');
-        echo '开始内存：'.memory_get_usage(), '';
+        $mem_p1 = memory_get_usage();
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
         $data = Db::name('fresh_info') -> where('id',$id) ->field('XBDM,YXDM') -> find();
@@ -149,6 +149,7 @@ class Testdormitory extends Freshuser
                     -> where('XB', $sex)
                     -> group('LH')
                     -> select();
+        echo Db::name('fresh_dormitory')->getLastSql();
         foreach ($data as $key => $value) {
             $build = $value['LH'];
             if ($build <= 6 && $build > 0) {
@@ -174,14 +175,22 @@ class Testdormitory extends Freshuser
                                 -> where('YXDM',$college_id)
                                 -> field('SYRS')
                                 -> select();
+        echo Db::name('fresh_dormitory')->getLastSql();
         $dormitory_number = count($dormitory_info);
         $bed_number = 0;
         foreach ($dormitory_info as $key => $value) {
             $bed_number += $value['SYRS'];
         }
-        echo '运行后内存：'.memory_get_usage(), '';
-        //return ['status' => true, 'msg' => "查询成功", 'data' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number];
-        $this -> success('查询成功', ['list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
+        $mem_p9 = memory_get_usage();
+
+        $mem_cost = ($mem_p9 - $mem_p1) / 1024 / 1024 ;
+
+        $this -> success('查询成功', ['memory'=> $mem_cost.'mb','list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
+    }
+
+    public function testLoad(){
+        $result = Db::name('fresh_info') -> find();
+        $this->success('success',$result);
     }
 
 }
