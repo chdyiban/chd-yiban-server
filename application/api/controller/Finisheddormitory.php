@@ -6,6 +6,7 @@ use app\common\controller\Api;
 use think\Config;
 use fast\Http;
 use think\Db;
+use think\Log;
 
 use app\api\model\Dormitory as DormitoryModel;
 /**
@@ -39,6 +40,7 @@ class Finisheddormitory extends Freshuser
         $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.MZ not like '汉族' AND (SELECT COUNT(1) FROM `fa_fresh_list` B WHERE B.XH = A.XH) = 0";
         $not_hz = Db::query($sql);
         echo "未分配少数民族人数:".count($not_hz).'<br/>';
+        Log::write('未分配少数民族人数:'.count($not_hz));
         foreach ($not_hz as $key => $value) {
             $this->distributenation($value);
         }
@@ -48,6 +50,7 @@ class Finisheddormitory extends Freshuser
         $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.SYD not like '陕西' AND (SELECT COUNT(1) FROM `fa_fresh_list` B WHERE B.XH = A.XH) = 0";
         $not_sx = Db::query($sql);
         echo "未分配外省人数:".count($not_sx).'<br/>';
+        Log::write('未分配外省人数'.count($not_sx));
         foreach ($not_sx as $key => $value) {
             $this->distributeplace($value);
         }
@@ -67,6 +70,7 @@ class Finisheddormitory extends Freshuser
         $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A left join `fa_fresh_list` B on A.XH=B.XH where B.ID is null";
         $nomal = Db::query($sql);
         echo "未分配正常人数:".count($nomal).'<br/>';
+        Log::write('未分配正常人数'.count($nomal));
         foreach ($nomal as $key => $value) {
             $this->distributenomal($value);
         }
@@ -84,7 +88,7 @@ class Finisheddormitory extends Freshuser
         //echo Db::name('fresh_dormitory')->getLastSql();
         //遍历每一个宿舍
         foreach ($rooms as $k => $v) {
-            dump($v);
+            // dump($v);
             //遍历可用宿舍
             $map['SSDM'] = $v['SSDM'];
             //$roommates = Db::name('fresh_list')->where($map)->select();
@@ -135,21 +139,27 @@ class Finisheddormitory extends Freshuser
                 'origin'=>'system',
                 'status'=>'finished',
             ];
+            Log::write('正常学生的插入数据'.json_encode($data));
             //dump($data);
             //走到这里，应该是符合选宿舍条件了，直接插入,插入成功则退出
             if(Db::name('fresh_list')->insert($data)){
                 //宿舍信息表更新一下
                 Db::name('fresh_dormitory')
                     ->where('SSDM',$v['SSDM'])
+                    ->where('YXDM',$person['YXDM'])
                     ->update([
                         'SYRS' => $restNum,
                         'CPXZ' => implode('',$bedArray)
                     ]);
+                $sql = Db::name('fresh_list')->getLastSql();
+                //Log::write('正常学生的SQL语句'.$sql,Log::SQL);
                // echo Db::name('fresh_dormitory')->getLastSql();
                 //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
                 //echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
                 break;
             }else{
+                $sql = Db::name('fresh_list')->getLastSql();
+                //Log::write('正常学生的SQL语句'.$sql,Log::SQL);
                 //echo Db::name('fresh_list')->getLastSql();
             }
         }
@@ -237,23 +247,28 @@ class Finisheddormitory extends Freshuser
                 'origin'=>'system',
                 'status'=>'finished',
             ];
+            Log::write('外省插入的数据'.json_encode($data));
             //dump($data);
             if(Db::name('fresh_list')->insert($data)){
                 //宿舍信息表更新一下
                 Db::name('fresh_dormitory')
                     ->where('SSDM',$restRoom['SSDM'])
+                    ->where('YXDM',$person['YXDM'])
                     ->update([
                         'SYRS' => $restRoom['SYRS'] - 1,
                         'CPXZ' => implode('',$bedArray)
                     ]);
                 //echo '床铺号：'.$bedNum.'<br/>';
                 //echo Db::name('fresh_dormitory')->getLastSql();
-                
+                //$sql = Db::name('fresh_dormitory')->getLastSql();
+                //Log::write('外省插入的SQL语句'.$sql,Log::SQL);
                 
                 //echo 'Now memory_get_usage: ' . memory_get_usage()/(1024*1024) . 'MB <br />';
                 //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
                 //echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
             }else{
+                //$sql = Db::name('fresh_list')->getLastSql();
+                //Log::write('外省插入的SQL语句'.$sql,Log::SQL);
                 //echo Db::name('fresh_list')->getLastSql();
             } 
     }
@@ -338,15 +353,18 @@ class Finisheddormitory extends Freshuser
             'origin'=>'system',
             'status'=>'finished',
         ];
-
+        Log::write('少数民族插入的数据'.json_encode($data));
         if(Db::name('fresh_list')->insert($data)){
             //宿舍信息表更新一下
             Db::name('fresh_dormitory')
                 ->where('SSDM',$restRoom['SSDM'])
+                ->where('YXDM',$person['YXDM'])
                 ->update([
                     'SYRS' => $restRoom['SYRS'] - 1,
                     'CPXZ' => implode('',$bedArray)
                 ]);
+            $sql = Db::name('fresh_dormitory')->getLastSql();
+            //Log::write('少数民族插入时的SQL语句'.$sql,Log::SQL);
            // echo '床铺号：'.$bedNum.'<br/>';
             //echo Db::name('fresh_dormitory')->getLastSql();
             //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
