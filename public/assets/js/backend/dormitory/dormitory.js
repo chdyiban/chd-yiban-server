@@ -21,6 +21,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'YXDM',
                 sortName: 'YXDM',
+                visible: false,
                 columns: [
                     [
                         {checkbox: true},
@@ -28,7 +29,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'bed_num', title: __('总床位数')},
                         {field: 'finished_num', title: __('已选床位数量')},
                         {field: 'rest_num', title: __('剩余床位数量')},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });

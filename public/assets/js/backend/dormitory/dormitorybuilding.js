@@ -23,12 +23,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'YXDM',
                 columns: [
                     [
-                        {checkbox: true},
+                        // {checkbox: true},
                         {field: 'building', title: __('楼号')},
                         {field: 'rest_dormitory_num', title: __('剩余宿舍数量')},
                         {field: 'rest_bed_num', title: __('剩余床铺数量')},
-                       // {field: 'rest_num', title: __('剩余床铺数量')},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        {field: 'rest_num', title: __('剩余床铺数量')},
+                        // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
