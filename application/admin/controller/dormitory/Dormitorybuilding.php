@@ -60,15 +60,21 @@ class Dormitorybuilding extends Backend
             $info = $this -> model -> getBuilding();
             $total = $info['count'];
             $data = $info['data'];
-            //遍历进行分页
-            $list = array();
-            foreach ($data as $key => $value) {
-                if ($key >=  $offset && $key < ($offset + $limit) ) {
-                    $list[] = $value;
-                }
-            } 
-            $result = array("total" => $total, "rows" => $list);
-            return json($result);
+             //判断是否是导出文件
+            if (empty($offset) && empty($limit)) {
+                $result = array("total" => $total, "rows" => $data);
+                return json($result);
+            } else {
+                //遍历进行分页
+                $list = array();
+                foreach ($data as $key => $value) {
+                    if ($key >=  $offset && $key < ($offset + $limit) ) {
+                        $list[] = $value;
+                    }
+                } 
+                $result = array("total" => $total, "rows" => $list);
+                return json($result);
+            }
 
         }
         return $this->view->fetch();

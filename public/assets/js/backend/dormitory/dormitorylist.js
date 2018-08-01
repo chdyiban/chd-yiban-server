@@ -25,7 +25,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 searchFormTemplate: 'customformtpl',
                 columns: [
                     [
-                        {checkbox: true},                       
+                        // {checkbox: true},                       
                         {field: 'XM', title: __('姓名')},
                         {field: 'XH', title: __('学号')},
                         {field: 'XB', title: __('性别')},
@@ -37,7 +37,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'CH', title: __('床号'), operate: 'RANGE',},
                         {field: 'YXJC', title: __('学院')},
                         // {field: 'rest_num', title: __('剩余床铺数量')},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
