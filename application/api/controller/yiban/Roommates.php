@@ -41,28 +41,32 @@ class Roommates extends Oauth
 		if(!$this->checkGrade($result['info']['yb_studentid'],'2018')){
 			$this->error('暂时仅2018级学生使用');
     	}
-
 		$result['info']['yb_studentid'] = '2017900716';
-    	//找到室友信息并返回
-
-    	$stuInfo = Db::name('fresh_list')->where('XH',$result['info']['yb_studentid'])->find();
+    	//找到本人信息并返回
+		$stuInfo = Db::view('fresh_list','XH,SSDM,CH')
+				-> view('dict_college','YXJC,YXDM', 'fresh_list.YXDM = dict_college.YXDM')
+				-> view('fresh_info','XM ,SYD, XH, MZ','fresh_list.XH = fresh_info.XH')
+				//-> view('fresh_info_add','XH,BRDH','fresh_list.XH = fresh_info_add.XH')
+				-> where('fresh_list.XH',$result['info']['yb_studentid'])
+				-> where('fresh_list.status','finished')
+				-> find();
+		
     	if($stuInfo['SSDM']){
-    		$roommates = Db::view('fresh_list') 
-                -> view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
+    		$roommates = Db::view('fresh_list','XH,SSDM,CH') 
+				-> view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
+				-> view('dict_college','YXJC,YXDM', 'fresh_list.YXDM = dict_college.YXDM')
                 -> where('SSDM', $stuInfo['SSDM'])
                 -> where('fresh_list.XH', '<>', $result['info']['yb_studentid'])
-                -> where('status','finished')
-                -> select();
+				-> where('status','finished')
+				-> field('XM, SYD, CH, YXJC')
+				-> select();
     		$data = [
-    			'personal' => $result['info'],
+    			'personal' => $stuInfo,
     			'roommates' => $roommates,
-    		];
+			];			
     		$this->success('success',$data);
     	}else{
     		$this->error('尚无住宿信息');
-    	}
-
-    	
-		
+    	}	
     }
 }
