@@ -4,13 +4,8 @@ namespace app\api\controller;
 
 use app\common\controller\Api;
 use think\Config;
-use fast\Http;
 use think\Db;
-use think\Validate;
 use app\api\model\Dormitory as DormitoryModel;
-
-use Qiniu\Storage\UploadManager;
-use Qiniu\Auth;
 /**
  * 
  */
@@ -62,7 +57,7 @@ class Stuinfo extends Freshuser
         } else {
             $data = $result['data'];
             $info = $result['info'];
-            $Userinfo = $this -> validate($data,'Userinfo.user');
+            $Userinfo = parent::validate($data,'Userinfo.user');
             $Family[0] = $Userinfo;
             if (empty($info)) {
                 if (gettype($Userinfo) == 'string') {
@@ -72,7 +67,7 @@ class Stuinfo extends Freshuser
                 $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
             } else {
                 foreach ($info as $key => $value) {
-                    $Familyinfo = $this -> validate($value,'Userinfo.family');
+                    $Familyinfo = parent::validate($value,'Userinfo.family');
                     $Family[] = $Familyinfo;
                 }
                 foreach ($Family as $key => $value) {

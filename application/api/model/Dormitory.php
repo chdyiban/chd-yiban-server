@@ -124,6 +124,7 @@ class Dormitory extends Model
      */
     private function showBuilding($college_id, $sex)
     {
+        $list = [];
         $data = $this -> where('YXDM',$college_id)
                     -> where('XB', $sex)
                     -> group('LH')
@@ -302,6 +303,7 @@ class Dormitory extends Model
             $data['SZDQ'] = !empty($key['SZDQ']) ? $key['SZDQ'] : null;
             $data['XXDZ'] = !empty($key['XXDZ']) ? $key['XXDZ'] : null;
             $data['BRDH'] = !empty($key['BRDH']) ? $key['BRDH'] : null;
+            $data['BRQQ'] = !empty($key['BRQQ']) ? $key['BRQQ'] : null;
             $data['ZP'] =  !empty($key['ZP'][0]['url']) ? $key['ZP'][0]['url'] : '';
             $data['ZSR'] = $key['ZSR'];
             $data['RJSR'] = $RJSR;
