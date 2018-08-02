@@ -51,7 +51,7 @@ class Freshuser extends Api
         header('Access-Control-Allow-Origin:*');
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
-        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH, SFZH') -> find();
+        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH,SFZH') -> find();
         $info['password'] = !empty($info['SFZH']) ? substr($info['SFZH'], -6) : null;
         $this -> success('获取成功', $info);
     }
@@ -84,9 +84,13 @@ class Freshuser extends Api
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
         //身份证号没有提供则登录方式为准考证号登录
         if (empty($user['SFZH'])) {
+            if (empty($user['XH']) || empty($user['ZKZH'])) {
+                return false;
+            }
             $info = Db::name('fresh_info')
                         -> where('XH', $user['XH'])
                         -> where('ZKZH', $user['ZKZH'])
+                        -> fidle('ID')
                         ->find(); 
             if (empty($info)) {
                 return false;
@@ -97,6 +101,7 @@ class Freshuser extends Api
         } else {
             $info = Db::name('fresh_info')
                         -> where('XH', $user['XH'])
+                        -> field('SFZH,ID')
                         ->find(); 
             if (empty($info)) {
                 return false;
@@ -114,11 +119,11 @@ class Freshuser extends Api
     }
 
     protected function getSteps($userId){
-        $personalMsg = Db::name('fresh_info') -> where('ID', $userId) ->find();
+        $personalMsg = Db::name('fresh_info') -> where('ID', $userId) ->field('XH') ->find();
         $stu_id = $personalMsg['XH'];
         //判断信息是否完善
-        $isInfoExist = Db::name('fresh_info_add') -> where('XH', $stu_id) -> find();
-        $isListExist = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
+        $isInfoExist = Db::name('fresh_info_add') -> where('XH', $stu_id) -> field('ID,XH') -> find();
+        $isListExist = Db::name('fresh_list') -> where('XH', $stu_id) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
             return 'setinfo';
         } elseif (empty($isListExist)) {

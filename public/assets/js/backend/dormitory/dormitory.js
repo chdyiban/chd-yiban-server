@@ -24,7 +24,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 visible: false,
                 columns: [
                     [
-                        {checkbox: true},
+                        // {checkbox: true},
                         {field: 'YXJC', title: __('院系简称')},
                         {field: 'bed_num', title: __('总床位数')},
                         {field: 'finished_num', title: __('已选床位数量')},
