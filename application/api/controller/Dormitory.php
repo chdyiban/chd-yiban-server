@@ -139,15 +139,16 @@ class Dormitory extends Freshuser
     // }
 
     /**
+     *  暂时不需要redis
      * 提交选择至redis
      */
-    public function giveredis()
-    {
-        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        $DormitoryModel = new DormitoryModel;
-        $info = $DormitoryModel -> giveredis($this -> userInfo, $key);   
+    // public function giveredis()
+    // {
+    //     $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+    //     $DormitoryModel = new DormitoryModel;
+    //     $info = $DormitoryModel -> giveredis($this -> userInfo, $key);   
         
-    }
+    // }
 
 
     /**
