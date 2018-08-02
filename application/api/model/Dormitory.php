@@ -131,7 +131,7 @@ class Dormitory extends Model
                     -> select();
         foreach ($data as $key => $value) {
             
-            $build = $value['LH'];
+            $build = $value->toArray()['LH'];
             if ($build <= 6 && $build > 0) {
                 $info = array(
                     'name' =>  $build."号楼（西区）",
@@ -159,7 +159,7 @@ class Dormitory extends Model
         $dormitory_number = 0;
         $bed_number = 0;
         foreach ($dormitory_info as $key => $value) {
-            $bed_number += $value['SYRS'];
+            $bed_number += $value->toArray()['SYRS'];
             $dormitory_number += 1;
         }
         return ['status' => true, 'msg' => "查询成功", 'data' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number];
@@ -423,7 +423,7 @@ class Dormitory extends Model
                     //第二步，将frsh_dormitory中对于宿舍，剩余人数-1，宿舍选择情况更新
                     $list = $this -> where('YXDM',$college_id)
                                 -> where('SSDM', $dormitory_id)
-                                -> field('CPXZ, SYRS')
+                                -> field('CPXZ, SYRS, ID')
                                 -> find();
                     
                     $rest_num = $list['SYRS'] - 1;
@@ -456,7 +456,7 @@ class Dormitory extends Model
                 if($insert_flag == 1 && $update_flag == 1){
                     return ['status' => true, 'msg' => "成功选择宿舍", 'data' => null];
                 }else{
-                    return ['status' => false, 'msg' => "请求失败", 'data' => null];
+                    return ['status' => false, 'msg' => "未成功选择", 'data' => null];
                 }
             } else {
                 return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
@@ -606,7 +606,7 @@ class Dormitory extends Model
             $list = Db::view('fresh_list') 
                     ->view('fresh_info','XM, XH, SYD','fresh_list.XH = fresh_info.XH')
                     -> where('fresh_info.XH', $stu_id) 
-                    -> list('XM,SYD,CH,SSDM,origin,YXDM')
+                    -> field('XM,SYD,CH,SSDM,origin')
                     -> find();
             if (empty($list)){
                 return ['status' => false, 'msg' => "没有找到你宿舍哦", 'data' => '']; 
