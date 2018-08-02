@@ -43,14 +43,24 @@ class Dormitory extends Freshuser
                 $start_time = Config::get('dormitory.sametime');
                 $start_time = strtotime($start_time);
                 if ($now_time < $start_time || $now_time > $end_time) {
-                    $this -> error('选宿舍尚未开始');
+                    $data = array(
+                        'college' => $this -> $this -> userInfo['college_name'],
+                        'start_time' => $start_time,
+                        'end_time' => $end_time,
+                    );
+                    $this -> error('选宿舍尚未开始',$data);
                 } 
             } elseif ($choice_type == 'difftime')  {
                 $college_id = $this ->userInfo['college_id'];
                 $college_start_time = Config::get('dormitory.'.$college_id);
                 $college_start_time = strtotime($college_start_time);
                 if ($now_time < $college_start_time || $now_time > $end_time) {
-                    $this -> error($this->userInfo['college_name'].'选宿舍尚未开始');
+                    $data = array(
+                        'college' => $this -> $this -> userInfo['college_name'],
+                        'start_time' => $start_time,
+                        'end_time' => $end_time,
+                    );
+                    $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
                 }
             }
         }else {
@@ -221,6 +231,7 @@ class Dormitory extends Freshuser
         $list = Db::view('fresh_info') 
                     -> view('dict_college', 'YXDM,YXMC','fresh_info.YXDM = dict_college.YXDM')
                     -> where('ID', $user_id) 
+                    -> field('XM,XH,SYD,XBDM,MZ')
                     -> find();
         if ($list) {
             $info['name'] = $list['XM'];
