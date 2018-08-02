@@ -3,15 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Api;
-use think\Config;
-use fast\Http;
 use think\Db;
-use app\common\library\Token;
-use think\Validate;
-use app\api\model\Dormitory as DormitoryModel;
-
-use Qiniu\Storage\UploadManager;
-use Qiniu\Auth;
 /**
  * 
  */
@@ -36,7 +28,7 @@ class Dormitoryadmin extends Api
                     -> find();
             if (!empty($data)) {
                 $info['XH'] = $data['XH'];
-                $info['SSDM'] = !empty($data['SSDM']) ? $data['SSDM'] : $this->error('参数有误');
+                $info['SSDM'] = !empty($data['SSDM']) ? ("渭水校区 ".$data['SSDM']) : $this->error('参数有误');
                 $info['CH'] = !empty($data['CH']) ? $data['CH'].'号床' : $this->error('参数有误');
                 $info['YXDM'] = $data['YXDM'];
                 $info['YXMC'] = $data['YXMC'];
