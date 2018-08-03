@@ -83,22 +83,9 @@ class Freshuser extends Api
     protected function check($user){
         //新生数据库进行比对，若成功则返回userid ，若不成功返回false
         //身份证号没有提供则登录方式为准考证号登录
-        if (empty($user['SFZH'])) {
-            if (empty($user['XH']) || empty($user['ZKZH'])) {
-                return false;
-            }
-            $info = Db::name('fresh_info')
-                        -> where('XH', $user['XH'])
-                        -> where('ZKZH', $user['ZKZH'])
-                        -> fidle('ID')
-                        ->find(); 
-            if (empty($info)) {
-                return false;
-            } else {
-                $userid = $info['ID'];
-                return $userid;
-            }
-        } else {
+        if (empty($user['XH'] || empty($user['SFZH']))) {
+            return false;
+        } else{
             $info = Db::name('fresh_info')
                         -> where('XH', $user['XH'])
                         -> field('SFZH,ID')
@@ -108,11 +95,11 @@ class Freshuser extends Api
             } else {
                 $id_card = $info['SFZH'];
                 $password = substr($id_card, -6);
-                if ($password == $id_card) {
-                    return false;
-                } else {
+                if ($user['SFZH'] == $password) {
                     $userid = $info['ID'];
                     return $userid;
+                } else {
+                    return false;
                 }
             }
         }
