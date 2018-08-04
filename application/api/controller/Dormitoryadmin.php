@@ -34,7 +34,7 @@ class Dormitoryadmin extends Api
                 $info['YXMC'] = $data['YXMC'];
                 $type = Db::name('fresh_dormitory') -> where('SSDM', $info['SSDM'])-> field('CPXZ') -> find();
                 $type = !empty($type['CPXZ']) ? strlen($type['CPXZ']) : $this->error('参数有误');
-                $money = $type == 4 ? 1200 : 700;
+                $money = $type == 4 ? 1200 : 900;
                 $info['ZSF'] = $money;
                 $info['origin'] = $data['origin'];
                 $info['status'] = $data['status'];

@@ -35,18 +35,74 @@ class Dormitory extends Model
                 break;
             //第三步, 订单已经提交等待确认
             case 'waited':
-                $data = Db::name('fresh_list') -> where('XH', $stuid) -> find();
+                $data = Db::name('fresh_list') 
+                        -> where('XH', $stuid) 
+                        -> where('status','waited') 
+                        -> find();
                 if (empty($data)) {
                     return ['status' => false, 'msg' => '不存在需要确认的订单', 'data' => null];
                 } else {
-                    $info['XH'] = $stuid;
-                    $dor = explode("#", $data['SSDM']);
-                    $info['LH'] = $dor[0];
-                    $info['SSH'] = $dor[1];
-                    $info['CH'] = $data['CH'];
-                    $info['start_time'] = date('Y-m-d H:i:s', $data['SDSJ']);
-                    $info['end_time'] = date('Y-m-d H:i:s', $data['SDSJ'] + 1800);
-                    return ['status' => true, 'msg' => '查询成功', 'data' => $info];
+                    //新增判断订单是否超时
+                    $stu_id = $userinfo['stu_id'];
+                    $college_id = $userinfo['college_id'];
+                    $sex = $userinfo['XBDM'];
+                    $place = $userinfo['place'];
+                    $dormitory_id = $data['SSDM'];
+                    $bed_id = $data['CH'];
+                    $old_time = $data['SDSJ'];
+                    $now_time = time();
+                    $second = $now_time - $old_time;
+                    if ( $second >= 1800) {
+                        // 启动事务
+                        Db::startTrans();
+                        try{
+                            $data['status'] = 'timeover';
+                            $data['CZSJ'] = time();
+                            unset($data['ID']);
+                            // 第一步 把取消的选择插入特殊列表
+                            $insert_exception = Db::name('fresh_exception') -> insert($data);
+                            // 第二步 将原先锁定的数据删除
+                            $delete_list = Db::name('fresh_list') -> where('XH', $stu_id)->delete();
+                            // 第三步 把该宿舍的剩余人数以及床铺选择情况更新
+                            $list = $this -> where('YXDM',$college_id)
+                                        -> where('SSDM', $dormitory_id)
+                                        -> field('SYRS,CPXZ,ID')
+                                        -> find();
+                            $rest_num = $list['SYRS'] + 1;
+                            //宿舍总人数
+                            $length = strlen($list['CPXZ']);
+                            //指数
+                            $exp = (int)$length - (int)$bed_id;
+                            $sub = pow(10, $exp);
+                            $choice = (int)$list['CPXZ'] + $sub;
+                            $choice = sprintf("%0".$length."d", $choice);
+                            $choice = (string)$choice;
+                            $update_flag = $this -> where('ID', $list['ID'])
+                                                -> update([
+                                                    'SYRS' => $rest_num,
+                                                    'CPXZ' => $choice,
+                                                ]);
+                            // 提交事务
+                            Db::commit();  
+                        } catch (\Exception $e) {
+                            // 回滚事务
+                            Db::rollback();
+                        }
+                        if ( $insert_exception == 1 && $delete_list == 1) {
+                            return ['status' => false, 'msg' => "规定时间内未确认！", 'data' => null];
+                        } else {
+                            return ['status' => false, 'msg' => "服务器出了点问题哦！", 'data' => null];                                
+                        }   
+                    } else {
+                        $info['XH'] = $stuid;
+                        $dor = explode("#", $data['SSDM']);
+                        $info['LH'] = $dor[0];
+                        $info['SSH'] = $dor[1];
+                        $info['CH'] = $data['CH'];
+                        $info['start_time'] = date('Y-m-d H:i:s', $data['SDSJ']);
+                        $info['end_time'] = date('Y-m-d H:i:s', $data['SDSJ'] + 1800);
+                        return ['status' => true, 'msg' => '查询成功', 'data' => $info];   
+                    }
                 }
                 break;
             //第四步，所有工作都已结束
@@ -143,7 +199,7 @@ class Dormitory extends Model
                     'name' =>  $build."号楼（东区）",
                     'value' => $build,
                 );   
-            } elseif ( $build <= 19) {
+            } elseif ( $build <= 20) {
                 $info = array(
                     'name' =>  $build."号楼（高层）",
                     'value' => $build,
@@ -525,16 +581,16 @@ class Dormitory extends Model
                                 Db::rollback();
                             }
                             if ( $insert_exception == 1 && $delete_list == 1) {
-                                return ['status' => false, 'msg' => "超时，已经取消", 'data' => null];
+                                return ['status' => false, 'msg' => "规定时间内未确认！", 'data' => null];
                             } else {
-                                return ['status' => false, 'msg' => "超时，未成功取消", 'data' => null];                                
+                                return ['status' => false, 'msg' => "服务器出错了哦！", 'data' => null];                                
                             }   
                         } else {
                             $update_status = Db::name('fresh_list') -> where('XH', $stu_id)->update(['status' => 'finished']);
                             if ($update_status == 1) {
-                                return ['status' => true, 'msg' => "宿舍确认成功", 'data' => null];                                
+                                return ['status' => true, 'msg' => "宿舍确认成功！", 'data' => null];                                
                             } else {
-                                return ['status' => false, 'msg' => "宿舍已经确认过", 'data' => null];                                
+                                return ['status' => false, 'msg' => "服务器出了点问题哦！", 'data' => null];                                
                             }
                         }
                         break;
@@ -590,7 +646,7 @@ class Dormitory extends Model
                         if ( $insert_exception == 1 && $delete_list == 1 && $update_flag == 1) {
                             return ['status' => true, 'msg' => "已经成功取消", 'data' => null];                                
                         } else {
-                            return ['status' => false, 'msg' => "请求失败", 'data' => null];                                
+                            return ['status' => false, 'msg' => "服务器出了点问题哦！", 'data' => null];                                
                         }   
                     }    
                     break;
@@ -615,7 +671,7 @@ class Dormitory extends Model
             } else {
                 $room_msg = $this -> where('SSDM', $list['SSDM']) -> where('YXDM',$list['YXDM']) ->field('CPXZ') -> find();
                 $max_number = strlen($room_msg['CPXZ']);
-                $money = $max_number == 4 ? 1200: 700;
+                $money = $max_number == 4 ? 1200: 900;
 
                 $array = array();
                 $array['XH'] = $list['XH'];

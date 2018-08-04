@@ -72,11 +72,25 @@ class Dormitory extends Freshuser
         $DormitoryModel = new DormitoryModel;
         switch ($this -> steps) {
             case 'setinfo':
-                $this -> success('success', ['steps' => $this->steps, 'info' => $this ->userInfo]);
+                $user = $this ->userInfo;
+                $array = array(
+                    'college_name' => $user['college_name'],
+                    'name' => $user['name'],
+                    'sex' => $user['sex'],
+                    'stu_id' => $user['stu_id'],
+                );
+                $this -> success('success', ['steps' => $this->steps, 'info' => $array]);
                 break;
             case 'select':
                 $info = $DormitoryModel -> initSteps($this->steps, $this->userInfo);
-                $this -> success($info['msg'], ['steps' => $this->steps, 'list' => $info['data'], 'dormitory_number' => $info['dormitory_number'], 'bed_number' => $info['bed_number'], 'userinfo' => $this ->userInfo]);
+                $user = $this ->userInfo;
+                $array = array(
+                    'college_name' => $user['college_name'],
+                    'name' => $user['name'],
+                    'sex' => $user['sex'],
+                    'stu_id' => $user['stu_id'],
+                );
+                $this -> success($info['msg'], ['steps' => $this->steps, 'list' => $info['data'], 'dormitory_number' => $info['dormitory_number'], 'bed_number' => $info['bed_number'], 'userinfo' => $array]);
                 break;
 
             case 'waited':
