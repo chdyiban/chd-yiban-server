@@ -36,25 +36,16 @@ class Dormitory extends Freshuser
             $end_time = Config::get('dormitory.endtime'); 
             $end_time = strtotime($end_time);
             $now_time = strtotime('now');
-            if ($choice_type == 'sametime') {
-                $start_time = Config::get('dormitory.sametime');
-                $start_time = strtotime($start_time);
-                if ($now_time < $start_time || $now_time > $end_time) {
-                    $data = array(
-                        'college' => $this -> $this -> userInfo['college_name'],
-                        'start_time' => $start_time,
-                        'end_time' => $end_time,
-                    );
-                    $this -> error('选宿舍尚未开始',$data);
-                } 
-            } elseif ($choice_type == 'difftime')  {
-                $college_id = $this ->userInfo['college_id'];
-                $college_start_time = Config::get('dormitory.'.$college_id);
+            $college_id = $this ->userInfo['college_id'];
+            $college_start_time = Config::get('dormitory.'.$college_id);
+            if (empty($college_start_time)) {
+                $this -> error('配置错误');
+            } else {
                 $college_start_time = strtotime($college_start_time);
                 if ($now_time < $college_start_time || $now_time > $end_time) {
                     $data = array(
-                        'college' => $this -> $this -> userInfo['college_name'],
-                        'start_time' => $start_time,
+                        'college' =>  $this -> userInfo['college_name'],
+                        'start_time' => $college_start_time,
                         'end_time' => $end_time,
                     );
                     $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
