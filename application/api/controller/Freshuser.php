@@ -18,8 +18,8 @@ use think\Validate;
  */
 class Freshuser extends Api
 {
-    protected $noNeedLogin = '*';
-    protected $noNeedRight = '*';
+    protected $noNeedLogin = ['login,signout'];
+    protected $noNeedRight = ['login,signout'];
 
     protected $_token = '';
     //Token默认有效时长
