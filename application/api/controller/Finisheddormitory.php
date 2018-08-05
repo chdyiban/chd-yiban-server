@@ -16,8 +16,8 @@ class Finisheddormitory extends Freshuser
 {
     //记得该权限
     //distribute
-    protected $noNeedLogin = ['*'];
-    protected $noNeedRight = ['*'];
+    protected $noNeedLogin = [''];
+    protected $noNeedRight = [''];
 
     private $loginInfo = null;
     private $token = null;

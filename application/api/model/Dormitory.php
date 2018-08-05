@@ -226,6 +226,7 @@ class Dormitory extends Model
      */
     private function showDormitory($college_id, $sex, $building)
     {
+        //return ['status' => false, 'msg' => $college_id, 'data' => null];
         $data = $this -> where('YXDM',$college_id)
                     -> where('XB', $sex)
                     -> where('LH', $building)
@@ -263,7 +264,7 @@ class Dormitory extends Model
         //             -> find();
         //判断该宿舍非陕西籍的人数是否超过2人
         if ($place != "陕西") {
-            $msg = $this -> checkNation($SSDM, $nation);
+            $msg = $this -> checkPlace($SSDM, $nation);
             if (!$msg) {
                 return ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
             } else {
@@ -649,6 +650,9 @@ class Dormitory extends Model
                             return ['status' => false, 'msg' => "服务器出了点问题哦！", 'data' => null];                                
                         }   
                     }    
+                    break;
+                default:
+                    return ['status' => false, 'msg' => '参数有误', 'data' => null];
                     break;
             }
        // }
