@@ -53,6 +53,7 @@ class Dormitory extends Freshuser
                         'start_time'=>  $college_start_time,
                         'end_time'  =>  $end_time,
                         'map_id'    =>  $map_id,
+                        'select_status' => 'prepare',
                     );
                     $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
                 //选宿舍正在进行
@@ -60,13 +61,16 @@ class Dormitory extends Freshuser
                     $data = array(
                         'college' => $this -> userInfo['college_name'],
                         'map_id'  => $map_id,
+                        'select_status' => 'progressing',
                     );
                     $this -> success('选宿舍正在进行中',$array); 
                 //选宿舍已经结束
                 } else {
                     $data = array(
                         'college' => $this -> userInfo['college_name'],
-                        'map_id'  => $$map_id,
+                        'map_id'  => $map_id,
+                        'select_status' => 'end',
+
                     );
                     $this -> error('选宿舍已经结束啦！',$array); 
                 }
