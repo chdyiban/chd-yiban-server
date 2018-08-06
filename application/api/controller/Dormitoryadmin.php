@@ -9,8 +9,8 @@ use think\Db;
  */
 class Dormitoryadmin extends Api
 {
-    protected $noNeedLogin = ['deletelist'];
-    protected $noNeedRight = ['deletelist'];
+    protected $noNeedLogin = [];
+    protected $noNeedRight = [];
 
     /**
      * @param ['XH' => number] -> base64加密
