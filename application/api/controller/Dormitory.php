@@ -37,42 +37,61 @@ class Dormitory extends Freshuser
                 $this->error('参数非法');
             }
             $choice_type = Config::get('dormitory.type');
-            $end_time = Config::get('dormitory.endtime'); 
-            $end_time = strtotime($end_time);
-            $now_time = strtotime('now');
-            $college_id = $this ->userInfo['college_id'];
-            $college_start_time = Config::get('dormitory.'.$college_id);
-            if (empty($college_start_time)) {
-                $this -> error('配置错误');
-            } else {
-                $college_start_time = strtotime($college_start_time);
-                //选宿舍尚未开始
-                if ($now_time < $college_start_time) {
+            //配置的时间是不同时间段开启
+            if ($choice_type == 'difftime') {
+                $end_time = Config::get('dormitory.endtime'); 
+                $end_time = strtotime($end_time);
+                $now_time = strtotime('now');
+                $college_id = $this ->userInfo['college_id'];
+                $college_start_time = Config::get('dormitory.'.$college_id);
+                if (empty($college_start_time)) {
+                    $this -> error('配置错误');
+                } else {
+                    $college_start_time = strtotime($college_start_time);
+                    //选宿舍尚未开始
+                    if ($now_time < $college_start_time) {
+                        $data = array(
+                            'college'   =>  $this -> userInfo['college_name'],
+                            'start_time'=>  $college_start_time,
+                            'end_time'  =>  $end_time,
+                            'map_id'    =>  $map_id,
+                            'select_status' => 'prepare',
+                        );
+                        $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
+                    //选宿舍已经结束
+                        } elseif($now_time > $end_time) {
+                        $data = array(
+                            'college' => $this -> userInfo['college_name'],
+                            'map_id'  => $map_id,
+                            'select_status' => 'end',
+
+                        );
+                        $this -> error('选宿舍已经结束啦！',$data); 
+                    }
+                }
+            } elseif ($choice_type == 'sametime') {
+                $end_time = Config::get('dormitory.endtime'); 
+                $start_time = Config::get('dormitory.sametime'); 
+                $end_time = strtotime($end_time);
+                $start_time = strtotime($start_time);
+                $now_time = strtotime('now');
+                if ($now_time < $start_time) {
                     $data = array(
                         'college'   =>  $this -> userInfo['college_name'],
-                        'start_time'=>  $college_start_time,
+                        'start_time'=>  $start_time,
                         'end_time'  =>  $end_time,
                         'map_id'    =>  $map_id,
                         'select_status' => 'prepare',
                     );
                     $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
-                //选宿舍正在进行
-                } elseif ( $now_time >= $college_start_time && $now_time <= $end_time) {
-                    $data = array(
-                        'college' => $this -> userInfo['college_name'],
-                        'map_id'  => $map_id,
-                        'select_status' => 'progressing',
-                    );
-                    $this -> success('选宿舍正在进行中',$array); 
-                //选宿舍已经结束
-                } else {
+                } elseif($now_time > $end_time) {
                     $data = array(
                         'college' => $this -> userInfo['college_name'],
                         'map_id'  => $map_id,
                         'select_status' => 'end',
 
                     );
-                    $this -> error('选宿舍已经结束啦！',$array); 
+                    $this -> error('选宿舍已经结束啦！',$data); 
                 }
             }
         }else {
@@ -105,7 +124,8 @@ class Dormitory extends Freshuser
                     'sex' => $user['sex'],
                     'stu_id' => $user['stu_id'],
                 );
-                $this -> success($info['msg'], ['steps' => $this->steps, 'list' => $info['data'], 'dormitory_number' => $info['dormitory_number'], 'bed_number' => $info['bed_number'], 'userinfo' => $array]);
+                $map_id = $user['college_id'].'_'.$user['XBDM'];
+                $this -> success($info['msg'], ['steps' => $this->steps, 'list' => $info['data'], 'dormitory_number' => $info['dormitory_number'], 'bed_number' => $info['bed_number'],'map_id' => $map_id, 'userinfo' => $array]);
                 break;
 
             case 'waited':
