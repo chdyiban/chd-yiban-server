@@ -28,6 +28,10 @@ class Dormitory extends Freshuser
         $this -> userInfo = $this -> get_info($this -> token);
         $user_id = $this->loginInfo['user_id'];
         $this -> steps = parent::getSteps($user_id);
+        $sex = $this -> userInfo['XBDM'];
+        $college_id = $this -> userInfo['college_id'];
+        $map_id = $college_id.'_'.$sex;
+
         if ($this->steps != 'setinfo') {
             if(!$this->loginInfo){
                 $this->error('参数非法');
@@ -42,13 +46,29 @@ class Dormitory extends Freshuser
                 $this -> error('配置错误');
             } else {
                 $college_start_time = strtotime($college_start_time);
-                if ($now_time < $college_start_time || $now_time > $end_time) {
+                //选宿舍尚未开始
+                if ($now_time < $college_start_time) {
                     $data = array(
-                        'college' =>  $this -> userInfo['college_name'],
-                        'start_time' => $college_start_time,
-                        'end_time' => $end_time,
+                        'college'   =>  $this -> userInfo['college_name'],
+                        'start_time'=>  $college_start_time,
+                        'end_time'  =>  $end_time,
+                        'map_id'    =>  $map_id,
                     );
                     $this -> error($this->userInfo['college_name'].'选宿舍尚未开始',$data);
+                //选宿舍正在进行
+                } elseif ( $now_time >= $college_start_time && $now_time <= $end_time) {
+                    $data = array(
+                        'college' => $this -> userInfo['college_name'],
+                        'map_id'  => $map_id,
+                    );
+                    $this -> success('选宿舍正在进行中',$array); 
+                //选宿舍已经结束
+                } else {
+                    $data = array(
+                        'college' => $this -> userInfo['college_name'],
+                        'map_id'  => $$map_id,
+                    );
+                    $this -> error('选宿舍已经结束啦！',$array); 
                 }
             }
         }else {
@@ -236,7 +256,7 @@ class Dormitory extends Freshuser
                     -> where('ID', $user_id) 
                     -> field('XM,XH,SYD,XBDM,MZ')
                     -> find();
-        if ($list) {
+        if (!empty($list)) {
             $info['name'] = $list['XM'];
             $info['stu_id'] = $list['XH'];
             $info['place'] = $list['SYD'];
@@ -247,7 +267,7 @@ class Dormitory extends Freshuser
             $info['nation'] = $list['MZ'];
             return $info;
         } else {
-            return false;
+            $this -> error('信息不存在');
         }
     }
 
