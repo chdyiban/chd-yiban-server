@@ -459,16 +459,12 @@ class Dormitory extends Model
             } else {
                 $origin = 'system';
             }
-            // $list = $this -> where('YXDM',$college_id)
-            //                     -> where('SSDM', $dormitory_id)
-            //                     -> find();
-            // return ['status' => false, 'msg' => "", 'data' => $key];
             $data = Db::name('fresh_list') -> where('XH', $stu_id) ->field('ID') ->find();
             if(empty($data)){
                 $insert_flag = false;
                 $update_flag = false;
                 Db::startTrans();
-                try{       
+                try{                    
                     // 第一步，将记录写进fresh_list表中
                     $insert_flag = Db::name('fresh_list') -> insert([
                         'XH' => $stu_id,
@@ -484,7 +480,9 @@ class Dormitory extends Model
                                 -> where('SSDM', $dormitory_id)
                                 -> field('CPXZ, SYRS, ID')
                                 -> find();
-                    
+                    if (empty($list)) {
+                        return ['status' => false, 'msg' => "未发现所选宿舍", 'data' => null];
+                    }
                     $rest_num = $list['SYRS'] - 1;
                     // 宿舍总人数
                     $length = strlen($list['CPXZ']);
@@ -666,14 +664,15 @@ class Dormitory extends Model
             $sex = $key['XBDM'];
             $place = $key['place'];
             $list = Db::view('fresh_list') 
-                    ->view('fresh_info','XM, XH, SYD','fresh_list.XH = fresh_info.XH')
+                    -> view('fresh_info','XM, XH, SYD','fresh_list.XH = fresh_info.XH')
+                    //-> view('fresh_info_add','BRDH,BRQQ','fresh_list.XH = fresh_info_add.XH')
                     -> where('fresh_info.XH', $stu_id) 
                     -> field('XM,SYD,CH,SSDM,origin')
-                    -> find();
+                    -> find();            
             if (empty($list)){
                 return ['status' => false, 'msg' => "没有找到你宿舍哦", 'data' => '']; 
             } else {
-                $room_msg = $this -> where('SSDM', $list['SSDM']) -> where('YXDM',$list['YXDM']) ->field('CPXZ') -> find();
+                $room_msg = $this -> where('SSDM', $list['SSDM']) -> where('YXDM',$list['YXDM']) ->field('CPXZ') -> find();                
                 $max_number = strlen($room_msg['CPXZ']);
                 $money = $max_number == 4 ? 1200: 900;
 
@@ -687,9 +686,13 @@ class Dormitory extends Model
                 $array['ZSF'] = $money;
                 $array['origin'] = $list['origin'];
                 $info['personal'] = $array;
-            
+                //补充yiban认证所需信息
+                $add_info = $this -> getyibaninfo($key);
+                $info['yiban'] = $add_info;
+                
                 $roommate_msg = Db::view('fresh_list') 
-                                    ->view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
+                                    -> view('fresh_info','XM ,SYD, XH','fresh_list.XH = fresh_info.XH')
+                                    -> view('fresh_info_add','BRDH,BRQQ','fresh_list.XH = fresh_info_add.XH')
                                     -> where('SSDM', $list['SSDM'])
                                     -> where('fresh_list.XH', '<>', $list['XH'])
                                     -> where('status','finished')
@@ -705,9 +708,12 @@ class Dormitory extends Model
                 }   
                 unset($bed[$list['CH'] - 1]);
                 foreach ($roommate_msg as $key => $value) {
-                    $info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                    $info['roommate'][$value['CH']]['XM'] = $value['XM'];
+                    //$info['roommate'][$value['CH']]['XM'] =  mb_substr($value['XM'], 0, 1, 'utf-8').'**';
                     $info['roommate'][$value['CH']]['SYD'] = $value['SYD'];
-                    $info['roommate'][$value['CH']]['LXFS'] = '****';
+                    //$info['roommate'][$value['CH']]['LXFS'] = '****';
+                    $info['roommate'][$value['CH']]['LXFS'] = empty($value['BRDH']) ? '****' : $value['BRDH'];
+                    //$info['roommate'][$value['CH']]['BRQQ'] = $value['BRQQ'];
                     unset($bed[$value['CH'] - 1]);
                 }
 
@@ -724,6 +730,38 @@ class Dormitory extends Model
                     return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
                 }    
             }
+    }
+    /**
+     * 用来获取易班的信息
+     */
+    private function getyibaninfo($key){
+
+        $info_add = array();
+        $stu_id = $key['stu_id'];
+        $sex = $key['XBDM'];
+        $college_id = $key['college_id'];
+        $college = Db::name('dict_college') 
+                    -> where('YXDM',$college_id)
+                    -> field('yb_group_id')
+                    -> find();
+        $info_list = Db::name('fresh_info_add')
+                    -> where('XH',$stu_id)
+                    -> field('BRDH')
+                    -> find();
+        $phone = $info_list['BRDH'];
+        $yiban_college = $college['yb_group_id'];
+        $info['role'] = '0';
+        $info['build_time'] = time();
+        $info['status'] = '0';
+        $info['schooling'] = '0';
+        $info['sex'] = $sex;
+        $info['college'] = $yiban_college;
+        $info['phone'] = $phone;
+        $info['enter_year'] = '2018';
+        $info['specialty'] = '';
+        $info['eclass'] = '';
+        return $info;
+        
     }
     /**
      * 用来验证民族选择情况
