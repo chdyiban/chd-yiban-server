@@ -8,7 +8,7 @@ use think\Validate;
 class Userinfo extends Validate 
 {
     protected $rule =   [
-        'XH' => 'require|number',
+        'XH' => 'require',
         'SFGC' => 'require',
         'RXQHK' => 'require|checkHK:',
         'JTRKS' => 'require|between:1,20',
@@ -37,7 +37,7 @@ class Userinfo extends Validate
     ];
     
     protected $message  =   [
-        'XH' => '学号必须为数字',
+        'XH' => '学号不能为空',
         'SFGC' => '请选择是否孤残',
         'RXQHK' => "请选择入学前户口",
         'JTRKS' => "人口数只能在1-20之间",
