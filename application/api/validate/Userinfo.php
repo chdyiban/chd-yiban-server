@@ -13,7 +13,7 @@ class Userinfo extends Validate
         'RXQHK' => 'require|checkHK:',
         'JTRKS' => 'require|between:1,20',
         'YZBM'  => 'require|number|length:6',
-        'BRDH' => 'require|/^[1][3,4,5,7,8][0-9]{9}$/',
+        'BRDH' => 'require|/^[1][3,4,5,7,8,9][0-9]{9}$/',
         'BRQQ'   => 'number|length:5,11',
         'SZDQ' => 'require',
         'XXDZ' => 'require|min:5',
