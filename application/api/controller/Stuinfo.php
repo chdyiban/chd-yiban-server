@@ -77,6 +77,8 @@ class Stuinfo extends Freshuser
                         $this->error($value);
                     }
                 }
+                $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
+                $data['RJSR'] = round($data['RJSR'], 2);
                 $res = Db::name('fresh_info_add') -> insert($data);
                 foreach ($info as $key => $value) {
                    $res1 = Db::name('fresh_family_info') -> insert($value);
