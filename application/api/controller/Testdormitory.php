@@ -203,24 +203,24 @@ class Testdormitory extends Freshuser
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel;
-        //$steps = parent::getSteps($this->loginInfo['user_id']);
-        //$steps = 'setinfo';
-        $result = $DormitoryModel -> setinfo($this->userInfo, $key);
+        $steps = parent::getSteps($this->loginInfo['user_id']);
+        $result = $DormitoryModel -> setinfo($this->userInfo, $key, $steps);
         if (!$result['status']) {
             $this -> error($result['msg'], $result['data']);
         } else {
             $data = $result['data'];
             $info = $result['info'];
             $Userinfo = parent::validate($data,'Userinfo.user');
-            $this -> success($Userinfo);
             $Family[0] = $Userinfo;
             if (empty($info)) {
                 if (gettype($Userinfo) == 'string') {
                     $this->error($Userinfo);
-                } 
-                //$res = Db::name('fresh_info_add') -> insert($data);
-                //$res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
-                $this -> success($info);
+                }
+                $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
+                $data['RJSR'] = round($data['RJSR'], 2);
+                $this -> success($data['RJSR']);
+                $res = Db::name('fresh_info_add') -> insert($data);
+                $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
             } else {
                 foreach ($info as $key => $value) {
                     $Familyinfo = parent::validate($value,'Userinfo.family');
@@ -231,18 +231,17 @@ class Testdormitory extends Freshuser
                         $this->error($value);
                     }
                 }
-                //$res = Db::name('fresh_info_add') -> insert($data);
-                // foreach ($info as $key => $value) {
-                //    $res1 = Db::name('fresh_family_info') -> insert($value);
-                // }
-                // if ($res && $res1) {
-                //     $this -> success("信息录入成功");
-                // }else {
-                //     $this -> error("信息录入失败");
-                // }
+                $res = Db::name('fresh_info_add') -> insert($data);
+                foreach ($info as $key => $value) {
+                   $res1 = Db::name('fresh_family_info') -> insert($value);
+                }
+                if ($res && $res1) {
+                    $this -> success("信息录入成功");
+                }else {
+                    $this -> error("信息录入失败");
+                }
             }
         }
-        
     }
 
 }
