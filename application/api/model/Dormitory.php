@@ -287,7 +287,7 @@ class Dormitory extends Model
     }
     /**
      *  该方法用来返回宿舍可选床号
-     *  @return array {"name": "1号床（上床下柜）", "value": 1},
+     *  @return array {"name": "1号床（上床下桌）", "value": 1},
      */
     private  function getBedNum($sex,$college_id, $building, $dormitory)
     {
@@ -307,7 +307,7 @@ class Dormitory extends Model
                     $temp = [];
                     $k = $key + 1;
                     $temp = array(
-                        'name' => $k."号床（上床下柜）",                    
+                        'name' => $k."号床（上床下桌）",                    
                         'value' => $k,
                     );
                     $list[] = $temp;
