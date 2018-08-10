@@ -31,7 +31,7 @@ class Userinfo extends Validate
         'NL' => 'require|number|between:1,120',
         'GX' => 'require|chs',
         'ZY' => 'require|chs',
-        'NSR' => 'require|number',
+        'NSR' => 'require|chsDash',
         'JKZK' => 'require|chs',
         'LXDH' => 'require|/^[1][3,4,5,7,8,9][0-9]{9}$/',
     ];
@@ -62,7 +62,7 @@ class Userinfo extends Validate
         'NL.between' => '年龄必须在1-120间',
         'GX' => '请填写正确的关系',
         'ZY' => '请填写正确的职业',
-        'NSR' => '年收入需要为纯数字',
+        'NSR' => '年收入不得为空',
         'JKZK' => '填写正确的健康状况',
         'LXDH' => '请填写有效的联系电话',
     ];
