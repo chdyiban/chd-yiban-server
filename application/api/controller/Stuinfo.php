@@ -63,6 +63,8 @@ class Stuinfo extends Freshuser
                 if (gettype($Userinfo) == 'string') {
                     $this->error($Userinfo);
                 } 
+                $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
+                $data['RJSR'] = round($RJSR, 2);
                 $res = Db::name('fresh_info_add') -> insert($data);
                 $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
             } else {

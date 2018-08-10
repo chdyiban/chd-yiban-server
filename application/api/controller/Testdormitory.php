@@ -11,7 +11,6 @@ use fast\Random;
 use app\common\library\Token;
 
 use app\api\model\Dormitory as DormitoryModel;
-use app\api\model\Testdormitory as TestdormitoryModel;
 /**
  * 
  */
@@ -203,7 +202,7 @@ class Testdormitory extends Freshuser
     public function testinfo()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        $DormitoryModel = new TestdormitoryModel;
+        $DormitoryModel = new DormitoryModel;
         //$steps = parent::getSteps($this->loginInfo['user_id']);
         //$steps = 'setinfo';
         $result = $DormitoryModel -> setinfo($this->userInfo, $key);
