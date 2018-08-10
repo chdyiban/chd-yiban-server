@@ -42,16 +42,16 @@ class Ids extends Api
                         -> field('ID,XH,XM,XBDM,SYD')
                         -> find();
                 $info['name'] = $data['XM'];
-                $info['stu_id'] = $data['XH'];
+                $info['student_id'] = $data['XH'];
                 $info['role'] = '0';
                 $info['build_time'] = time();
                 $info['status'] = '0';
                 $info['schooling'] = '4';
                 $info['education'] = '0';
+                $info['sex'] = $data['XBDM'];
                 $info['college'] = $data['yb_group_id'];
                 $info['phone'] = $phone;
                 $info['enter_year'] = '2018';
-                $info['sex'] = $data['XBDM'];
                 $info['specialty'] = '';
                 $info['eclass'] = '';
                 $info['native_place'] = $data['SYD'];
