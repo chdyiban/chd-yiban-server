@@ -348,9 +348,6 @@ class Dormitory extends Model
             }
             if ($key['JTRKS'] == 0) {
                 return ['status' => false, 'msg' => "这样子不太好哦！", 'data' => null];
-            } else {
-                $RJSR = $key['ZSR']/$key['JTRKS'];
-                $RJSR = round($RJSR, 2);
             }
             $data['XH'] = $info['stu_id'];
             $data['SFGC'] = !empty($key['SFGC']) ? $key['SFGC'] : null;
@@ -363,7 +360,7 @@ class Dormitory extends Model
             $data['BRQQ'] = !empty($key['BRQQ']) ? $key['BRQQ'] : null;
             $data['ZP'] =  !empty($key['ZP'][0]['url']) ? $key['ZP'][0]['url'] : '';
             $data['ZSR'] = $key['ZSR'];
-            $data['RJSR'] = $RJSR;
+            //$data['RJSR'] = $RJSR;
             if (empty($key['JJDC'][0]) ||empty($key['JJDC'][1]) ||empty($key['JJDC'][2]) ||empty($key['JJDC'][3]) ||empty($key['JJDC'][4]) ||empty($key['JJDC'][5]) ||empty($key['JJDC'][6]) ) {
                 return ['status' => false, 'msg' => "请先完成家庭经济情况调查", 'data' => null];
             } else {
