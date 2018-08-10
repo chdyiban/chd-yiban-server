@@ -33,7 +33,7 @@ class Userinfo extends Validate
         'ZY' => 'require|chs',
         'NSR' => 'require|number',
         'JKZK' => 'require|chs',
-        'LXDH' => 'require|/^[1][3,4,5,7,8][0-9]{9}$/',
+        'LXDH' => 'require|/^[1][3,4,5,7,8,9][0-9]{9}$/',
     ];
     
     protected $message  =   [
