@@ -710,7 +710,7 @@ class Dormitory extends Model
                     $info['roommate'][$value['CH']]['SYD'] = $value['SYD'];
                     //$info['roommate'][$value['CH']]['LXFS'] = '****';
                     $info['roommate'][$value['CH']]['LXFS'] = empty($value['BRDH']) ? '****' : $value['BRDH'];
-                    //$info['roommate'][$value['CH']]['BRQQ'] = $value['BRQQ'];
+                    $info['roommate'][$value['CH']]['BRQQ'] = empty($value['BRQQ']) ? '未填写' : $value['BRQQ'];
                     unset($bed[$value['CH'] - 1]);
                 }
 
