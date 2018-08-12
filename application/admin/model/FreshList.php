@@ -37,12 +37,12 @@ class FreshList extends Model
         } else {
             foreach ($college as $key => $value) {
                 $num = 0;
-                $info = Db::name('fresh_dormitory') 
+                $info = Db::name('fresh_dormitory_back') 
                                 -> where('YXDM', $value['YXDM'])
-                                -> field('CPXZ')
+                                -> field('CPXZ,SYRS')
                                 -> select();
                 foreach ($info as $k => $v) {
-                   $num = $num + strlen($v['CPXZ']);
+                   $num = $num + $v['SYRS'];
                 }
                 $college[$key]['bed_num'] = $num;
                
