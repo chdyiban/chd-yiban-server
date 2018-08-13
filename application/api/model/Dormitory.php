@@ -721,7 +721,8 @@ class Dormitory extends Model
                         $info['roommate'][$value] = [
                             'XM' => '空余',
                             'SYD' => '-',
-                            'LXFS' => '-'
+                            'LXFS' => '-',
+                            'BRQQ' => '-',
                         ];
                     }
                     return ['status' => true, 'msg' => "查询成功", 'data' => $info];  
