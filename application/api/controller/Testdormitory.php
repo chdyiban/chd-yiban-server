@@ -104,10 +104,11 @@ class Testdormitory extends Freshuser
         header('Access-Control-Allow-Origin:*');
         $count = Db::name('fresh_info') -> count();
         $id = rand(1,$count);
-        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, ZKZH') -> find();
+        $info = Db::name('fresh_info') -> where('id',$id) ->field('XH, SFZH') -> find();
         $XH = $info['XH'];
-        $ZKZH = $info['ZKZH'];
-        $userid = $this -> loginself($XH, $ZKZH);
+        $SFZH = $info['SFZH'];
+        $password = substr($SFZH, -6);
+        $userid = $this -> loginself($XH, $password);
         if($userid){
             $this->_token = Random::uuid();
             Token::set($this->_token, $userid, $this->keeptime);
