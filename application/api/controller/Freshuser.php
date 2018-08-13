@@ -112,7 +112,7 @@ class Freshuser extends Api
         $isInfoExist = Db::name('fresh_info_add') -> where('XH', $stu_id) -> field('ID,XH') -> find();
         $isListExist = Db::name('fresh_list') -> where('XH', $stu_id) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
-            return 'setinfo';
+            return 'select';
         } elseif (empty($isListExist)) {
             return 'select';
         } else {
