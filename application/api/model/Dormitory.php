@@ -473,7 +473,7 @@ class Dormitory extends Model
                         'status' => 'waited', 
                     ]);
                     //第二步，将frsh_dormitory中对于宿舍，剩余人数-1，宿舍选择情况更新
-                    $list = $this -> where('YXDM',$college_id)
+                    $list = $this->lock(true) -> where('YXDM',$college_id)
                                 -> where('SSDM', $dormitory_id)
                                 -> field('CPXZ, SYRS, ID')
                                 -> find();
