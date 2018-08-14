@@ -244,6 +244,21 @@ class Testdormitory extends Freshuser
             }
         }
     }
+    /**
+     * 查找数据库中的重复数据
+     */
+    public function searchsame(){
+        $data = Db::name('fresh_dormitory') -> field('SSDM,CPXZ') -> select();
+        foreach ($data as $key => $value) {
+            $SSDM = $value['SSDM'];
+            $RS = strlen($value['CPXZ']);
+            $number = Db::name('fresh_list') -> where('SSDM',$SSDM) -> count();
+            if ($number > $RS) {
+                echo "宿舍有问题".$SSDM;
+                echo '<br/>';
+            } 
+        }
+    }
 
 }
     
