@@ -32,7 +32,8 @@ class Userinfo extends Validate
         'GX' => 'require|chs',
         'ZY' => 'require|chs',
         'NSR' => 'require|chsDash',
-        'JKZK' => 'require|chs',
+        'JKZK' => 'require',
+        'GZDW' => 'require',
         'LXDH' => 'require|/^[1][3,4,5,6,7,8,9][0-9]{9}$/',
     ];
     
@@ -63,12 +64,13 @@ class Userinfo extends Validate
         'GX' => '请填写正确的关系',
         'ZY' => '请填写正确的职业',
         'NSR' => '年收入不得为空',
-        'JKZK' => '填写正确的健康状况',
+        'JKZK' => '健康状况不得为空',
+        'GZDW' => '工作单位不得为空',
         'LXDH' => '请填写有效的联系电话',
     ];
     protected $scene = [
         'user'  =>  ['XH','RXQHK','ZP', 'JTRKS', 'YZBM','BRDH','BRQQ','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
-        'family' => ['XM', 'NL','GX','ZY','NSR','JKZK','LXDH'],
+        'family' => ['XM', 'NL','GX','ZY','NSR','JKZK','LXDH','GZDW'],
     ];
      // 自定义验证规则
      protected function checkHK($value)

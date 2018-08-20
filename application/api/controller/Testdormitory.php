@@ -258,6 +258,24 @@ class Testdormitory extends Freshuser
                 echo '<br/>';
             } 
         }
+        // $data = Db::name('fresh_info')-> field('XH') -> select();
+        // $nomal = 0;
+        // $no = 0;
+        // $except = 0;
+        // foreach ($data as $key => $value) {
+        //     $stu_id = $value['XH'];
+        //     $number = Db::name('fresh_list') -> where('XH', $stu_id) -> count();
+        //     if ($number == 1) {
+        //         $nomal += 1;
+        //     } elseif ($number == 0) {
+        //         $no += 1;
+        //     } else {
+        //         $except += 1;
+        //     }
+        // }
+        // echo "正常人数".$nomal;
+        // echo "未选择人数".$no;
+        // echo "异常人数".$except;
     }
 
 }
