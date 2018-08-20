@@ -364,7 +364,7 @@ class Dormitory extends Model
             if (empty($key['JJDC'][0]) ||empty($key['JJDC'][1]) ||empty($key['JJDC'][2]) ||empty($key['JJDC'][3]) ||empty($key['JJDC'][4]) ||empty($key['JJDC'][5]) ||empty($key['JJDC'][6]) ) {
                 return ['status' => false, 'msg' => "请先完成家庭经济情况调查", 'data' => null];
             } else {
-                $data['FQZY'] = !empty($key['JJDC'][0][0]);
+                $data['FQZY'] = $key['JJDC'][0][0];
                 $data['MQZY'] = $key['JJDC'][1][0];
                 $data['FQLDNL'] = $key['JJDC'][2][0];
                 $data['MQLDNL'] = $key['JJDC'][3][0];
