@@ -42,7 +42,7 @@ class Finisheddormitory extends Freshuser
         echo "未分配少数民族人数:".count($not_hz).'<br/>';
         Log::write('未分配少数民族人数:'.count($not_hz));
         foreach ($not_hz as $key => $value) {
-            $this->distributenation($value);
+                $this->distributenation($value);
         }
         $t2 = microtime(true);
         echo '<br/>耗时'.round($t2-$t1,3).'秒<br>';
@@ -52,7 +52,7 @@ class Finisheddormitory extends Freshuser
         echo "未分配外省人数:".count($not_sx).'<br/>';
         Log::write('未分配外省人数'.count($not_sx));
         foreach ($not_sx as $key => $value) {
-            $this->distributeplace($value);
+                $this->distributeplace($value);
         }
         $t3 = microtime(true);
         echo '<br/>耗时'.round($t3-$t1,3).'秒<br>';
