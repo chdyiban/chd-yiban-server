@@ -314,7 +314,7 @@ class Wxuser extends Api
                                 'name' => $info['XM']
                             ],
                             'time' => [
-                                'term' => '2017-2018 第2学期',
+                                'term' => '2018-2019 第1学期',
                                 'week' => get_weeks(),
                                 'day' => date("w")
                             ],
@@ -323,13 +323,25 @@ class Wxuser extends Api
                         ];
 
                     }else{
-                        $info = Db::connect('chd_config')
-                            ->view('chd_stu_detail')
-                            ->where('XH', $bindInfo)
-                            ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                            ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
-                            ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
-                            ->find();
+                        //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
+                        $nj = substr($bindInfo,0,4);
+                        if ($nj == '2018') {
+                            $info = Db::connect('chd_config')
+                                ->view('chd_stu_detail')
+                                ->where('XH', $bindInfo)
+                                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                                ->find();
+                            $info['ZYMC'] = '';
+                        } else {
+                            $info = Db::connect('chd_config')
+                                ->view('chd_stu_detail')
+                                ->where('XH', $bindInfo)
+                                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                                ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
+                                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                                ->find();
+                        }
                         //年级将学号的前四位截取
                         $info['NJ'] = substr($info['XH'],0,4);
                         $data = [
@@ -353,7 +365,7 @@ class Wxuser extends Api
                                 'name' => $info['XM']
                             ],
                             'time' => [
-                                'term' => '2017-2018 第2学期',
+                                'term' => '2018-2019 第1学期',
                                 'week' => get_weeks(),
                                 'day' => date("w")
                             ],
