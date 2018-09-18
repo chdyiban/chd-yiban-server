@@ -50,7 +50,36 @@
                     </tbody>
                 </table>
             </div>
-                <button class="btn btn-success btn-lg btn-dispatch"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">派遣工人</span></button>
+                <button class="btn btn-success btn-lg btn-distribute"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">指派单位</span></button>
+            </div>
+            {/case}
+            {case value="distributed"}
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">受理状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理人</td>
+                            <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
+                            <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">指派状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修单位</td>
+                            <td class="text-center" style="font-size:16px">{$row.company_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修时间</td>
+                            <td class="text-center" style="font-size:16px"> {$row['distributed_time']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+                <button class="btn btn-success btn-lg btn-redistribute"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">重新指派</span></button>
+                <button class="btn btn-success btn-lg btn-dispatch"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">指派工人</span></button>
             </div>
             {/case}
             {case value="dispatched"}
@@ -64,6 +93,15 @@
                         <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
                         <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
                         <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">指派状态</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修单位</td>
+                        <td class="text-center" style="font-size:16px">{$row.company_name}</td>
+                        <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修时间</td>
+                        <td class="text-center" style="font-size:16px"> {$row['distributed_time']}</td>
                     </tr>
                     <tr>
                         <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">派工状态</td>
@@ -81,6 +119,7 @@
                     </tr>
                 </tbody>
             </table>
+                <button class="btn btn-success btn-lg btn-redistribute"  style="margin-left:550px; background-color:#9ad8f7;"><span style="color:inherit">重新指派</span></button>
                 <button class="btn btn-success btn-lg btn-finish"  style="margin-left:550px">任务结算</button>
         </div>
             {/case}
@@ -95,6 +134,15 @@
                             <td class="text-center" style="font-size:16px">{$row.admin_name}</td>
                             <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">受理时间</td>
                             <td class="text-center" style="font-size:16px"> {$row['accepted_time']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">指派状态</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修单位</td>
+                            <td class="text-center" style="font-size:16px">{$row.company_name}</td>
+                            <td class="text-center" style="font-size:16px ;font-family:Microsoft YaHei;">承修时间</td>
+                            <td class="text-center" style="font-size:16px"> {$row['distributed_time']}</td>
                         </tr>
                         <tr>
                             <td class="text-center" colspan="4" style="font-size:16px ;font-family:Microsoft YaHei;">派工状态</td>
