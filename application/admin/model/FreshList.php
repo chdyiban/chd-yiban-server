@@ -94,7 +94,7 @@ class FreshList extends Model
     {
         $info =  array();
         $list = Db::view('fresh_info') 
-                //-> view('fresh_info','XM, XH, SYD, XBDM','fresh_list.XH = fresh_info.XH')
+                //-> view('fresh_class','XH, BJDM','fresh_info.XH = fresh_class.XH','LEFT')
                 -> view('dict_college','YXJC,YXDM','fresh_info.YXDM = dict_college.YXDM')
                 -> select();
         foreach ($list as $key => $value) {
@@ -102,15 +102,19 @@ class FreshList extends Model
             $info[$key] = $value;
             if (empty($data)) {
                 $info[$key]['option'] = '否';
-                $info[$key]['LH'] = '-';
-                $info[$key]['SSH'] = '-';
-                $info[$key]['CH'] = '-';
-                
+                $info[$key]['LH']   = '-';
+                $info[$key]['SSH']  = '-';
+                $info[$key]['CH']   = '-';
+                $info[$key]['SSDM'] = '-';
+                $info[$key]['origin'] = '-';
+
             } else {
-                $info[$key]['LH'] = explode('#', $data['SSDM'])[0];
-                $info[$key]['SSH'] = explode('#', $data['SSDM'])[1];
-                $info[$key]['CH'] = $data['CH'];
+                $info[$key]['LH']   = explode('#', $data['SSDM'])[0];
+                $info[$key]['SSH']  = explode('#', $data['SSDM'])[1];
+                $info[$key]['CH']   = $data['CH'];
+                $info[$key]['SSDM'] = $data['SSDM'];
                 $info[$key]['option'] = '是';
+                $info[$key]['origin'] = ($data['origin'] == 'selection') ? '自选' :(($data['origin'] == 'system') ? '系统分配' : '复核调整') ;
             }
             $info[$key]['SYD'] =  $info[$key]['SYD'];
             $info[$key]['MZ'] =  $info[$key]['MZ'];
@@ -143,6 +147,54 @@ class FreshList extends Model
             
             return ['data' => $list, 'count' => count($list)];
         }
+    }
+    
+    public function getinfo()
+    {
+        $info =  array();
+        $list = Db::view('fresh_info') 
+                -> view('dict_college','YXDM,YXJC','fresh_info.YXDM = dict_college.YXDM')
+                -> field('XH,XM') 
+                -> where('ID','>=','2000') 
+                -> where('ID','<','4000') 
+                -> select();
+        // $list = Db::name('fresh_info')
+        //         -> where('ID','<=','2000')
+        //         //-> where('ID','>','5000')
+        //         //-> field('XH')
+        //         -> field('XH,XM')
+        //         -> select();
+        foreach ($list as $key => $value) {
+            //$person_info = Db::name('fresh_info_add') -> where('XH', $value['XH'])  -> find();
+            $person_info = Db::name('fresh_info_add') -> where('XH', $value['XH']) -> field('XH') -> find();
+            $value['BRXM'] = $value['XM'];
+            $value['XM'] = '-';
+            if (empty($person_info)) { 
+                $info[$key] = $value;
+            } else {
+                // $info[$key] = $value;
+                // $info[$key] = $person_info;
+                // $info[$key] = $person_info;
+                $family = Db::name('fresh_family_info') -> where('XH',$value['XH']) -> select();
+                if (empty($family)) {
+                    $info[] = $value;
+                } else {
+                    foreach ($family as $k => $v) {
+                        $value['XM'] = $v['XM'];
+                        $value['GX'] = $v['GX'];
+                        $value['NL'] = $v['NL'];
+                        $value['ZY'] = $v['ZY'];
+                        $value['GZDW'] = $v['GZDW'];
+                        $value['NSR'] = $v['NSR'];
+                        $value['LXDH'] = $v['LXDH'];
+                        $value['JKZK'] = $v['JKZK'];
+                        $info[] = $value;
+                    }   
+                }
+            }
+        }
+        return ['data' => $info, 'count' => count($info)];
+
     }
 
     public function getStatusList()

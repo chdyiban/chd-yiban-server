@@ -20,7 +20,12 @@ class RepairType extends Model
     protected $append = [
 
     ];
-    
+    public function get_type($offset, $limit)
+    {
+        $list = $this -> limit($offset, $limit) -> select();
+        $list = collection($list)->toArray();
+        return ['data' => $list, 'count' => count($list)];
+    }
 
     
 

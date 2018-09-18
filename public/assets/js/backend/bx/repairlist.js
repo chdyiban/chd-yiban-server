@@ -21,7 +21,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             var table = $("#table");
 
             // 初始化表格
-            table.bootstrapTable({
+             // 初始化表格
+             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
@@ -29,30 +30,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
-                        {field: 'stu_name', title: __('Stu_name')},
-                        {field: 'stu_id', title: __('Stu_id')},                   
-                        {field: 'title', title: __('Title')},
-                        {field: 'gettype.name', title: __('Service_id')},
-                        {field: 'specfic_id', title: __('服务项目')},
-                        {field: 'getaddress.name', title: __('Address_id')},
-                        {field: 'address', title: __('Address')},
-                        // {field: 'content', title: __('Content')},
-                        {field: 'getname.nickname', title: __('Admin_id')},
-                        // {field: 'accepted_time', title: __('Accepted_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        // {field: 'getworker.name', title: __('Dispatched_id')},
-                        // {field: 'dispatched_time', title: __('Dispatched_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        // {field: 'finished_time', title: __('Finished_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        // {field: 'refused_time', title: __('Refused_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'refused_content', title: __('Refused_content')},
-                        {field: 'status', title: __('Status'), visible:false, searchList: {"waited":__('status waited'),"accepted":__('status accepted'),"dispatched":__('status dispatched'),"finished":__('status finished'),"refused":__('status refused')}},
+                        {field: 'stu_name', title: __('报修人姓名')},
+                        {field: 'stu_id', title: __('报修人学号')},                   
+                        {field: 'title', title: __('标题')},
+                        {field: 'gettype.name', title: __('服务类型名称')},
+                        {field: 'gettype.specific_name', title: __('服务项目名称')},
+                        {field: 'getaddress.name', title: __('报修区域')},
+                        {field: 'address', title: __('报修地点')},
+                        {field: 'getname.nickname', title: __('受理人')},
+                        {field: 'getcompany.nickname', title: __('分配单位')},
+                        {field: 'refused_content', title: __('拒绝原因')},
+                        {field: 'status', title: __('Status'), visible:false, searchList: {"waited":__('status waited'),"accepted":__('status accepted'),"distributed":__('status distributed'),"dispatched":__('status dispatched'),"finished":__('status finished'),"refused":__('status refused')}},
                         {field: 'status_text', title: __('Status'), operate:false},
                         {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,    
                         
                         buttons: [
-                                // {name: 'accept', title: __('受理'), classname: 'btn btn-xs btn-primary btn-info btn-accept', icon: 'fa fa-hand-stop-o', url: 'bx/Repairlist/accept', callback: function (){}},
-                                // {name: 'dispatch', title: __('指派工人'), classname: 'btn btn-xs btn-primary btn-dager btn-dialog', icon: 'fa fa-legal', url: 'bx/Repairlist/dispatch', callback: function () {}},
-                                // {name: 'finish', title: __('完工'), classname: 'btn btn-xs btn-primary btn-success btn-finish', icon: 'fa fa-hand-peace-o', url: 'bx/Repairlist/finish', callback: function (){}},
-                                // {name: 'refuse', title: __('驳回'), classname: 'btn btn-xs btn-primary btn-danger btn-refuse  btn-dialog', icon: 'fa fa-reply-all', url: 'bx/Repairlist/refuse', callback: function (data){}},
                                 {name: 'detail', title: __('工单详情'), classname: 'btn btn-xs btn-primary btn-success btn-detail  btn-dialog', icon: 'fa fa-hand-stop-o', url: 'bx/Repairlist/detail', callback: function (data){}},      
                             ],                    
                     }
@@ -92,7 +84,18 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 Fast.api.close();
                 alert("受理成功，请尽快分配人员！")
                 window.parent.location.reload();  
-            });    
+            });   
+            //指派单位
+            $(document).on('click', '.btn-distribute', function () {
+                window.location.href="../../distribute/ids/"+ids;
+            });   
+            //重新指派单位
+            $(document).on('click', '.btn-redistribute', function () {
+                window.location.href="../../redistribute/ids/"+ids;
+                Fast.api.close();
+                alert('可以重新进行分配');
+                window.parent.location.reload();  
+            });   
             //分配人员
             $(document).on('click', '.btn-dispatch', function () {
                 window.location.href="../../dispatch/ids/"+ids;
@@ -106,7 +109,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             }); 
 
             //驳回任务
-            //分配人员
             $(document).on('click', '.btn-refuse', function () {
                 window.location.href="../../refuse/ids/"+ids;
             }); 
@@ -119,6 +121,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });          
         },
 
+        distribute: function () {
+            $(document).on('click', '.btn-distribute', function () {
+                Fast.api.close();
+                alert('分配成功');
+                window.parent.location.reload();  
+            });          
+        },
         dispatch: function () {
             $(document).on('click', '.btn-dispatch', function () {
                 Fast.api.close();
