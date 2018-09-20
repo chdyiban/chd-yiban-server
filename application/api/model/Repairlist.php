@@ -35,11 +35,11 @@ class Repairlist extends Model
 
     //获取数据库中的报修信息，并整理格式。
     public function getRepairList($stu_id){
-        $res = Db::view('repair_list')
-                ->view('repair_type',['id' => 'type_id','name'],'repair_list.service_id = repair_type.id')
-                ->group('id')
-                ->where('repair_list.stu_id',$stu_id)
-                ->select();
+        $res = Db::name('repair_list')
+                    ->where('stu_id',$stu_id)
+                    ->order('id DESC')
+                    ->field('id,status,title,submit_time,accepted_time,service_id')
+                    ->select();
         $info =array();
         $data = array();
         foreach($res as $val){
@@ -49,6 +49,9 @@ class Repairlist extends Model
                     break;
                 case 'accepted':
                     $val['status'] = '已受理';
+                    break;
+                case 'distributed':
+                    $val['status'] = '已指派';
                     break;
                 case 'dispatched':
                     $val['status'] = '已派工';
@@ -63,9 +66,15 @@ class Repairlist extends Model
             $info['bxID'] = (string)$val['id'];
             $info['wx_wxztm'] = $val['status'];
             $info['wx_bt'] = $val['title'];
-            $info['wx_bxlxm'] = $val['name'];
+            if (!empty($val['service_id'])) {
+                $type_name = Db::name('repair_type') -> where('id',$val['service_id']) -> group('id') -> find()['name'];
+            } else {
+                $type_name = "未知";
+            }
+            $info['wx_bxlxm'] = $type_name;
             $info['wx_bxsj'] = date('Y-m-d H:i:s', $val['submit_time']);
-            $info['xysj'] = '35分钟';
+            $xysj = ($val['accepted_time'] - $val['submit_time'])%60;
+            $info['xysj'] = $xysj.'分钟';
             $data[] = $info;
         }
         return $data;
@@ -84,7 +93,9 @@ class Repairlist extends Model
                                 ->where('repair_list.id',$id)
                                 ->find();
                 $res['worker_name'] = "";
+                $res['company_name'] = "";
                 $res['nickname'] = "";
+                $res['worker_phone'] = "";
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
@@ -97,6 +108,24 @@ class Repairlist extends Model
                                 ->where('repair_list.id',$id)
                                 ->find();
                 $res['worker_name'] = "";
+                $res['company_name'] = "";
+                $res['worker_phone'] = "";
+                $res['nickname'] = $res['info']['nickname'];
+                $res['type_name'] = $res['info']['type_name']; 
+                $res['areas_name'] = $res['info']['areas_name'];
+                break;
+            case 'distributed':
+                $res['status'] = 'distributed';
+                $res['info'] = Db::view('repair_list')
+                                ->view('admin','id,nickname','repair_list.admin_id = admin.id')
+                                ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
+                                ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
+                                ->where('repair_list.id',$id)
+                                ->find();
+                $company_name = Db::name('admin') -> where('id',$res['distributed_id']) -> field('nickname') -> find();
+                $res['company_name'] = $company_name['nickname'];
+                $res['worker_name'] = "";
+                $res['worker_phone'] = "";
                 $res['nickname'] = $res['info']['nickname'];
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
@@ -110,8 +139,11 @@ class Repairlist extends Model
                                 ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
                                 ->where('repair_list.id',$id)
                                 ->find();
+                $company_name = Db::name('admin') -> where('id',$res['distributed_id']) -> field('nickname') -> find();
+                $res['company_name'] = $company_name['nickname'];
                 $res['nickname'] = $res['info']['nickname'];
                 $res['worker_name'] = $res['info']['worker_name'];   
+                $res['worker_phone'] = $res['info']['mobile'];
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];         
                 break;
@@ -124,20 +156,25 @@ class Repairlist extends Model
                                 ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
                                 ->where('repair_list.id',$id)
                                 ->find();
+                $company_name = Db::name('admin') -> where('id',$res['distributed_id']) -> field('nickname') -> find();
+                $res['company_name'] = $company_name['nickname'];
                 $res['nickname'] = $res['info']['nickname'];
-                $res['worker_name'] = $res['info']['worker_name']; 
+                $res['worker_name'] = $res['info']['worker_name'];
+                $res['worker_phone'] = $res['info']['mobile']; 
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
             case 'refused':
                 $res['status'] = 'refused';
                 $res['info'] = Db::view('repair_list')
-                ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
-                ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
-                ->where('repair_list.id',$id)
+                                    ->view('repair_areas',['id'=>'id','name'=>'areas_name'],'repair_list.address_id = repair_areas.id')
+                                    ->view('repair_type',['id'=>'id','name'=>'type_name'],'repair_list.service_id = repair_type.id')
+                                    ->where('repair_list.id',$id)
                 ->find();
                 $res['nickname'] = "";
                 $res['worker_name'] = ""; 
+                $res['company_name'] = ""; 
+                $res['worker_phone'] = ""; 
                 $res['type_name'] = $res['info']['type_name']; 
                 $res['areas_name'] = $res['info']['areas_name'];
                 break;
@@ -161,18 +198,26 @@ class Repairlist extends Model
         $data['wx_bxlxm'] = $res['type_name'];
         $data['wx_fwqym'] = $res['areas_name'];
         $data['wx_bxdd'] = $res['address'];
-        $data['wx_cxbmm']= '后勤处';
+        //承修部门
+        if (!empty($res['distributed_id'])) {
+            $cxbmm = Db::name('admin') -> where('id',$res['distributed_id']) -> field('nickname') -> find()['nickname'];
+        } else {
+            $cxbmm = "自修";
+        }
+        $data['wx_cxbmm']= $cxbmm;
+        $xysj = ($res['accepted_time'] -$res['submit_time'])%60;
+        //响应时间
+        $data['xysj'] = $xysj.'分钟';
         $data['wx_bxsj'] = date('Y-m-d H:i:s', $res['submit_time']);
-        $data['xysj'] = '35分钟';
         return $data;
     }
 
     //获取报修的类型，并且返回固定格式数据
     public function getRepairType(){
         $list = Db::name('repair_type')
-                ->group('name')
-                ->select();
-            $data = array();
+                    ->group('name')
+                    ->select();
+        $data = array();
         foreach($list as $key => $val){
             $info = array();         
             $listDetail = Db::name('repair_type')
@@ -183,9 +228,9 @@ class Repairlist extends Model
                 $info[$key]['Name'] = $value['specific_name'];
                 $info[$key]['Id'] = $value['specific_id'];
                 $info[$key]['CategId'] = $value['id'];
-            }    
+            }
             $data[$name] = $info;
-            
+
         }
         return $data;
     }
