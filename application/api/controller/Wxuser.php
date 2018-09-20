@@ -42,6 +42,7 @@ class Wxuser extends Api
         ];
         
         $result = json_decode(Http::get(Wxuser::LOGIN_URL, $params),true);
+        dump($result);
         //dump($code);
         if($result['openid'] != ''){
             $user = new WxuserModel;
@@ -324,6 +325,9 @@ class Wxuser extends Api
 
                     }else{
                         //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
+                        if (empty($bindInfo)) {
+                            
+                        }
                         $nj = substr($bindInfo,0,4);
                         if ($nj == '2018') {
                             $info = Db::connect('chd_config')

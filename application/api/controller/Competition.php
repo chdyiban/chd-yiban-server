@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\controller\Api;
+use think\Loader;
 use think\Db;
 
 /**
@@ -16,9 +17,9 @@ class Competition extends Api
     //如果接口已经设置无需登录,那也就无需鉴权了
     //
     // 无需登录的接口,*表示全部
-    protected $noNeedLogin = ['test1','biu'];
+    protected $noNeedLogin = ['test1','biu','getRongCloudToken'];
     // 无需鉴权的接口,*表示全部
-    protected $noNeedRight = ['test2','biu'];
+    protected $noNeedRight = ['test2','biu','getRongCloudToken'];
 
     public function init(){
 
@@ -49,6 +50,20 @@ class Competition extends Api
 
     public function manage(){
         $this->success('返回成功', 'manage success');
+    }
+
+    public function getRongCloudToken(){
+        Loader::import('rongcloud', EXTEND_PATH.'/API');
+        $appKey = 'e0x9wycfe45wq';
+        $appSecret = 'q0oc3EpVoFkc';
+        $jsonPath = "jsonsource/";
+        $RongCloud = new \RongCloud($appKey,$appSecret);
+        echo ("\n***************** user **************\n");
+        // 获取 Token 方法
+        $result = $RongCloud->user()->getToken('userId1', 'username', 'http://www.rongcloud.cn/images/logo.png');
+        echo "getToken    ";
+        print_r($result);
+        echo "\n";
     }
 
 }
