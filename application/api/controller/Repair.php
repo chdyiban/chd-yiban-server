@@ -12,7 +12,7 @@ use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Repairlist as RepairlistModel;
 
 /**
- * 获取课表
+ * 报修
  */
 class Repair extends Api
 {
