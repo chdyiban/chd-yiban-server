@@ -73,11 +73,11 @@ class Repairlist extends Model
             }
 
             if (empty($val['accepted_time'])) {
-                $info['xysj'] = '-';
+                $info['wx_xysj'] = '-';
             } else {
-                $xysj = ($val['accepted_time'] -$val['submit_time'])%60;
+                $wx_xysj = ($val['accepted_time'] -$val['submit_time'])%60;
                 //响应时间
-                $info['xysj'] = $xysj.'分钟';
+                $info['wx_xysj'] = $wx_xysj.'分钟';
             }
             $info['wx_bxlxm'] = $type_name;
             $info['wx_bxsj'] = date('Y-m-d H:i:s', $val['submit_time']);
@@ -205,11 +205,11 @@ class Repairlist extends Model
         $data['wx_cxbmm']= $cxbmm;
 
         if (empty($res['accepted_time'])) {
-            $data['xysj'] = '-';
+            $data['wx_xysj'] = '-';
         } else {
-            $xysj = ($res['accepted_time'] -$res['submit_time'])%60;
+            $wx_xysj = ($res['accepted_time'] -$res['submit_time'])%60;
             //响应时间
-            $data['xysj'] = $xysj.'分钟';
+            $data['wx_xysj'] = $wx_xysj.'分钟';
         }
         $data['wx_bxsj'] = date('Y-m-d H:i:s', $res['submit_time']);
         return $data;

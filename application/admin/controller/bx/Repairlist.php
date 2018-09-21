@@ -56,27 +56,27 @@ class Repairlist extends Backend
             if($status == 'all'){
                 if ($now_admin_id == $this -> control_id || $now_admin_id == 1) {
                     $total = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where($where)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where($where)
                             ->order($sort, $order)
                             ->limit($offset, $limit)
                             ->select();
                 } else {
                     $total = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where($where)
                             ->where('distributed_id',$now_admin_id)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where($where)
                             ->where('distributed_id',$now_admin_id)
                             ->order($sort, $order)
@@ -86,14 +86,14 @@ class Repairlist extends Backend
             }else{
                 if ($now_admin_id == $this -> control_id || $now_admin_id == 1) {
                     $total = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
@@ -101,7 +101,7 @@ class Repairlist extends Backend
                             ->select();
                 } else {
                     $total = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
@@ -109,7 +109,7 @@ class Repairlist extends Backend
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,gettype,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename')
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
