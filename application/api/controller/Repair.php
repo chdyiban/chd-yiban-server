@@ -28,7 +28,6 @@ class Repair extends Api
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => $key
         ];
         return json($info);
     }

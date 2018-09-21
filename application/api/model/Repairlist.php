@@ -23,6 +23,7 @@ class Repairlist extends Model
             'stu_id' => $array['Id'],
             'title' => $array['Title'],
             'content' => $array['Content'],
+            'image' => json_encode($array['ImgUrl']),
             'address_id' => $array['AddressId'],
             'address' => $array['Address'],
             'submit_time' => $array['timestamp'],
@@ -204,6 +205,7 @@ class Repairlist extends Model
         $data['wx_bxlxm'] = $res['type_name'];
         $data['wx_fwqym'] = $res['areas_name'];
         $data['wx_bxdd'] = $res['address'];
+        $data['wx_wxzp'] = json_decode($res['image']);
         //承修部门
         if (!empty($res['distributed_id'])) {
             $cxbmm = Db::name('admin') -> where('id',$res['distributed_id']) -> field('nickname') -> find()['nickname'];
