@@ -41,9 +41,9 @@ class RepairList extends Model
     }
 
     //获取报修类型
-    public function gettype(){
-        return $this->belongsTo('RepairType', 'service_id');
-    }
+    // public function gettype(){
+    //     return $this->belongsTo('RepairType', 'service_id');
+    // }
     
     //获取报修类型
     public function gettypename(){
