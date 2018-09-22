@@ -145,29 +145,22 @@ class Repairlist extends Backend
     //驳回
     public function refuse($ids ){
         if ($this->request->isPost()){
-            $content = $this->request->post()['row']['refused_content'];
+            $content = $this->request->post()['refuse_content'];
             $res = $this->model->refuse($ids, $content);
+            return $res;
         }else{
-            $row = $this->model->get(['id' => $ids]);        
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
+            $this->error('请求失败');
         }
     }
     //分配单位
     public function distribute($ids)
     {
         if ($this->request->isPost()){
-            $company_id = $this->request->post()['company'];
+            $company_id = $this->request->post()['company_id'];
             $res = $this->model->distribute($ids, $company_id);
             return $res;
-        }else{
-            $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
-            $row = Db::view('auth_group_access') 
-                        -> view('admin','nickname,id','auth_group_access.uid = admin.id')
-                        -> where("group_id = $com_id") 
-                        -> select();
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
+        } else {
+            $this -> error('请求错误');
         }
     }
     //重新指派单位
@@ -195,15 +188,12 @@ class Repairlist extends Backend
     //分配人员
     public function dispatch($ids){  
         if ($this->request->isPost()){
-            $worker_id = $this->request->post()['worker'];
+            $worker_id = $this->request->post()['worker_id'];
             $res = $this->model->dispatch($ids, $worker_id);
             return $res;
         }else{
-            $worker = model('RepairWorker');
-            $row = $worker->where('distributed_id',$this->auth->id)->select();
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
-        }       
+           $this -> error('请求错误');
+        }         
     }
 
 
@@ -221,17 +211,74 @@ class Repairlist extends Backend
         }
         //处理数据
         $data = $this->model->redata($row);
-        $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();
-        $company_name = Db::name('admin')->where('id',$data['distributed_id'])->find();
-        $worker_name = Db::name('repair_worker')->where('id',$data['dispatched_id'])->find();
-        $data['admin_name'] = $admin_name['nickname'];   
-        $data['company_name'] = $company_name['nickname'];   
-        $data['worker_name'] = $worker_name['name']; 
-        $this->view->assign("row", $data->toArray());
-        return $this->view->fetch();
-    }
-    
+        //根据不同的状态查找不同的所需值
+        switch ($data['status']) {
+            case 'waited':
+                $data['image'] = json_decode($data['image']);
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+            case 'accepted':
+                $data['image'] = json_decode($data['image']);
+                //获取受理人
+                $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();
+                $data['admin_name'] = $admin_name['nickname'];
+                $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
+                //获取公司名称
+                $company = Db::view('auth_group_access') 
+                            -> view('admin','nickname,id','auth_group_access.uid = admin.id')
+                            -> where("group_id = $com_id") 
+                            -> select();
 
-    
+                $data['company'] = $company;
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+            case 'distributed':
+                $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();
+                $company_name = Db::name('admin')->where('id',$data['distributed_id'])->find();
+                $workerModel = model('RepairWorker');
+                $worker = $workerModel->where('distributed_id',$this->auth->id)->select();
+                $data['admin_name'] = $admin_name['nickname'];
+                $data['image'] = json_decode($data['image']);
+                $data['worker'] = $worker;
+                $data['company_name'] = $company_name['nickname'];
+                //此处返回当前登录的管理员id，如果与数据中分配的id一致才能进行分配工人
+                $data['now_admin_id'] = $this->auth->id;
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+            case 'dispatched':
+                $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();
+                $company_name = Db::name('admin')->where('id',$data['distributed_id'])->find();
+                $worker_info = Db::name('repair_worker')->where('id',$data['dispatched_id'])->find();
+                $data['admin_name'] = $admin_name['nickname'];
+                $data['worker_info'] = $worker_info; 
+                $data['image'] = json_decode($data['image']);
+                $data['company_name'] = $company_name['nickname'];
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+            case 'finished':
+                $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();
+                $company_name = Db::name('admin')->where('id',$data['distributed_id'])->find();
+                $worker_info = Db::name('repair_worker')->where('id',$data['dispatched_id'])->find();
+                $data['admin_name'] = $admin_name['nickname'];
+                $data['worker_info'] = $worker_info; 
+                $data['image'] = json_decode($data['image']);
+                $data['company_name'] = $company_name['nickname'];
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+            default:
+                $admin_name = Db::name('admin')->where('id',$data['admin_id'])->find();             
+                $data['admin_name'] = $admin_name['nickname'];
+                $data['image'] = json_decode($data['image']);
+                $this->view->assign("row", $data->toArray());
+                return $this->view->fetch();
+                break;
+        }
+    }
+
 
 }

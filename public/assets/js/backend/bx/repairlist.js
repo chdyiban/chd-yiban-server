@@ -42,11 +42,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'refused_content', title: __('拒绝原因')},
                         {field: 'status', title: __('Status'), visible:false, searchList: {"waited":__('status waited'),"accepted":__('status accepted'),"distributed":__('status distributed'),"dispatched":__('status dispatched'),"finished":__('status finished'),"refused":__('status refused')}},
                         {field: 'status_text', title: __('Status'), operate:false},
-                        {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,    
+                        {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate,  
                         
                         buttons: [
                                 {name: 'detail', title: __('工单详情'), classname: 'btn btn-xs btn-primary btn-success btn-detail  btn-dialog', icon: 'fa fa-hand-stop-o', url: 'bx/Repairlist/detail', callback: function (data){}},      
-                            ],                    
+                            ],     
+                        formatter: Table.api.formatter.operate,                  
                     }
                     ]
                 ]
@@ -87,8 +88,25 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });   
             //指派单位
             $(document).on('click', '.btn-distribute', function () {
-                window.location.href="../../distribute/ids/"+ids;
+                var company_id = $("#company").val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: './bx/Repairlist/distribute/ids/'+ids,
+                    data: {
+                        'company_id':company_id,
+                    },
+                    success: function(data) {
+                        if (data === 1) {
+                            Fast.api.close();
+                            alert('分配成功');
+                            window.parent.location.reload();  
+                        }
+                    }
+                });
+
             });   
+
             //重新指派单位
             $(document).on('click', '.btn-redistribute', function () {
                 window.location.href="../../redistribute/ids/"+ids;
@@ -96,10 +114,27 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 alert('可以重新进行分配');
                 window.parent.location.reload();  
             });   
+
             //分配人员
             $(document).on('click', '.btn-dispatch', function () {
-                window.location.href="../../dispatch/ids/"+ids;
+                var worker_id = $("#worker").val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: './bx/Repairlist/dispatch/ids/'+ids,
+                    data: {
+                        'worker_id':worker_id,
+                    },
+                    success: function(data) {
+                        if (data === 1) {
+                            Fast.api.close();
+                            alert('分配成功');
+                            window.parent.location.reload();  
+                        }
+                    }
+                });
             });   
+
             //完成任务
             $(document).on('click', '.btn-finish', function () {
                 window.location.href="../../finish/ids/"+ids;
@@ -110,7 +145,28 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             //驳回任务
             $(document).on('click', '.btn-refuse', function () {
-                window.location.href="../../refuse/ids/"+ids;
+                $("#refuse_text").toggleClass('hidden',false);
+                $(".btn-accept").toggleClass('hidden',true);
+
+                if ($("#refuse_content").val() == ''){
+                    alert("请填写驳回理由");
+               } else{
+                    $.ajax({
+                        type: 'POST',
+                        url: './bx/Repairlist/refuse/ids/'+ids,
+                        data: {
+                            'refuse_content':$("#refuse_content").val(),
+                        },
+                        success: function(data) {
+                            if (data === 1) {
+                                Fast.api.close();
+                                alert('已经驳回订单');
+                                window.parent.location.reload();  
+                            }
+                        }
+                    });
+               }
+                //window.location.href="../../refuse/ids/"+ids;
             }); 
         },
 
