@@ -61,7 +61,7 @@ class Repairlist extends Model
                     $val['status'] = '已完工';
                     break;
                 case 'refused':
-                    $val['status'] = '已驳回';
+                    $val['status'] = '驳回';
                     break;
             }
             $info['bxID'] = (string)$val['id'];
