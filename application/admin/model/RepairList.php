@@ -70,6 +70,7 @@ class RepairList extends Model
         $row['dispatched_time'] = date('Y-m-d H:i:s',$row['dispatched_time']);
         $row['finished_time'] = date('Y-m-d H:i:s',$row['finished_time']);
         $row['refused_time'] = date('Y-m-d H:i:s',$row['refused_time']);
+        $row['new_time'] = date('Y-m-d H:i:s',$row['new_time']);
         return $row;
     }
    

@@ -26,7 +26,7 @@ class Repairlist extends Model
             'image' => json_encode($array['ImgUrl']),
             'address_id' => $array['AddressId'],
             'address' => $array['Address'],
-            'submit_time' => $array['timestamp'],
+            'submit_time' => time(),
             'service_id' => $array['CategoryId'],
             'specific_id' => $array['SpecificId'],
         ]);
@@ -73,13 +73,18 @@ class Repairlist extends Model
                 $type_name = "未知";
             }
 
-            if (empty($val['accepted_time'])) {
+            if (empty($val['accepted_time']) && empty($val['refused_time'])) {
                 $info['wx_xysj'] = '-';
-            } else {
+            } elseif(!empty($val['refused_time'])) {
+                $wx_xysj = ($val['refused_time'] -$val['submit_time'])%60;
+                //响应时间
+                $info['wx_xysj'] = $wx_xysj.'分钟';
+            } elseif(!empty($val['accepted_time'])){
                 $wx_xysj = ($val['accepted_time'] -$val['submit_time'])%60;
                 //响应时间
                 $info['wx_xysj'] = $wx_xysj.'分钟';
             }
+
             if (empty($val['finished_time'])) {
                 $info['wx_wgsj'] = '-';
             } else {
@@ -87,7 +92,12 @@ class Repairlist extends Model
                 //响应时间
                 $info['wx_wgsj'] = $wx_wgsj.'分钟';
             }
-            
+            //拒绝原因
+            if (empty($val['refused_content'])) {
+                $info['wx_jjyy'] = ' ';
+            } else {
+                $info['wx_jjyy'] = $val['refused_content'];
+            }
             $info['wx_bxlxm'] = $type_name;
             $info['wx_bxsj'] = date('Y-m-d H:i:s', $val['submit_time']);
             $data[] = $info;
@@ -205,6 +215,12 @@ class Repairlist extends Model
         $data['wx_bxlxm'] = $res['type_name'];
         $data['wx_fwqym'] = $res['areas_name'];
         $data['wx_bxdd'] = $res['address'];
+        //拒绝原因
+        if (empty($res['refused_content'])) {
+            $data['wx_jjyy'] = ' ';
+        } else {
+            $data['wx_jjyy'] = $res['refused_content'];
+        }
         $data['wx_wxzp'] = json_decode($res['image']);
         //承修部门
         if (!empty($res['distributed_id'])) {
