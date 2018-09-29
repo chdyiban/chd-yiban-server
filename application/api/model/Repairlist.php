@@ -39,7 +39,7 @@ class Repairlist extends Model
         $res = Db::name('repair_list')
                     ->where('stu_id',$stu_id)
                     ->order('id DESC')
-                    ->field('id,status,title,submit_time,accepted_time,service_id')
+                    //->field('id,status,title,submit_time,accepted_time,service_id,refused_content')
                     ->select();
         $info =array();
         $data = array();
