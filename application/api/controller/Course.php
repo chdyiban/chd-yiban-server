@@ -105,18 +105,20 @@ class Course extends Api
             }
             $course[$d][$j][0] = $info;
         }
-
+        $array_empty = [
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
         for ($i=0; $i < 7; $i++) { 
             if (empty($course[$i])) {
-                $course[$i] = [
-                    [],
-                    [],
-                    [],
-                    [],
-                    [],
-                ];
+                $course = array_merge($course , array($i => $array_empty) );
+                //$course[$i] = $array_empty;
             }
         }
+        // dump($course);
         return $course;
     }
 
