@@ -26,7 +26,7 @@ class Repairlist extends Model
             'image' => json_encode($array['ImgUrl']),
             'address_id' => $array['AddressId'],
             'address' => $array['Address'],
-            'submit_time' => $array['timestamp'],
+            'submit_time' => time(),
             'service_id' => $array['CategoryId'],
             'specific_id' => $array['SpecificId'],
         ]);
@@ -93,7 +93,11 @@ class Repairlist extends Model
                 $info['wx_wgsj'] = $wx_wgsj.'分钟';
             }
             //拒绝原因
-            $info['wx_jjyy'] = $info['refused_content'];
+            if (empty($val['refused_content'])) {
+                $info['wx_jjyy'] = ' ';
+            } else {
+                $info['wx_jjyy'] = $val['refused_content'];
+            }
             $info['wx_bxlxm'] = $type_name;
             $info['wx_bxsj'] = date('Y-m-d H:i:s', $val['submit_time']);
             $data[] = $info;
@@ -212,7 +216,11 @@ class Repairlist extends Model
         $data['wx_fwqym'] = $res['areas_name'];
         $data['wx_bxdd'] = $res['address'];
         //拒绝原因
-        $data['wx_jjyy'] = $res['refused_content'];
+        if (empty($res['refused_content'])) {
+            $data['wx_jjyy'] = ' ';
+        } else {
+            $data['wx_jjyy'] = $res['refused_content'];
+        }
         $data['wx_wxzp'] = json_decode($res['image']);
         //承修部门
         if (!empty($res['distributed_id'])) {

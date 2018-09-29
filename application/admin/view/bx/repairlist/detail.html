@@ -212,7 +212,7 @@
         </div>
         <div class="row no-print">
             <div class="col-xs-12">
-                <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
+                <button id="btnPrint" type="button" class="btn  btn-default pull-left" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
                 <button type="button" class="btn  btn-success btn-finish pull-right" style="margin-right: 5px;">
                     <i class="fa fa-times fa-hand-paper-o"></i> 工单结算
                 </button>
@@ -262,8 +262,8 @@
                 </tbody>
                 </table>
             </div>
+            <button id="btnPrint" type="button" class="btn  btn-default pull-right" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
         </div>
-        <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
         {/case}
         {default/}
         <div class="row">
@@ -287,7 +287,7 @@
                 </tbody>
                 </table>
             </div>
+            <button id="btnPrint" type="button" class="btn  btn-default pull-right" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
         </div>
-        <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
         {/switch}
     </section>
