@@ -210,6 +210,8 @@ class Repairlist extends Backend
             $this->success("Ajax请求成功", null, ['id' => $ids]);
         }
         //处理数据
+
+        $row['new_time'] = $this -> getLastOperationTime($row);
         $data = $this->model->redata($row);
         //根据不同的状态查找不同的所需值
         switch ($data['status']) {
@@ -276,6 +278,33 @@ class Repairlist extends Backend
                 $data['image'] = json_decode($data['image']);
                 $this->view->assign("row", $data->toArray());
                 return $this->view->fetch();
+                break;
+        }
+    }
+    /**
+     * 获取传入工单的最新操作时间
+     */
+    public function getLastOperationTime($listArray)
+    {
+        switch ($listArray['status']) {
+            case 'waited':
+                return $listArray['submit_time'];
+                break;
+            case 'accepted':
+                return $listArray['accepted_time'];
+                break;
+            case 'distributed':
+                return $listArray['distributed_time'];
+                break;
+            case 'dispatched':
+                return $listArray['dispatched_time'];
+                break;
+            case 'finished':
+                return $listArray['finished_time'];
+                break;
+            
+            default:
+                return $listArray['refused_time'];
                 break;
         }
     }
