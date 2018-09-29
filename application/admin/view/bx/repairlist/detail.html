@@ -140,7 +140,6 @@
         </div>
         <div class="row no-print">
                 <div class="col-xs-12">
-                    <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> 打印</a>
                     <button type="button" class="btn  btn-success btn-dispatch pull-right" style="margin-right: 5px;">
                         <i class="fa fa-times fa-hand-paper-o"></i> 指派工人
                     </button>
@@ -149,7 +148,6 @@
         {else/}
         <div class="row no-print">
             <div class="col-xs-12">
-                <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> 打印</a>
                 <button type="button" class="btn btn-redistribute btn-success pull-right" style="margin-right: 5px;">
                     <i class="fa fa-download"></i> 重新指派
                 </button>
@@ -194,7 +192,7 @@
         </div>
         <div class="row no-print">
             <div class="col-xs-12">
-                <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> 打印</a>
+                <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
                 <button type="button" class="btn  btn-success btn-finish pull-right" style="margin-right: 5px;">
                     <i class="fa fa-times fa-hand-paper-o"></i> 工单结算
                 </button>
@@ -245,12 +243,7 @@
                 </table>
             </div>
         </div>
-        <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> 打印</a>
-        <button type="button" class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Submit Payment
-        </button>
-        <button type="button" class="btn btn-primary pull-right" style="margin-right: 5px;">
-            <i class="fa fa-download"></i> Generate PDF
-        </button>
+        <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
         {/case}
         {default/}
         <div class="row">
@@ -275,11 +268,6 @@
                 </table>
             </div>
         </div>
-        <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> 打印</a>
-        <button type="button" class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Submit Payment
-        </button>
-        <button type="button" class="btn btn-primary pull-right" style="margin-right: 5px;">
-            <i class="fa fa-download"></i> Generate PDF
-        </button>
+        <input id="btnPrint" type="button" value="打印" onclick="javascript:window.print();" />
         {/switch}
     </section>
