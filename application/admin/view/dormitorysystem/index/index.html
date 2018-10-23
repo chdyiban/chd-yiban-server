@@ -1,0 +1,81 @@
+<div class="row">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">总床位数</span>
+            <span class="info-box-number">{$allBedNums}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-green"><i class="fa fa-flag-o"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">总入住人数</span>
+            <span class="info-box-number">{$allStuNums}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-yellow"><i class="fa fa-files-o"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">总入住男生数</span>
+            <span class="info-box-number">{$allBoyNums}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-red"><i class="fa fa-star-o"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">总入住女生数</span>
+            <span class="info-box-number">{$allGirlNums}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+</div>
+<div class="row">
+{foreach name="buildingInfoList" item="vo" key="s"}
+<div class="col-lg-3 col-xs-3">
+    <!-- small box -->
+    <div class="small-box bg-aqua">
+        <div class="inner">
+        总床位数<h3>{$vo.allBedNums}</h3>
+        总入住数<h3>{$vo.allStuNums}</h3>
+        <p>{$vo.LH}号楼</p>
+        </div>
+        <div class="icon">
+        <i class="fa fa-shopping-cart"></i>
+        </div>
+        <a href="#" class="small-box-footer">
+        查看详情<i class="fa fa-arrow-circle-right"></i>
+        </a>
+    </div>
+</div>
+{/foreach}
+</div>
+
+
+
+<!-- 
+<div class="row">
+    dfsdfsdfsdf
+    </div> -->
