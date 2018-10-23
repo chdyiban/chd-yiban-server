@@ -1,0 +1,58 @@
+<div class="row">
+    <p class="hidden" id="LH">{$param.LH}</p>
+    <p class="hidden" id="SSH">{$param.SSH}</p>
+    <p class="hidden" id="CH">{$param.CH}</p>
+</div>
+
+<div class="form-group">
+    <label for="XH">学号或姓名</label>
+    <input class="form-control" id="XH" placeholder="请输入查找的学号或者姓名">
+</div>
+<div class="row" style="padding-bottom:10px;">
+    <div class="col-xs-12">
+        <button type="button" class="btn btn-primary pull-right" id="search">
+            <i class="fa fa-search"></i>搜索
+        </button>
+    </div>
+</div>
+
+<div class="box box-widget hidden" id="result" >
+    <div class="box-header with-border" style="text-align: center;">
+        <span style="font-size:14px;"><strong>查找结果</strong></span>
+    </div>
+    <!-- /.box-header -->
+
+    <div class="col-xs-12 table-responsive">
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>学院</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="hidden" id="error">
+                <td id="msg">未查找到相关学生</td>
+            </tr>
+            <tr class="hidden" id="success">
+                <td id="StuXH"></td>
+                <td id="StuXM"></td>
+                <td id="StuXB"></td>
+                <td id="YXJC"></td>
+                <td id="YXDM" class="hidden"></td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+    <div class="col-xs-12">
+        <button type="button" class="btn btn-success pull-left" id="confirmdistribute">确定分配
+        </button>
+        <button type="button" class="btn btn-primary pull-right" style="margin-right: 5px;" id="reselect">重新选择
+        </button>
+    </div>
+    <!-- /.col -->
+</div>
+
+
