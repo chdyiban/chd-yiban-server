@@ -1,0 +1,36 @@
+<div class="row">
+    <p class="hidden" id="LH">{$param.LH}</p>
+    <p class="hidden" id="SSH">{$param.SSH}</p>
+    <p class="hidden" id="CH">{$param.CH}</p>
+    <p class="hidden" id="XH">{$param.XH}</p>
+</div>
+<div class="form-group">
+    <label>请选择移除原因</label>
+    <select class="form-control" id="reason">
+        <option>换宿舍</option>
+        <option>退学</option>
+        <option>休学</option>
+    </select>
+</div>
+<!-- <div class="form-group">
+    <label>请选择移除时间</label>
+    <div class="input-group date">
+        <div class="input-group-addon">
+        <i class="fa fa-calendar"></i>
+        </div>
+        <input type="text" class="form-control pull-right datetimepicker" id="datetimepicker">
+    </div>
+</div> -->
+<div class="form-group">
+    <label>备注</label>
+    <textarea id="remark" class="form-control"  placeholder="请输入输入备注" cols="7" rows="4"></textarea>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <button type="button" class="btn btn-danger btn-lg pull-left btn-confirmdelete" style="margin-left: 10px;"><i class="fa fa-times"></i>确认删除
+        </button>
+        <button type="button" class="btn btn-info btn-lg pull-right btn-canceldelete" style="margin-right: 10px;">
+            <i class="fa fa-times-circle"></i>取消删除
+        </button>
+    </div>
+</div>
