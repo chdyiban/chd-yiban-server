@@ -34,8 +34,8 @@ class Search extends Api
      */
     public function query(){
         $words = $this->request->post('words');
-        $from = $this->request->post('from');
-        $to = $this->request->post('to');
+        $from = empty($this->request->post('from')) ? 0 : $this->request->post('from');
+        $to = empty($this->request->post('to')) ? 5 : $this->request->post('to');
         $params = [
             'words' => $words,
             'from'  => $from,
