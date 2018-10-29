@@ -23,7 +23,6 @@ class Search extends Api
     public function chssuggest(){
         $key = $this->request->post('key');
         $params = [
-            'coreName' => 'News_Index',
             'key' => $key,
         ];
         $info = Http::get($this::CHSSUGGEST_URL,$params);

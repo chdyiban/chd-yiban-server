@@ -9,6 +9,7 @@ use addons\cms\model\Comment;
 use addons\cms\model\Modelx;
 use app\common\controller\Api;
 use think\Db;
+use app\api\model\Wxuser as WxuserModel;
 /**
  * 资讯栏目控制器
  */
@@ -22,7 +23,17 @@ class Information extends Api
         $page = (int) $this->request->get('page');
         $openid = $this->request->get('openid');
 
+        //通过学号判断是老师还是学生
+        $user = new WxuserModel;
+        $userId = $user->where('open_id',$openid)->value('portal_id');
         $params = [];
+
+        if(strlen($userId) == 6){
+            //$params['power'] = 'teacher';
+        } else {
+            $params['power'] = 'all';
+        }
+
         $model = (int) $this->request->request('model');
         $channel = (int) $this->request->request('channel');
 
@@ -44,6 +55,10 @@ class Information extends Api
         foreach ($list as $key => $value) {
             $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
             $list[$key]['style_id'] = $style_id;
+            $list[$key]['create_date'] = date("Y-m-d", $value['createtime']);
+            // if ($value['power'] != $params['power']) {
+            //     unset($list[$key]);
+            // }
         }
         $info = [
             'status' => 200,
