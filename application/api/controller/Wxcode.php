@@ -16,13 +16,13 @@ use app\api\model\Wxuser as WxuserModel;
 class Wxcode extends Api
 {
 
-    protected $noNeedLogin = ['*'];
-    protected $noNeedRight = ['*'];
+    protected $noNeedLogin = [''];
+    protected $noNeedRight = [''];
 
     const GET_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
     const GET_CODE_URL = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=';
 
-    public function getAccessToken()
+    private function getAccessToken()
     {
         $appid = Config::get('wx.appId');
         $appsecret = Config::get('wx.appSecret');
@@ -47,24 +47,39 @@ class Wxcode extends Api
         header('Content-type:image/jpeg'); 
         //判断缓存是否有access_token
         $access_token = Cache::get('WxAccessToken');
+
         if (empty($access_token)) {
              $access_token = $this->getAccessToken();
 
         }
-        $scene = $this->request->get('scene');
-        //$page = $this->request->get('page');
+        $scene = $this->request->post('scene');
+        $page = $this->request->post('page');
+
         if (empty($scene)) {
             $this->error('参数有误');
         }
-        $auto_color = false;
-        $is_hyaline = false;
-        $param = [
-            'scene'        => $scene,
-        ];
-        //dump($access_token);
+
+        if (empty($page)) {
+
+            $param = [
+                'scene'        => $scene,
+            ];
+        } else {
+
+            $param = [
+                'scene'        => $scene,
+                'page'        => $page,
+            ];
+        }
         $postData = json_encode($param);
         $response = Http::post(self::GET_CODE_URL.$access_token,$postData);
-        return $response;
+        $result = json_decode($response,true);
+        
+        if (empty($result)) {
+            return base64_encode($response);
+        } else {
+            $this->error($result['srrmsg']);
+        }
     }
 
 }
