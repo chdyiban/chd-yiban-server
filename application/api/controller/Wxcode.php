@@ -16,13 +16,13 @@ use app\api\model\Wxuser as WxuserModel;
 class Wxcode extends Api
 {
 
-    protected $noNeedLogin = [''];
-    protected $noNeedRight = [''];
+    protected $noNeedLogin = ['getAccessToken'];
+    protected $noNeedRight = ['getAccessToken'];
 
     const GET_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
     const GET_CODE_URL = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=';
 
-    private function getAccessToken()
+    public function getAccessToken()
     {
         $appid = Config::get('wx.appId');
         $appsecret = Config::get('wx.appSecret');
@@ -42,7 +42,7 @@ class Wxcode extends Api
         }
     }
 
-    public function getWXACodeUnlimit()
+    public function getWXACodeUnlimit($access_token = '11')
     {
         header('Content-type:image/jpeg'); 
         //判断缓存是否有access_token
@@ -50,7 +50,6 @@ class Wxcode extends Api
 
         if (empty($access_token)) {
              $access_token = $this->getAccessToken();
-
         }
         $scene = $this->request->post('scene');
         $page = $this->request->post('page');
@@ -72,13 +71,21 @@ class Wxcode extends Api
             ];
         }
         $postData = json_encode($param);
+
         $response = Http::post(self::GET_CODE_URL.$access_token,$postData);
+
         $result = json_decode($response,true);
-        
+
         if (empty($result)) {
             return base64_encode($response);
         } else {
-            $this->error($result['srrmsg']);
+            // //如果发现是因为验证码过期，则再次生成
+            if ($result['errcode'] == '40001') {
+                $access_token = $this->getAccessToken();
+                $res = $this->getWXACodeUnlimit($access_token);
+                return $res;
+            }
+            $this->error($result);
         }
     }
 
