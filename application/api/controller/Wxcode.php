@@ -16,8 +16,8 @@ use app\api\model\Wxuser as WxuserModel;
 class Wxcode extends Api
 {
 
-    protected $noNeedLogin = ['getAccessToken'];
-    protected $noNeedRight = ['getAccessToken'];
+    protected $noNeedLogin = ['*'];
+    protected $noNeedRight = ['*'];
 
     const GET_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
     const GET_CODE_URL = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=';
@@ -42,7 +42,7 @@ class Wxcode extends Api
         }
     }
 
-    public function getWXACodeUnlimit($access_token = '11')
+    public function getWXACodeUnlimit($access_token = '')
     {
         header('Content-type:image/jpeg'); 
         //判断缓存是否有access_token
@@ -79,7 +79,7 @@ class Wxcode extends Api
         if (empty($result)) {
             return base64_encode($response);
         } else {
-            // //如果发现是因为验证码过期，则再次生成
+            //如果发现是因为验证码过期，则再次生成
             if ($result['errcode'] == '40001') {
                 $access_token = $this->getAccessToken();
                 $res = $this->getWXACodeUnlimit($access_token);
