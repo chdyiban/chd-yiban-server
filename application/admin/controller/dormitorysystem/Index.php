@@ -2,6 +2,7 @@
 
 namespace app\admin\controller\dormitorysystem;
 use think\Db;
+use think\Config;
 use app\common\controller\Backend;
 
 /**
@@ -42,30 +43,6 @@ class Index extends Backend
 
         $buildingInfoList = $this-> model -> getBuildingList();
 
-        // $buidingMaps = [
-        //     [
-        //         ['value' => '三层','rowspan' => '2'],
-        //         ['value' => '101','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '102','status'=>'1/6','color'=>'green'],
-        //         ['value' => '103','status'=>'6/6','color'=>'red'],
-        //     ],
-        //     [
-        //         ['value' => '131','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '132','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '133','status'=>'0/6','color'=>'blue'],
-        //     ],
-        //     [
-        //         ['value' => '二层','rowspan' => '2'],
-        //         ['value' => '201','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '202','status'=>'1/6','color'=>'green'],
-        //         ['value' => '203','status'=>'6/6','color'=>'red'],
-        //     ],
-        //     [
-        //         ['value' => '231','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '232','status'=>'0/6','color'=>'blue'],
-        //         ['value' => '233','status'=>'0/6','color'=>'blue'],
-        //     ],
-        // ];
 
         $this->view->assign([
             'allBedNums'        => $allBedNums,
@@ -73,15 +50,66 @@ class Index extends Backend
             'allGirlNums'       => $allUsedNumsList['girl'],
             'allStuNums'        => $allUsedNumsList['all'],
             'buildingInfoList'  => $buildingInfoList,
-
-
-           // 'buildingMaps' => $buidingMaps,
         ]);
 
         
 
 
         
+        return $this->view->fetch();
+    }
+
+    public function buildingdetail()
+    {
+        $LH = $this -> request -> get('LH');
+
+        $buildingMaps = Config::get('chd_building_ws_'.$LH);
+        if (empty($buildingMaps)) {
+            $this -> error('配置出错');
+        }
+        //获取已经住了人的宿舍以及住的人数
+        $dormitoryUsedBedList = Db::query("SELECT SSH,COUNT(*) AS used FROM `fa_dormitory_system` WHERE LH = $LH AND status = '1' GROUP BY SSH ");
+        //获取每个宿舍的总人数
+        $dormitoryAllList = Db::query("SELECT SSH ,COUNT(*) AS allbed FROM `fa_dormitory_system` WHERE LH = $LH GROUP BY SSH");
+        //把住了人的宿舍处理以宿舍号下标
+        $dormitoryUsedBedArray = array();
+        foreach ($dormitoryUsedBedList as $key => $value) {
+            $k = $value['SSH'];
+            $dormitoryUsedBedArray[$k] = $value;
+        }
+        //dump($dormitoryUsedBedArray);
+
+        //把所有宿舍处理以宿舍号下标
+        $dormitoryAllArray = array();
+        foreach ($dormitoryAllList as $key => $value) {
+            $k = $value['SSH'];
+            $dormitoryAllArray[$k] = $value;
+        }
+
+        //dump($dormitoryAllArray);
+        foreach ($buildingMaps as $key => $value) {
+            foreach ($value as $k => $v) {
+                if (is_numeric($v['value'])) {
+                    $buildingMaps[$key][$k]['all'] = $dormitoryAllArray[$v['value']]['allbed'];
+                    $buildingMaps[$key][$k]['used'] = array_key_exists($v['value'],$dormitoryUsedBedArray)? $dormitoryUsedBedArray[$v['value']]['used'] : 0;
+                    $buildingMaps[$key][$k]['status'] =  $buildingMaps[$key][$k]['used'] .'/'. $buildingMaps[$key][$k]['all'];
+                    if ($buildingMaps[$key][$k]['used'] ==  $buildingMaps[$key][$k]['all']) {
+                        $buildingMaps[$key][$k]['color'] = 'red';
+                    } elseif ($buildingMaps[$key][$k]['used'] == 0) {
+                        $buildingMaps[$key][$k]['color'] = 'green';
+                    } else {
+                        $buildingMaps[$key][$k]['color'] = 'yellow';
+                    }
+               } else {
+                    $buildingMaps[$key][$k]['color'] = 'rgb(84, 193, 243)';
+               }
+            }
+        }
+
+
+        $this ->view -> assign([
+            'buildingMaps' => $buildingMaps,
+        ]);
         return $this->view->fetch();
     }
 }
