@@ -2,8 +2,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
 
     var Controller = {
         index: function () {
-            // 基于准备好的dom，初始化echarts实例
-       
+            
         }
     };
 

@@ -125,16 +125,6 @@ class Dormitorylist extends Backend
             'param' => $param,
         ]);
     }
-    /**
-     * 分配单个学生界面
-     */
-    public function confirmdistribute()
-    {
-        $param = $this->request->param();
-        return view('confirmdistribute',[
-            'param' => $param,
-        ]);
-    }
 
     /**
      * 移除床位对应学生
