@@ -323,14 +323,18 @@ class Dormitory extends Model
                     -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
                     -> where('XH',$XH)
                     -> find();
+        $resultInfo = [];
         if (empty($stuInfo)) {
-            $stuInfo = array();
-            $stuInfo['XH'] = '';
-            $stuInfo['msg'] = '没有查到相关学生';
+           $stuInfo = [];
+           $total = 0;
         } else {
+            $total = 1;
             $stuInfo['XB'] = $stuInfo['XBDM'] == 1 ? '男':'女';
+            $stuInfo['NJ'] = substr($stuInfo['XH'],0,4);
         }
-        return $stuInfo;
+        $resultInfo[] = $stuInfo;
+        $result = array("total" => $total, "rows" => $resultInfo);    
+        return json($result);
     }
     
     /**
@@ -344,14 +348,24 @@ class Dormitory extends Model
         $stuInfo = Db::view('stu_detail','XM,XH,YXDM,XBDM')
                     -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
                     -> where('XM','like',$name)
+                    -> where('XH',['like','2015%'],['like','2016%'],['like','2017%'],['like','2018%'],'or')
                     -> select();
+        $resultInfo = [];
         if (empty($stuInfo)) {
-            $stuInfo = array();
-            $stuInfo['XH'] = '';
-            $stuInfo['msg'] = '没有查到相关学生';
+            $stuInfo = [];
+            $total = 0;
         } else {
-            $stuInfo['XB'] = $stuInfo['XBDM'] == 1 ? '男':'女';
+            $total = count($stuInfo);
+            foreach ($stuInfo as $key => $value) {
+                $tempArray = [];
+                $tempArray = $value;
+                $tempArray['XB'] = ($value['XBDM']) == 1 ? '男':'女';
+                $tempArray['NJ'] = substr($value['XH'],0,4);
+                $resultInfo[] = $tempArray;
+            }
+            //$stuInfo['XB'] = ($stuInfo['XBDM']) == 1 ? '男':'女';
         }
-        return $stuInfo;
+        $result = array("total" => $total, "rows" => $resultInfo);    
+        return json($result);
     }
 }

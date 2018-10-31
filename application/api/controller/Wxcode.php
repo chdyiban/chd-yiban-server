@@ -51,8 +51,8 @@ class Wxcode extends Api
         if (empty($access_token)) {
              $access_token = $this->getAccessToken();
         }
-        $scene = $this->request->post('scene');
-        $page = $this->request->post('page');
+        $scene = $this->request->get('scene');
+        $page = $this->request->get('page');
 
         if (empty($scene)) {
             $this->error('参数有误');

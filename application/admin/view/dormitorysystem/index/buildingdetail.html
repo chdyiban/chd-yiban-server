@@ -1,0 +1,25 @@
+<div class="row">
+    <table border = "2" cellspacing="5" cellpadding="5" style="text-align:center" width="100%">
+        {foreach name="buildingMaps" item="vo"}
+        <tr>
+            {foreach name="vo" item="vo1"}
+                {empty name="vo1.rowspan"}
+                    {empty name="vo1.status"}
+                    <td style="background-color:{$vo1.color}">{$vo1.value}<br/></td>
+                    {else /}
+                    <td  style="background-color:{$vo1.color}">{$vo1.value}<br/>{$vo1.status}</td>
+                    {/empty}
+                {else /}
+                <td width="40" rowspan= "{$vo1.rowspan}">{$vo1.value}</td>
+                {/empty}
+                
+                
+            {/foreach}
+        </tr>
+        {/foreach}
+    </table>
+</div>
+
+
+
+

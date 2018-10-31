@@ -34,7 +34,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'LC', title: __('楼层'),sortable:true,width:60},
                         {field: 'LD', title: __('楼段')},
                         {field: 'SSH', title: __('宿舍号'),sortable:true,width:80},
-                        {field: 'RZQK', title: __('入住情况'),formatter:function(value,row,index){
+                        {field: 'RZQK', title: __('入住情况'),operate:false,formatter:function(value,row,index){
                             var result = '';
                             $.ajax({
                                 type:'POST',
@@ -54,7 +54,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             })
                             return result;
                         }},
-                        {field: 'RZBL', title: __('入住比例(入住/总床位)'),formatter:function(value,row,index){
+                        {field: 'RZBL', title: __('入住比例(入住/总床位)'),operate:false,formatter:function(value,row,index){
                             $.ajax({
                                 type:'POST',
                                 //修改为同步请求
@@ -73,7 +73,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             })
                             return result;
                         }},
-                        {field: 'XBDM', title: __('类别'),searchList: {"1":__('男'),"2":__('女')},formatter:function(value){
+                        {field: 'XBDM', title: __('类别'),searchList: {"1":__('男宿'),"2":__('女宿')},formatter:function(value){
                             if(value == 1) 
                                 return "男宿";
                             if(value == 2) 
@@ -82,7 +82,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate,  
                         
                         buttons: [
-                                {name: 'stuinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-hand-stop-o', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}', callback: function (data){}},      
+                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-hand-stop-o', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}', callback: function (data){}},      
                             ],     
                         formatter: Table.api.formatter.operate,               
                     }
@@ -165,89 +165,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 Fast.api.close();
             }); 
         },
-        confirmdistribute: function(){
-            //在学号搜索界面通过学号搜索
-            $(document).on('click','#search',function(){
-                var XH = $('#XH').val();
-                if (XH === '') {
-                    alert('不可以为空！');
-                } else {
-                    console.log(typeof(XH));
-                    //判断学号是数字还是汉字
-                    //if (typeof(XH) == Number) {
-                        $.ajax({
-                            type: 'POST',
-                            url: './dormitorysystem/Dormitorylist/searchStuByXh',
-                            data: {
-                                'XH':XH,
-                            },
-                            success: function(data) {
-                                if (data.XH == "") {
-                                    
-                                    $('#result').removeClass('hidden');
-                                    $('#error').removeClass('hidden');
-                                    $('#msg').html(data.msg);
-                                    $('#confirmdistribute').addClass('hidden');
-                                } else {
 
-                                    $('#result').removeClass('hidden');
-                                    $('#searchbyxh').addClass('hidden');
-                                    $('#success').removeClass('hidden');
-                                    $('#StuXH').html(data.XH);
-                                    $('#StuXM').html(data.XM);
-                                    $('#StuXB').html(data.XB);
-                                    $('#YXJC').html(data.YXJC);
-                                    $('#YXDM').html(data.YXDM);
-                                }
-                            }
-                        });
-                    //} else {
-
-                    //}
-                }
-            });
-
-
-            $(document).on('click', '#confirmdistribute', function () {
-                var message = confirm("是否确定要将此学生分配至该床位？");
-                if (message) {
-                    var LH = $('#LH').text();
-                    var SSH = $('#SSH').text();
-                    var CH = $('#CH').text();
-                    var XH = $('#StuXH').text();
-                    var YXDM = $('#YXDM').text();
-                    var XB = $('#StuXB').text();
-                    $.ajax({
-                        type: 'POST',
-                        url: './dormitorysystem/Dormitorylist/addStuRecord',
-                        data: {
-                            'XH':XH,
-                            'LH':LH,
-                            'SSH':SSH,
-                            'CH':CH,
-                            'YXDM':YXDM,
-                            'XB':XB,
-                        },
-                        success: function(data) {
-                            if (data.status === true) {
-                                alert(data.msg);
-                                Fast.api.close();
-                                window.parent.location.reload();
-                            } else {
-                                alert(data.msg);
-                                window.location.reload();
-                            }
-                        }
-                    });
-                }
-            }); 
-            $(document).on('click', '#reselect', function () {
-                window.location.reload();
-            }); 
-            $(document).on('click', '.btn-canceldelete', function () {
-                Fast.api.close();
-            }); 
-        },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
