@@ -55,6 +55,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             return result;
                         }},
                         {field: 'RZBL', title: __('入住比例(入住/总床位)'),operate:false,formatter:function(value,row,index){
+                            var result = '';
                             $.ajax({
                                 type:'POST',
                                 //修改为同步请求
@@ -82,7 +83,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate,  
                         
                         buttons: [
-                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-hand-stop-o', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}', callback: function (data){}},      
+                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}',text: __('操作'), callback: function (data){}},      
                             ],     
                         formatter: Table.api.formatter.operate,               
                     }
