@@ -2,7 +2,9 @@
 /thinkphp/
 /vendor/
 /runtime/*
-/addons/*
+/addons/adminlte
+/addons/bootstrap
+/addons/example
 /sjkglrj/*
 /application/admin/command/Install/*.lock
 /public/assets/addons/*
