@@ -53,24 +53,84 @@
     <!-- /.col -->
 </div>
 <div class="row">
-{foreach name="buildingInfoList" item="vo" key="s"}
-<div class="col-lg-3 col-xs-3">
-    <!-- small box -->
-    <div class="small-box bg-aqua">
-        <div class="inner">
-        总床位数<h3>{$vo.allBedNums}</h3>
-        总入住数<h3>{$vo.allStuNums}</h3>
-        <h1>{$vo.LH}号楼</h1>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab_west" data-toggle="tab">西区（1-6栋）</a></li>
+                <li><a href="#tab_east" data-toggle="tab">东区（7-15栋）</a></li>
+                <li><a href="#tab_high" data-toggle="tab">高层（16-20栋）</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab_west">
+                    <div class="row">
+                        {foreach name="buildingInfoList.west" item="vo" key="s"}
+                        <div class="col-lg-3 col-xs-3">
+                            <!-- small box -->
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                总床位数<h3>{$vo.allBedNums}</h3>
+                                总入住数<h3>{$vo.allStuNums}</h3>
+                                <h1>{$vo.LH}号楼</h1>
+                                </div>
+                                <div class="icon">
+                                <i class="fa fa-building"></i>
+                                </div>
+                                <!-- <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" class="small-box-footer btn-dialog">
+                                查看详情<i class="fa fa-arrow-circle-right"></i>
+                                </a> -->
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+                <div class="tab-pane" id="tab_east">
+                    <div class="row">
+                        {foreach name="buildingInfoList.east" item="vo" key="s"}
+                        <div class="col-lg-3 col-xs-3">
+                            <!-- small box -->
+                            <div class="small-box bg-green">
+                                <div class="inner">
+                                总床位数<h3>{$vo.allBedNums}</h3>
+                                总入住数<h3>{$vo.allStuNums}</h3>
+                                <h1>{$vo.LH}号楼</h1>
+                                </div>
+                                <div class="icon">
+                                <i class="fa fa-building"></i>
+                                </div>
+                                <!-- <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" class="small-box-footer btn-dialog">
+                                查看详情<i class="fa fa-arrow-circle-right"></i>
+                                </a> -->
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+                <div class="tab-pane" id="tab_high">
+                    <div class="row">
+                        {foreach name="buildingInfoList.high" item="vo" key="s"}
+                        <div class="col-lg-3 col-xs-3">
+                            <!-- small box -->
+                            <div class="small-box bg-yellow">
+                                <div class="inner">
+                                总床位数<h3>{$vo.allBedNums}</h3>
+                                总入住数<h3>{$vo.allStuNums}</h3>
+                                <h1>{$vo.LH}号楼</h1>
+                                </div>
+                                <div class="icon">
+                                <i class="fa fa-building"></i>
+                                </div>
+                                <!-- <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" class="small-box-footer btn-dialog">
+                                查看详情<i class="fa fa-arrow-circle-right"></i>
+                                </a> -->
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="icon">
-        <i class="fa fa-building"></i>
-        </div>
-        <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" class="small-box-footer btn-dialog">
-        查看详情<i class="fa fa-arrow-circle-right"></i>
-        </a>
     </div>
 </div>
-{/foreach}
-</div>
+
 
 

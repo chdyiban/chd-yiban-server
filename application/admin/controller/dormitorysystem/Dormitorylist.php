@@ -97,8 +97,7 @@ class Dormitorylist extends Backend
     {
         $param = $this->request->param();
         $roomId = $param['key'];
-        $type = $param['type'];
-        $roomDetailInfo = $this -> model -> getDormitoryFreeBedInfo($roomId,$type);
+        $roomDetailInfo = $this -> model -> getDormitoryFreeBedInfo($roomId);
 
         return json($roomDetailInfo); 
     }
