@@ -7,7 +7,13 @@
 /addons/example
 /sjkglrj/*
 /application/admin/command/Install/*.lock
-/public/assets/addons/*
+/public/assets/addons/adminlte
+/public/assets/addons/bootstrap
+/public/assets/addons/example
+/public/assets/addons/cms/js
+/public/assets/addons/cms/css
+/public/assets/addons/cms/fonts
+/public/assets/addons/cms/less
 /public/uploads/*
 .idea
 composer.lock
