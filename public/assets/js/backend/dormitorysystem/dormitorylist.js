@@ -32,7 +32,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             key: JSON.stringify(bedIdlist),
                         },
                         success:function(data){
-                            console.log(data);
                             $("#table tbody tr").each(function(i,v){
                                 data_index = $(this).attr('data-index');
                                 $(this).find("td:eq(6)").html(data[i].situation);
