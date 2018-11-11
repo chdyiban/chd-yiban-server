@@ -87,20 +87,49 @@ class Dormitory extends Model
      */
     public function getBuildingList()
     {
-        $buildingNumList = $this -> group('LH') -> field('LH') -> select();
+        //$buildingNumList = $this -> group('LH') -> field('LH') -> order('LH desc') -> select();
         $buildingInfoResult = array();
-        foreach ($buildingNumList as $key => $value) {
+        $westBuildingNumList = ['1','2','3','4','5','6'];
+        $eastBuildingNumList = ['7','8','9','10','11','12','13','14','15'];
+        $highBuildingNumList = ['16','17','19','20'];
+        foreach ($westBuildingNumList as  $value) {
             $tempArray = array();
             //每个楼的入住人数
-            $buildingInfo = $this -> getAllStuNums($value['LH']);
-            $tempArray['LH'] = $value['LH'];
+            $buildingInfo = $this -> getAllStuNums($value);
+            $tempArray['LH'] = $value;
              //每个楼的总床位数
-            $tempArray['allBedNums'] = $this -> getAllBedNums($value['LH']);
+            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
             //入住人数情况
             $tempArray['allStuNums'] = $buildingInfo['all'];
             $tempArray['allBoyNums'] = $buildingInfo['boy'];
             $tempArray['allGirlNums'] = $buildingInfo['girl'];
-            $buildingInfoResult[] = $tempArray;
+            $buildingInfoResult['west'][] = $tempArray;
+        }
+        foreach ($eastBuildingNumList as  $value) {
+            $tempArray = array();
+            //每个楼的入住人数
+            $buildingInfo = $this -> getAllStuNums($value);
+            $tempArray['LH'] = $value;
+             //每个楼的总床位数
+            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
+            //入住人数情况
+            $tempArray['allStuNums'] = $buildingInfo['all'];
+            $tempArray['allBoyNums'] = $buildingInfo['boy'];
+            $tempArray['allGirlNums'] = $buildingInfo['girl'];
+            $buildingInfoResult['east'][] = $tempArray;
+        }
+        foreach ($highBuildingNumList as  $value) {
+            $tempArray = array();
+            //每个楼的入住人数
+            $buildingInfo = $this -> getAllStuNums($value);
+            $tempArray['LH'] = $value;
+             //每个楼的总床位数
+            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
+            //入住人数情况
+            $tempArray['allStuNums'] = $buildingInfo['all'];
+            $tempArray['allBoyNums'] = $buildingInfo['boy'];
+            $tempArray['allGirlNums'] = $buildingInfo['girl'];
+            $buildingInfoResult['high'][] = $tempArray;
         }
         return $buildingInfoResult;
     }
@@ -125,48 +154,51 @@ class Dormitory extends Model
      * @param type:situation   入住情况
      * @param type:proportion  入住比例
      */
-    public function getDormitoryFreeBedInfo($bedId,$type)
+    public function getDormitoryFreeBedInfo($bedIdList)
     {
-        $bedInfo = $this->where('id',$bedId)->field('LH,SSH') -> find();
-        $LH = $bedInfo['LH'];
-        $SSH = $bedInfo['SSH'];
-        $dormitoryInfo = $this->where('LH',$LH) -> where('SSH',$SSH) ->field('status,CH')->order('CH') -> select();
-        switch ($type) {
-            case 'situation':
-                $dormitory = array();
-                foreach ($dormitoryInfo as $key => $value) {
-                    if ($value['status'] == 0) {
-                        $dormitory[$value['CH']] = '○';
-                    } elseif ($value['status'] == 1) {
-                        $dormitory[$value['CH']] = '●';       
-                    } else{
-                        $dormitory[$value['CH']] = '△';
-                    }
-                }
-                return $dormitory;
-                break;
 
-            case 'proportion':
-                $dormitoryBedInfo = [];
-                $freeBed = [];
-                $fullBed = [];
-        
-                foreach ($dormitoryInfo as $key => $value) {
-                    if ($value['status'] == 0) {
-                        $freeBed[] = $value['CH'];
-                    } elseif ($value['status'] == 1) {
-                        $fullBed[] = $value['CH'];                
-                    } 
+        $bedIdList = json_decode($bedIdList,true);
+        $result = array();
+        foreach ($bedIdList as $key => $value) {
+            $temp = array();
+            $temp['ID'] = $value;
+            $freeBed = [];
+            $fullBed = [];
+
+            $bedInfo = $this->where('id',$value)->field('LH,SSH') -> find();
+            $LH = $bedInfo['LH'];
+            $SSH = $bedInfo['SSH'];
+            $dormitoryInfo = $this->where('LH',$LH) -> where('SSH',$SSH) ->field('status,CH')->order('CH') -> select();
+
+            $dormitory = array();
+            foreach ($dormitoryInfo as $key => $value) {
+                if ($value['status'] == 0) {
+                    $dormitory[$value['CH']] = '○';
+                    $freeBed[] = $value['CH'];
+                } elseif ($value['status'] == 1) {
+                    $dormitory[$value['CH']] = '●';   
+                    $fullBed[] = $value['CH'];
+                } else{
+                    $dormitory[$value['CH']] = '△';
                 }
-        
-                $dormitoryBedInfo['freeBedNum'] = count($freeBed);
-                $dormitoryBedInfo['fullBedNum'] = count($fullBed);
-                $dormitoryBedInfo['allBedNum'] = count($dormitoryInfo);
-                $dormitoryBedInfo['freeBed'] = $freeBed;
-                $dormitoryBedInfo['fullBed'] = $fullBed;
-                return $dormitoryBedInfo;
-                break;
+            }
+
+
+
+            $situation = '';
+            foreach ($dormitory as  $value) {
+                $situation = $situation.$value;
+            }
+
+
+            $temp['situation'] = $situation;
+            $temp['allBedNum'] = count($dormitoryInfo);
+            $temp['freeBedNum'] = count($freeBed);
+            $temp['fullBedNum'] = count($fullBed);
+
+            $result[] = $temp;
         }
+        return $result;
         
     }
     /**

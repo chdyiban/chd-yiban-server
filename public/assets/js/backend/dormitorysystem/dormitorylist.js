@@ -19,61 +19,47 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });
 
             var table = $("#table");
+
+            table.on('load-success.bs.table', function (e,value,data) {
+                var bedIdlist = {};
+                $.each(value.rows,function (i,v) {
+                        bedIdlist[i] = v.ID;
+                    })
+                $.ajax({
+                        type:'POST',
+                        url:$.fn.bootstrapTable.defaults.extend.free_bed_url,
+                        data:{
+                            key: JSON.stringify(bedIdlist),
+                        },
+                        success:function(data){
+                            console.log(data);
+                            $("#table tbody tr").each(function(i,v){
+                                data_index = $(this).attr('data-index');
+                                $(this).find("td:eq(6)").html(data[i].situation);
+                                $(this).find("td:eq(7)").html(data[i].fullBedNum + "/" + data[i].allBedNum);
+                            });
+                        }
+                    })
+                //这里可以获取从服务端获取的JSON数据
+            });
+
             // 初始化表格
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                pk: 'ID',
-                sortName: 'ID',
+                //pk: 'ID',
+                //sortName: 'ID',
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'ID', title: __('ID'),sortable:true,width:50},
+                        //{field: 'ID', title: __('ID'),sortable:true,width:50},
                         {field: 'XQ', title: __('校区')},
                         {field: 'LH', title: __('楼号'),sortable:true,width:60},                   
                         {field: 'LC', title: __('楼层'),sortable:true,width:60},
                         {field: 'LD', title: __('楼段')},
                         {field: 'SSH', title: __('宿舍号'),sortable:true,width:80},
-                        {field: 'RZQK', title: __('入住情况'),operate:false,formatter:function(value,row,index){
-                            var result = '';
-                            $.ajax({
-                                type:'POST',
-                                //修改为同步请求
-                                async:false,
-                                url:$.fn.bootstrapTable.defaults.extend.free_bed_url,
-                                data:{
-                                    'key': row['ID'],
-                                    'type': 'situation',
-                                },
-                                success:function(data){
-                                    result = '';
-                                    $.each(data,function (i,v) {
-                                        result = result + v;
-                                    })
-                                }
-                            })
-                            return result;
-                        }},
-                        {field: 'RZBL', title: __('入住比例(入住/总床位)'),operate:false,formatter:function(value,row,index){
-                            var result = '';
-                            $.ajax({
-                                type:'POST',
-                                //修改为同步请求
-                                async:false,
-                                url:$.fn.bootstrapTable.defaults.extend.free_bed_url,
-                                data:{
-                                    'key': row['ID'],
-                                    'type': 'proportion',
-                                },
-                                success:function(data){
-                                    var all = data.allBedNum;
-                                    var full = data.fullBedNum;
-                                    result =  full + '/' + all;
-                                    //console.log(all + '/' + full);
-                                }
-                            })
-                            return result;
-                        }},
+                        {field: 'RZQK', title: __('入住情况'),operate:false,formatter:function(value,row,index){}},
+                        {field: 'RZBL', title: __('入住比例(入住/总床位)'),operate:false,formatter:function(value,row,index){}},
                         {field: 'XBDM', title: __('类别'),searchList: {"1":__('男宿'),"2":__('女宿')},formatter:function(value){
                             if(value == 1) 
                                 return "男宿";
@@ -95,6 +81,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.bindevent(table);
             //取消双击编辑
             table.off('dbl-click-row.bs.table');
+
+
+
 
         },
         dormitoryinfo:function () {
