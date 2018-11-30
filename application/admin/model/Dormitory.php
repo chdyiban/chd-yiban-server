@@ -242,21 +242,30 @@ class Dormitory extends Model
      */
     public function deleteStuRecord($param,$adminId)
     {
+        $stuClassInfo = Db::name('stu_detail') -> where('XH',$param['XH']) -> field('YXDM,BJDM')->find();
+        $param['YXDM'] = $stuClassInfo['YXDM'];
+        $param['oldBJDM'] = $stuClassInfo['BJDM'];
         $insert_data = [
+            'XH' => $param['XH'],
             'admin_id' => $adminId,
+            'old_class' => $param['oldBJDM'],
+            'new_class' => $param['oldBJDM'],
             'operation' => 'delete',
-            'object_dormitory' => $param['LH'].'#'.$param['SSH'].'-'.$param['CH'],
-            'object_stuid' => $param['XH'],
+            //此处逻辑存在一些问题
+            'new_dormitory' => '',
+            'old_dormitory' => $param['LH'].'#'.$param['SSH'].'-'.$param['CH'],
+            'handle_time'   => strtotime($param['handletime']),
+            'handle_end_time' => strtotime($param['handleendtime']),
             'reason' => $param['reason'],
             'remark' => $param['remark'],
-            'timestamp' => time(),
+            'operate_time' => time(),
         ];
         Db::startTrans();
         $insert_res = false;
         $delete_res = false;
         try{
             //第一步将操作写入日志
-            $insert_res = Db::name('dormitory_log') -> insert($insert_data);
+            $insert_res = Db::name('dormitory_special') -> insert($insert_data);
             //第二步将对应学生数据删除
             $delete_res = $this->where('LH',$param['LH']) 
                             -> where('SSH',$param['SSH'])
@@ -301,21 +310,31 @@ class Dormitory extends Model
             if (empty($isSexRight)) {
                 return ['status' => false, 'msg'=> '分配学生性别不符!'];
             } else {
+                //获取学生信息
+                $stuClassInfo = Db::name('stu_detail') -> where('XH',$param['XH']) -> field('YXDM,BJDM')->find();
+                $param['YXDM'] = $stuClassInfo['YXDM'];
+                $param['oldBJDM'] = $stuClassInfo['BJDM'];
                 $insert_data = [
+                    'XH' => $param['XH'],
                     'admin_id' => $adminId,
+                    'old_class' => $param['oldBJDM'],
+                    'new_class' => empty($param['BJDM']) ? $param['oldBJDM'] : $param['BJDM'],
                     'operation' => 'distribute',
-                    'object_dormitory' => $param['LH'].'#'.$param['SSH'].'-'.$param['CH'],
-                    'object_stuid' => $param['XH'],
-                    'reason' => '',
-                    'remark' => '',
-                    'timestamp' => time(),
+                    //此处逻辑存在一些问题
+                    'old_dormitory' => '',
+                    'new_dormitory' => $param['LH'].'#'.$param['SSH'].'-'.$param['CH'],
+                    'handle_time'   => strtotime($param['handletime']),
+                    'handle_end_time' => '',
+                    'reason' => $param['reason'],
+                    'remark' => $param['remark'],
+                    'operate_time' => time(),
                 ];
                 Db::startTrans();
                 $insert_res = false;
                 $add_res = false;
                 try{
                     //第一步将操作写入日志
-                    $insert_res = Db::name('dormitory_log') -> insert($insert_data);
+                    $insert_res = Db::name('dormitory_special') -> insert($insert_data);
                     //第二步将对应学生添加至表中
                     $add_res = $this->where('LH',$param['LH']) 
                                     -> where('SSH',$param['SSH'])
@@ -351,22 +370,31 @@ class Dormitory extends Model
      */
     public function searchStuByXh($XH)
     {
+        $XH = '%'.$XH.'%';
         $stuInfo = Db::view('stu_detail','XM,XH,YXDM,XBDM')
                     -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
-                    -> where('XH',$XH)
-                    -> find();
+                    -> where('XH','LIKE',$XH)
+                    -> select();
         $resultInfo = [];
         if (empty($stuInfo)) {
            $stuInfo = [];
-           $total = 0;
+           //$total = 0;
+           
         } else {
-            $total = 1;
-            $stuInfo['XB'] = $stuInfo['XBDM'] == 1 ? '男':'女';
-            $stuInfo['NJ'] = substr($stuInfo['XH'],0,4);
+            foreach ($stuInfo as $key => $value) {
+                $temp = array();
+                $temp['XH'] = $value['XH'];
+                $temp['XM'] = $value['XM'];
+                $temp['XB'] = $value['XBDM'] == 1 ? '男':'女';
+                $temp['NJ'] =  substr($value['XH'],0,4);
+                $temp['YXJC'] = $value['YXJC'];
+                $resultInfo[] = $temp;
+            }
         }
-        $resultInfo[] = $stuInfo;
-        $result = array("total" => $total, "rows" => $resultInfo);    
-        return json($result);
+        //$resultInfo[] = $stuInfo;
+        //$result = array("total" => $total, "rows" => $resultInfo);
+        //return $result;
+        return $resultInfo;
     }
     
     /**
@@ -381,13 +409,14 @@ class Dormitory extends Model
                     -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
                     -> where('XM','like',$name)
                     -> where('XH',['like','2015%'],['like','2016%'],['like','2017%'],['like','2018%'],'or')
+                    -> limit(20)
                     -> select();
         $resultInfo = [];
         if (empty($stuInfo)) {
             $stuInfo = [];
-            $total = 0;
+            // $total = 0;
         } else {
-            $total = count($stuInfo);
+            //$total = count($stuInfo);
             foreach ($stuInfo as $key => $value) {
                 $tempArray = [];
                 $tempArray = $value;
@@ -397,7 +426,7 @@ class Dormitory extends Model
             }
             //$stuInfo['XB'] = ($stuInfo['XBDM']) == 1 ? '男':'女';
         }
-        $result = array("total" => $total, "rows" => $resultInfo);    
-        return json($result);
+        //$result = array("total" => $total, "rows" => $resultInfo);    
+        return $resultInfo;
     }
 }

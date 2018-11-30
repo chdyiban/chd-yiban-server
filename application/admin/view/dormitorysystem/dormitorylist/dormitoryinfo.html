@@ -70,9 +70,10 @@
                 <td>{$vo.stuinfo.XM}</td>
                 <td>{$vo.stuinfo.YXJC}</td>
                 {eq name="$vo.stuinfo.XH" value="---"}
-                <td><a href="./dormitorysystem/confirmdistribute/index?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}" class="btn  btn-success btn-distribute  btn-dialog" title="分配学生"><i class="fa fa-hand-rock-o">分配</i></a></td>
+                <td><a href="./dormitorysystem/dormitorylist/confirmdistribute?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}" class="btn btn-xs btn-success btn-distribute  btn-dialog" ><i class="fa fa-hand-rock-o"> 入住</i></a></td>
                 {else/} 
-                <td><a href="./dormitorysystem/dormitorylist/confirmdelete?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}&XH={$vo.stuinfo.XH}" class="btn  btn-danger btn-delete  btn-dialog" title="确认移除"><i class="fa fa-times">移除</i></a></td>
+                <td><a href="./dormitorysystem/dormitorylist/confirmdelete?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}&XH={$vo.stuinfo.XH}&XM={$vo.stuinfo.XM}" class="btn btn-xs btn-danger btn-delete  btn-dialog" title="确认退宿"><i class="fa fa-times"> 退宿</i></a>
+                <a href="./dormitorysystem/changebed/index?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}" class="btn btn-xs btn-primary btn-changebed btn-dialog" title="调换宿舍"><i class="fa fa-exchange"> 调宿</i></a></td>
                 <!-- <button type="button" class="btn btn-danger btn-delete" value="{$vo.CH}-{$vo.stuinfo.XH}">移除</button></td> -->
                 {/eq}
  
