@@ -5,6 +5,7 @@ use think\Db;
 use app\common\controller\Backend;
 
 /**
+ * 此表查看以宿舍为单位信息
  * @icon fa fa-circle-o
  */
 class Dormitorylist extends Backend
@@ -114,15 +115,62 @@ class Dormitorylist extends Backend
             'dormitoryInfoList' => $dormitoryInfoList,
         ]);
     }
+
+    /**
+     * 确认分配界面
+     */
+    public function confirmdistribute()
+    {
+         //获取当前管理员id的方法
+       $now_admin_id = $this->auth->id;
+       //设置过滤方法
+       $this->request->filter(['strip_tags']);
+       if ($this->request->isAjax())
+       {
+           //如果发送的来源是Selectpage，则转发到Selectpage
+           if ($this->request->request('pkey_name'))
+           {
+               return $this->selectpage();
+           }
+       } else {
+
+           $param = $this->request->param();
+           $this->view->assign([
+               'param' => $param,
+           ]);
+       }
+
+       return $this->view->fetch('confirmdistribute');
+    }
+
     /**
      * 确认删除界面
      */
     public function confirmdelete()
     {
         $param = $this->request->param();
-        return view('confirmdelete',[
-            'param' => $param,
-        ]);
+
+        $historyOperate = Db::view('dormitory_special','id,operation,admin_id,operate_time,admin_id') 
+                        -> view('admin','id,nickname','dormitory_special.admin_id = admin.id')
+                        -> where('XH',$param['XH']) 
+                        -> order('operate_time desc')
+                        -> select();
+      
+        if (empty($historyOperate)) {
+            return view('confirmdelete',[
+                'param' => $param,
+            ]);
+        } else {
+            foreach ($historyOperate as $key => $value) {
+                $historyOperate[$key]['operate_time'] = date("Y-m-d",$value['operate_time']);
+                $historyOperate[$key]['operation'] = $value['operation'] == 'distribute' ? "入住" : "退宿";
+            }
+            return view('confirmdelete',[
+                'param' => $param,
+                'historyOperate' => $historyOperate,
+            ]);
+        }
+        
     }
 
     /**
@@ -149,6 +197,9 @@ class Dormitorylist extends Backend
         //获取当前管理员id的方法
             $now_admin_id = $this->auth->id;
             $param = $this->request->param();
+            $param['XH'] = explode("-",$param['info'])[0];
+            $param['XM'] = explode("-",$param['info'])[1];
+            $param['XB'] = explode("-",$param['info'])[2];
             $res = $this->model->addStuRecord($param,$now_admin_id);
             return json($res);
         } else {
@@ -163,7 +214,7 @@ class Dormitorylist extends Backend
     public function searchStuByXh()
     {
         if ($this->request->isAjax()) {
-            $XH = $this->request->post('XH');
+            $XH = $this->request->param('XH');
             $stuInfo = $this->model->searchStuByXh($XH);
             return json($stuInfo);
         } else {

@@ -1,13 +1,154 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepicker','bootstrap-select'], function ($, undefined, Backend, Table, Form) {
 
     var Controller = {
-        index: function () {
-           // console.log(param);
+        index:function(){
+            //时间选择模块
+            var now = new Date();
+            var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+            $('#selecthandletime').daterangepicker({
+                "singleDatePicker": true,
+                "startDate": time,
+            }, );
 
+            $('.selectpicker').selectpicker({   
+                title:'未选择',
+                liveSearchPlaceholder:'请输入姓名或学号',
+                maxOptions:20,
+                width:'auto',
+            });
+            var timeOut = ""; 
+
+            $('#search-user input').bind('input propertychange',function(){
+                var key = $(this).val();
+                var nj = key.substring(0,4);
+                //如果前四位是数字表示是学号
+
+                if (!isNaN(parseInt(nj))) {
+                    if (nj <= 2015) {
+                        if (key.length >= 11) {
+                            clearTimeout(timeOut); 
+                            timeOut = setTimeout(function (){                         
+                                var postData = {'XH':key};
+                                $('#option').empty();
+                                $.ajax({
+                                    type: 'POST',
+                                    url: './dormitorysystem/Dormitorylist/searchStuByXh',
+                                    data: postData,
+                                    success: function(data) {
+                                        var str = "";  
+                                        $.each(data, function(key, value) {
+                                            str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                            $('#option').append(str);
+                                        });
+                                        $('#option').selectpicker('render');
+                                        $('#option').selectpicker('refresh');
+                                        clearTimeout(timeOut); 
+                                    }
+                                });
+                            },100);
+                        }
+                    } else {
+                        if (key.length >= 9) {
+                            clearTimeout(timeOut); 
+                            timeOut = setTimeout(function (){                         
+                                var postData = {'XH':key};
+                                $('#option').empty();
+                                $.ajax({
+                                    type: 'POST',
+                                    url: './dormitorysystem/Dormitorylist/searchStuByXh',
+                                    data: postData,
+                                    success: function(data) {
+                                        var str = "";  
+                                        $.each(data, function(key, value) {
+                                            str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                            $('#option').append(str);
+                                        });
+                                        $('#option').selectpicker('render');
+                                        $('#option').selectpicker('refresh');
+                                        clearTimeout(timeOut); 
+                                    }
+                                });
+                            },100);
+                        } 
+                    } 
+                } else if(key != '' && key != null) {
+                    clearTimeout(timeOut); 
+                    timeOut = setTimeout(function (){                         
+                        var postData = {'name':key};
+                        $('#option').empty();
+                        $.ajax({
+                            type: 'POST',
+                            url: './dormitorysystem/Dormitorylist/searchStuByName',
+                            data: postData,
+                            success: function(data) {
+                                var str = "";  
+                                $.each(data, function(key, value) {
+                                    str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                    $('#option').append(str);
+                                });
+                                $('#option').selectpicker('render');
+                                $('#option').selectpicker('refresh');
+                                clearTimeout(timeOut);
+                                console.log(str); 
+                            }
+                        });
+                    },100);
+                }
+            });
+
+            $("#search").on('click',function(){
+                Fast.api.open("./dormitorysystem/confirmdistribute/search", "搜索", {
+                        callback:function(value){
+                            //window.location.reload();
+                            msg = value.XH + "-" + value.XM + "-" +value.XB;
+                            $('#userInfo').val(msg);
+                            //在这里可以接收弹出层中使用`Fast.api.close(data)`进行回传的数据
+                        }
+                    });
+                });
+            //取消分配
+            $('.cancel').on('click',function () {
+                Fast.api.close();
+            });
+            //确定分配
+            $('#confirmdistribute').on('click',function () {
+
+                var postdata = {
+                    'LH':$('#LH').text(),
+                    'CH':$('#CH').text(),
+                    'SSH':$('#SSH').text(),
+                    'reason':$("input[name='reason']:checked").val(),
+                    'info':$('#userInfo').val(),
+                    'remark':$('#remark').val(),
+                    'newclass':$('#newclass').val(),
+                    'handletime':$('#selecthandletime').val(),
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: './dormitorysystem/Dormitorylist/addStuRecord',
+                    data: postdata,
+                    success: function(data) {
+                        if (data.status == true) {
+                            alert(data.msg);
+                            Fast.api.close();
+                            window.parent.location.reload();
+                        } else{
+                            alert(data.msg);
+                        }
+                    }
+                });
+            });
+            
+        },
+
+
+        search: function () {
+            // console.log(param);
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'dormitorysystem/confirmdistribute/index',
+                    index_url: 'dormitorysystem/confirmdistribute/search',
                     add_url: 'dormitorysystem/confirmdistribute/add',
                     //edit_url: 'bx/repairlist/edit',
                     edit_url: '0',
@@ -48,8 +189,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         buttons: [
                                 {
                                     name: 'conifrmdistribute', 
-                                    title: __('确定分配'), 
-                                    classname: 'btn  btn-success btn-confirmdistribute', 
+                                    title: __('确定'), 
+                                    classname: 'btn  btn-success btn-sure', 
                                     icon: 'fa fa-hand-stop-o',
                                     hidden:function(row){
                                         //console.log(row.length);
@@ -84,37 +225,39 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             events:{
                 operate:{
-                    'click .btn-confirmdistribute':function (e,value,row,index) {
-                        var message = confirm("是否确认将此学生分配至该床位？");
-                        if (message) {
-                            var LH = $('#LH').text();
-                            var CH = $('#CH').text();
-                            var SSH = $('#SSH').text();
-                            var XH = row.XH;
-                            var XB = row.XB;
-                            var YXDM = row.YXDM;
-                            $.ajax({
-                                type: 'POST',
-                                url: './dormitorysystem/Dormitorylist/addStuRecord',
-                                data: {
-                                    'XH':XH,
-                                    'LH':LH,
-                                    'SSH':SSH,
-                                    'CH':CH,
-                                    'XB':XB,
-                                    'YXDM':YXDM,
-                                },
-                                success: function(data) {
-                                    if (data.status == true) {
-                                        alert(data.msg);
-                                        Fast.api.close();
-                                        window.parent.location.reload();
-                                    } else{
-                                        alert(data.msg);
-                                    }
-                                }
-                            });
-                        }
+                    'click .btn-sure':function (e,value,row,index) {
+                        //var message = confirm("是否确认将此学生分配至该床位？");
+                        //if (message) {
+                            var data = {'XH':row.XH,'XB':row.XB,'XM':row.XM};
+                            Fast.api.close(data);
+                            // var LH = $('#LH').text();
+                            // var CH = $('#CH').text();
+                            // var SSH = $('#SSH').text();
+                            // var XH = row.XH;
+                            // var XB = row.XB;
+                            // var YXDM = row.YXDM;
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     //url: './dormitorysystem/Dormitorylist/addStuRecord',
+                            //     data: {
+                            //         'XH':XH,
+                            //         'LH':LH,
+                            //         'SSH':SSH,
+                            //         'CH':CH,
+                            //         'XB':XB,
+                            //         'YXDM':YXDM,
+                            //     },
+                            //     success: function(data) {
+                            //         if (data.status == true) {
+                            //             alert(data.msg);
+                            //             Fast.api.close();
+                            //             window.parent.location.reload();
+                            //         } else{
+                            //             alert(data.msg);
+                            //         }
+                            //     }
+                            // });
+                        //}
                     }
                 }
             },
