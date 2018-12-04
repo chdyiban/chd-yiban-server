@@ -6,10 +6,10 @@ use app\common\controller\Backend;
 
 /**
  * 
- * 此表为查看已经住宿的人员信息
+ * 此表为查看特殊情况人员
  * @icon fa fa-circle-o
  */
-class Dormitory extends Backend
+class Dormitoryspecial extends Backend
 {
     
     /**
@@ -17,18 +17,14 @@ class Dormitory extends Backend
      */
     protected $model = null;
     protected $relationSearch = true;
-    protected $searchFields = 'college.YXJC,studetail.BJDM,studetail.XM';
 
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('Dormitory');
+        $this->model = model('Dormitoryspecial');
     }
-    // public function index()
-    // {
-       
-    // }
+
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
@@ -42,8 +38,6 @@ class Dormitory extends Backend
         //获取当前管理员id的方法
         $now_admin_id = $this->auth->id;
         //设置过滤方法
-        $this->relationSearch = true;
-        $this->searchFields = "getcollege.YXJC,studetail.BJDM,studetail.XM";
         
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax())
@@ -55,16 +49,14 @@ class Dormitory extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
         
-            //dump(json_decode($this->request->param()['filter'],true));
-            //dump($where);
             $total = $this->model
-                    ->with('getcollege,getstuname')
+                    ->with('getstuname,getadminname')
                     ->where($where)
                     ->order($sort, $order)
                     ->count();
 
             $list = $this->model
-                    ->with('getcollege,getstuname')
+                    ->with('getstuname,getadminname')
                     ->where($where)
                     ->order($sort, $order)
                     ->limit($offset, $limit)
@@ -77,34 +69,4 @@ class Dormitory extends Backend
          return $this->view->fetch(); 
     }
 
-    /**
-     * 查看学生详细信息
-     */
-    public function getStuInfo()
-    {
-        $stuid = $this->request->get('stuid');
-        $id = $this->request->get('ids');
-        $stuInfoList =  Db::view('stu_detail')
-                    -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
-                    -> view('dict_nation','MZDM,MZMC','stu_detail.MZDM = dict_nation.MZDM')
-                    -> where('XH',$stuid)
-                    -> find();
-
-        return view('stuinfo',[
-            'stuInfoList' => $stuInfoList,
-        ]);
-        //return $stuInfo;
-    }
-    /**
-     * 获取院系json,用于在js用searchlist调用
-     */
-    public function getCollegeJson()
-    {
-        if ($this->request->isAjax()){
-            $result = $this->model -> getCollegeJson();
-            return json($result);
-        } else {
-            return [];
-        }
-    }
 }

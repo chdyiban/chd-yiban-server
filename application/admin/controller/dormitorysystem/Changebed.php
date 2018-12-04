@@ -5,9 +5,9 @@ use think\Db;
 use app\common\controller\Backend;
 
 /**
- * 确定学生入住的界面
+ * 换宿界面
  */
-class confirmdistribute extends Backend
+class Changebed extends Backend
 {
     
     protected $model = null;

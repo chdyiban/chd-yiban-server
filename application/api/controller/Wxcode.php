@@ -44,10 +44,10 @@ class Wxcode extends Api
 
     public function getWXACodeUnlimit($access_token = '')
     {
-        header('Content-type:image/jpeg'); 
+        header('Content-type:image/jpeg');  
         //判断缓存是否有access_token
         $access_token = Cache::get('WxAccessToken');
-
+ 
         if (empty($access_token)) {
              $access_token = $this->getAccessToken();
         }
@@ -55,7 +55,7 @@ class Wxcode extends Api
         $page = $this->request->get('page');
 
         if (empty($scene)) {
-            $this->error('参数有误');
+            $this->error('error');
         }
 
         if (empty($page)) {
@@ -74,16 +74,19 @@ class Wxcode extends Api
 
         $response = Http::post(self::GET_CODE_URL.$access_token,$postData);
 
+       
         $result = json_decode($response,true);
 
+        //dump($response);
         if (empty($result)) {
-            return base64_encode($response);
+            return response($response,200,['Content-Length' => strlen($response)]) ->contentType('image/jpeg');
         } else {
             //如果发现是因为验证码过期，则再次生成
             if ($result['errcode'] == '40001') {
                 $access_token = $this->getAccessToken();
                 $res = $this->getWXACodeUnlimit($access_token);
-                return $res;
+                //return $res;
+                //echo $response;
             }
             $this->error($result);
         }

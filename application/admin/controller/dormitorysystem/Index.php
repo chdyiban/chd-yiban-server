@@ -37,6 +37,7 @@ class Index extends Backend
         //获取当前管理员id的方法
         $now_admin_id = $this->auth->id;
         //总床位数
+        $this->request->filter(['strip_tags']);
         $allBedNums = $this -> model -> getAllBedNums('all');
         //总入住人数以及男女
         $allUsedNumsList = $this -> model -> getAllStuNums('all');

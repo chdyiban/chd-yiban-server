@@ -4,32 +4,90 @@
     <p class="hidden" id="CH">{$param.CH}</p>
     <p class="hidden" id="XH">{$param.XH}</p>
 </div>
-<div class="form-group">
-    <label>请选择移除原因</label>
-    <select class="form-control" id="reason">
-        <option>换宿舍</option>
-        <option>退学</option>
-        <option>休学</option>
-    </select>
-</div>
-<!-- <div class="form-group">
-    <label>请选择移除时间</label>
-    <div class="input-group date">
-        <div class="input-group-addon">
-        <i class="fa fa-calendar"></i>
-        </div>
-        <input type="text" class="form-control pull-right datetimepicker" id="datetimepicker">
+<div class="box-body">
+    <div class="callout callout-warning">
+        <h4>您正在操作的是</h4>
+        <font size = "5px">{$param.LH}#{$param.SSH}-{$param.CH}</font>
+        学号为：<font size = "5px">{$param.XH}</font>
+        姓名：<font size = "5px">{$param.XM}</font>
     </div>
-</div> -->
-<div class="form-group">
-    <label>备注</label>
-    <textarea id="remark" class="form-control"  placeholder="请输入输入备注" cols="7" rows="4"></textarea>
 </div>
+
+
+<div class="row">
+    <div class="form-group col-xs-12" id="selectreason">
+            <label class="col-sm-2 col-xs-2">请选择原因</label>
+            <div class="col-sm-10 col-xs-10">
+                    <input type="radio" name="reason"  value="XX" checked="">休学
+                    <input type="radio" name="reason" value="TX">退学
+                    <input type="radio" name="reason" value="XW">校外
+                    <input type="radio" name="reason" value="TS">调宿
+                    <input type="radio" name="reason" value="QT">其它
+            </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-xs-12">
+        <label for="selectstarttime" class="col-xs-2">开始日期</label>
+
+        <input type="hidden" class="operate" name="selectstarttime-operate" data-name="selecttime" value="RANGE" readonly="">
+        <input type="text" class="datetimerange col-xs-4" name="selectstarttime" value="" id="selectstarttime" data-index="30">
+ 
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-xs-12">
+        <label for="selectendtime" class="col-xs-2">结束日期</label>
+
+        <input type="hidden" class="operate" name="selectendtime-operate" data-name="selectendtime" value="RANGE" readonly="">
+        <input type="text" class="datetimerange col-xs-4" name="selectendtime" value="" id="selectendtime" data-index="30">
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-xs-12">
+        <label class="col-sm-2 col-xs-2">备注</label>
+        <textarea id="remark" class="col-xs-10" placeholder="请输入输入备注" rows="5" ></textarea>
+    </div>
+</div>
+
+<div class="col-xs-12">
+    <table class="table table-striped ">
+        <p class="lead">操作记录</p>
+        <thead>
+        <tr>
+            <th>操作</th>
+            <th>操作人</th>
+            <th>操作时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {empty name="$historyOperate"}
+            <tr>
+                <td colspan="3">暂无历史操作记录</td>
+            </tr>
+        {else /}
+            {foreach $historyOperate as $vo}
+                <tr>
+                    <td>{$vo.operation}</td>
+                    <td>{$vo.nickname}</td>
+                    <td>{$vo.operate_time}</td>
+                </tr>
+            {/foreach}
+        {/empty}
+        </tbody>
+    </table>
+</div>
+
+<p></p>
 <div class="row">
     <div class="col-xs-12">
-        <button type="button" class="btn btn-danger btn-lg pull-left btn-confirmdelete" style="margin-left: 10px;"><i class="fa fa-times"></i>确认删除
+        <button type="button" class="btn btn-danger btn-md pull-left btn-confirmdelete" style="margin-left: 10px;"><i class="fa fa-times"></i>确认删除
         </button>
-        <button type="button" class="btn btn-info btn-lg pull-right btn-canceldelete" style="margin-right: 10px;">
+        <button type="button" class="btn btn-default btn-md pull-right btn-canceldelete" style="margin-right: 10px;">
             <i class="fa fa-times-circle"></i>取消删除
         </button>
     </div>
