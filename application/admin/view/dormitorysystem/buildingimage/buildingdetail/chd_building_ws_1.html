@@ -1,18 +1,28 @@
 <style type="text/css">
+	.full{
+		background: #E63F00;
+	}
+	.empty{
+		background: rgb(82, 151, 255);
+	}
+	.used{
+		background: rgb(247, 214, 30);
+	}
 	.dormitory{
-		width: 100%;
+		/* width: 100%; */
 		height: auto;
 		margin: 10px auto;
 		border-radius: 5px;
 		table-layout: fixed;
 		word-wrap:break-word;
+		/* margin-left:20px; 
+		margin-right:20px;  */
 	}
 	.one{
 		width: 30px;
 		height: 30px;
 		font-size: 10px;
 		text-align: center;
-		background: #E63F00;
 		border: none;
 		border-radius: 2px;
 	}
@@ -30,9 +40,13 @@
 		border: none;
 		border-radius: 5px;
 	}
-    </style>
+	</style>
 <div class="row">
-    <table  class="dormitory" border="2">
+	<p class="hidden" id="LH">{$LH}</p>
+</div>
+
+<div class="row">
+    <table  class="dormitory" id="dormitory_id" border="2">
 		<tr class="block">
 			<td class="one" data-id="1554">1554</td>
 			<td class="one" data-id="1552">1552</td>
@@ -81,10 +95,10 @@
 			<td class="one" data-id="1551">1551</td>
 			<td class="one" data-id="1549">1549</td>
 			<td class="one" data-id="1547">1547</td>
+			<td class="one" data-id="1546">1546</td>
 			<td class="one" data-id="1545">1545</td>
 			<td class="one" data-id="1543">1543</td>
 			<td class="one" data-id="1541">1541</td>
-			<td class="one" data-id="1540">1540</td>
 			<td class="one" data-id="1539">1539</td>
 			<td class="one" data-id="1537">1537</td>
 
@@ -160,10 +174,10 @@
 			<td class="one" data-id="1451">1451</td>
 			<td class="one" data-id="1449">1449</td>
 			<td class="one" data-id="1447">1447</td>
+			<td class="one" data-id="1446">1446</td>
 			<td class="one" data-id="1445">1445</td>
 			<td class="one" data-id="1443">1443</td>
 			<td class="one" data-id="1441">1441</td>
-			<td class="one" data-id="1440">1440</td>
 			<td class="one" data-id="1439">1439</td>
 			<td class="one" data-id="1437">1437</td>
 
@@ -239,10 +253,10 @@
 			<td class="one" data-id="1351">1351</td>
 			<td class="one" data-id="1349">1349</td>
 			<td class="one" data-id="1347">1347</td>
+			<td class="one" data-id="1346">1346</td>
 			<td class="one" data-id="1345">1345</td>
 			<td class="one" data-id="1343">1343</td>
 			<td class="one" data-id="1341">1341</td>
-			<td class="one" data-id="1340">1340</td>
 			<td class="one" data-id="1339">1339</td>
 			<td class="one" data-id="1337">1337</td>
 
@@ -318,10 +332,10 @@
 			<td class="one" data-id="1251">1251</td>
 			<td class="one" data-id="1249">1249</td>
 			<td class="one" data-id="1247">1247</td>
+			<td class="one" data-id="1246">1246</td>
 			<td class="one" data-id="1245">1245</td>
 			<td class="one" data-id="1243">1243</td>
 			<td class="one" data-id="1241">1241</td>
-			<td class="one" data-id="1240">1240</td>
 			<td class="one" data-id="1239">1239</td>
 			<td class="one" data-id="1237">1237</td>
 

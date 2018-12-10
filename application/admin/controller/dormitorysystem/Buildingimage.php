@@ -10,7 +10,7 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class Index extends Backend
+class BuildingImage extends Backend
 {
     
     /**
@@ -29,47 +29,8 @@ class Index extends Backend
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-    /**
-     * 查看
-     */
+
     public function index()
-    {
-        //获取当前管理员id的方法
-        $now_admin_id = $this->auth->id;
-        //总床位数
-        $this->request->filter(['strip_tags']);
-        $allBedNums = $this -> model -> getAllBedNums('all');
-        //总入住人数以及男女
-        $allUsedNumsList = $this -> model -> getAllStuNums('all');
-        //获取每个楼的统计信息
-        $buildingInfoList = $this-> model -> getBuildingList();
-
-        //总学生用房
-        $allStuRooms = Db::name('dormitory_rooms') -> where('status',1) -> count();
-        //学生用房剩余
-        $allRestStuRooms = Db::name('dormitory_rooms') -> where('status',1) ->where('RZS',0) -> count();
-        //总公用房数量
-        $allPublicRooms = Db::name('dormitory_rooms') -> where('status',2) -> count();
-
-        $this->view->assign([
-            'allBedNums'        => $allBedNums,
-            'allBoyNums'        => $allUsedNumsList['boy'],
-            'allGirlNums'       => $allUsedNumsList['girl'],
-            'allStuNums'        => $allUsedNumsList['all'],
-            'buildingInfoList'  => $buildingInfoList,
-            'allStuRooms'       => $allStuRooms,
-            'allRestStuRooms'   => $allRestStuRooms,
-            'allPublicRooms'    => $allPublicRooms,
-        ]);
-
-        
-
-
-        
-        return $this->view->fetch();
-    }
-
-    public function buildingdetail()
     {
         if ($this->request->isAjax())
         {   
@@ -125,8 +86,15 @@ class Index extends Backend
             return json($dormitoryAllArray);
         } else {
             $LH = $this -> request -> get('LH');
-            $URL = "dormitorysystem/index/buildingdetail/chd_building_ws_$LH";
-            return $this->view->fetch($URL);
+            if (empty($LH)) {
+                return $this->view -> fetch();
+            } else {
+                $URL = "dormitorysystem/buildingimage/buildingdetail/chd_building_ws_$LH";
+                $this->view->assign([
+                    'LH' => $LH,
+                ]);
+                return $this->view->fetch($URL);
+            }
         }
 
         // $this ->view -> assign([

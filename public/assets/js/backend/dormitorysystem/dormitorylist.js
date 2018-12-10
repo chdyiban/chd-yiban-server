@@ -122,7 +122,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                                     success: function(data) {
                                         var str = "";  
                                         $.each(data, function(key, value) {
-                                            str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                            var result = "";
+                                            result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                            str = "<option value=" + result + ">" + result + "</option>";
                                             $('#option').append(str);
                                         });
                                         $('#option').selectpicker('render');
@@ -145,7 +147,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                                     success: function(data) {
                                         var str = "";  
                                         $.each(data, function(key, value) {
-                                            str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                            var result = "";
+                                            result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                            str = "<option value=" + result + ">" + result + "</option>";
                                             $('#option').append(str);
                                         });
                                         $('#option').selectpicker('render');
@@ -168,47 +172,51 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                             success: function(data) {
                                 var str = "";  
                                 $.each(data, function(key, value) {
-                                    str = "<option value=" + value.XH + ">" + value.XH + "-" + value.XM + "-" + value.YXJC + "</option>";
+                                    var result = "";
+                                    result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                    str = "<option value=" + result + ">" + result + "</option>";
                                     $('#option').append(str);
                                 });
                                 $('#option').selectpicker('render');
                                 $('#option').selectpicker('refresh');
                                 clearTimeout(timeOut);
-                                console.log(str); 
                             }
                         });
                     },100);
                 }
             });
 
-            $("#search").on('click',function(){
-                Fast.api.open("./dormitorysystem/confirmdistribute/search", "搜索", {
-                        callback:function(value){
-                            //window.location.reload();
-                            msg = value.XH + "-" + value.XM + "-" +value.XB;
-                            $('#userInfo').val(msg);
-                            //在这里可以接收弹出层中使用`Fast.api.close(data)`进行回传的数据
-                        }
-                    });
-                });
+            // $("#search").on('click',function(){
+            //     Fast.api.open("./dormitorysystem/confirmdistribute/search", "搜索", {
+            //             callback:function(value){
+            //                 //window.location.reload();
+            //                 msg = value.XH + "-" + value.XM + "-" +value.XB;
+            //                 $('#userInfo').val(msg);
+            //                 //在这里可以接收弹出层中使用`Fast.api.close(data)`进行回传的数据
+            //             }
+            //         });
+            //     });
             //取消分配
             $('.cancel').on('click',function () {
                 Fast.api.close();
             });
             //确定分配
             $('#confirmdistribute').on('click',function () {
-
+                var info = $('#option').val();
+                var infoarray = info.split('-');
                 var postdata = {
                     'LH':$('#LH').text(),
                     'CH':$('#CH').text(),
                     'SSH':$('#SSH').text(),
                     'reason':$("input[name='reason']:checked").val(),
-                    'info':$('#userInfo').val(),
+                    'XH' : infoarray[0],
+                    'XM' : infoarray[1],
+                    'XB' : infoarray[2],
                     'remark':$('#remark').val(),
                     'newclass':$('#newclass').val(),
                     'handletime':$('#selecthandletime').val(),
                 }
-
+ 
                 $.ajax({
                     type: 'POST',
                     url: './dormitorysystem/Dormitorylist/addStuRecord',
@@ -242,7 +250,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 "singleDatePicker": true,
                 "startDate": time,
             }, );
-            $(document).on('click', '.btn-confirmdelete', function () {
+            $('#confirmdelete').on('click',function () {
                 var mymessage=confirm("确定要移除该床位学生吗？");
                 if(mymessage == true){
                    var postdata = {
@@ -271,9 +279,175 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                     });
                 }
             }); 
-            $(document).on('click', '.btn-canceldelete', function () {
+            $('.cancel').on('click',function () {
                 Fast.api.close();
-            }); 
+            });
+        },
+
+        confirmchange:function () {
+            //时间选择模块
+            var now = new Date();
+            var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+            $('#selecthandletime').daterangepicker({
+                "singleDatePicker": true,
+                "startDate": time,
+            }, );
+            //搜索模块
+            $('.selectpicker').selectpicker({   
+                title:'未选择',
+                liveSearchPlaceholder:'请输入姓名或学号',
+                maxOptions:20,
+                width:'auto',
+            });
+            var timeOut = ""; 
+
+            $('#search-user input').bind('input propertychange',function(){
+                var key = $(this).val();
+                var nj = key.substring(0,4);
+                //如果前四位是数字表示是学号
+
+                if (!isNaN(parseInt(nj))) {
+                    if (nj <= 2015) {
+                        if (key.length >= 11) {
+                            clearTimeout(timeOut); 
+                            timeOut = setTimeout(function (){                         
+                                var postData = {'XH':key};
+                                $('#option').empty();
+                                $.ajax({
+                                    type: 'POST',
+                                    url: './dormitorysystem/Dormitorylist/searchStuByXh',
+                                    data: postData,
+                                    success: function(data) {
+                                        var str = "";  
+                                        $.each(data, function(key, value) {
+                                            var result = "";
+                                            result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                            str = "<option value=" + result + ">" + result + "</option>";
+                                            $('#option').append(str);
+                                        });
+                                        $('#option').selectpicker('render');
+                                        $('#option').selectpicker('refresh');
+                                        clearTimeout(timeOut); 
+                                    }
+                                });
+                            },100);
+                        }
+                    } else {
+                        if (key.length >= 9) {
+                            clearTimeout(timeOut); 
+                            timeOut = setTimeout(function (){                         
+                                var postData = {'XH':key};
+                                $('#option').empty();
+                                $.ajax({
+                                    type: 'POST',
+                                    url: './dormitorysystem/Dormitorylist/searchStuByXh',
+                                    data: postData,
+                                    success: function(data) {
+                                        var str = "";  
+                                        $.each(data, function(key, value) {
+                                            var result = "";
+                                            result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                            str = "<option value=" + result + ">" + result + "</option>";
+                                            $('#option').append(str);
+                                        });
+                                        $('#option').selectpicker('render');
+                                        $('#option').selectpicker('refresh');
+                                        clearTimeout(timeOut); 
+                                    }
+                                });
+                            },100);
+                        } 
+                    } 
+                } else if(key != '' && key != null) {
+                    clearTimeout(timeOut); 
+                    timeOut = setTimeout(function (){                         
+                        var postData = {'name':key};
+                        $('#option').empty();
+                        $.ajax({
+                            type: 'POST',
+                            url: './dormitorysystem/Dormitorylist/searchStuByName',
+                            data: postData,
+                            success: function(data) {
+                                var str = "";  
+                                $.each(data, function(key, value) {
+                                    var result = "";
+                                    result = value.XH + "-" + value.XM + "-" + value.XB + "-" + value.YXJC;
+                                    str = "<option value=" + result + ">" + result + "</option>";
+                                    $('#option').append(str);
+                                });
+                                $('#option').selectpicker('render');
+                                $('#option').selectpicker('refresh');
+                                clearTimeout(timeOut);
+                            }
+                        });
+                    },100);
+                }
+            });
+
+            // $("#search").on('click',function(){
+            //     Fast.api.open("./dormitorysystem/confirmdistribute/search", "搜索", {
+            //             callback:function(value){
+            //                 //window.location.reload();
+            //                 msg = value.XH + "-" + value.XM + "-" +value.XB;
+            //                 $('#userInfo').val(msg);
+            //                 //在这里可以接收弹出层中使用`Fast.api.close(data)`进行回传的数据
+            //             }
+            //         });
+            //     });
+            //取消分配
+            $('.cancel').on('click',function () {
+                Fast.api.close();
+            });
+            //确定分配
+            $('#confirmchange').on('click',function () {
+                var info = $('#option').val();
+                var infoarray = info.split('-');
+
+                $.ajax({
+                    type: 'POST',
+                    url: './dormitorysystem/Dormitorylist/getStuDormitory',
+                    data: {'XH':infoarray[0]},
+                    success: function(data) {
+                        var dormitory = "";
+                        dormitory =  data.data.XQ + "-" + data.data.LH + "#" + data.data.SSH + "-" + data.data.CH;
+                        if (data.status) {
+                            var ischange = confirm("是否确认将宿舍为" + dormitory  +"学生与此床位调换");
+                            if (ischange) {
+                                var postdata = {
+                                    'oldLH':$('#LH').text(),
+                                    'oldCH':$('#CH').text(),
+                                    'oldSSH':$('#SSH').text(),
+                                    'oldXH' :  $('#XH').text(),
+                                    'newLH' : data.data.LH,
+                                    'newSSH' : data.data.SSH,
+                                    'newCH' : data.data.CH,
+                                    'newXH' : infoarray[0],
+                                    'remark':$('#remark').val(),
+                                    'handletime':$('#selecthandletime').val(),
+                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: './dormitorysystem/Dormitorylist/addChangeRecord',
+                                    data: postdata,
+                                    success: function(data) {
+                                        if (data.status == true) {
+                                            alert(data.msg);
+                                            Fast.api.close();
+                                            window.parent.location.reload();
+                                        } else{
+                                            alert(data.msg);
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            alert('调换学生未安排住宿，请检查！');
+                        }
+                    }
+                });
+
+            
+            });
         },
 
         api: {
