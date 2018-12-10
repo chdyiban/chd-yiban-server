@@ -104,7 +104,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         }
                     }
                 });
-
+                //这里需要手动为Form绑定上元素事件
+                Form.api.bindevent($("form#cxselectform"));
             });   
 
             //重新指派单位

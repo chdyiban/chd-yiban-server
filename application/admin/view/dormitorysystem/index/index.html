@@ -53,84 +53,104 @@
     <!-- /.col -->
 </div>
 <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab_west" data-toggle="tab">西区（1-6栋）</a></li>
-                <li><a href="#tab_east" data-toggle="tab">东区（7-15栋）</a></li>
-                <li><a href="#tab_high" data-toggle="tab">高层（16-20栋）</a></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane active" id="tab_west">
-                    <div class="row">
-                        {foreach name="buildingInfoList.west" item="vo" key="s"}
-                        <div class="col-lg-3 col-xs-3">
-                            <!-- small box -->
-                            <div class="small-box bg-aqua">
-                                <div class="inner">
-                                总床位数<h3>{$vo.allBedNums}</h3>
-                                总入住数<h3>{$vo.allStuNums}</h3>
-                                <h1>{$vo.LH}号楼</h1>
-                                </div>
-                                <div class="icon">
-                                    <i class="fa fa-building"></i>
-                                </div>
-                                <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" title="宿舍详情" class="small-box-footer btn-dialog">
-                                查看详情<i class="fa fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {/foreach}
-                    </div>
-                </div>
-                <div class="tab-pane" id="tab_east">
-                    <div class="row">
-                        {foreach name="buildingInfoList.east" item="vo" key="s"}
-                        <div class="col-lg-3 col-xs-3">
-                            <!-- small box -->
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                总床位数<h3>{$vo.allBedNums}</h3>
-                                总入住数<h3>{$vo.allStuNums}</h3>
-                                <h1>{$vo.LH}号楼</h1>
-                                </div>
-                                <div class="icon">
-                                <i class="fa fa-building"></i>
-                                </div>
-                                <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" title="宿舍详情" class="small-box-footer btn-dialog">
-                                查看详情<i class="fa fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {/foreach}
-                    </div>
-                </div>
-                <div class="tab-pane" id="tab_high">
-                    <div class="row">
-                        {foreach name="buildingInfoList.high" item="vo" key="s"}
-                        <div class="col-lg-3 col-xs-3">
-                            <!-- small box -->
-                            <div class="small-box bg-yellow">
-                                <div class="inner">
-                                总床位数<h3>{$vo.allBedNums}</h3>
-                                总入住数<h3>{$vo.allStuNums}</h3>
-                                <h1>{$vo.LH}号楼</h1>
-                                </div>
-                                <div class="icon">
-                                <i class="fa fa-building"></i>
-                                </div>
-                                <a href="./dormitorysystem/index/buildingdetail?LH={$vo.LH}" title="宿舍详情" class="small-box-footer btn-dialog">
-                                查看详情<i class="fa fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {/foreach}
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-aqua"><i class="fa fa-bed"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">学生用房总量</span>
+            <span class="info-box-number">{$allStuRooms}</span>
         </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
     </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-green"><i class="fa fa-group"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">学生用房剩余</span>
+            <span class="info-box-number">{$allRestStuRooms}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-yellow"><i class="fa fa-male"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">公用房总数</span>
+            <span class="info-box-number">{$allPublicRooms}</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+        <span class="info-box-icon bg-red"><i class="fa fa-female"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">公用房剩余</span>
+            <span class="info-box-number">0</span>
+        </div>
+        <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
 </div>
 
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">宿舍楼信息</h3>
+            </div>
+            <div class="box-body table-responsive no-padding">
+            <table class="table table-hover">
+                <tbody style="text-align:center;" ><tr style="text-align:center;vertical-align:middle;">
+                    <th  style="text-align:center;width: 100px">校区</th>
+                    <th  style="text-align:center;width: 100px">楼号</th>
+                    <th  style="text-align:center;width: 100px">总床位</th>
+                    <th  style="text-align:center;width: 100px">空余床位</th>
+                    <th  style="text-align:center;width: 100px">学生用房数</th>
+                    <th  style="text-align:center;width: 100px">空余学生用房数</th>
+                    <th  style="text-align:center;width: 100px">公用房</th>
+                    <th  style="text-align:center;width: 100px">操作</th>
+                </tr>
+                {foreach $buildingInfoList as $vo}
+                <tr style="text-align:center;" >
+                    <td style="vertical-align:middle;"> {$vo.XQ}</td>
+                    <td style="vertical-align:middle;"> {$vo.LH}</td>
+                    <td style="vertical-align:middle;">{$vo.allBedNums}</td>
+                    <td style="vertical-align:middle;">
+                        <span class=" badge bg-blue">{$vo.restBedNums}</span>
+                    </td>
+                    <td style="vertical-align:middle;"> {$vo.allStuRoomsNums}</td>
+                    <td style="vertical-align:middle;">
+                        <span class=" badge bg-aqua">{$vo.restStuRoomsNums}</span>
+                    </td>
+                    <td style="vertical-align:middle;">{$vo.allPublicRoomsNums}</td>
+
+                    <td style="vertical-align:middle;">
+                        <a href="../buildingimage/index?LH={$vo.LH}" title="宿舍详情" class="btn btn-default ">
+                    查看详情<i class="fa fa-arrow-circ"></i></a>
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody></table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+</div>
 
 
