@@ -7,7 +7,8 @@ use think\Model;
 class Dormitory extends Model
 {
     // 表名
-    protected $name = 'dormitory_system';
+    //protected $name = 'dormitory_system';
+    protected $name = 'dormitory_rooms';
     
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = false;
@@ -53,9 +54,15 @@ class Dormitory extends Model
     public function getAllBedNums($key)
     {
         if ($key == 'all') {
-            return $this -> count();
+            return Db::name('dormitory_beds') -> count();
         } else {
-            return $this -> where('LH', $key) -> count();
+            //return $this->view('dormi')
+            $allBedNums = Db::view('dormitory_beds',['status'=>'bed_status'])
+                        -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                        -> where('LH',$key)
+                        -> count();
+            //return $this -> where('LH', $key) -> count();
+            return $allBedNums;
         }
     }
 
@@ -68,12 +75,39 @@ class Dormitory extends Model
     public function getAllStuNums($key)
     {
         if ($key == 'all') {
-            $allBoyNums = $this ->where('XBDM',1) ->where('status',1) -> count();
-            $allGirlNums = $this ->where('XBDM',2) ->where('status',1) -> count();
+            $allBoyNums = Db::view('dormitory_beds',['status'=>'bed_status'])
+                        -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                        -> where('XBDM','1')
+                        -> where('bed_status','1')
+                        -> count();
+
+            $allGirlNums = Db::view('dormitory_beds',['status'=>'bed_status'])
+                        -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                        -> where('XBDM','2')
+                        -> where('bed_status','1')
+                        -> count();
+
+            //$allBoyNums = $this ->where('XBDM',1) ->where('status',1) -> count();
+            //$allGirlNums = $this ->where('XBDM',2) ->where('status',1) -> count();
             $allStuNums = $allBoyNums + $allGirlNums;
         } else {
-            $allBoyNums = $this -> where('LH',$key) ->where('XBDM',1) ->where('status',1) -> count();
-            $allGirlNums = $this -> where('LH',$key) ->where('XBDM',2) ->where('status',1) -> count();
+            
+            $allBoyNums = Db::view('dormitory_beds',['status'=>'bed_status'])
+                        -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                        -> where('XBDM','1')
+                        -> where('bed_status','1')
+                        -> where('LH',$key)
+                        -> count();
+
+            $allGirlNums = Db::view('dormitory_beds',['status'=>'bed_status'])
+                        -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                        -> where('XBDM','2')
+                        -> where('bed_status','1')
+                        -> where('LH',$key)
+                        -> count();
+
+            // $allBoyNums = $this -> where('LH',$key) ->where('XBDM',1) ->where('status',1) -> count();
+            // $allGirlNums = $this -> where('LH',$key) ->where('XBDM',2) ->where('status',1) -> count();
             $allStuNums = $allBoyNums + $allGirlNums;
         }
 
@@ -87,50 +121,64 @@ class Dormitory extends Model
      */
     public function getBuildingList()
     {
-        //$buildingNumList = $this -> group('LH') -> field('LH') -> order('LH desc') -> select();
+        $buildingNumList = Db::name('dormitory_rooms') -> group('LH') -> field('LH') -> order('LH asc') -> select();
+
         $buildingInfoResult = array();
-        $westBuildingNumList = ['1','2','3','4','5','6'];
-        $eastBuildingNumList = ['7','8','9','10','11','12','13','14','15'];
-        $highBuildingNumList = ['16','17','19','20'];
-        foreach ($westBuildingNumList as  $value) {
+        // $westBuildingNumList = ['1','2','3','4','5','6'];
+        // $eastBuildingNumList = ['7','8','9','10','11','12','13','14','15'];
+        // $highBuildingNumList = ['16','17','19','20'];
+        foreach ($buildingNumList as  $value) {
             $tempArray = array();
             //每个楼的入住人数
-            $buildingInfo = $this -> getAllStuNums($value);
-            $tempArray['LH'] = $value;
-             //每个楼的总床位数
-            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
+            $buildingInfo = $this -> getAllStuNums($value['LH']);
+
+            $tempArray['LH'] = $value['LH'];
+            //每个楼的总床位数
+            $tempArray['allBedNums'] = $this -> getAllBedNums($value['LH']);
             //入住人数情况
             $tempArray['allStuNums'] = $buildingInfo['all'];
             $tempArray['allBoyNums'] = $buildingInfo['boy'];
             $tempArray['allGirlNums'] = $buildingInfo['girl'];
-            $buildingInfoResult['west'][] = $tempArray;
+            //校区
+            $tempArray['XQ'] = Db::name('dormitory_rooms') -> where('LH',$value['LH']) -> find()['XQ'];
+            //剩余床位数
+            $tempArray['restBedNums'] =  $tempArray['allBedNums'] - $buildingInfo['all'];
+            //总学生房间数量
+            $tempArray['allStuRoomsNums'] = Db::name('dormitory_rooms') -> where('LH',$value['LH']) -> where('status','1')-> count();
+            //剩余房间数量
+            $tempArray['restStuRoomsNums'] = Db::name('dormitory_rooms') -> where('LH',$value['LH']) -> where('RZS',0) -> where('status','1') -> count();
+            //总公用房数量
+            $tempArray['allPublicRoomsNums'] = Db::name('dormitory_rooms') -> where('LH',$value['LH']) -> where('status','2') -> count();
+
+
+            $buildingInfoResult[] = $tempArray;
         }
-        foreach ($eastBuildingNumList as  $value) {
-            $tempArray = array();
-            //每个楼的入住人数
-            $buildingInfo = $this -> getAllStuNums($value);
-            $tempArray['LH'] = $value;
-             //每个楼的总床位数
-            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
-            //入住人数情况
-            $tempArray['allStuNums'] = $buildingInfo['all'];
-            $tempArray['allBoyNums'] = $buildingInfo['boy'];
-            $tempArray['allGirlNums'] = $buildingInfo['girl'];
-            $buildingInfoResult['east'][] = $tempArray;
-        }
-        foreach ($highBuildingNumList as  $value) {
-            $tempArray = array();
-            //每个楼的入住人数
-            $buildingInfo = $this -> getAllStuNums($value);
-            $tempArray['LH'] = $value;
-             //每个楼的总床位数
-            $tempArray['allBedNums'] = $this -> getAllBedNums($value);
-            //入住人数情况
-            $tempArray['allStuNums'] = $buildingInfo['all'];
-            $tempArray['allBoyNums'] = $buildingInfo['boy'];
-            $tempArray['allGirlNums'] = $buildingInfo['girl'];
-            $buildingInfoResult['high'][] = $tempArray;
-        }
+        // foreach ($eastBuildingNumList as  $value) {
+        //     $tempArray = array();
+        //     //每个楼的入住人数
+        //     $buildingInfo = $this -> getAllStuNums($value);
+        //     $tempArray['LH'] = $value;
+        //      //每个楼的总床位数
+        //     $tempArray['allBedNums'] = $this -> getAllBedNums($value);
+        //     //入住人数情况
+        //     $tempArray['allStuNums'] = $buildingInfo['all'];
+        //     $tempArray['allBoyNums'] = $buildingInfo['boy'];
+        //     $tempArray['allGirlNums'] = $buildingInfo['girl'];
+        //     $buildingInfoResult['east'][] = $tempArray;
+        // }
+        // foreach ($highBuildingNumList as  $value) {
+        //     $tempArray = array();
+        //     //每个楼的入住人数
+        //     $buildingInfo = $this -> getAllStuNums($value);
+        //     $tempArray['LH'] = $value;
+        //      //每个楼的总床位数
+        //     $tempArray['allBedNums'] = $this -> getAllBedNums($value);
+        //     //入住人数情况
+        //     $tempArray['allStuNums'] = $buildingInfo['all'];
+        //     $tempArray['allBoyNums'] = $buildingInfo['boy'];
+        //     $tempArray['allGirlNums'] = $buildingInfo['girl'];
+        //     $buildingInfoResult['high'][] = $tempArray;
+        // }
         return $buildingInfoResult;
     }
 
@@ -165,10 +213,12 @@ class Dormitory extends Model
             $freeBed = [];
             $fullBed = [];
 
-            $bedInfo = $this->where('id',$value)->field('LH,SSH') -> find();
-            $LH = $bedInfo['LH'];
-            $SSH = $bedInfo['SSH'];
-            $dormitoryInfo = $this->where('LH',$LH) -> where('SSH',$SSH) ->field('status,CH')->order('CH') -> select();
+            // $bedInfo = $this->where('id',$value)->field('LH,SSH') -> find();
+            // $LH = $bedInfo['LH'];
+            // $SSH = $bedInfo['SSH'];
+
+            //$dormitoryInfo = $this->where('LH',$LH) -> where('SSH',$SSH) ->field('status,CH')->order('CH') -> select();
+            $dormitoryInfo = Db::name('dormitory_beds') -> where('FYID',$value) -> select();
 
             $dormitory = array();
             foreach ($dormitoryInfo as $key => $value) {
@@ -208,12 +258,20 @@ class Dormitory extends Model
     {
         $dormitoryInfoList = array();
         $tempArray = array();
-        $dormitoryInfo = $this->where('LH',$LH)->where('SSH',$SSH)->order('CH')->select();
+
+        //$dormitoryInfo = $this->where('LH',$LH)->where('SSH',$SSH)->order('CH')->select();
+        $dormitoryInfo = Db::view('dormitory_beds',['status'=>'bed_status','*'])
+                    -> view('dormitory_rooms','*','dormitory_beds.FYID = dormitory_rooms.ID')
+                    -> where('LH',$LH)
+                    -> where('SSH',$SSH)
+                    -> order('CH')
+                    -> select();
+
         $dormitoryInfoList['LH'] = $LH;
         $dormitoryInfoList['SSH'] = $SSH;
         foreach ($dormitoryInfo as $key => $value) {
             $stuInfo = array();
-            $dormitory = $value -> toArray();
+            $dormitory = $value;
             $dormitoryInfoList['XQ'] = $dormitory['XQ'];
             $dormitoryInfoList['LD'] = empty($dormitory['LD']) ? '无': $dormitory['LD'];
             $dormitoryInfoList['LC'] = $dormitory['LC'];
@@ -267,8 +325,11 @@ class Dormitory extends Model
             //第一步将操作写入日志
             $insert_res = Db::name('dormitory_special') -> insert($insert_data);
             //第二步将对应学生数据删除
-            $delete_res = $this->where('LH',$param['LH']) 
-                            -> where('SSH',$param['SSH'])
+            //获取房源ID
+            $FYID = Db::name('dormitory_rooms') -> where('LH',$param['LH']) -> where('SSH',$param['SSH']) -> find()['ID'];
+
+            $delete_res = Db::name('dormitory_beds') 
+                            -> where('FYID',$FYID)
                             -> where('CH',$param['CH'])
                             -> update([
                                 'XH' => '',
@@ -276,12 +337,22 @@ class Dormitory extends Model
                                 'YXDM' => '',
                                 'status' => 0,
                             ]);
+            // $delete_res = $this->where('LH',$param['LH']) 
+            //                 -> where('SSH',$param['SSH'])
+            //                 -> where('CH',$param['CH'])
+            //                 -> update([
+            //                     'XH' => '',
+            //                     'NJ' => '',
+            //                     'YXDM' => '',
+            //                     'status' => 0,
+            //                 ]);
             // 提交事务
             Db::commit();  
         } catch (\Exception $e) {
             // 回滚事务
             Db::rollback();
         }
+        
         if ($insert_res == 1 && $delete_res == 1) {
             return true;
         } else {
@@ -299,13 +370,13 @@ class Dormitory extends Model
     public function addStuRecord($param,$adminId)
     {
         //首先确定该学生是否已经有了床位
-        $isExitRecord = $this->where('XH',$param['XH']) -> find();
+        $isExitRecord = Db::name('dormitory_beds')->where('XH',$param['XH']) -> find();
         if (empty($isExitRecord)) {
             $XB = $param['XB'] == '男' ? 1 : 2;
-            $isSexRight = $this -> where('XBDM',$XB) 
+            $isSexRight = Db::name('dormitory_rooms') 
+                            -> where('XBDM',$XB) 
                             -> where('LH',$param['LH'])
                             -> where('SSH',$param['SSH'])
-                            -> where('CH',$param['CH'])
                             -> find();
             if (empty($isSexRight)) {
                 return ['status' => false, 'msg'=> '分配学生性别不符!'];
@@ -336,21 +407,25 @@ class Dormitory extends Model
                     //第一步将操作写入日志
                     $insert_res = Db::name('dormitory_special') -> insert($insert_data);
                     //第二步将对应学生添加至表中
-                    $add_res = $this->where('LH',$param['LH']) 
-                                    -> where('SSH',$param['SSH'])
-                                    -> where('CH',$param['CH'])
-                                    -> update([
-                                        'XH' => $param['XH'],
-                                        'NJ' => substr($param['XH'],0,4),
-                                        'YXDM' => $param['YXDM'],
-                                        'status' => 1,
-                                    ]);
+                    //获取房源ID
+                    $FYID = Db::name('dormitory_rooms') -> where('LH',$param['LH']) -> where('SSH',$param['SSH']) -> find()['ID'];
+
+                    $add_res = Db::name('dormitory_beds') 
+                                -> where('FYID',$FYID)
+                                -> where('CH',$param['CH'])
+                                -> update([
+                                    'XH' => $param['XH'],
+                                    'NJ' => substr($param['XH'],0,4),
+                                    'YXDM' => $param['YXDM'],
+                                    'status' => 1,
+                                ]);
                     // 提交事务
                     Db::commit();  
                 } catch (\Exception $e) {
                     // 回滚事务
                     Db::rollback();
                 }
+
                 if ($add_res == 1 && $insert_res == 1) {
                     return ['status' => true, 'msg' => '分配成功！'];
                 } else {
@@ -360,6 +435,117 @@ class Dormitory extends Model
         } else {
             return ['status'=> false, 'msg' => '该学生已经分配了床位！'];
         }
+    }
+    /**
+     * 插入调换宿舍记录
+     * @param list param ['XH','CH','LH','SSH']
+     * @param int adminid
+     * @return array ['status' => true,'msg'=>'']
+     */
+
+    function addChangeRecord($param,$adminId)
+    {
+   
+        $firstStuInfo = array();
+        //获取学生信息
+        $firstStuClassInfo = Db::name('stu_detail') -> where('XH',$param['oldXH']) -> field('YXDM,BJDM')->find();
+        $firstStuInfo['old_dormitory'] = $param['oldLH'].'#'.$param['oldSSH'].'-'.$param['oldCH'];
+        $firstStuInfo['new_dormitory'] = $param['newLH'].'#'.$param['newSSH'].'-'.$param['newCH'];
+        $firstStuInfo['XH'] = $param['oldXH'];
+        $firstStuInfo['remark'] = $param['remark'];
+        $firstStuInfo['old_class'] = $firstStuClassInfo['BJDM'];
+        $firstStuInfo['new_class'] = $firstStuClassInfo['BJDM'];
+        $firstStuInfo['handle_time'] = strtotime($param['handletime']);
+        $firstStuInfo['handle_end_time'] = '';
+        $firstStuInfo['admin_id'] = $adminId;
+        $firstStuInfo['operation'] = 'change';
+        $firstStuInfo['reason'] = 'TS';
+        $firstStuInfo['operate_time'] = time();
+
+        $secondStuInfo = array();
+        $secondStuClassInfo = Db::name('stu_detail') -> where('XH',$param['newXH']) -> field('YXDM,BJDM')->find();
+        $secondStuInfo['new_dormitory'] = $param['oldLH'].'#'.$param['oldSSH'].'-'.$param['oldCH'];
+        $secondStuInfo['old_dormitory'] = $param['newLH'].'#'.$param['newSSH'].'-'.$param['newCH'];
+        $secondStuInfo['XH'] = $param['newXH'];
+        $secondStuInfo['remark'] = $param['remark'];
+        $secondStuInfo['old_class'] = $secondStuClassInfo['BJDM'];
+        $secondStuInfo['new_class'] = $secondStuClassInfo['BJDM'];
+        $secondStuInfo['handle_time'] = strtotime($param['handletime']);
+        $secondStuInfo['handle_end_time'] = '';
+        $secondStuInfo['admin_id'] = $adminId;
+        $secondStuInfo['operation'] = 'change';
+        $secondStuInfo['reason'] = 'TS';
+        $secondStuInfo['operate_time'] = time();
+
+        Db::startTrans();
+        $first_insert_res = false;
+        $second_insert_res = false;
+        $first_add_res = false;
+        $second_add_res = false;
+        try{
+            //第一步先把两条记录都插入到special表里
+            $first_insert_res = Db::name('dormitory_special') -> insert($firstStuInfo);
+            $second_insert_res = Db::name('dormitory_special') -> insert($secondStuInfo);
+
+            //第二步把两个人对调
+            $FYID_first = Db::name('dormitory_rooms') 
+                    -> where('LH',$param['oldLH']) 
+                    -> where('SSH',$param['oldSSH']) 
+                    -> find()['ID'];
+
+            $first_add_res = Db::name('dormitory_beds') 
+                        -> where('FYID',$FYID_first)
+                        -> where('CH',$param['oldCH'])
+                        -> update([
+                            'XH' => $param['newXH'],
+                            'NJ' => substr($param['newXH'],0,4),
+                            'YXDM' => $secondStuClassInfo['YXDM'],
+                            'status' => 1,
+                        ]);
+            $FYID_second = Db::name('dormitory_rooms') 
+                    -> where('LH',$param['newLH']) 
+                    -> where('SSH',$param['newSSH']) 
+                    -> find()['ID'];
+
+            $second_add_res = Db::name('dormitory_beds') 
+                        -> where('FYID',$FYID_second)
+                        -> where('CH',$param['newCH'])
+                        -> update([
+                            'XH' => $param['oldXH'],
+                            'NJ' => substr($param['oldXH'],0,4),
+                            'YXDM' => $firstStuClassInfo['YXDM'],
+                            'status' => 1,
+                        ]);
+            // $first_add_res = $this->where('LH',$param['oldLH']) 
+            //                 -> where('SSH',$param['oldSSH'])
+            //                 -> where('CH',$param['oldCH'])
+            //                 -> update([
+            //                     'XH' => $param['newXH'],
+            //                     'NJ' => substr($param['newXH'],0,4),
+            //                     'YXDM' => $secondStuClassInfo['YXDM'],
+            //                     'status' => 1,
+            //                 ]);
+
+            // $second_add_res = $this->where('LH',$param['newLH']) 
+            //                 -> where('SSH',$param['newSSH'])
+            //                 -> where('CH',$param['newCH'])
+            //                 -> update([
+            //                     'XH' => $param['oldXH'],
+            //                     'NJ' => substr($param['oldXH'],0,4),
+            //                     'YXDM' => $firstStuClassInfo['YXDM'],
+            //                     'status' => 1,
+            //                 ]);
+            Db::commit();  
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
+        }
+        if ($first_add_res == 1 && $first_insert_res == 1 && $second_add_res == 1 && $second_insert_res == 1) {
+            return ['status' => true, 'msg' => '调换成功！'];
+        } else {
+            return ['status'=>false,'msg'=>'网络原因，调换失败！'];
+        }
+      
     }
 
 

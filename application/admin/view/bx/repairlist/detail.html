@@ -57,9 +57,6 @@
                            </div><!-- /.modal-dialog -->
                        </div>
                     {/foreach}
-                    <!-- {foreach name="$row.image" item="vo" key="s"}
-                    <img src={$vo} height="100" width="100"> -->
-                    <!-- {/foreach} -->
                 </p>
             </div>           
         </div>
@@ -104,6 +101,24 @@
                 </table>
             </div>
         </div>
+        <form id="cxselectform" action="">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>指派单位</b></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-9">
+                                <div class="form-inline" data-toggle="cxselect" data-selects="province,city,area">
+                                    <select class="province form-control" name="province" data-url="ajax/area"></select>
+                                    <select class="city form-control" name="city" data-url="ajax/area"></select>
+                                    <select class="area form-control" name="area" data-url="ajax/area"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
         <div class="form-group">
             <label>指派单位</label>
             <select class="form-control" id="company">

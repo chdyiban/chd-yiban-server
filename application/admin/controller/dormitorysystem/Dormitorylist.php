@@ -57,14 +57,14 @@ class Dormitorylist extends Backend
             $total = $this->model
                     // ->with('getcollege,getstuname')
                     ->where($where)
-                    ->group('LH,SSH')
+                    //->group('LH,SSH')
                     ->order($sort, $order)
                     ->count();
 
             $list = $this->model
                     // ->with('getcollege,getstuname')
                     ->where($where)
-                    ->group('LH,SSH')
+                    //->group('LH,SSH')
                     ->order($sort, $order)
                     ->limit($offset, $limit)
                     ->select();
@@ -142,6 +142,57 @@ class Dormitorylist extends Backend
 
        return $this->view->fetch('confirmdistribute');
     }
+    /**
+     * 确认换宿界面
+     */
+    public function confirmchange()
+    {
+         //获取当前管理员id的方法
+       $now_admin_id = $this->auth->id;
+       //设置过滤方法
+       $this->request->filter(['strip_tags']);
+       if ($this->request->isAjax())
+       {
+           //如果发送的来源是Selectpage，则转发到Selectpage
+           if ($this->request->request('pkey_name'))
+           {
+               return $this->selectpage();
+           }
+       } else {
+
+           $param = $this->request->param();
+           $this->view->assign([
+               'param' => $param,
+           ]);
+       }
+
+       return $this->view->fetch('confirmchange');
+    }
+    /**
+     * 获取学生住宿信息
+     * ajax
+     * @param int XH
+     * @return string LH-SSH-CH
+     */
+    public function getStuDormitory()
+    {
+        if ($this->request->isAjax()) {
+            $XH = $this->request->post('XH');
+            $stuDormitory = Db::view('dormitory_beds')
+                            -> view('dormitory_rooms','XQ,LH,SSH','dormitory_beds.FYID = dormitory_rooms.ID') 
+                            -> where('XH',$XH)
+                            -> find();
+            
+            if (empty($stuDormitory)) {
+                $result = ['status' => false, 'msg' => '该学生未安排住宿'];
+            } else {
+                $result = ['status' => true, 'msg' => '查询成功', 'data' => $stuDormitory];
+            }
+            return json($result);
+        } else {
+           $this->error('参数错误');
+        }
+    }
 
     /**
      * 确认删除界面
@@ -154,6 +205,7 @@ class Dormitorylist extends Backend
                         -> view('admin','id,nickname','dormitory_special.admin_id = admin.id')
                         -> where('XH',$param['XH']) 
                         -> order('operate_time desc')
+                        -> limit(5)
                         -> select();
       
         if (empty($historyOperate)) {
@@ -163,7 +215,7 @@ class Dormitorylist extends Backend
         } else {
             foreach ($historyOperate as $key => $value) {
                 $historyOperate[$key]['operate_time'] = date("Y-m-d",$value['operate_time']);
-                $historyOperate[$key]['operation'] = $value['operation'] == 'distribute' ? "入住" : "退宿";
+                $historyOperate[$key]['operation'] = $value['operation'];
             }
             return view('confirmdelete',[
                 'param' => $param,
@@ -171,6 +223,21 @@ class Dormitorylist extends Backend
             ]);
         }
         
+    }
+    /**
+     * 两人对调宿舍
+     */
+    public function addChangeRecord()
+    {
+        if ($this->request->isAjax()){
+        //获取当前管理员id的方法
+            $now_admin_id = $this->auth->id;
+            $param = $this->request->param();
+            $res = $this->model->addChangeRecord($param,$now_admin_id);
+            return $res;
+        } else {
+            $this->error('请求错误');
+        }
     }
 
     /**
@@ -197,9 +264,6 @@ class Dormitorylist extends Backend
         //获取当前管理员id的方法
             $now_admin_id = $this->auth->id;
             $param = $this->request->param();
-            $param['XH'] = explode("-",$param['info'])[0];
-            $param['XM'] = explode("-",$param['info'])[1];
-            $param['XB'] = explode("-",$param['info'])[2];
             $res = $this->model->addStuRecord($param,$now_admin_id);
             return json($res);
         } else {
