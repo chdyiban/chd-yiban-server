@@ -101,36 +101,23 @@
                 </table>
             </div>
         </div>
+
         <form id="cxselectform" action="">
             <div class="row">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><b>指派单位</b></div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-xs-9">
-                                <div class="form-inline" data-toggle="cxselect" data-selects="province,city,area">
-                                    <select class="province form-control" name="province" data-url="ajax/area"></select>
-                                    <select class="city form-control" name="city" data-url="ajax/area"></select>
-                                    <select class="area form-control" name="area" data-url="ajax/area"></select>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-xs-9">
+                    <label>指派单位</label>
+                    <div class="form-inline" data-toggle="cxselect" data-selects="company,worker">
+                        <select class="company form-control" name="company" id="company" data-url="bx/repairlist/getcompany"></select>
+                        <select class="worker form-control" name="worker" id="worker" data-url="bx/repairlist/getworker"></select>
                     </div>
                 </div>
             </div>
         </form>
-        <div class="form-group">
-            <label>指派单位</label>
-            <select class="form-control" id="company">
-                {foreach name="$row.company" item="vo"}     
-                <option value="{$vo.id}">{$vo.nickname}</option>
-                {/foreach}
-            </select>
-        </div>
+
         <div class="row no-print">
             <div class="col-xs-12">
                 <button type="button" class="btn  btn-success btn-distribute pull-right" style="margin-right: 5px;">
-                <i class="fa fa-times fa-hand-paper-o"></i> 分配单位
+                <i class="fa fa-times fa-hand-paper-o"></i> 分配
                 </button>
             </div>
         </div>

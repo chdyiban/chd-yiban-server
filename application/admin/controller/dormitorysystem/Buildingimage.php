@@ -90,9 +90,31 @@ class BuildingImage extends Backend
                 return $this->view -> fetch();
             } else {
                 $URL = "dormitorysystem/buildingimage/buildingdetail/chd_building_ws_$LH";
+                 //总床位数
+                $this->request->filter(['strip_tags']);
+
+                $allBedNums = $this -> model -> getAllBedNums($LH);
+                //总入住人数以及男女
+                $allUsedNumsList = $this -> model -> getAllStuNums($LH);
+
+                //总学生用房
+                $allStuRooms = Db::name('dormitory_rooms') -> where('LH',$LH) -> where('status',1) -> count();
+                //学生用房剩余
+                $allRestStuRooms = Db::name('dormitory_rooms')->where('LH',$LH) -> where('status',1) ->where('RZS',0) -> count();
+                //总公用房数量
+                $allPublicRooms = Db::name('dormitory_rooms')->where('LH',$LH) -> where('status',2) -> count();
+
                 $this->view->assign([
                     'LH' => $LH,
+                    'allBedNums'        => $allBedNums,
+                    'allBoyNums'        => $allUsedNumsList['boy'],
+                    'allGirlNums'       => $allUsedNumsList['girl'],
+                    'allStuNums'        => $allUsedNumsList['all'],
+                    'allStuRooms'       => $allStuRooms,
+                    'allRestStuRooms'   => $allRestStuRooms,
+                    'allPublicRooms'    => $allPublicRooms,
                 ]);
+
                 return $this->view->fetch($URL);
             }
         }
