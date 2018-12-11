@@ -32,11 +32,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id')},
                         {field: 'stu_name', title: __('报修人姓名')},
                         {field: 'stu_id', title: __('报修人学号')},                   
-                        {field: 'title', title: __('标题')},
+                        {field: 'phone', title: __('联系方式')},                   
+                        {field: 'title', title: __('故障描述')},
                         {field: 'gettypename.name', title: __('服务类型名称')},
                         {field: 'gettypename.specific_name', title: __('服务项目名称')},
                         {field: 'getaddress.name', title: __('报修区域')},
                         {field: 'address', title: __('报修地点')},
+                        {field: 'submit_time', title: __('报修时间'),operate: 'RANGE', addclass: 'datetimerange',formatter: Table.api.formatter.datetime},
                         {field: 'getname.nickname', title: __('受理人')},
                         {field: 'getcompany.nickname', title: __('分配单位')},
                         {field: 'refused_content', title: __('拒绝原因')},
@@ -78,6 +80,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         },
 
         detail: function () {
+            //这里需要手动为Form绑定上元素事件
+            Form.api.bindevent($("form#cxselectform"));
             var ids = $("#id").val();
            //受理方法
             $(document).on('click', '.btn-accept', function () {
@@ -89,23 +93,41 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             //指派单位
             $(document).on('click', '.btn-distribute', function () {
                 var company_id = $("#company").val();
-
-                $.ajax({
-                    type: 'POST',
-                    url: './bx/Repairlist/distribute/ids/'+ids,
-                    data: {
-                        'company_id':company_id,
-                    },
-                    success: function(data) {
-                        if (data === 1) {
-                            Fast.api.close();
-                            alert('分配成功');
-                            window.parent.location.reload();  
+                var worker_id = $("#worker").val();
+                if (worker_id == null) {
+                    $.ajax({
+                        type: 'POST',
+                        url: './bx/Repairlist/distribute/ids/'+ids,
+                        data: {
+                            'company_id':company_id,
+                        },
+                        success: function(data) {
+                            if (data == 1) {
+                                Fast.api.close();
+                                alert('单位分配成功');
+                                window.parent.location.reload();  
+                            }
                         }
-                    }
-                });
-                //这里需要手动为Form绑定上元素事件
-                Form.api.bindevent($("form#cxselectform"));
+                    });
+                } else if (worker_id == '') {
+                    alert("请选择工人");
+                } else {
+                    $.ajax({
+                        type: 'POST',
+                        url: './bx/Repairlist/distribute/ids/'+ids,
+                        data: {
+                            'company_id':company_id,
+                            'worker_id' : worker_id,
+                        },
+                        success: function(data) {
+                            if (data == 1) {
+                                Fast.api.close();
+                                alert('单位以及工人分配成功');
+                                window.parent.location.reload();  
+                            }
+                        }
+                    });
+                }
             });   
 
             //重新指派单位
