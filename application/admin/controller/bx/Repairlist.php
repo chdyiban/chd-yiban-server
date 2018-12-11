@@ -21,6 +21,7 @@ class Repairlist extends Backend
     {
         parent::_initialize();
         $this->model = model('RepairList');
+        //获取总控的id
         $this -> control_id = Db::view('auth_group') 
                     -> view('auth_group_access','uid,group_id','auth_group.id = auth_group_access.group_id')
                     -> where('name','报修管理员') 
@@ -156,9 +157,17 @@ class Repairlist extends Backend
     public function distribute($ids)
     {
         if ($this->request->isPost()){
-            $company_id = $this->request->post()['company_id'];
-            $res = $this->model->distribute($ids, $company_id);
-            return $res;
+            $company_id = $this->request->post('company_id');
+            $worker_id = $this->request->post('worker_id');
+            if (empty($worker_id)) {
+                $res = $this->model->distribute($ids, $company_id);
+                return $res;
+            } else {
+                $res = $this->model->distribute($ids, $company_id);
+                $re  =  $this->model->dispatch($ids, $worker_id);
+                return $res&&$re;
+            }
+            
         } else {
             $this -> error('请求错误');
         }
@@ -279,6 +288,47 @@ class Repairlist extends Backend
                 $this->view->assign("row", $data->toArray());
                 return $this->view->fetch();
                 break;
+        }
+    }
+    /**
+     * 获取可以分配的单位名称
+     * 用于多级联动
+     */
+    public function getCompany()
+    {
+        $companyList = array();
+        $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
+        //获取公司名称
+        $company = Db::view('auth_group_access') 
+                    -> view('admin','nickname,id','auth_group_access.uid = admin.id')
+                    -> where("group_id = $com_id") 
+                    -> select();
+        foreach ($company as $key => $value) {
+            $tempArray = array();
+            $tempArray['value'] = $value['uid'];
+            $tempArray['name'] = $value['nickname'];
+            $companyList[] = $tempArray;
+        }
+        $this->success('', null, $companyList);
+    }
+    /**
+     * 获取工人
+     */
+    public function getWorker()
+    {
+        $uid = $this->request->get('company');
+        //判断是否自修
+        $workerList = array();
+        $companyName = Db::name('admin') -> where('id',$uid) -> field('nickname')->find()['nickname'];
+        if ($companyName == "自修") {
+            $worker = Db::name('repair_worker') -> where('distributed_id',$uid) -> select();
+            foreach ($worker as $key => $value) {
+                $tempArray = array();
+                $tempArray['value'] = $value['id'];
+                $tempArray['name'] = $value['name']."-".$value['mobile'];
+                $workerList[] = $tempArray;
+            }
+            $this->success('', null, $workerList);
         }
     }
     /**
