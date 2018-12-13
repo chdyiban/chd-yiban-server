@@ -321,7 +321,8 @@ class Repairlist extends Backend
         $workerList = array();
         $companyName = Db::name('admin') -> where('id',$uid) -> field('nickname')->find()['nickname'];
         if ($companyName == "自修") {
-            $worker = Db::name('repair_worker') -> where('distributed_id',$uid) -> select();
+            $control_id = $this -> control_id;
+            $worker = Db::name('repair_worker') -> where('distributed_id',$control_id) -> select();
             foreach ($worker as $key => $value) {
                 $tempArray = array();
                 $tempArray['value'] = $value['id'];
