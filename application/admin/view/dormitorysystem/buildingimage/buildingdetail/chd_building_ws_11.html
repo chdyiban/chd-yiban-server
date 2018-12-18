@@ -1,0 +1,455 @@
+<style type="text/css">
+	.full{
+		background: #E63F00;
+	}
+	.empty{
+		background: rgb(82, 151, 255);
+	}
+	.used{
+		background: rgb(247, 214, 30);
+	}
+	.dormitory{
+		/* width: 100%; */
+		height: auto;
+		margin: 10px auto;
+		border-radius: 5px;
+		table-layout: fixed;
+		word-wrap:break-word;
+		/* margin-left:20px; 
+		margin-right:20px;  */
+	}
+	.one{
+		width: 30px;
+		height: 30px;
+		font-size: 10px;
+		text-align: center;
+		border: none;
+		border-radius: 2px;
+	}
+	.passage td{
+		height: 10px;
+		font-size: 10px;
+		text-align: center;
+		background: #00AA55;
+		border: none;
+	}
+	.two{
+		background: #00AA55;
+		width: 40px;
+		text-align: center;
+		border: none;
+		border-radius: 5px;
+	}
+	</style>
+<div class="row">
+	<p class="hidden" id="LH">{$LH}</p>
+</div>
+<div class="callout callout-info">
+	<h4>统计信息</h4>
+
+	<p>总学生用房：<span class=" badge bg-blue">{$allBedNums}</span>
+	空学生用房数：<span class=" badge bg-blue">{$allStuRooms}</span>
+	总公用房数：<span class=" badge bg-blue">{$allPublicRooms}</span>
+	总床位数：<span class=" badge bg-blue">{$allBedNums}</span>
+	总人数：<span class=" badge bg-blue">{$allStuNums}</span></p>
+</div>
+<div class="row">
+    <table  class="dormitory" id="dormitory_id" border="2">
+		<tr class="block">
+			<td class="one" data-id="5560">5560</td>
+			<td class="one" data-id="5558">5558</td>
+			<td class="one" data-id="5556">5556</td>
+			<td class="one" data-id="5554">5554</td>	
+			<td class="one" data-id="5552">5552</td>	
+			<td class="one" data-id="5550">5550</td>	
+			<td class="one" data-id="5548">5548</td>	
+			<td class="one" data-id="5546">5546</td>	
+			<td class="one" data-id="5544">5544</td>	
+			<td class="one" >厕所</td>	
+
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5540">5540</td>
+			<td class="one" data-id="5538">5538</td>
+			<td class="one" data-id="5536">5536</td>
+			<td class="one" data-id="5534">5534</td>
+			<td class="one" data-id="5532">5532</td>
+			<td class="one" data-id="5530">5530</td>
+			<td class="one" data-id="5528">5528</td>
+			<td class="one" data-id="5526">5526</td>
+			<td class="one" data-id="5524">5524</td>
+			<td class="one" >厕所</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5520">5520</td>
+			<td class="one" data-id="5518">5518</td>
+			<td class="one" data-id="5516">5516</td>
+			<td class="one" data-id="5514">5514</td>
+			<td class="one" data-id="5512">5512</td>
+			<td class="one" data-id="5510">5510</td>
+			<td class="one" data-id="5508">5508</td>
+			<td class="one" data-id="5506">5506</td>
+			<td class="one" data-id="5504">5504</td>
+			<td class="one" data-id="5502">5502</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">五层</td>
+			<td colspan="10">五层</td>
+			<td colspan="10">五层</td>
+		</tr>
+		<tr class="block">
+			<td class="one" data-id="5559">5559</td>
+			<td class="one" data-id="5557">5557</td>
+			<td class="one" data-id="5555">5555</td>
+			<td class="one" data-id="5553">5553</td>
+			<td class="one" data-id="5551">5551</td>
+			<td class="one" data-id="5549">5549</td>
+			<td class="one" data-id="5547">5547</td>
+			<td class="one" data-id="5545">5545</td>
+			<td class="one" data-id="5543">5543</td>
+			<td class="one" data-id="5541">5541</td>
+
+			<td class="one" data-id="5539">5539</td>
+			<td class="one" data-id="5537">5537</td>
+			<td class="one" data-id="5535">5535</td>
+			<td class="one" data-id="5533">5533</td>
+			<td class="one" data-id="5531">5531</td>
+			<td class="one" data-id="5529">5529</td>
+			<td class="one" data-id="5527">5527</td>
+			<td class="one" data-id="5525">5525</td>
+			<td class="one" data-id="5523">5523</td>
+			<td class="one" data-id="5521">5521</td>
+
+			<td class="one" data-id="5519">5519</td>
+			<td class="one" data-id="5517">5517</td>
+			<td class="one" data-id="5515">5515</td>
+			<td class="one" data-id="5513">5513</td>
+			<td class="one" data-id="5511">5511</td>
+			<td class="one" data-id="5509">5509</td>
+			<td class="one" data-id="5507">5507</td>
+			<td class="one" data-id="5505">5505</td>
+			<td class="one" data-id="5503">5503</td>
+			<td class="one" data-id="5501">5501</td>
+		</tr>
+	</table>	
+	<table  class="dormitory" border="2">
+		<tr class="block">
+			<td class="one" data-id="5460">5460</td>
+			<td class="one" data-id="5458">5458</td>
+			<td class="one" data-id="5456">5456</td>
+			<td class="one" data-id="5454">5454</td>	
+			<td class="one" data-id="5452">5452</td>	
+			<td class="one" data-id="5450">5450</td>	
+			<td class="one" data-id="5448">5448</td>	
+			<td class="one" data-id="5446">5446</td>	
+			<td class="one" data-id="5444">5444</td>	
+			<td class="one" >厕所</td>	
+
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5440">5440</td>
+			<td class="one" data-id="5438">5438</td>
+			<td class="one" data-id="5436">5436</td>
+			<td class="one" data-id="5434">5434</td>
+			<td class="one" data-id="5432">5432</td>
+			<td class="one" data-id="5430">5430</td>
+			<td class="one" data-id="5428">5428</td>
+			<td class="one" data-id="5426">5426</td>
+			<td class="one" data-id="5424">5424</td>
+			<td class="one" >厕所</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5420">5420</td>
+			<td class="one" data-id="5418">5418</td>
+			<td class="one" data-id="5416">5416</td>
+			<td class="one" data-id="5414">5414</td>
+			<td class="one" data-id="5412">5412</td>
+			<td class="one" data-id="5410">5410</td>
+			<td class="one" data-id="5408">5408</td>
+			<td class="one" data-id="5406">5406</td>
+			<td class="one" data-id="5404">5404</td>
+			<td class="one" data-id="5402">5402</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">四层</td>
+			<td colspan="10">四层</td>
+			<td colspan="10">四层</td>
+		</tr>
+		<tr class="block">
+			<td class="one" data-id="5459">5459</td>
+			<td class="one" data-id="5457">5457</td>
+			<td class="one" data-id="5455">5455</td>
+			<td class="one" data-id="5453">5453</td>
+			<td class="one" data-id="5451">5451</td>
+			<td class="one" data-id="5449">5449</td>
+			<td class="one" data-id="5447">5447</td>
+			<td class="one" data-id="5445">5445</td>
+			<td class="one" data-id="5443">5443</td>
+			<td class="one" data-id="5441">5441</td>
+
+			<td class="one" data-id="5439">5439</td>
+			<td class="one" data-id="5437">5437</td>
+			<td class="one" data-id="5435">5435</td>
+			<td class="one" data-id="5433">5433</td>
+			<td class="one" data-id="5431">5431</td>
+			<td class="one" data-id="5429">5429</td>
+			<td class="one" data-id="5427">5427</td>
+			<td class="one" data-id="5425">5425</td>
+			<td class="one" data-id="5423">5423</td>
+			<td class="one" data-id="5421">5421</td>
+			
+			<td class="one" data-id="5419">5419</td>
+			<td class="one" data-id="5417">5417</td>
+			<td class="one" data-id="5415">5415</td>
+			<td class="one" data-id="5413">5413</td>
+			<td class="one" data-id="5411">5411</td>
+			<td class="one" data-id="5409">5409</td>
+			<td class="one" data-id="5407">5407</td>
+			<td class="one" data-id="5405">5405</td>
+			<td class="one" data-id="5403">5403</td>
+			<td class="one" data-id="5401">5401</td>
+		</tr>
+	</table>
+	<table  class="dormitory" border="2">
+		<tr class="block">
+			<td class="one" data-id="5360">5360</td>
+			<td class="one" data-id="5358">5358</td>
+			<td class="one" data-id="5356">5356</td>
+			<td class="one" data-id="5354">5354</td>	
+			<td class="one" data-id="5352">5352</td>	
+			<td class="one" data-id="5350">5350</td>	
+			<td class="one" data-id="5348">5348</td>	
+			<td class="one" data-id="5346">5346</td>	
+			<td class="one" data-id="5344">5344</td>	
+			<td class="one" >厕所</td>	
+
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5340">5340</td>
+			<td class="one" data-id="5338">5338</td>
+			<td class="one" data-id="5336">5336</td>
+			<td class="one" data-id="5334">5334</td>
+			<td class="one" data-id="5332">5332</td>
+			<td class="one" data-id="5330">5330</td>
+			<td class="one" data-id="5328">5328</td>
+			<td class="one" data-id="5326">5326</td>
+			<td class="one" data-id="5324">5324</td>
+			<td class="one" >厕所</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5320">5320</td>
+			<td class="one" data-id="5318">5318</td>
+			<td class="one" data-id="5316">5316</td>
+			<td class="one" data-id="5314">5314</td>
+			<td class="one" data-id="5312">5312</td>
+			<td class="one" data-id="5310">5310</td>
+			<td class="one" data-id="5308">5308</td>
+			<td class="one" data-id="5306">5306</td>
+			<td class="one" data-id="5304">5304</td>
+			<td class="one" data-id="5302">5302</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">三层</td>
+			<td colspan="10">三层</td>
+			<td colspan="10">三层</td>
+		</tr>
+		<tr class="block">
+			<td class="one" data-id="5359">5359</td>
+			<td class="one" data-id="5357">5357</td>
+			<td class="one" data-id="5355">5355</td>
+			<td class="one" data-id="5353">5353</td>
+			<td class="one" data-id="5351">5351</td>
+			<td class="one" data-id="5349">5349</td>
+			<td class="one" data-id="5347">5347</td>
+			<td class="one" data-id="5345">5345</td>
+			<td class="one" data-id="5343">5343</td>
+			<td class="one" data-id="5341">5341</td>
+
+			<td class="one" data-id="5339">5339</td>
+			<td class="one" data-id="5337">5337</td>
+			<td class="one" data-id="5335">5335</td>
+			<td class="one" data-id="5333">5333</td>
+			<td class="one" data-id="5331">5331</td>
+			<td class="one" data-id="5329">5329</td>
+			<td class="one" data-id="5327">5327</td>
+			<td class="one" data-id="5325">5325</td>
+			<td class="one" data-id="5323">5323</td>
+			<td class="one" data-id="5321">5321</td>
+			
+			<td class="one" data-id="5319">5319</td>
+			<td class="one" data-id="5317">5317</td>
+			<td class="one" data-id="5315">5315</td>
+			<td class="one" data-id="5313">5313</td>
+			<td class="one" data-id="5311">5311</td>
+			<td class="one" data-id="5309">5309</td>
+			<td class="one" data-id="5307">5307</td>
+			<td class="one" data-id="5305">5305</td>
+			<td class="one" data-id="5303">5303</td>
+			<td class="one" data-id="5301">5301</td>
+		</tr>
+	</table>
+	<table  class="dormitory" border="2">
+		<tr class="block">
+			<td class="one" data-id="5260">5260</td>
+			<td class="one" data-id="5258">5258</td>
+			<td class="one" data-id="5256">5256</td>
+			<td class="one" data-id="5254">5254</td>	
+			<td class="one" data-id="5252">5252</td>	
+			<td class="one" data-id="5250">5250</td>	
+			<td class="one" data-id="5248">5248</td>	
+			<td class="one" data-id="5246">5246</td>	
+			<td class="one" data-id="5244">5244</td>	
+			<td class="one" >厕所</td>
+
+
+			<td class="two" rowspan="3">楼梯</td>
+			
+			<td class="one" data-id="5240">5240</td>
+			<td class="one" data-id="5238">5238</td>
+			<td class="one" data-id="5236">5236</td>
+			<td class="one" data-id="5234">5234</td>
+			<td class="one" data-id="5232">5232</td>
+			<td class="one" data-id="5230">5230</td>
+			<td class="one" data-id="5228">5228</td>
+			<td class="one" data-id="5226">5226</td>
+			<td class="one" data-id="5224">5224</td>
+			<td class="one" >厕所</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" data-id="5220">5220</td>
+			<td class="one" data-id="5218">5218</td>
+			<td class="one" data-id="5216">5216</td>
+			<td class="one" data-id="5214">5214</td>
+			<td class="one" data-id="5212">5212</td>
+			<td class="one" data-id="5210">5210</td>
+			<td class="one" data-id="5208">5208</td>
+			<td class="one" data-id="5206">5206</td>
+			<td class="one" data-id="5204">5204</td>
+			<td class="one" data-id="5202">5202</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">二层</td>
+			<td colspan="10">二层</td>
+			<td colspan="10">二层</td>
+		</tr>
+		<tr class="block">
+			<td class="one" data-id="5259">5259</td>
+			<td class="one" data-id="5257">5257</td>
+			<td class="one" data-id="5255">5255</td>
+			<td class="one" data-id="5253">5253</td>
+			<td class="one" data-id="5251">5251</td>
+			<td class="one" data-id="5249">5249</td>
+			<td class="one" data-id="5247">5247</td>
+			<td class="one" data-id="5245">5245</td>
+			<td class="one" data-id="5243">5243</td>
+			<td class="one" data-id="5241">5241</td>
+			
+			<td class="one" data-id="5239">5239</td>
+			<td class="one" data-id="5237">5237</td>
+			<td class="one" data-id="5235">5235</td>
+			<td class="one" data-id="5233">5233</td>
+			<td class="one" data-id="5231">5231</td>
+			<td class="one" data-id="5229">5229</td>
+			<td class="one" data-id="5227">5227</td>
+			<td class="one" data-id="5225">5225</td>
+			<td class="one" data-id="5223">5223</td>
+			<td class="one" data-id="5221">5221</td>
+		
+			<td class="one" data-id="5219">5219</td>
+			<td class="one" data-id="5217">5217</td>
+			<td class="one" data-id="5215">5215</td>
+			<td class="one" data-id="5213">5213</td>
+			<td class="one" data-id="5211">5211</td>
+			<td class="one" data-id="5209">5209</td>
+			<td class="one" data-id="5207">5207</td>
+			<td class="one" data-id="5205">5205</td>
+			<td class="one" data-id="5203">5203</td>
+			<td class="one" data-id="5201">5201</td>
+		</tr>
+	</table>
+	<table  class="dormitory" border="2">
+		<tr class="block">
+			<td class="one" data-id="5157">5157</td>
+			<td class="one" data-id="5155">5155</td>
+			<td class="one" data-id="5153">5153</td>
+			<td class="one" data-id="5151">5151</td>
+			<td class="one" data-id="5149">5149</td>
+			<td class="one" data-id="5147">5147</td>
+			<td class="one" data-id="5145">5145</td>
+			<td class="one" data-id="5143">5143</td>
+			<td class="one" data-id="5141">5141</td>
+			<td class="one" >厕所</td>
+
+
+			<td class="two" rowspan="3">楼梯</td>
+			<td class="one" >网络</td>
+			<td class="one" data-id="5136">5136</td>
+			<td class="one" >电房</td>
+			<td class="one" data-id="5134">5134</td>
+			<td class="one" data-id="5132">5132</td>
+			<td class="one" data-id="5130">5130</td>
+			<td class="one" data-id="5128">5128</td>
+			<td class="one" colspan="2">洗衣房</td>
+			<td class="one" >厕所</td>
+		
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one" >值</td>
+			<td class="one" data-id="5118">5118</td>
+			<td class="one" data-id="5116">5116</td>
+			<td class="one" data-id="5114">5114</td>
+			<td class="one" data-id="5112">5112</td>
+			<td class="one" data-id="5110">5110</td>
+			<td class="one" data-id="5108">5108</td>
+			<td class="one" data-id="5106">5106</td>
+			<td class="one" data-id="5104">5104</td>
+			<td class="one" data-id="5102">5102</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">一层</td>
+			<td colspan="10">一层</td>
+			<td colspan="10">一层</td>
+		</tr>
+		<tr class="block">
+			<td class="one" data-id="5156">5156</td>
+			<td class="one" data-id="5154">5154</td>
+			<td class="one" data-id="5152">5152</td>
+			<td class="one" data-id="5140">5140</td>
+			<td class="one" data-id="5148">5148</td>
+			<td class="one" data-id="5146">5146</td>
+			<td class="one" data-id="5144">5144</td>
+			<td class="one" data-id="5142">5142</td>
+			<td class="one" data-id="5130">5130</td>
+			<td class="one" >值</td>
+			
+			<td class="one" data-id="5133">5133</td>
+			<td class="one" colspan="1"></td>	
+			<td class="one" colspan="1"></td>	
+			<td class="one" data-id="5131">5131</td>
+			<td class="one" data-id="5129">5129</td>
+			<td class="one" colspan="1"></td>	
+			<td class="one" data-id="5127">5127</td>			
+			<td class="one" data-id="5125">5125</td>
+			<td class="one" data-id="5123">5123</td>
+			<td class="one" >网络</td>
+			
+			<td class="one" data-id="5119">5119</td>
+			<td class="one" data-id="5117">5117</td>
+			<td class="one" data-id="5115">5115</td>
+			<td class="one" data-id="5113">5113</td>
+			<td class="one" data-id="5111">5111</td>
+			<td class="one" data-id="5109">5109</td>
+			<td class="one" data-id="5107">5107</td>
+			<td class="one" data-id="5105">5105</td>
+			<td class="one" data-id="5103">5103</td>
+			<td class="one" data-id="5101">5101</td>
+		</tr>
+	</table>
+</div>

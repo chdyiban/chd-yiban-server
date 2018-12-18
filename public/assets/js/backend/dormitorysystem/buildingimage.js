@@ -11,7 +11,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 success: function(data) {
                     $.each(data, function(key, value) {
                         var room = $("td[data-id="+key+"]");
-                        room.html(key+"<br>("+value.allbed+"/"+value.used+")");
+                        room.html(key+"<br>("+value.used+"/"+value.allbed+")");
                         if (value.used == 0) {
                             room.addClass("empty");
                         } else if(value.used == value.allbed) {

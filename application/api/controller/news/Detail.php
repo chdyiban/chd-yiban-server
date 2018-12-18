@@ -30,7 +30,8 @@ class Detail extends Api
             'data' => [
                 'title' => $data['title'],
                 'author' => $data['author'],
-                'createtime'=> formatTime($data['create_time']),
+                //'createtime'=> formatTime($data['create_time']),
+                'createtime'=> date("Y-m-d", $data['create_time']),
                 'views' => isset($data['views']) ? $data['views'] : '保密',
                 'likes' => isset($data['likes']) ? $data['likes'] : '保密',
                 'body' => $data['content'],
