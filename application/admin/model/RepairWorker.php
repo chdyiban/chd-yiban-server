@@ -30,5 +30,33 @@ class RepairWorker extends Model
         $list = collection($list)->toArray();
         return ['data' => $list, 'count' => count($list)];
     }
+    /**
+     * 获取外协以及后勤的工人列表
+     */
+    public function getCompanyWorker($companyId,$offset,$limit)
+    {
+        $list = Db::name('repair_worker')
+                    ->where('distributed_id',$companyId)
+                    ->limit($offset, $limit)
+                    ->select();
+
+        $list = collection($list)->toArray();
+        return ['data' => $list, 'count' => count($list)];
+    }
+
+    /**
+     * 获取工人未完成的列表
+     * 
+     */
+
+    public function getWorkerNotFinishList($workerId)
+    {
+        $list = Db::name('repair_list')
+                    -> where('dispatched_id',$workerId)
+                    -> where('status','dispatched')
+                    -> select();
+        return $list;
+
+    }
     
 }

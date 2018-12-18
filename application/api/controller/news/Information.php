@@ -45,7 +45,7 @@ class Information extends Api
         }
         $page = max(1, $page);
         $params['limit'] = ($page - 1) * 10 . ',10';
-        $params['orderby'] = 'createtime';
+        $params['orderby'] = 'id';
         if ($channel == 47) {
             $params['channel'] = [3, 4, 5, 7];
             $params['flag'] = 'recommend';

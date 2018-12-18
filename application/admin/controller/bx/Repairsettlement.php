@@ -1,26 +1,27 @@
 <?php
 
 namespace app\admin\controller\bx;
+use think\Db;
 
 use app\common\controller\Backend;
 
 /**
  * 
- *
+ * 工单结算
  * @icon fa fa-circle-o
  */
-class Repairworker extends Backend
+class Repairsettlement extends Backend
 {
     
     /**
-     * RepairWorker模型对象
+     * 工单结算
      */
     protected $model = null;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('RepairWorker');
+        $this->model = model('RepairSettlement');
 
     }
     
@@ -34,7 +35,7 @@ class Repairworker extends Backend
      */
     public function index()
     {
-        //设置过滤方法
+        
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax())
         {
@@ -43,17 +44,26 @@ class Repairworker extends Backend
             {
                 return $this->selectpage();
             }
-
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
-            //获取管理员id
-            $admin_id = $this->auth->id;
-            $info = $this -> model -> get_worker($admin_id,$offset,$limit);
-            $total = $info['count'];
-            $data = $info['data'];
-            $result = array("total" => $total, "rows" => $data);           
+        
+            $total = $this->model
+                    ->with('getcompanyname,getrepairname')
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->count();
+
+            $list = $this->model
+                    ->with('getcompanyname,getrepairname')
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->limit($offset, $limit)
+                    ->select();
+
+            $list = collection($list)->toArray();
+            $result = array("total" => $total, "rows" => $list);           
             return json($result);
         }
-        return $this->view->fetch();
+         return $this->view->fetch(); 
     }
     /**
      * 添加
@@ -78,7 +88,6 @@ class Repairworker extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $params['distributed_id'] = $this->auth->id;
                     $result = $this->model->allowField(true)->save($params);
                     if ($result !== false)
                     {
@@ -100,15 +109,43 @@ class Repairworker extends Backend
     }
 
     /**
-     * 查看未完成工作情况
+     * 获取公司名称
      */
-    public function workProgress()
+    public function getCompany()
     {
-        $workerId = $this ->request -> param('ids');
-        //获取未完成列表
-        $notFinishList = $this -> model -> getWorkerNotFinishList($workerId);
-        $this->view->assign('notFinishList',$notFinishList);
-        return $this->view->fetch('workProgress');
+        $companyList = array();
+        $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
+        //获取公司名称
+        $company = Db::view('auth_group_access') 
+                    -> view('admin','nickname,id','auth_group_access.uid = admin.id')
+                    -> where("group_id = $com_id") 
+                    -> select();
+        foreach ($company as $key => $value) {
+            $tempArray = array();
+            $tempArray['value'] = $value['uid'];
+            $tempArray['name'] = $value['nickname'];
+            $companyList[] = $tempArray;
+        }
+        $this->success('', null, $companyList);
+    }
+    /**
+     * 获取维修内容名称电工水工等
+     */
+    public function getContent()
+    {
+        $contentList = array();
+      
+        //获取公司名称
+        $content = Db::name('repair_type') 
+                    -> group('id')
+                    -> select();
+        foreach ($content as $key => $value) {
+            $tempArray = array();
+            $tempArray['value'] = $value['id'];
+            $tempArray['name'] = $value['name'];
+            $contentList[] = $tempArray;
+        }
+        $this->success('', null, $contentList);
     }
 
 }
