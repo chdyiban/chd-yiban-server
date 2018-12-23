@@ -22,7 +22,7 @@
             <td colspan="9">暂无已完成订单</td>
         </tr>
         {else/}
-        {foreach $FinishList as $vo}
+        {foreach $finishList as $vo}
         <tr style="text-align:center;" >
             <td style="vertical-align:middle;"> {$vo.id}</td>
             <td style="vertical-align:middle;"> {$vo.address_id}号楼</td>
