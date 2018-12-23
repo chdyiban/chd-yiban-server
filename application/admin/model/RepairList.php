@@ -39,6 +39,11 @@ class RepairList extends Model
     public function getname(){
         return $this->belongsTo('Admin', 'admin_id');
     }
+    //获取工人名称
+    public function getworkername()
+    {
+        return $this -> belongsTo('RepairWorker','dispatched_id');
+    }
 
     //获取报修类型
     // public function gettype(){
