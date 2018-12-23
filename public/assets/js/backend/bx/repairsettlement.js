@@ -20,12 +20,19 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {field: 'id', title: __('ID'),visible: false},
-                        {field: 'list_id', title: __('订单id')},
-                        {field: 'getcompanyname.nickname', title: __('维修单位'),formatter:function(value){
-                            if (value == "总控") {
-                                return "自修";                              
-                            } else {
-                                return value;
+                        {field: 'list_id', title: __('订单id'),visible: false},
+                        // {field: 'getcompanyname.nickname', title: __('维修单位'),formatter:function(value){
+                        //     if (value == "总控") {
+                        //         return "自修";                              
+                        //     } else {
+                        //         return value;
+                        //     }
+                        // }},
+                        {field: 'repair_company_id', title: __('维修单位'),formatter:function(value){
+                            if (value == "1") {
+                                return "动力";
+                            } else if(value = "2") {
+                                return "修建";
                             }
                         }},
                         {field: 'repair_address', title: __('维修地点')},

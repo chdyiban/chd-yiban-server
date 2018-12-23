@@ -75,20 +75,30 @@ class Repairlist extends Model
 
             if (empty($val['accepted_time']) && empty($val['refused_time'])) {
                 $info['wx_xysj'] = '-';
-            } elseif(!empty($val['refused_time'])) {
-                $wx_xysj = ($val['refused_time'] -$val['submit_time'])%60;
+            } else if(!empty($val['refused_time'])) {
+                $wx_xysj = ($val['refused_time'] -$val['submit_time']);
+                if ($wx_xysj < 60) {
+                    $info['wx_xysj'] = $wx_xysj.'秒';
+                } else {
+                    $wx_xysj = intval($wx_xysj/60);
+                    $info['wx_xysj'] = $wx_xysj.'分钟';
+                }
                 //响应时间
-                $info['wx_xysj'] = $wx_xysj.'分钟';
-            } elseif(!empty($val['accepted_time'])){
-                $wx_xysj = ($val['accepted_time'] -$val['submit_time'])%60;
+            } else if(!empty($val['accepted_time'])){
+                $wx_xysj = ($val['accepted_time'] - $val['submit_time']);
                 //响应时间
-                $info['wx_xysj'] = $wx_xysj.'分钟';
+                if ($wx_xysj < 60) {
+                    $info['wx_xysj'] = $wx_xysj.'秒';   
+                } else {
+                    $wx_xysj = intval($wx_xysj/60);
+                    $info['wx_xysj'] = $wx_xysj.'分钟';
+                }
             }
 
             if (empty($val['finished_time'])) {
                 $info['wx_wgsj'] = '-';
             } else {
-                $wx_wgsj = ($val['finished_time'] -$val['submit_time'])%60;
+                $wx_wgsj = intval(($val['finished_time'] -$val['submit_time'])/60);
                 //响应时间
                 $info['wx_wgsj'] = $wx_wgsj.'分钟';
             }

@@ -5,6 +5,7 @@ namespace app\api\controller;
 use app\common\controller\Api;
 use think\Config;
 use think\Db;
+use think\Cache;
 use fast\Http;
 use fast\Random;
 use wechat\wxBizDataCrypt;
@@ -27,6 +28,7 @@ class Repair extends Api
         $repair = new RepairlistModel;
         $res = $repair->saveData($key);
         // 发送短信功能
+        $this->isNotice();
         // $mobile = '15991651685';
         // $msg = "[宿舍管理系统]通知：刚有新的订单产生，请前往处理";
         // $res = Smslib::notice($mobile, $msg);
@@ -35,6 +37,21 @@ class Repair extends Api
             'message' => 'success',
         ];
         return json($info);
+    }
+
+    private function isNotice()
+    {
+        $configInfo = Db::name('repair_config') -> where('name','sms_zk') -> find();
+        if($configInfo['status'] == "1"){
+            $mailTime = Cache::get('mail');
+            if (empty($mailTime)) {
+                $mobile = $configInfo['object'];
+                $msg = $configInfo['content'];
+                $time = $configInfo['wait_time'] * 60;
+                $res = Smslib::notice($mobile, $msg);
+                Cache::set('mail',$msg,$time);
+            } 
+        }
     }
 
     public function get_pic(){
