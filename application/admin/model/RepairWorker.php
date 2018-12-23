@@ -58,5 +58,19 @@ class RepairWorker extends Model
         return $list;
 
     }
+    /**
+     * 获取工人完成工作的列表
+     * 
+     */
+
+    public function getWorkerFinishList($workerId)
+    {
+        $list = Db::name('repair_list')
+                    -> where('dispatched_id',$workerId)
+                    -> where('status','finished')
+                    -> select();
+        return $list;
+
+    }
     
 }

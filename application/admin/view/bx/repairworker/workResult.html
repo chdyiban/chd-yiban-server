@@ -6,9 +6,6 @@
     <div class="box-body table-responsive no-padding">
     <table class="table table-hover">
         <tbody style="text-align:center;" >
-            <tr>
-                <th style="text-align:center;width: 100px" colspan="9">学生社区管理中心维修派工单</th>
-            </tr>
             <tr style="text-align:center;vertical-align:middle;">
                 <th  style="text-align:center;width: 100px">订单ID</th>
                 <th  style="text-align:center;width: 100px">报修区域</th>
@@ -18,11 +15,11 @@
                 <th  style="text-align:center;width: 100px">申报人</th>
                 <th  style="text-align:center;width: 100px">联系方式</th>
                 <th  style="text-align:center;width: 100px">报修时间 </th>
-                <th  style="text-align:center;width: 100px">派工时间</th>
+                <th  style="text-align:center;width: 100px">完工时间</th>
             </tr>
-        {empty name="$notFinishList"}
+        {empty name="$finishList"}
         <tr style="text-align:center;" >
-            <td colspan="9">暂无未完成订单</td>
+            <td colspan="9">暂无已完成订单</td>
         </tr>
         {else/}
         {foreach $notFinishList as $vo}
@@ -33,26 +30,14 @@
             <td style="vertical-align:middle;"> {$vo.title}</td>
             <td style="vertical-align:middle;"> {$vo.content}</td>
             <td style="vertical-align:middle;"> {$vo.stu_name}</td>
-            <td style="vertical-align:middle;">{$vo.phone}</td>
+            <td style="vertical-align:middle;"> {$vo.phone}</td>
             <td style="vertical-align:middle;"> {$vo.submit_time|date="Y-m-d",###}</td>
-            <td style="vertical-align:middle;"> {$vo.dispatched_time|date="Y-m-d",###}</td>
+            <td style="vertical-align:middle;"> {$vo.finished_time|date="Y-m-d",###}</td>
         </tr>
         {/foreach}
-        <tr style="text-align:left;">
-            <td style="vertical-align:middle;"></td>
-            <td style="vertical-align:middle;"></td>
-            <td style="vertical-align:left;" colspan="3">完成时间</td>
-            <td style="vertical-align:left;" colspan="4">维修工签名</td>
-        </tr>
     </tbody></table>
     </div>
-    <div class="box-footer">
-        <button id="btnPrint" type="button" class="btn noprint btn-success pull-left" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
 
-        <button type="button" class="btn btn-cancel  noprint btn-default pull-right" style="margin-right: 5px;">
-            <i class="fa fa-close"></i> 取消
-        </button>
-    </div>
     {/empty}
 </div>
 

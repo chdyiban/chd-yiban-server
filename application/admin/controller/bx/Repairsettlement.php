@@ -113,19 +113,29 @@ class Repairsettlement extends Backend
      */
     public function getCompany()
     {
-        $companyList = array();
-        $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
-        //获取公司名称
-        $company = Db::view('auth_group_access') 
-                    -> view('admin','nickname,id','auth_group_access.uid = admin.id')
-                    -> where("group_id = $com_id") 
-                    -> select();
-        foreach ($company as $key => $value) {
-            $tempArray = array();
-            $tempArray['value'] = $value['uid'];
-            $tempArray['name'] = $value['nickname'];
-            $companyList[] = $tempArray;
-        }
+        // $companyList = array();
+        // $com_id = Db::name('auth_group') -> where('name','报修单位') -> field('id') -> find()['id'];
+        // //获取公司名称
+        // $company = Db::view('auth_group_access') 
+        //             -> view('admin','nickname,id','auth_group_access.uid = admin.id')
+        //             -> where("group_id = $com_id") 
+        //             -> select();
+        // foreach ($company as $key => $value) {
+        //     $tempArray = array();
+        //     $tempArray['value'] = $value['uid'];
+        //     $tempArray['name'] = $value['nickname'];
+        //     $companyList[] = $tempArray;
+        // }
+        $companyList = [
+            [
+                'value' => '1',
+                'name'  => '动力',
+            ],
+            [
+                'value' => '2',
+                'name'  => '修建',
+            ]
+        ];
         $this->success('', null, $companyList);
     }
     /**

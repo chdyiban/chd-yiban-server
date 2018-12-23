@@ -30,8 +30,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'mobile', title: __('电话')},
                         {field: 'operate', title: __('操作'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons: [
-                                {name: 'workProgress',  classname: 'btn btn-xs btn-primary btn-success btn-workProgress  btn-dialog', icon: 'fa fa-list', url: 'bx/Repairworker/workProgress', callback: function (data){}},      
-                            ],   
+                                {name: 'workProgress',  classname: 'btn btn-xs btn-primary btn-success btn-workProgress  btn-dialog', icon: 'fa fa-list',title:'待维修订单', url: 'bx/Repairworker/workProgress', callback: function (data){}},      
+                                {name: 'workResult',  classname: 'btn btn-xs btn-primary btn-info btn-workResult  btn-dialog', icon: 'fa fa-list-alt',title:'已完成订单', url: 'bx/Repairworker/workResult', callback: function (data){}},      
+                            ],      
                         }
                     ]
                 ]

@@ -110,5 +110,16 @@ class Repairworker extends Backend
         $this->view->assign('notFinishList',$notFinishList);
         return $this->view->fetch('workProgress');
     }
+    /**
+     * 查看已经完成订单
+     */
+    public function workResult()
+    {
+        $workerId = $this ->request -> param('ids');
+        //获取未完成列表
+        $finishList = $this -> model -> getWorkerFinishList($workerId);
+        $this->view->assign('finishList',$finishList);
+        return $this->view->fetch('workResult');
+    }
 
 }

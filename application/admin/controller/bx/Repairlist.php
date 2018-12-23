@@ -57,27 +57,27 @@ class Repairlist extends Backend
             if($status == 'all'){
                 if ($now_admin_id == $this -> control_id || $now_admin_id == 1) {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where($where)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where($where)
                             ->order($sort, $order)
                             ->limit($offset, $limit)
                             ->select();
                 } else {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where($where)
                             ->where('distributed_id',$now_admin_id)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where($where)
                             ->where('distributed_id',$now_admin_id)
                             ->order($sort, $order)
@@ -87,14 +87,14 @@ class Repairlist extends Backend
             }else{
                 if ($now_admin_id == $this -> control_id || $now_admin_id == 1) {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
@@ -102,7 +102,7 @@ class Repairlist extends Backend
                             ->select();
                 } else {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
@@ -110,7 +110,7 @@ class Repairlist extends Backend
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename')
+                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
@@ -123,18 +123,30 @@ class Repairlist extends Backend
             $result = array("total" => $total, "rows" => $list);           
             return json($result);
         }
-         return $this->view->fetch(); 
+        return $this->view->fetch(); 
     }
     
     //受理方法
-    public function accept($ids ){
+    public function accept($ids){
         $admin_id = $this->auth->id;
         $res = $this->model->accept($ids, $admin_id);
         if($res){
-            return $this->success("受理成功，请尽快指派单位");
+            $this->success("受理成功，请尽快指派单位");
         } else {
-            return $this->error("受理失败，请确认数据");
+            $this->error("受理失败，请确认数据");
         }
+    }
+    //批量处理方法
+    public function multiaccept()
+    {
+        $result = [];
+        $admin_id = $this->auth->id;
+        $accept_ids = $this -> request -> param("accept_ids");
+        $accept_ids = json_decode($accept_ids,true);
+        foreach ($accept_ids as $key => $value) {
+            $result[] = $this->model->accept($value, $admin_id);
+        }
+        return true;
     }
 
     public function finish($ids){
@@ -159,13 +171,18 @@ class Repairlist extends Backend
         if ($this->request->isPost()){
             $company_id = $this->request->post('company_id');
             $worker_id = $this->request->post('worker_id');
-            if (empty($worker_id)) {
-                $res = $this->model->distribute($ids, $company_id);
-                return $res;
+            if (empty($company_id)) {
+                $this -> error("请选择派遣单位");
             } else {
-                $res = $this->model->distribute($ids, $company_id);
-                $re  =  $this->model->dispatch($ids, $worker_id);
-                return $res&&$re;
+
+                if (empty($worker_id)) {
+                    $res = $this->model->distribute($ids, $company_id);
+                    return $res;
+                } else {
+                    $res = $this->model->distribute($ids, $company_id);
+                    $re  =  $this->model->dispatch($ids, $worker_id);
+                    return $res&&$re;
+                }
             }
             
         } else {
