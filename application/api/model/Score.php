@@ -14,9 +14,10 @@ class Score extends Model
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
-    const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=";
+    //const SCORE_URL = "http://ids.chd.edu.cn/authserver/login?service=http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?semesterId=";
+    const SCORE_URL = "http://bkjw.chd.edu.cn/eams/teach/grade/course/person!search.action?projectType=&looked=yes&semesterId=";
     //本学期的id，需要更新
-    const SCORE_ITEM_ID = 77;
+    const SCORE_ITEM_ID = 78;
 
     public function get_score($key){
         $username = $key['id'];
