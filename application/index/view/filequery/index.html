@@ -1,0 +1,125 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>查询</title>
+    
+    <link rel="stylesheet" href="__CDN__/assets/css/filequery/example.css"/>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+
+    
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+
+
+
+
+</head>
+<body>
+
+    <div class="page__hd" style="height:10px; ">
+        <h1 class="page__title"style="text-align:center;">长安大学遗留档案查询</h1>
+    </div>
+
+
+
+<form id="search" method="post" >
+<div class="weui-cells weui-cells_form">
+
+    <div class="weui-cell" style="height:60px">
+        <div class="weui-cell__hd"><label class="weui-label">学号或姓名</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" id="number" type="text" autocomplete="off" placeholder="请输入学工号或姓名"/>
+        </div>
+    </div>
+
+
+    <div class="weui-cell weui-cell_vcode">
+        <div class="weui-cell__hd"><label class="weui-label">验证码</label></div>
+        <div class="weui-cell__bd">
+            <input id="verify" class="weui-input" type="text" autocomplete="off" placeholder="请输入验证码"/>
+        </div>
+        <div class="weui-cell__ft">
+            <img src="{:captcha_src()}" alt="captcha" onclick="this.src=this.src+'?'"/>
+        </div>
+    </div>
+  
+
+
+    <div class="weui-btn-area" onclick="ajaxPost()">
+      <a class="weui-btn weui-btn_primary"  id="showTooltips">确定</a>
+    </div>
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">档案查询步骤</div>
+        <div class="weui-panel__bd">
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">Step1.档案查询</h4>
+                <p class="weui-media-box__desc"> 在此页面输入名字或学号查询档案存放信息，若未查到，即档案未在长安大学学工部存档。学工部掌握的毕业生遗留档案为各院（系）提交的，如查询未果，请与当时所在学院或辅导员（班主任）联系。</p>
+            </div>
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">Step2.相关材料准备</h4>
+                <p class="weui-media-box__desc">本人领取：<span style="color:red">身份证原件、复印件、调档函</span>（或相关证明，须注明遗留原因，现因何提取，提向何处）</p>
+                <p class="weui-media-box__desc">委托他人领取：<span style="color:red">本人身份证原件及复印件、调档函</span>（或相关证明，须注明遗留原因，现因何提取，提向何处）、
+                    <span style="color:red">委托书</span>（需有本人、委托人签名）、<span style="color:red">委托人身份证原件、复印件、财务处出具无欠费、借款证明</span>
+                    （见学工部网站-下载中心《长安大学学生遗留档案领取流程》，本人或委托人将基本信息填写完毕后到计财处办理核查，并签字盖章）</p>
+            </div>
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title"> Step3.领取办理</h4>
+                <p class="weui-media-box__desc">持以上材料到渭水校区行政楼一楼103室办理登记、审核、领取档案（联系方式：朱老师 029-83135157）</p>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+
+
+
+		<script>
+			
+			function ajaxPost(){
+
+				//var formData = $("#search").serialize();
+                var formData = {
+                    number:$('#number').val(),
+                    verify:$('#verify').val(),
+                };
+                            
+				//serialize() 方法通过序列化表单值，创建 URL 编码文本字符串,这个是jquery提供的方法
+				$.ajax({           
+					type:"post",
+					url:"{:url('index/filequery/choose')}",
+					data:formData,//这里data传递过去的是序列化以后的字符串
+					success:function(data){
+                        $.toptip("data.result");
+                        if(data.flag){
+                            $.toptip(data.result);
+                        }else{
+                            document.write(data);
+                        }
+					}
+				});
+			}
+			
+		</script>
+
+    <!-- <script>
+      $("#showTooltips").click(function(){
+        var number = $('#number').val();
+        var code = $('#verify').val(); 
+        alert('1');
+        var url ={~url('index/test')}  ;
+        alert(url);
+
+        
+        //  if(!tel || !/1[3|4|5|7|8]\d{9}/.test(tel)) $.toptip('请输入手机号');
+        //  else if(!code || !/\d{6}/.test(code)) $.toptip('请输入六位手机验证码');
+        //  else $.toptip('提交成功', 'success');
+      });
+    </script> -->
+</div>
+
+</body>
+</html>
