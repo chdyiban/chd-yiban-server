@@ -330,6 +330,7 @@ class Repairlist extends Backend
     }
     /**
      * 获取工人
+     * @time 2019/1/10 此处无需区分自修或是非自修，皆可以分配工人
      */
     public function getWorker()
     {
@@ -339,15 +340,18 @@ class Repairlist extends Backend
         $companyName = Db::name('admin') -> where('id',$uid) -> field('nickname')->find()['nickname'];
         if ($companyName == "自修") {
             $control_id = $this -> control_id;
-            $worker = Db::name('repair_worker') -> where('distributed_id',$control_id) -> select();
-            foreach ($worker as $key => $value) {
-                $tempArray = array();
-                $tempArray['value'] = $value['id'];
-                $tempArray['name'] = $value['name']."-".$value['mobile'];
-                $workerList[] = $tempArray;
-            }
-            $this->success('', null, $workerList);
+        } else {
+            $control_id = $uid;
         }
+        $worker = Db::name('repair_worker') -> where('distributed_id',$control_id) -> select();
+        foreach ($worker as $key => $value) {
+            $tempArray = array();
+            $tempArray['value'] = $value['id'];
+            $tempArray['name'] = $value['name']."-".$value['mobile'];
+            $workerList[] = $tempArray;
+        }
+        $this->success('', null, $workerList);
+    
     }
     /**
      * 获取传入工单的最新操作时间
