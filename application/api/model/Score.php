@@ -116,7 +116,7 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_data($username, $params, $score_id, $database_ids);
+                $res = $this->get_data($username, $params, $database_ids);
                 return $res;
             }else{
                 //不需要验证码
@@ -132,7 +132,7 @@ class Score extends Model
                     "rmShown" => "1"
                 ];
                 $response = Http::post(self::PORTAL_URL,$post_data,$params);
-                $res = $this->get_data($username, $params, $score_id, $database_ids);
+                $res = $this->get_data($username, $params, $database_ids);
                 return $res;
             }
         }
