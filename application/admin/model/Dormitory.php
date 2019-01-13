@@ -436,6 +436,163 @@ class Dormitory extends Model
             return ['status'=> false, 'msg' => '该学生已经分配了床位！'];
         }
     }
+
+    /**
+     * 添加宿舍功能
+     * @param list param ['XQ','LH','LC','LD','SSH','XBDM','CWS','','status','GYFMC']
+     * @return bool result
+     */
+    public function addRoom($params)
+    {
+        //验证床位是否 存在
+        $roomList = Db::name('dormitory_rooms')
+                    -> where('XQ',$params['XQ']) 
+                    -> where('LH',$params['LH'])
+                    -> where('LC',$params['LC'])
+                    -> where('SSH',$params['SSH'])
+                    -> find();
+        if (empty($roomList)) {
+            Db::startTrans();
+            $insert_res = false;
+            $add_res = false;
+            try{
+                //第一步将房间加入room表中
+                $params['RZS'] = '0';
+                $insert_res = Db::name('dormitory_rooms')
+                            -> insert($params);
+                //将对应的床位插入beds表中
+                $FYID = Db::name('dormitory_rooms')->getLastInsID(); 
+                if ($params['status'] == '1') {
+                    for ($i=0; $i < $params['CWS'] ; $i++) { 
+                        $insert_data = [
+                            'FYID' => $FYID,
+                            'XH'   => '',
+                            'NJ'   => '',
+                            'YXDM' => '',
+                            'CH'   => $i+1,
+                            'status' => '0',
+                        ];
+                        $add_res = Db::name('dormitory_beds') -> insert($insert_data);
+                    }
+                } else {
+                    $add_res = true;
+                }
+                // 提交事务
+                Db::commit();  
+            } catch (\Exception $e) {
+                // 回滚事务
+                Db::rollback();
+            }
+            if ($add_res == 1 && $insert_res == 1) {
+                return ['status' => true, 'msg' => '宿舍新增成功'];
+            } else {
+                return ['status' => false, 'msg' => "网络原因，新增失败"];
+            }
+        } else {
+            return ['status' => false, 'msg' => "该宿舍已经存在"];
+        }
+    }
+    /**
+     * 修改宿舍功能
+     * @param list param ['XBDM','CWS','status','GYFMC']
+     * @return bool result
+     */
+    public function editRoom($params,$ids)
+    {
+        //查询表中原床位
+        $CWS = Db::name('dormitory_rooms') -> where('id',$ids) -> field('CWS')->find()['CWS'];
+        Db::startTrans();
+        $edit_res = false;
+        $del_res = false;
+        try{
+            //根据房间类别修改room表
+            //公用房
+            if ($params['status'] == '2') {
+                $edit_data = [
+                    'XBDM' => '',
+                    'CWS'  => '0',
+                    'RZS'  => '',
+                    'status' => '2',
+                    'GYFMC' => $params['GYFMC'],
+                ];
+                $edit_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> update($edit_data);
+            //学生用房
+            } elseif ($params['status'] == '1') {
+                $edit_data = [
+                    'XBDM' => $params['XBDM'],
+                    'CWS'  => $params['CWS'],
+                    'status' => '1',
+                    'GYFMC' => '',
+                ];
+                $edit_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> update($edit_data);
+            //无法使用
+            } else {
+                $edit_data = [
+                    'XBDM' => '',
+                    'CWS'  => '0',
+                    'status' => '0',
+                    'GYFMC' => '',
+                ];
+                $edit_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> update($edit_data);
+            }
+
+            //修改对应beds表中数据
+            
+            //是公用房，则清空beds表中此房间所有数据
+            if ($params['status'] == '2' || $params['status'] == '0') {
+                if (empty($CWS)) {
+                    $del_res = true;
+                } else {
+                    $del_res = Db::name('dormitory_beds') -> where('FYID',$ids) -> delete();
+                }
+            } elseif ($params['status'] == '1') {
+
+                if (empty($CWS)) {
+                    for ($i=0; $i < $params['CWS']; $i++) { 
+                        $insert_data = [
+                            'FYID' => $ids,
+                            'XH'   => '',
+                            'NJ'   => '',
+                            'YXDM' => '',
+                            'CH'   => $i+1,
+                            'status' => '0',
+                        ];
+                        $del_res = Db::name('dormitory_beds') -> insert($insert_data);
+                    }
+                } elseif ($CWS < $params['CWS']) {
+                    for ($i = $CWS; $i < $params['CWS']; $i++) { 
+                        $insert_data = [
+                            'FYID' => $ids,
+                            'XH'   => '',
+                            'NJ'   => '',
+                            'YXDM' => '',
+                            'CH'   => $i+1,
+                            'status' => '0',
+                        ];
+                        $del_res = Db::name('dormitory_beds') -> insert($insert_data);
+                    }
+                } elseif ($CWS > $params['CWS']) {
+                    for ($i = $CWS; $i > $params['CWS'] ; $i--) { 
+                        $del_res = Db::name('dormitory_beds') -> where('FYID',$ids)-> where('CH',$i) -> delete();
+                    }
+                } elseif ($CWS == $params['CWS']) {
+                    $del_res = true;                    
+                }
+            } 
+            // 提交事务
+            Db::commit();  
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
+        }
+
+        if ($del_res == 1 && $edit_res == 1) {
+            return ['status' => true, 'msg' => '宿舍状态修改成功'];
+        } else {
+            return ['status' => false, 'msg' => "网络原因，修改失败"];
+        }
+    }
+
     /**
      * 插入调换宿舍记录
      * @param list param ['XH','CH','LH','SSH']
