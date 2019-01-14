@@ -2,6 +2,7 @@
 
 namespace app\admin\controller\dormitorysystem;
 use think\Db;
+use think\Log;
 use app\common\controller\Backend;
 
 /**
@@ -57,6 +58,7 @@ class Dormitorylist extends Backend
             $total = $this->model
                     // ->with('getcollege,getstuname')
                     ->where($where)
+                    -> where('status',1)
                     //->group('LH,SSH')
                     ->order($sort, $order)
                     ->count();
@@ -65,6 +67,7 @@ class Dormitorylist extends Backend
                     // ->with('getcollege,getstuname')
                     ->where($where)
                     //->group('LH,SSH')
+                    ->where('status',1)
                     ->order($sort, $order)
                     ->limit($offset, $limit)
                     ->select();
@@ -74,6 +77,114 @@ class Dormitorylist extends Backend
             return json($result);
         }
          return $this->view->fetch(); 
+    }
+
+     /**
+     * 添加
+     */
+    public function add()
+    {
+        if ($this->request->isPost())
+        {
+            $params = $this->request->post("row/a");
+            if ($params)
+            {
+                if ($this->dataLimit && $this->dataLimitFieldAutoFill)
+                {
+                    $params[$this->dataLimitField] = $this->auth->id;
+                }
+
+                //是否采用模型验证
+                if ($this->modelValidate)
+                {
+                    $name = basename(str_replace('\\', '/', get_class($this->model)));
+                    $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
+                    $this->model->validate($validate);
+                }
+                $result = $this->model->addRoom($params,$this->auth->id);
+                if ($result['status'] !== false)
+                {
+                    $this->success($result['msg']);
+                }
+                else
+                {
+                    $this->error($result['msg']);
+                }
+            }
+               
+            
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        return $this->view->fetch();
+    }
+    /**
+     * 编辑
+     */
+    public function edit($ids = NULL)
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds))
+        {
+            if (!in_array($row[$this->dataLimitField], $adminIds))
+            {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost())
+        {
+            $params = $this->request->post("row/a");
+            if ($params)
+            {
+
+                //是否采用模型验证
+                if ($this->modelValidate)
+                {
+                    $name = basename(str_replace('\\', '/', get_class($this->model)));
+                    $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
+                    $row->validate($validate);
+                }
+                $result = $this->model -> editRoom($params,$ids,$this->auth->id);
+                // $now_time = date("Y-m-d H:m:s");
+                // $admin_name = $this->auth->nickname;
+                // Log::record("管理员".$admin_name."于".$now_time."修改了宿舍:"."id为".$id."  ".json_encode($params));
+                //$result = $row->allowField(true)->save($params);
+                if ($result['status'] !== false)
+                {
+                    $this->success($result['msg']);
+                }
+                else
+                {
+                    $this->error($result['msg']);
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+
+    public function delete($ids = "")
+    {
+        if ($ids)
+        {
+            // $now_time = date("Y-m-d H:m:s");
+            // $admin_name = $this->auth->nickname;
+            //Log::record("管理员".$admin_name."于".$now_time."删除了宿舍");
+            $result = $this -> model -> deleteRoom($ids,$this->auth->id);
+            if ($result['status']) {
+                $this -> success($result['msg']);
+            } else {
+                $this -> error($result['msg']);
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
     /**
@@ -299,6 +410,45 @@ class Dormitorylist extends Backend
         } else {
             $this->error('请求错误');
         }
+    }
+
+    /**
+     * 新增宿舍，返回校区用于ajax调用
+     */
+    public function getXQ()
+    {
+        $XQList = [
+            [
+                'value' => '渭水',
+                'name'  => '渭水',
+            ],
+            [
+                'value' => '本部',
+                'name'  => '本部',
+            ]
+        ];
+        $this->success('', null, $XQList);
+    }
+    /**
+     * 新增宿舍，返回房源类型用于ajax调用
+     */
+    public function getRoomStatus()
+    {
+        $statusList = [
+            [
+                'value' => '1',
+                'name'  => '学生用房',
+            ],
+            [
+                'value' => '2',
+                'name'  => '公用房',
+            ],
+            [
+                'value' => '0',
+                'name'  => '无法使用',
+            ]
+        ];
+        $this->success('', null, $statusList);
     }
 
 }

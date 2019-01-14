@@ -10,8 +10,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                     index_url: 'dormitorysystem/dormitorylist/index',
                     add_url: 'dormitorysystem/dormitorylist/add',
                     //edit_url: 'bx/repairlist/edit',
-                    edit_url: '0',
-                    del_url: '0',
+                    edit_url: 'dormitorysystem/dormitorylist/edit',
+                    del_url: '',
                     multi_url: 'dormitorysystem/dormitorylist/multi',
                     free_bed_url: 'dormitorysystem/dormitorylist/freebed',
                     table: 'dormitory_list',
@@ -44,15 +44,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             });
 
             // 初始化表格
-            // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                //pk: 'ID',
+                pk: 'ID',
                 //sortName: 'ID',
                 columns: [
                     [
                         {checkbox: true},
-                        //{field: 'ID', title: __('ID'),sortable:true,width:50},
+                        {field: 'ID', title: __('ID'),visible:false },
                         {field: 'XQ', title: __('校区')},
                         {field: 'LH', title: __('楼号'),sortable:true,width:60},                   
                         {field: 'LC', title: __('楼层'),sortable:true,width:60},
@@ -60,19 +59,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                         {field: 'SSH', title: __('宿舍号'),sortable:true,width:80},
                         {field: 'RZQK', title: __('入住情况'),operate:false,formatter:function(value,row,index){}},
                         {field: 'RZBL', title: __('入住比例(入住/总床位)'),operate:false,formatter:function(value,row,index){}},
-                        {field: 'XBDM', title: __('类别'),searchList: {"1":__('男宿'),"2":__('女宿')},formatter:function(value){
-                            if(value == 1) 
-                                return "男宿";
-                            if(value == 2) 
-                                return "女宿";
+                        {field: 'XBDM', title: __('类别'),searchList: {"1":__('男宿'),"2":__('女宿')},formatter:function(value,row){
+                            if (row.status == 1) {     
+                                if(value == 1) 
+                                    return "男宿";
+                                if(value == 2) 
+                                    return "女宿";
+                            } 
+                        }},
+                        {field: 'status', title: __('房间属性'),searchList: {"1":__('学生用房'),"2":__('公共房'),"0":__('无法使用')},formatter:function(value){
+                            if (value == 1) 
+                                return "学生用房";
+                            if (value == 2) 
+                                return "公用房";
+                            if (value == 0) 
+                                return "无法使用";
                         }},
                         {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate,  
                         
-                        buttons: [
-                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}',text: __('操作'), callback: function (data){}},      
-                            ],     
-                        formatter: Table.api.formatter.operate,               
-                    }
+                            buttons: [
+                                    {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}',text: __('操作'), callback: function (data){}},      
+                                    {name: 'delete', title: __('删除'), classname: 'btn  btn-xs btn-primary btn-danger  btn-ajax', icon: 'fa fa-trash', url: 'dormitorysystem/dormitorypubliclist/delete',text: __('删除'),confirm:"确定删除", success: function (data){
+                                        $(".btn-refresh").trigger("click");
+                                    }},      
+                                ],     
+                            formatter: Table.api.formatter.operate,               
+                        }
                     ]
                 ]
             });
@@ -450,8 +462,66 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             });
         },
 
+        add: function () {
+            $('#roomStatus').change(function(){
+                var roomStatus = $('#roomStatus').val();
+                if  (roomStatus == '1'){
+                    $('.roomName').addClass('hidden');
+                    $('.stuRoom').removeClass('hidden');
+                    //为相应表单开启不验证
+                    $('#c-roomName').attr('novalidate','true');
+                    $('#c-XB').removeAttr('novalidate');
+                    $('#c-CWS').removeAttr('novalidate');
+                } else if(roomStatus == '2'){
+                    $('.roomName').removeClass('hidden');
+                    $('.stuRoom').addClass('hidden');
+                    $('#c-roomName').removeAttr('novalidate');
+                    $('#c-XB').attr('novalidate','true');
+                    $('#c-CWS').attr('novalidate','true');
+                } else if(roomStatus == '0') {
+                    $('.roomName').addClass('hidden');
+                    $('.stuRoom').addClass('hidden');
+                    $('#c-XB').removeAttr('novalidate');
+                    $('#c-CWS').removeAttr('novalidate');
+                    $('#c-roomName').removeAttr('novalidate');
+                }
+            });
+            Controller.api.bindevent();
+        },
+
+        edit: function () {
+            $('#roomStatus').change(function(){
+                var roomStatus = $('#roomStatus').val();
+                if  (roomStatus == '1'){
+                    $('.roomName').addClass('hidden');
+                    $('.stuRoom').removeClass('hidden');
+                    //为相应表单开启不验证
+                    $('#c-roomName').attr('novalidate','true');
+                    $('#c-XB').removeAttr('novalidate');
+                    $('#c-CWS').removeAttr('novalidate');
+                } else if(roomStatus == '2'){
+                    $('.roomName').removeClass('hidden');
+                    $('.stuRoom').addClass('hidden');
+                    $('#c-roomName').removeAttr('novalidate');
+                    $('#c-XB').attr('novalidate','true');
+                    $('#c-CWS').attr('novalidate','true');
+                } else if(roomStatus == '0') {
+                    $('.roomName').addClass('hidden');
+                    $('.stuRoom').addClass('hidden');
+                    $('#c-XB').removeAttr('novalidate');
+                    $('#c-CWS').removeAttr('novalidate');
+                    $('#c-roomName').removeAttr('novalidate');
+                }
+            });
+            Controller.api.bindevent();
+        },
+        
         api: {
+            //不验证被隐藏的字段参考https://forum.fastadmin.net/thread/1203
             bindevent: function () {
+                // $('form[role=form]').validator({
+                //     ignore: ':hidden'
+                // });
                 Form.api.bindevent($("form[role=form]"));
             }
         },
