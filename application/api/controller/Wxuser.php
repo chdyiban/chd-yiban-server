@@ -20,6 +20,7 @@ class Wxuser extends Api
     protected $noNeedRight = ['*'];
 
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
+    const TEST_URL = "http://202.117.64.236:8080/auth/login";
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
     /**
@@ -395,8 +396,13 @@ class Wxuser extends Api
         $user = new WxuserModel;
         return $user->where('open_id',$open_id)->value('portal_id');
     }
-
+    /**
+     * 由于通过模拟登陆判断 账号正确性效率低容易出错，
+     * 修改为LDAP判断账号正确性。
+     * @time 2019/1/10
+     */
     //模拟登录验证用户名密码正确性，暂时未考虑验证码的情况
+    /*
     private function checkBind($username, $password){
 
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
@@ -404,15 +410,15 @@ class Wxuser extends Api
         $need_url = "http://ids.chd.edu.cn/authserver/needCaptcha.html?username=".$username;
         $need = Http::get($need_url,'',$params);
         //$need值为true或者false
-         //1.获取lt es
-         $response = Http::get(self::PORTAL_URL,'',$params);
-         $lt = explode('name="lt" value="', $response);
-         $lt = explode('"/>', $lt[1]);
-         $lt = $lt[0];
+        //1.获取lt es
+        $response = Http::get(self::PORTAL_URL,'',$params);
+        $lt = explode('name="lt" value="', $response);
+        $lt = explode('"/>', $lt[1]);
+        $lt = $lt[0];
 
-         $es = explode('name="execution" value="', $response);
-         $es = explode('"/>', $es[1]);
-         $es = $es[0];
+        $es = explode('name="execution" value="', $response);
+        $es = explode('"/>', $es[1]);
+        $es = $es[0];
         //等于6说明为false
         if(strlen($need) == 6){
            
@@ -521,7 +527,26 @@ class Wxuser extends Api
         }  
         return $return;
     }
+    */
 
+    private function checkBind($username, $password){
+        $post_data = [
+            'userName' => $username,
+            'pwd' => $password,
+        ];
+        $return = [];
+        $response = Http::post(self::TEST_URL,$post_data);
+        $response = json_decode($response,true);
+        $return['status'] = (bool)$response['success'];
+        if ($return['status']) {
+            $return['message'] = "绑定成功!";
+        } else {
+            $return['message'] = "绑定失败，请检查用户名或密码!";
+            
+        }
+        return $return;
+
+    }
     private function getTime(){
         $time = time();
         $d = date('d', $time);
