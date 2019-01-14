@@ -11,7 +11,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                     add_url: 'dormitorysystem/dormitorylist/add',
                     //edit_url: 'bx/repairlist/edit',
                     edit_url: 'dormitorysystem/dormitorylist/edit',
-                    del_url: '0',
+                    del_url: '',
                     multi_url: 'dormitorysystem/dormitorylist/multi',
                     free_bed_url: 'dormitorysystem/dormitorylist/freebed',
                     table: 'dormitory_list',
@@ -79,6 +79,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                         
                             buttons: [
                                     {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}',text: __('操作'), callback: function (data){}},      
+                                    {name: 'delete', title: __('删除'), classname: 'btn  btn-xs btn-primary btn-danger  btn-ajax', icon: 'fa fa-trash', url: 'dormitorysystem/dormitorypubliclist/delete',text: __('删除'),confirm:"确定删除", success: function (data){
+                                        $(".btn-refresh").trigger("click");
+                                    }},      
                                 ],     
                             formatter: Table.api.formatter.operate,               
                         }

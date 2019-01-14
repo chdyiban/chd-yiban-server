@@ -2,6 +2,7 @@
 
 namespace app\admin\controller\dormitorysystem;
 use think\Db;
+use think\Log;
 use app\common\controller\Backend;
 
 /**
@@ -100,7 +101,7 @@ class Dormitorylist extends Backend
                     $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                     $this->model->validate($validate);
                 }
-                $result = $this->model->addRoom($params);
+                $result = $this->model->addRoom($params,$this->auth->id);
                 if ($result['status'] !== false)
                 {
                     $this->success($result['msg']);
@@ -145,7 +146,10 @@ class Dormitorylist extends Backend
                     $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                     $row->validate($validate);
                 }
-                $result = $this->model -> editRoom($params,$ids);
+                $result = $this->model -> editRoom($params,$ids,$this->auth->id);
+                // $now_time = date("Y-m-d H:m:s");
+                // $admin_name = $this->auth->nickname;
+                // Log::record("管理员".$admin_name."于".$now_time."修改了宿舍:"."id为".$id."  ".json_encode($params));
                 //$result = $row->allowField(true)->save($params);
                 if ($result['status'] !== false)
                 {
@@ -160,6 +164,27 @@ class Dormitorylist extends Backend
         }
         $this->view->assign("row", $row);
         return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+
+    public function delete($ids = "")
+    {
+        if ($ids)
+        {
+            // $now_time = date("Y-m-d H:m:s");
+            // $admin_name = $this->auth->nickname;
+            //Log::record("管理员".$admin_name."于".$now_time."删除了宿舍");
+            $result = $this -> model -> deleteRoom($ids,$this->auth->id);
+            if ($result['status']) {
+                $this -> success($result['msg']);
+            } else {
+                $this -> error($result['msg']);
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
     /**

@@ -442,7 +442,7 @@ class Dormitory extends Model
      * @param list param ['XQ','LH','LC','LD','SSH','XBDM','CWS','','status','GYFMC']
      * @return bool result
      */
-    public function addRoom($params)
+    public function addRoom($params,$admin_id)
     {
         //验证床位是否 存在
         $roomList = Db::name('dormitory_rooms')
@@ -477,6 +477,24 @@ class Dormitory extends Model
                 } else {
                     $add_res = true;
                 }
+                //记录至log
+                $insert_log_data = [
+                    'admin_id' => $admin_id,
+                    'operate'  => 'add',
+                    'LH'       => $params['LH'],
+                    'LC'       => $params['LC'],
+                    'SSH'      => $params['SSH'],
+                    'old_status' => '',
+                    'new_status' => $params['status'],
+                    'old_cws'  => '',
+                    'new_cws'  => $params['CWS'],
+                    'old_xbdm' => '',
+                    'new_xbdm' => $params['XBDM'],
+                    'old_gyfmc'    => '',
+                    'new_gyfmc'    => $params['GYFMC'],
+                    'timestamp'=> time(),
+                ];
+                $res_log = Db::name('dormitory_rooms_log')->insert($insert_log_data);
                 // 提交事务
                 Db::commit();  
             } catch (\Exception $e) {
@@ -497,10 +515,11 @@ class Dormitory extends Model
      * @param list param ['XBDM','CWS','status','GYFMC']
      * @return bool result
      */
-    public function editRoom($params,$ids)
+    public function editRoom($params,$ids,$admin_id)
     {
         //查询表中原床位
-        $CWS = Db::name('dormitory_rooms') -> where('id',$ids) -> field('CWS')->find()['CWS'];
+        $oldRoomsList = Db::name('dormitory_rooms') -> where('ID',$ids) ->find();
+        $CWS = $oldRoomsList['CWS'];
         Db::startTrans();
         $edit_res = false;
         $del_res = false;
@@ -516,6 +535,24 @@ class Dormitory extends Model
                     'GYFMC' => $params['GYFMC'],
                 ];
                 $edit_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> update($edit_data);
+                //将操作记录log表中
+                $insert_log_data = [
+                    'admin_id' => $admin_id,
+                    'operate'  => 'edit',
+                    'LH'       => $oldRoomsList['LH'],
+                    'LC'       => $oldRoomsList['LC'],
+                    'SSH'      => $oldRoomsList['SSH'],
+                    'old_status' => $oldRoomsList['status'],
+                    'new_status' => $params['status'],
+                    'old_cws'  => $CWS,
+                    'new_cws'  => '',
+                    'old_xbdm' => $oldRoomsList['XBDM'],
+                    'new_xbdm' => '',
+                    'old_gyfmc'    => $oldRoomsList['GYFMC'],
+                    'new_gyfmc'    => $params['GYFMC'],
+                    'timestamp'=> time(),
+                ];
+                $res_log = Db::name('dormitory_rooms_log')->insert($insert_log_data);
             //学生用房
             } elseif ($params['status'] == '1') {
                 $edit_data = [
@@ -525,6 +562,24 @@ class Dormitory extends Model
                     'GYFMC' => '',
                 ];
                 $edit_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> update($edit_data);
+                //将操作记录log表中
+                $insert_log_data = [
+                    'admin_id' => $admin_id,
+                    'operate'  => 'edit',
+                    'LH'       => $oldRoomsList['LH'],
+                    'LC'       => $oldRoomsList['LC'],
+                    'SSH'      => $oldRoomsList['SSH'],
+                    'old_status' => $oldRoomsList['status'],
+                    'new_status' => $params['status'],
+                    'old_cws'  => $CWS,
+                    'new_cws'  => $params['CWS'],
+                    'old_xbdm' => $oldRoomsList['XBDM'],
+                    'new_xbdm' => $params['XBDM'],
+                    'old_gyfmc'    => $oldRoomsList['GYFMC'],
+                    'new_gyfmc'    => '',
+                    'timestamp'=> time(),
+                ];
+                $res_log = Db::name('dormitory_rooms_log')->insert($insert_log_data);
             //无法使用
             } else {
                 $edit_data = [
@@ -585,13 +640,68 @@ class Dormitory extends Model
             // 回滚事务
             Db::rollback();
         }
-
-        if ($del_res == 1 && $edit_res == 1) {
+        if ($del_res && $edit_res ) {
             return ['status' => true, 'msg' => '宿舍状态修改成功'];
         } else {
             return ['status' => false, 'msg' => "网络原因，修改失败"];
         }
     }
+
+    /**
+     * 删除宿舍功能
+     * @param list param $ids
+     * @return bool result
+     */
+
+    public function deleteRoom($ids,$admin_id)
+    {
+        Db::startTrans();
+        $del_res = false;
+        $delete_res = false;
+        try{
+            $oldRoomsList = Db::name('dormitory_rooms') -> where('ID',$ids) ->find();
+            //删除rooms里数据
+            $del_res = Db::name('dormitory_rooms') -> where('ID',$ids) -> delete();
+            //查询表中原床位
+            //记录至log
+            $insert_log_data = [
+                'admin_id' => $admin_id,
+                'operate'  => 'delete',
+                'LH'       => $oldRoomsList['LH'],
+                'LC'       => $oldRoomsList['LC'],
+                'SSH'      => $oldRoomsList['SSH'],
+                'old_status' => $oldRoomsList['status'],
+                'new_status' => '',
+                'old_cws'  => $oldRoomsList['CWS'],
+                'new_cws'  => '',
+                'old_xbdm' => $oldRoomsList['XBDM'],
+                'new_xbdm' => '',
+                'old_gyfmc'    => $oldRoomsList['GYFMC'],
+                'new_gyfmc'    => '',
+                'timestamp'=> time(),
+            ];
+            $res_log = Db::name('dormitory_rooms_log')->insert($insert_log_data);
+            //删除bed里数据
+            $bedList = Db::name('dormitory_beds') -> where('FYID',$ids) -> select();
+            if (empty($bedList)) {
+                $delete_res = true;
+            } else {
+                $delete_res = Db::name('dormitory_beds') -> where('FYID',$ids) -> delete();
+            }
+            // 提交事务
+            Db::commit();  
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
+        }
+        if ($del_res && $delete_res ) {
+            return ['status' => true, 'msg' => '删除房间成功'];
+        } else {
+            return ['status' => false, 'msg' => "网络原因，删除失败"];
+        }
+
+    }
+
 
     /**
      * 插入调换宿舍记录
