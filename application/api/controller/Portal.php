@@ -8,6 +8,7 @@ use fast\Http;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Ykt as YktModel;
+use app\api\model\Books as BooksModel;
 use app\api\model\Score as ScoreModel;
 /**
  * 获取课表
@@ -33,14 +34,29 @@ class Portal extends Api
         ];
         return json($info);
     }
-
     public function books(){
+        
+        /*$info示例
+        [
+            'book_list' => [
+                ['book' => "c",'jsrq' => '2017-08-02','yhrq' => '2018-08-02'],
+                ['book' => "c",'jsrq' => '2017-08-02','yhrq' => '2018-08-02'],
+                ['book' => "c",'jsrq' => '2017-08-02','yhrq' => '2018-08-02'],
+            ],  //当前借阅列表
+            'books_num' => 3,   //当前借阅量
+            'history'   => 10,     //历史借阅量
+            'dbet'      => 0,        //欠费
+            'nothing'   =>  true   //当前是否有借阅
+        ] */
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        $Books = new BooksModel;
+        $data = $Books -> get_books_data($key);
+
         $info = [
             'status' => 200,
             'message' => 'success',
-            'data' => []
+            'data' => $data,
         ];
         return json($info);
     }

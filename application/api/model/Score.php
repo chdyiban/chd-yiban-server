@@ -10,6 +10,8 @@ class Score extends Model
 {
     // 表名
     protected $name = 'stu_score';
+    //获取成绩服务地址
+    const GET_SCORE_URL = "http://120.79.197.180:8000/inquiry";
     // 爬取学生成绩
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
@@ -21,6 +23,8 @@ class Score extends Model
 
     public function get_score($key){
         $username = $key['id'];
+
+
         //用来根据年级判断查询的范围
         /*
         *先默认查找该学生当前学期成绩
@@ -67,6 +71,14 @@ class Score extends Model
         */
         $info = Db::name('wx_user')->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
+        $post_data = [
+            'username' => $username,
+            'password' => $password,
+            //'all'      => '',
+        ];
+        $result = Http::post(self::GET_SCORE_URL,$post_data);
+        return $result;
+        /* 2019/1/13将获取成绩方式改为访问董盛Python服务此处代码注释掉。
         $params[CURLOPT_COOKIEJAR] = RUNTIME_PATH .'/cookie/cookie_'.$username.'.txt';
         $params[CURLOPT_COOKIEFILE] = $params[CURLOPT_COOKIEJAR];
         $params[CURLOPT_FOLLOWLOCATION] = 1;
@@ -136,7 +148,9 @@ class Score extends Model
                 return $res;
             }
         }
+        */
     }
+    
     /*
     public function get_stu_score($username, $params, $score_id, $database_ids){
         $data = [];
@@ -178,6 +192,10 @@ class Score extends Model
     }
     */
      //这个方法用来获取数据并返回
+    /**
+     * @time 2019/1/13将获取成绩方式改为访问董盛Python服务此处代码注释掉。
+     */
+     /*
     public function get_data($username, $params, $id){
         $data = array();
         $url = self::SCORE_URL.(string)$id;
@@ -234,6 +252,7 @@ class Score extends Model
         }
         return $data;
     }
+    */
     /*
     //将爬取的数据存入数据库
     public function store_score($data){
