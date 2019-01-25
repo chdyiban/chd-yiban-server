@@ -34,6 +34,7 @@ class Portal extends Api
         ];
         return json($info);
     }
+    //查询当前借阅信息
     public function books(){
         
         /*$info示例
@@ -52,12 +53,65 @@ class Portal extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $Books = new BooksModel;
         $data = $Books -> get_books_data($key);
+        if ($data['status']) {     
+            $info = [
+                'status' => 200,
+                'message' => 'success',
+                'data' => $data['data'],
+            ];
+        } else {
+            $info = [
+                'status' => 500,
+                'message' => 'param error',
+                'data' => $data['data'],
+            ];
+        }
+        return json($info);
+    }
+    //查询历史借阅信息
 
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
+    public function history_books(){
+        //解析后应对签名参数进行验证
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $Books = new BooksModel;
+        $data = $Books -> get_history_data($key);
+        if ($data['status']) {     
+            $info = [
+                'status' => 200,
+                'message' => 'success',
+                'data' => $data['data'],
+            ];
+        } else {
+            $info = [
+                'status' => 500,
+                'message' => 'param error',
+                'data' => $data['data'],
+            ];
+        }
+        return json($info);
+    }
+
+    //续借
+    public function renew()
+    {
+        //解析后应对签名参数进行验证
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $Books = new BooksModel;
+        $data = $Books -> renew_books($key);
+        if ($data['status']) {
+            $info = [
+                'status' => 200,
+                'message' => 'success',
+                'data' => $data['data'],
+            ];
+        } else {
+            $info = [
+                'status' => 500,
+                'message' => 'param error',
+                'data' => $data['data'],
+            ];
+            
+        }
         return json($info);
     }
 
