@@ -52,7 +52,7 @@ class Adviser extends Model
             foreach ($questionList as $value) {
                 $temp = array();
                 $temp['title'] = $value['title'];
-                $temp['options'] = $value['options'];
+                $temp['options'] =  json_decode($value['options'],true);
                 $temp['type'] = $value['type'];
                 $questionnaire[] = $temp;
             }
