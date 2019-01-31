@@ -15,6 +15,8 @@ class Adviser extends Model
         $res = $this -> where('GH' , $params['GH']) 
                 -> update([
                     'BHCS' => $params['BHCS'],
+                    'FDXS' => $params['FDXS'],
+                    'HDCS' => $params['HDCS'],
                     'timestamp' => time(),
                 ]);
 

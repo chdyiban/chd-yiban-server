@@ -84,6 +84,8 @@ class Index extends Backend
                     'GH' => $infoList['GH'],
                     'question' => [
                         'BHCS' => $infoList['BHCS'],
+                        'HDCS' => $infoList['HDCS'],
+                        'FDXS' => $infoList['FDXS'],
                     ]
                 ]
             ]);
