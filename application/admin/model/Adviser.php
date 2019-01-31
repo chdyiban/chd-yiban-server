@@ -1,0 +1,29 @@
+<?php
+
+namespace app\admin\model;
+
+use think\Model;
+use think\Session;
+
+class Adviser extends Model
+{
+    // 表名
+    protected $name = 'adviser';
+
+    public function insertAdviser($params)
+    {
+        $res = $this -> where('GH' , $params['GH']) 
+                -> update([
+                    'BHCS' => $params['BHCS'],
+                    'timestamp' => time(),
+                ]);
+
+        if ($res) {
+            return ['status' => true, 'msg' => "填写成功"];
+        } else {
+            return ['status' => false, 'msg' => "失败"];
+        }
+    }
+
+
+}
