@@ -36,7 +36,7 @@ class Adviser extends Model
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
-                    'adviser_class' => $adviser_college,
+                    'adviser_class' => $adviser_class,
                 ],
             ];
         }
@@ -61,9 +61,9 @@ class Adviser extends Model
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
-                    'adviser_class' => $adviser_college,
+                    'adviser_class' => $adviser_class,
+                    'questionnaire' => $questionnaire,
                 ],
-                'questionnaire' => $questionnaire,
             ];
         } else {
             return [
@@ -71,7 +71,7 @@ class Adviser extends Model
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
-                    'adviser_class' => $adviser_college,
+                    'adviser_class' => $adviser_class,
                 ],
                 'msg' => "已完成评价",
             ];
