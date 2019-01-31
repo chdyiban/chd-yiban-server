@@ -49,11 +49,12 @@ class Adviser extends Model
             //未完成评价
             $questionList = Db::name('questionnaire') -> where('q_id',1) -> where('status',1) -> select();
             $questionnaire = array();
-            foreach ($questionList as $value) {
+            foreach ($questionList as $key => $value) {
                 $temp = array();
                 $temp['title'] = $value['title'];
                 $temp['options'] =  json_decode($value['options'],true);
                 $temp['type'] = $value['type'];
+                $temp['index'] = $key;
                 $questionnaire[] = $temp;
             }
             return [
