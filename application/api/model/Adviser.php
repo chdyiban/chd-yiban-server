@@ -23,11 +23,11 @@ class Adviser extends Model
 
         $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
         if (empty($BJDM)) {
-            return ['status' => '200','step' => '0','msg' => "未找到相应班级"];
+            return ['status' => 200,'step' => 0,'msg' => "未找到相应班级"];
         }
         $adviserInfoList = $this -> where('class_id', $BJDM) ->find();
         if (empty($adviserInfoList)) {
-            return ['status' => '200','step' => '0','msg' => "未获取班主任信息"];
+            return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
         }
         //判断班主任提交问卷
         $adviser_name = $adviserInfoList['XM'];
@@ -38,8 +38,8 @@ class Adviser extends Model
         $adviser_class = $adviserInfoList['class_id'];
         if (empty($adviserInfoList['timestamp'])) {
             return [
-                'status' => '200', 
-                'step' => '2', 
+                'status' => 200, 
+                'step' => 2, 
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
@@ -64,8 +64,8 @@ class Adviser extends Model
                 $questionnaire[] = $temp;
             }
             return [
-                'status' => '200', 
-                'step' => '1', 
+                'status' => 200, 
+                'step' => 1, 
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
@@ -80,8 +80,8 @@ class Adviser extends Model
             ];
         } else {
             return [
-                'status' => '200', 
-                'step' => '3', 
+                'status' => 200, 
+                'step' => 3, 
                 'data' => [
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
@@ -100,20 +100,20 @@ class Adviser extends Model
         $open_id = $key['openid'];
         $safe = Db::name('wx_user') -> where('open_id',$open_id) -> where('portal_id',$stu_id) -> find();
         if (empty($safe)) {
-            return ['status' => '500', 'msg' => "请求非法"];
+            return ['status' => 500, 'msg' => "请求非法"];
         }
 
         $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> find();
         if (empty($stuInfo)) {
-            return ['status' => '200','code' => '2', 'msg' => "未获取对应学生信息"];
+            return ['status' => 200,'code' => 2, 'msg' => "未获取对应学生信息"];
         }
         if (empty($stuInfo['BJDM'])) {
-            return ['status' => '200','code' => '2', 'msg' => "未获取学生班级信息"];
+            return ['status' => 200,'code' => 2, 'msg' => "未获取学生班级信息"];
         }
 
         $adviserInfoList = $this -> where('class_id',$stuInfo['BJDM']) -> find();
         if (empty($adviserInfoList['id'])) {
-            return ['status' => '200','code' => '2', 'msg' => "未获取班主任信息"];            
+            return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
         }
         $oldResult = Db::name('result') -> where('stu_id',$stu_id) -> find();
         if (empty($oldResult)) {
@@ -126,12 +126,12 @@ class Adviser extends Model
                 'timestamp'  => time(),
             ]);
             if ($res) {
-                return ['status' => '200','code' => '1', 'msg' => "评价成功"];      
+                return ['status' => 200,'code' => 1, 'msg' => "评价成功"];      
             } else {
-                return ['status' => '200', 'code' => '2','msg' => "网络原因，评价失败"];      
+                return ['status' => 200, 'code' => 2,'msg' => "网络原因，评价失败"];      
             }
         } else {
-            return ['status' => '200','code' => '2', 'msg' => "已经填写过问卷，请勿重复操作"];
+            return ['status' => 200,'code' => 2, 'msg' => "已经填写过问卷，请勿重复操作"];
         }
     }
 }
