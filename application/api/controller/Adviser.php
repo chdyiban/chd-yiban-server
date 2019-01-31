@@ -21,10 +21,10 @@ class Adviser extends Api
     public function index()
     {
         //解析后应对签名参数进行验证
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
-        if (empty($key['stu_id'])) {
-            return json(['stauts' => 500 , 'msg' => "参数错误"]);
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        //$key = $this->request->param();
+        if (empty($key['id']) || empty($key['openid'])) {
+            return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
             $AdviserModel = new AdviserModel;
             $result = $AdviserModel -> getStatus($key);
@@ -37,10 +37,9 @@ class Adviser extends Api
 
     public function submit(){
         //解析后应对签名参数进行验证
-        //$key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
-        if (empty($key['stu_id']) || empty($key['form_data'])) {
-            return json(['stauts' => 500 , 'msg' => "参数错误"]);
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['id']) || empty($key['options']) || empty($key['openid'])) {
+            return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
             $AdviserModel = new AdviserModel;
             $result = $AdviserModel -> submit($key);
