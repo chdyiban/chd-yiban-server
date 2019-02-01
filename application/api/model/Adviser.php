@@ -9,7 +9,7 @@ use think\Db;
 class Adviser extends Model
 {
     // 表名
-    protected $name = 'adviser';
+    protected $name = 'bzr_adviser';
 
     
     public function getStatus($key){
@@ -45,16 +45,17 @@ class Adviser extends Model
                     'adviser_college' => $adviser_college,
                     'adviser_class' => $adviser_class,
                 ],
+                'msg' => "待发布",
             ];
         }
         //判断学生完成评价
-        $stuResult = Db::name('result') 
+        $stuResult = Db::name('bzr_result') 
                     -> where('stu_id',$stu_id) 
                     -> where('q_id',1)
                     -> find();
         if (empty($stuResult)) {
             //未完成评价
-            $questionList = Db::name('questionnaire') -> where('q_id',1) -> where('status',1) -> select();
+            $questionList = Db::name('bzr_questionnaire') -> where('q_id',1) -> where('status',1) -> select();
             $questionnaire = array();
             foreach ($questionList as $value) {
                 $temp = array();
@@ -120,9 +121,9 @@ class Adviser extends Model
         if (empty($adviserInfoList['id'])) {
             return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
         }
-        $oldResult = Db::name('result') -> where('stu_id',$stu_id) -> find();
+        $oldResult = Db::name('bzr_result') -> where('stu_id',$stu_id) -> find();
         if (empty($oldResult)) {
-            $res = Db::name('result') -> insert([
+            $res = Db::name('bzr_result') -> insert([
                 'q_id'       => 1,
                 'stu_id'     => $stu_id,
                 'class_id'   => $stuInfo['BJDM'],
