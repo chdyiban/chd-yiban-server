@@ -86,6 +86,11 @@ class Adviser extends Model
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
                     'adviser_class' => $adviser_class,
+                    'working_logs' => [
+                        'input1'  =>  $adviserInfoList['HDCS'],
+                        'input2'  =>  $adviserInfoList['BHCS'],
+                        'input3'  =>  $adviserInfoList['FDXS'],
+                    ],
                 ],
                 'msg' => "已完成评价",
             ];
