@@ -80,6 +80,8 @@ class Portal extends Api
         $result['book_list'] = $data['data']['history_list'];
         $result['books_num'] = $data['data']['history_count'];
         $result['history'] = $data['data']['history_count'];
+        $dbet_data = $Books -> get_dbet_data($key);
+        $result['dbet'] = $dbet_data['data']['dbet'];
         if ($data['status']) {     
             $info = [
                 'status' => 200,
