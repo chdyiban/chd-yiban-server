@@ -75,10 +75,11 @@ class Portal extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $Books = new BooksModel;
         $data = $Books -> get_history_data($key);
+        $nowResult = $Books -> get_books_data($key);
         $result = [];
         $result['nothing'] = $data['data']['history_count'] == 0 ? false : true ;
         $result['book_list'] = $data['data']['history_list'];
-        $result['books_num'] = $data['data']['history_count'];
+        $result['books_num'] = $nowResult['data']['books_num'];
         $result['history'] = $data['data']['history_count'];
         $dbet_data = $Books -> get_dbet_data($key);
         $result['dbet'] = $dbet_data['data']['dbet'];
