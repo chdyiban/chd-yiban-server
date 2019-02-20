@@ -27,6 +27,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 //sortName: 'ID',
                 columns: [
                     [
+                        {checkbox: true},
                         //{field: 'ID', title: __('ID'),sortable:true,width:50},
                         {field: 'getstuname.XM', title: __('姓名')},
                         {field: 'getstuname.XH', title: __('学号'),width:60},                   
@@ -47,7 +48,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                         {field: 'operate', width: "160px", title: __('Operate'), table: table, events: Table.api.events.operate,  
                         
                         buttons: [
-                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={LH}&SSH={SSH}',text: __('操作'), callback: function (data){}},      
+                                {name: 'dormitoryinfo', title: __('查看宿舍信息'), classname: 'btn btn-xs btn-primary btn-success btn-dormitory  btn-dialog', icon: 'fa fa-gear', url: 'dormitorysystem/dormitorylist/dormitoryinfo?LH={getrooms.LH}&SSH={getrooms.SSH}',text: __('操作'), callback: function (data){}},      
                             ],     
                         formatter: Table.api.formatter.operate,               
                     }
