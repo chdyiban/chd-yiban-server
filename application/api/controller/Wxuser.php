@@ -59,7 +59,7 @@ class Wxuser extends Api
                 $user->save();
             }
             $data = $this->queryStuInfoByOpenId($result['openid']);
-            $data['wxmobile'] = $dbResult['iswxbind'] == "1" ? true : false;
+            $data['user']['info']['wxmobile'] = $dbResult['iswxbind'] == "1" ? true : false;
             $retData['status'] = 200;
             $retData['data'] = base64_encode(json_encode($data));
             $retData['msg'] = 'success';
