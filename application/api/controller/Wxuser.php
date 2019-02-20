@@ -47,9 +47,8 @@ class Wxuser extends Api
         if($result['openid'] != ''){
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $result['openid'])->find();
-
             if($dbResult){
-                $dbResult = $user->save([
+                $user->save([
                     'session_key' => $result['session_key'],
                 ],['open_id' => $result['openid']]);
             }else{
@@ -61,6 +60,7 @@ class Wxuser extends Api
             }
             $data = $this->queryStuInfoByOpenId($result['openid']);
             $retData['status'] = 200;
+            $retData['wxmobile'] = $dbResult['iswxbind'] == "1" ? true : false;
             $retData['data'] = base64_encode(json_encode($data));
             $retData['msg'] = 'success';
         }else{
@@ -253,9 +253,15 @@ class Wxuser extends Api
         $pwd =  _token_encrypt($key['passwd'], $key['openid']);
         if($bindInfo['status'] === true){
             $user = new WxuserModel;
+            $roomData = Db::view('dormitory_beds')
+                    -> view('dormitory_rooms','XQ,LH,SSH','dormitory_beds.FYID = dormitory_rooms.ID') 
+                    -> where('XH',$key['stuid'])
+                    -> find();
             $bindStatus = $user->save([
-                'portal_id' => $key['stuid'],
+                'portal_id'  => $key['stuid'],
                 'portal_pwd' => $pwd,
+                'build'      => $roomData['LH'],
+                'room'      => $roomData['SSH'],
             ],['open_id' => $key['openid']]);
             if($bindStatus){
                 $info = [
@@ -276,6 +282,52 @@ class Wxuser extends Api
         }
         
         return json($info);
+    }
+    /**
+     * 获取用户联系方式api
+     */
+    public function wxmoblie()
+    {
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['openid'])) {
+            $info = [
+                'status' => 500,
+                'message' => '参数有误',
+            ];
+            return json($info);
+        }
+        $appid = Config::get('wx.appId');
+        $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
+        $pc = new WXBizDataCrypt($appid, $sessionKey);
+        $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );
+        if ($errCode == 0) {
+            $user = new WxuserModel;
+            $data = json_decode($data,true);
+            $bindStatus = $user->save([
+                'mobile'      => $data['phoneNumber'],
+                'iswxbind'    => 1,
+            ],['open_id' => $key['openid']]);
+            if($bindStatus){
+                $info = [
+                    'status' => 200,
+                    'message' => '绑定成功',
+                    'mobile'  =>  $data['phoneNumber']
+                ];
+            } else {
+                $info = [
+                    'status' => 200,
+                    'message' => '请稍后再试'
+                ];
+            }
+        } else {
+            $info = [
+                'status' => 200,
+                'code'   => $errCode,
+                'message' => '绑定失败',
+            ];
+        }
+        return json($info);
+
     }
 
     /**
@@ -315,7 +367,7 @@ class Wxuser extends Api
                                 'name' => $info['XM']
                             ],
                             'time' => [
-                                'term' => '2018-2019 第1学期',
+                                'term' => '2018-2019 第2学期',
                                 'week' => get_weeks(),
                                 'day' => date("w")
                             ],
@@ -366,7 +418,7 @@ class Wxuser extends Api
                                 'name' => $info['XM']
                             ],
                             'time' => [
-                                'term' => '2018-2019 第1学期',
+                                'term' => '2018-2019 第2学期',
                                 'week' => get_weeks(),
                                 'day' => date("w")
                             ],
