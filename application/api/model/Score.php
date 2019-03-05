@@ -24,51 +24,6 @@ class Score extends Model
     public function get_score($key){
         $username = $key['id'];
 
-
-        //用来根据年级判断查询的范围
-        /*
-        *先默认查找该学生当前学期成绩
-        *
-        $year = substr($username,0,4);
-        $Y = date('Y');
-        $m = date('m');
-        $temp = $Y - $year;
-        //如果是下学期
-        if(self::SCORE_ITEM_ID % 2 != 0){
-            //获取入学时对应的学期id
-            $score_item_id =  self::SCORE_ITEM_ID - ($temp * 2 - 1);     
-        }else{
-            //第一学期过了元旦后
-            if ($m < 6) {                          
-                $score_item_id =  self::SCORE_ITEM_ID - ($temp - 1) * 2; 
-            }else{
-                $score_item_id =  self::SCORE_ITEM_ID - $temp * 2; 
-            }
-        }
-        //得出该学生的所有学期的id的数组
-        $score_id = array();
-        for($i = $score_item_id; $i <= self::SCORE_ITEM_ID; $i++){
-            array_push($score_id, $i);
-        }
-        //查询数据库中是否已经插入了该学生的之前的成绩
-        $database_id = $this->where('XH',$username)->group('item_id')->field('item_id')->select();
-        $database_ids = [];  
-        //销毁重复id
-        if(!empty($database_id)){
-            //获取已有的学期的id          
-            foreach ($database_id as $key => $value) {
-                $database_ids[] = $value->toArray()['item_id'];
-            }
-            foreach ($database_ids as $key => $value) {
-                foreach ($score_id as $k => $v) {
-                    if ($v == $value) {
-                        //这里unset掉了对应的键和值，此时下标并没有变。
-                        unset($score_id[$k]);
-                    }
-                }
-            }
-        }
-        */
         $info = Db::name('wx_user')->where('portal_id',$username)->field('open_id,portal_pwd')->find();
         $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
         $post_data = [
@@ -280,6 +235,4 @@ class Score extends Model
         }
     }
     */
-
-
 }
