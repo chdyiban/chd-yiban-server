@@ -66,7 +66,7 @@ class Dormitoryspecial extends Backend
             $result = array("total" => $total, "rows" => $list);           
             return json($result);
         }
-         return $this->view->fetch(); 
+        return $this->view->fetch(); 
     }
 
 }

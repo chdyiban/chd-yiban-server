@@ -8,7 +8,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'dormitorysystem/dormitoryspecial/index',
-                    add_url: '0d',
+                    add_url: '0',
                     //edit_url: 'bx/repairlist/edit',
                     edit_url: '0',
                     del_url: '0',

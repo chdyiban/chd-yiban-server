@@ -27,6 +27,11 @@ class RepairWorker extends Model
                     ->limit($offset, $limit)
                     ->field('repair_worker.id,mobile,name')
                     ->select();
+        foreach ($list as $k => $v) {
+            $list[$k]['needRepairCount'] = count($this->getWorkerNotFinishList($v['id']));
+            $list[$k]['allRepairCount'] = count($this->getWorkerList($v['id']));
+            $list[$k]['star'] = $this->getWorkerStar($v['id']);
+        }
         $list = collection($list)->toArray();
         return ['data' => $list, 'count' => count($list)];
     }
@@ -70,6 +75,44 @@ class RepairWorker extends Model
                     -> where('status','finished')
                     -> select();
         return $list;
+
+    }
+    /**
+     * 获取工人所有工作列表
+     * 
+     */
+
+    public function getWorkerList($workerId)
+    {
+        $list = Db::name('repair_list')
+                    -> where('dispatched_id',$workerId)
+                    -> select();
+        return $list;
+    }
+    /**
+     * 获取工人满意度
+     * 
+     */
+
+    public function getWorkerStar($workerId)
+    {
+        $total = 0;
+        $list = Db::name('repair_list')
+                    -> where('dispatched_id',$workerId)
+                    -> where('status','finished')
+                    -> field('star')
+                    -> select();
+        if (empty($list)) {
+            return "未进行评价";
+        } 
+        foreach ($list as $k => $v) {
+            $total += $v['star'];
+        }
+        if ($total == 0) {
+            return "未进行评价";
+        } else {
+            return $total/count($list);
+        }
 
     }
     
