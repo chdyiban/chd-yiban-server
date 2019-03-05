@@ -8,7 +8,7 @@ use think\Session;
 class Adviser extends Model
 {
     // 表名
-    protected $name = 'adviser';
+    protected $name = 'bzr_adviser';
 
     public function insertAdviser($params)
     {

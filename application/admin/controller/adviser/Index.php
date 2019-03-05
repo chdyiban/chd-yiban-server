@@ -67,7 +67,7 @@ class Index extends Backend
 
         //获取班主任信息
         $GH = Db::name('admin') -> where('id',$this->auth->id) -> field('username') ->find()['username'];
-        $infoList = Db::name('adviser') -> where('GH',$GH) -> find();
+        $infoList = Db::name('bzr_adviser') -> where('GH',$GH) -> find();
         if (empty($infoList['timestamp'])) {
             $this->view->assign([
                 'adviser' => [
