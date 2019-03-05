@@ -10,11 +10,11 @@ class Books extends Model
     // 表名
     protected $name = 'wx_user';
     //个人借阅情况
-    const GET_BOOKS_URL = 'http://202.117.64.236:8000/booklst';
+    const POST_BOOKS_URL = 'http://202.117.64.236:8000/booklst';
     //个人历史借阅情况
-    const GET_HISTORY_URL = "http://202.117.64.236:8000/history";
+    const POST_HISTORY_URL = "http://202.117.64.236:8000/history";
     //查询欠费
-    const GET_DBET_URL = "http://202.117.64.236:8000/fine";
+    const POST_DBET_URL = "http://202.117.64.236:8000/fine";
     //续借地址
     const RENEW_URL = "http://202.117.64.236:8000/fine";
 
@@ -24,18 +24,20 @@ class Books extends Model
      */
     public function get_books_data($key){
         $return_data = [];
-        if (empty($key['id'])) {
+        if (empty($key['id']) || empty($key['openid'])) {
             return ['data' => '','status' => false];
         } else {
-            
             $username = $key['id'];
-            $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
+            $info = $this->where('open_id',$key['openid'])
+                    -> where('portal_id',$username)
+                    -> field('open_id,portal_pwd')
+                    -> find();
             $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
             $get_data = [
                 'username' => $username,
                 'password' => $password
             ];
-            $personal_result = Http::get(self::GET_BOOKS_URL,$get_data);
+            $personal_result = Http::post(self::POST_BOOKS_URL,$get_data);
             $personal_result = json_decode($personal_result,true);
             if ($personal_result['msg'] == true) {
                 $books_num = count($personal_result['booklst']);
@@ -73,17 +75,20 @@ class Books extends Model
      */
     public function get_history_data($key)
     {
-        if (empty($key['id'])) {
+        if (empty($key['id']) || empty($key['openid'])) {
             return ['data' => '','status' => false];
         } else {
             $username = $key['id'];
-            $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
+            $info = $this->where('open_id',$key['openid'])
+                    ->where('portal_id',$username)
+                    ->field('open_id,portal_pwd')
+                    ->find();
             $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
             $get_data = [
                 'username' => $username,
                 'password' => $password
             ];
-            $history_result = Http::get(self::GET_HISTORY_URL,$get_data);
+            $history_result = Http::post(self::POST_HISTORY_URL,$get_data);
             $history_result = json_decode($history_result,true);
             $return_data = [];
             
@@ -114,17 +119,20 @@ class Books extends Model
      */
     public function get_dbet_data($key)
     {  
-        if (empty($key['id'])) {
+        if (empty($key['id']) || empty($key['openid'])) {
             return ['data' => '','status' => false];
         } else {    
             $username = $key['id'];
-            $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
+            $info = $this->where('open_id',$key['openid'])
+                    ->where('portal_id',$username)
+                    ->field('open_id,portal_pwd')
+                    ->find();
             $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
             $get_data = [
                 'username' => $username,
                 'password' => $password
             ];
-            $dbet_result = Http::get(self::GET_DBET_URL,$get_data);
+            $dbet_result = Http::post(self::POST_DBET_URL,$get_data);
             $dbet_result = json_decode($dbet_result,true);
             $return_data = [];
             $return_data['dbet'] = 0;
@@ -154,7 +162,10 @@ class Books extends Model
             $username = $key['id'];
             $bar_code = $key['bar_code'];
             $check = $key['check'];
-            $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
+            $info = $this->where('open_id',$key['openid'])
+                    ->where('portal_id',$username)
+                    ->field('open_id,portal_pwd')
+                    ->find();
             $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
             $get_data = [
                 'username' => $username,
@@ -162,11 +173,12 @@ class Books extends Model
                 'bar_code' => $bar_code,
                 'check'   =>  $check,
             ];
-            $result = Http::get(self::RENEW_URL,$get_data);
+            $result = Http::post(self::RENEW_URL,$get_data);
             $result = json_decode($result,true);
             return $result;
         }
     }
+    
 
 
 }
