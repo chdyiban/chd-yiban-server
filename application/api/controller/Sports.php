@@ -226,7 +226,7 @@ class Sports extends Api
             //未进行捐赠
             return ['status'=> false,'data' => '' ];
         } else {
-            return ['status'=> false,'data' => $donateList];
+            return ['status'=> true,'data' => $donateList];
         }
     }
 
