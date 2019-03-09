@@ -24,7 +24,11 @@ class Sports extends Model
         foreach ($collegeList as $key => $value) {
             $temp['college_id'] = $value['YXDM'];
             $temp['college_name'] = $value['YXMC'];
-            $temp['ranking'] = $key + 1;
+            if ($key > 0 && $collegeList[$key-1]['total_score'] == $value['total_score']) {
+                $temp['ranking'] = $key;
+            } else {
+                $temp['ranking'] = $key + 1;
+            }
             $temp['total'] = $value['total_score'];
             $return[] = $temp;
         }
@@ -46,9 +50,13 @@ class Sports extends Model
             $temp['college_id'] = $value['YXDM'];
             $temp['college_name'] = $value['YXJC'];
             $temp['college_logo_url'] = "";
-            $temp['total_donate_steps'] = $value['total_steps'];
+            $temp['total_donate_steps'] = $this -> changeType($value['total_steps']);
             $temp['total_donate_person'] = $value['total_person'];
-            $temp['ranking'] = $key + 1;
+            if ($key > 0 && $collegeList[$key-1]['total_steps'] == $value['total_steps']) {
+                $temp['ranking'] = $key;
+            } else {
+                $temp['ranking'] = $key + 1;
+            }
             $temp['heat'] = $this -> getHeat($value['average_steps']);
             $return[] = $temp;
         }
@@ -68,9 +76,7 @@ class Sports extends Model
         $c = ($averageSteps - $b)/$k;
         $heat = log10($c)/log10(1.005);
 
-        return (float)number_format($heat,2);
-    
-
+        return (float)number_format($heat,1);
     }
 
      /**
@@ -81,18 +87,32 @@ class Sports extends Model
         $today = strtotime(date("Y-m-d"),time());
         $return = [];
         $infoList = Db::name('wx_user') -> where('open_id',$key['openid'])->find();
-        $stuInfo = Db::name('stu_detail') -> where('XH',$infoList['portal_id']) ->field('YXDM') -> find();
+        $stuInfo = Db::view('stu_detail')
+                -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM') 
+                -> where('XH',$infoList['portal_id']) 
+                -> find();
         $return['college_id'] = empty($stuInfo['YXDM']) ? "未获取" : $stuInfo['YXDM'];
+        $return['college_name'] = empty($stuInfo['YXJC']) ? "未获取" : $stuInfo['YXJC'];
         
         $collegeGrowSteps = Db::name('sports_steps_detail')
                     -> where('YXDM',$stuInfo['YXDM']) 
                     -> where('time','>=',$today) 
                     -> sum('steps');
+        //学院今天增长的捐献步数
         $return['today_grow_steps'] = $collegeGrowSteps;
         $stuSteps = Db::name('sports_steps_detail') 
                     -> where('stu_id',$infoList['portal_id']) 
                     -> sum('steps');
+        //学生累积捐献步数
         $return['my_total_steps'] = $stuSteps;
+        $collegeSteps = Db::name('sports_score') 
+                    -> where('YXDM',$stuInfo['YXDM']) 
+                    -> field('total_steps,total_person,average_steps')
+                    -> find();
+        //学院总步数
+        $return['college_total_steps'] = $this -> changeType($collegeSteps['total_steps']);
+        $return['my_total_donate_person'] = $collegeSteps['total_person'];
+        $return['my_heat'] = $this ->getHeat($collegeSteps['average_steps']);
         return $return;
     }
 
@@ -123,5 +143,16 @@ class Sports extends Model
         return ['status' => true,'data' => $return];
     }
 
-
+    /**
+     * 转换步数格式
+     */
+    function changeType($num){
+        if($num < 1000) {
+           return $num;
+        } else if($num >=1000 && $num < 1000000){
+           return round($num/1000,1).'k';
+        } elseif ($num >= 1000000) {
+            return round($num/1000000,1).'M';
+        }
+    }
 }
