@@ -99,12 +99,12 @@ class Sports extends Model
                     -> where('time','>=',$today) 
                     -> sum('steps');
         //学院今天增长的捐献步数
-        $return['today_grow_steps'] = $collegeGrowSteps;
+        $return['today_grow_steps'] =  $this -> changeType($collegeGrowSteps);
         $stuSteps = Db::name('sports_steps_detail') 
                     -> where('stu_id',$infoList['portal_id']) 
                     -> sum('steps');
         //学生累积捐献步数
-        $return['my_total_steps'] = $stuSteps;
+        $return['my_total_steps'] = $this -> changeType($stuSteps);
         $collegeSteps = Db::name('sports_score') 
                     -> where('YXDM',$stuInfo['YXDM']) 
                     -> field('total_steps,total_person,average_steps')
@@ -154,5 +154,48 @@ class Sports extends Model
         } elseif ($num >= 1000000) {
             return round($num/1000000,1).'M';
         }
+    }
+
+    /**
+     * 获取赛程
+     * @return array $return
+     */
+    public function getSchedule()
+    {
+        $return = [
+            [
+                'date' => "04-18",
+                'list' => [],
+            ],
+            [
+                'date' => "04-19",
+                'list' => [],
+            ],
+            [
+                'date' => "04-20",
+                'list' => [],
+            ]
+        ];
+        $scheduleList = Db::name('sports_date') -> where('sports_time','>',time())->select();
+
+        foreach ($scheduleList as $key => $value) {
+            $temp = [];
+            
+            $time = date('Y-m-d H:i',$value['sports_time']);
+            $date = substr($time,5,5);
+            $temp = [
+                'time' => substr($time,11),
+                'type' => $value['sports_group'],
+                'event' => $value['sports_name'],
+            ];
+            for ($i=0; $i < 3; $i++) { 
+                if ($date == $return[$i]['date']) {
+                    $return[$i]['list'][] = $temp;
+                    break;
+                }
+            }
+        }
+
+        return $return;
     }
 }
