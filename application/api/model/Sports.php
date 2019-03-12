@@ -71,10 +71,19 @@ class Sports extends Model
     public function getHeat($averageSteps){
         $maxSteps = Db::name('sports_score') -> max('average_steps');
         $minSteps = Db::name('sports_score') -> min('average_steps');
-        $k = ($maxSteps - $minSteps)/(pow(1.005,99.9) - pow(1.005,60));
-        $b = $minSteps - $k*pow(1.005,60);
-        $c = ($averageSteps - $b)/$k;
-        $heat = log10($c)/log10(1.005);
+        if ($averageSteps >= $maxSteps) {
+            $heat = 99.9;
+        } else {
+            // $k = ($maxSteps - $minSteps)/(pow(1.005,99.9) - pow(1.005,60));
+            $k = ($maxSteps - $minSteps)/(pow(1.005,99.9) - pow(1.005,60));
+            $b = $minSteps - $k*pow(1.005,60);
+            if ($k == 0) {
+                $heat = 99.9;
+            } else {
+                $c = ($averageSteps - $b)/$k;
+                $heat = log10($c)/log10(1.005);
+            }
+        }
 
         return (float)number_format($heat,1);
     }

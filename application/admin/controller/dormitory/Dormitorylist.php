@@ -58,8 +58,8 @@ class Dormitorylist extends Backend
             $data = $info['data'];
 
             
-             //判断是否是导出文件
-             if (empty($offset) && empty($limit)) {
+            //判断是否是导出文件
+            if (empty($offset) && empty($limit)) {
                 $result = array("total" => $total, "rows" => $data);
                 return json($result);
             } else {

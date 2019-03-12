@@ -357,11 +357,11 @@ class Dormitorybedinfo extends Backend
     private function checkStu($array)
     {
         $checkStuMsg = DB::name('stu_detail') -> where('XH',$array['XH']) -> find();
-        // if (empty($checkStuMsg)) {
-        //     return ['status' => false, 'msg' => "未查找到该学生数据信息"];
-        // }
+        if (empty($checkStuMsg)) {
+            return ['status' => false, 'msg' => "未查找到该学生数据信息"];
+        }
         $checkStuRoom = Db::name('dormitory_beds') -> where('XH',$array['XH']) -> find();
-        if (!empty($checkStu)) {
+        if (!empty($checkStuRoom)) {
             return ['status' => false, 'msg' => "该学生已经拥有床位"];
         } else {
             return [
