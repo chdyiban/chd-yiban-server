@@ -245,7 +245,7 @@ class Sports extends Api
        
         $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> field('YXDM')->find();
 
-        $stepListToday = Cache::pull($stu_id."_steps");
+        $stepListToday = Cache::get($stu_id."_steps");
         //获取缓存是否有该学生步数
         if (empty($stepListToday)) {
             $info = [
@@ -289,6 +289,8 @@ class Sports extends Api
         }
 
         if ($insertFlag && $updateFlag) {
+            //删除缓存
+            $stepListToday = Cache::rm($stu_id."_steps");
             $info = [
                 'status' => 200,
                 'msg'    => 'success',

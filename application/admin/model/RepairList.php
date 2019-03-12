@@ -37,12 +37,12 @@ class RepairList extends Model
     }
     //获取受理人名称
     public function getname(){
-        return $this->belongsTo('Admin', 'admin_id');
+        return $this->belongsTo('Admin', 'admin_id')->setEagerlyType(0);
     }
     //获取工人名称
     public function getworkername()
     {
-        return $this -> belongsTo('RepairWorker','dispatched_id');
+        return $this -> belongsTo('RepairWorker','dispatched_id')->setEagerlyType(0);
     }
 
     //获取报修类型
@@ -52,17 +52,17 @@ class RepairList extends Model
     
     //获取报修类型
     public function gettypename(){
-        return $this->belongsTo('RepairType', 'specific_id');
+        return $this->belongsTo('RepairType', 'specific_id')->setEagerlyType(0);
     }
 
     //获取分配的单位的名称
     public function getcompany(){
-        return $this->belongsTo('Admin', 'distributed_id');
+        return $this->belongsTo('Admin', 'distributed_id')->setEagerlyType(0);
     }
 
     //获取地址名称
     public function getaddress(){
-        return $this->belongsTo('RepairAreas', 'address_id');
+        return $this->belongsTo('RepairAreas', 'address_id')->setEagerlyType(0);
     }
 
     //处理数据用来显示
@@ -129,6 +129,38 @@ class RepairList extends Model
         $info['finished_time'] = $data['finished_time'];
         $result = Db::name('repair_log') -> insert($info);
         return $result;
+    }
+
+     /**
+     * 获取评价信息
+     */
+    public function get_star($offset, $limit,$where)
+    {
+        
+        $list = [];
+        $data = Db::view('repair_list') 
+                        -> view('repair_worker','id,name','repair_list.dispatched_id = repair_worker.id')
+                        -> view('admin','id,nickname','repair_list.distributed_id = admin.id')
+                        -> where('repair_list.status','finished')
+                        -> where('star','<>','null')
+                        -> where($where)
+                        -> limit($offset, $limit)
+                        -> select();
+        foreach ($data as $k => $v) {
+            $list[$k]['id'] = $v['id'];
+            $list[$k]['stu_id'] = $v['stu_id'];
+            $list[$k]['stu_name'] = $v['stu_name'];
+            $list[$k]['title'] = $v['title'];
+            $list[$k]['content'] = $v['content'];
+            $list[$k]['admin']['nickname'] = $v['nickname'];
+            $list[$k]['repair_worker']['name'] = $v['name'];
+            $list[$k]['finished_time'] = Date('Y-m-d H:i',$v['finished_time']);
+            $list[$k]['star'] = $v['star'];
+            $list[$k]['message'] = $v['message'];
+        }
+
+        $list = collection($list)->toArray();
+        return ['data' => $list, 'count' => count($list)];
     }
     
 }
