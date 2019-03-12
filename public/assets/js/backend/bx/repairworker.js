@@ -32,6 +32,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         }},
                         {field: 'allRepairCount', title: __('维修总计')},
                         {field: 'star', title: __('满意度')},
+                        {field: 'person', title: __('评价人数')},
                         {field: 'mobile', title: __('电话')},
                         {field: 'operate', title: __('操作'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons: [

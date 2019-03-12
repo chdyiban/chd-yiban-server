@@ -17,6 +17,9 @@ class Repairlist extends Backend
      */
     protected $model = null;
 
+    protected $relationSearch = true;
+    //protected $searchFields = "";
+
     public function _initialize()
     {
         parent::_initialize();
@@ -150,9 +153,12 @@ class Repairlist extends Backend
     }
 
     public function finish($ids){
+        if (empty($ids)) {
+            $ids = $this -> request -> post('id');
+        }
         $res = $this->model->finish($ids);
         if ($res) {
-            $this->success("该任务已经完成");
+            $this->success("订单结算成功");
         }
     }
     //驳回
@@ -348,6 +354,9 @@ class Repairlist extends Backend
                 $tempArray['name'] = $value['name']."-".$value['mobile'];
                 $workerList[] = $tempArray;
             }
+            //后勤不分配工人
+        } elseif ($companyName == "后勤") {
+            $workerList = [];
         } else {
             $control_id = $uid;
             $worker = Db::name('repair_worker') -> where('distributed_id',$control_id) -> select();
@@ -390,5 +399,116 @@ class Repairlist extends Backend
         }
     }
 
+    /**
+     * 批量派工方法
+     */
+    public function multidispatch()
+    {
+        if ($this->request->isPost()){
+            $data =  $this->request->param();
+            $company_id = (int)$data['company_id'];
+            $worker_id = (int)$data['worker_id'];
+            if (empty($company_id)) {
+                $this -> error("请选择派遣单位");
+            }
+            //订单id
+            $order_ids = json_decode($data['order_ids'],true);
+            foreach ($order_ids as $value) {
+                if (empty($worker_id)) {
+                    $res = $this->model->distribute($value, $company_id);
+                    $re = 1;
+                } else {
+                    $res = $this->model->distribute($value, $company_id);
+                    $re  =  $this->model->dispatch($value, $worker_id);
+                    
+                }
+            }
+            return $res&&$re;
+        } else {
+            $this -> error('请求错误');
+        }
+    }
+    /**
+     * 获取维修类型
+     * @return json 
+     */
+    public function getTypeJson()
+    {
+        if ($this->request->isAjax()){
+            $list = model('RepairType')->group('id')->select();
+            $return = array();
+            foreach ($list as $key => $value) {    
+                $return[$value['name']] = $value['name'];
+            }
+            return json($return);
+        } else {
+            $this ->error("非法请求");
+        }
+    }
+    /**
+     * 获取服务项目
+     * @return json 
+     */
+    public function getSpecificJson()
+    {
+        if ($this->request->isAjax()){
+            $list = model('RepairType')->select();
+            $return = array();
+            foreach ($list as $key => $value) {    
+                $return[$value['specific_name']] = $value['specific_name'];
+            }
+            return json($return);
+        } else {
+            $this ->error("非法请求");
+        }
+    }
+    /**
+     * 获取工人名称
+     * @return json 
+     */
+    public function getWorkerJson()
+    {
+        if ($this->request->isAjax()){
+            $list = model('RepairWorker') -> select();
+            $return = array();
+            foreach ($list as $key => $value) {    
+                $return[$value['name']] = $value['name'];
+            }
+            return json($return);
+        } else {
+            $this ->error("非法请求");
+        }
 
+    }
+    /**
+     * 获取单位名称
+     * @return json 
+     */
+    public function getCompanyJson()
+    {
+        if ($this->request->isAjax()){
+            $return = ['后勤'=>"后勤",'自修'=>"自修"];
+            return json($return);
+        } else {
+            $this ->error("非法请求");
+        }
+    }
+    /**
+     * 获取维修区域
+     * @return json 
+     */
+    public function getAdressJson()
+    {
+        if ($this->request->isAjax()){
+            $list = model('RepairAreas') -> all();
+            $return = [];
+            foreach ($list as $key => $value) {
+                $return[$value['name']] = $value['name'];
+            }
+            return json($return);
+        } else {
+            $this ->error("非法请求");
+        }
+    }
+     
 }

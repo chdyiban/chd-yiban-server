@@ -30,7 +30,8 @@ class RepairWorker extends Model
         foreach ($list as $k => $v) {
             $list[$k]['needRepairCount'] = count($this->getWorkerNotFinishList($v['id']));
             $list[$k]['allRepairCount'] = count($this->getWorkerList($v['id']));
-            $list[$k]['star'] = $this->getWorkerStar($v['id']);
+            $list[$k]['star'] = $this->getWorkerStar($v['id'])['data']['star'];
+            $list[$k]['person'] = $this->getWorkerStar($v['id'])['data']['person'];
         }
         $list = collection($list)->toArray();
         return ['data' => $list, 'count' => count($list)];
@@ -102,16 +103,38 @@ class RepairWorker extends Model
                     -> where('status','finished')
                     -> field('star')
                     -> select();
+        $personNumber = 0;
         if (empty($list)) {
-            return "未进行评价";
+            return [
+                'status' => true,
+                'data' => [
+                    'star' => "未进行评价",
+                    'person' => $personNumber
+                    ]
+            ];
         } 
         foreach ($list as $k => $v) {
-            $total += $v['star'];
+            if (!empty($v['star'])) {
+                $personNumber += 1;
+                $total += $v['star'];
+            }
         }
         if ($total == 0) {
-            return "未进行评价";
+            return [
+                'status' => true,
+                'data' => [
+                    'star' => "未进行评价",
+                    'person' => $personNumber
+                    ]
+            ];
         } else {
-            return $total/count($list);
+            return [
+                'status' => true,
+                'data' => [
+                    'star' => round($total/$personNumber,2),
+                    'person' => $personNumber
+                    ]
+            ];
         }
 
     }
