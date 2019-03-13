@@ -49,7 +49,7 @@ class Sports extends Model
         foreach ($collegeList as $key => $value) {
             $temp['college_id'] = $value['YXDM'];
             $temp['college_name'] = $value['YXJC'];
-            $temp['college_logo_url'] = "";
+            $temp['college_logo_url'] = "https://yibancdn.ohao.ren/college_image/".$value['YXDM'].".jpg";
             $temp['total_donate_steps'] = $this -> changeType($value['total_steps']);
             $temp['total_donate_person'] = $value['total_person'];
             if ($key > 0 && $collegeList[$key-1]['total_steps'] == $value['total_steps']) {
