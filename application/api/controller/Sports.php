@@ -165,7 +165,7 @@ class Sports extends Api
                 'msg'  => '今日已经捐过',
                 'data' => [
                     'donate_status' => false,
-                    'donate_steps'  => $checkResult['data']['steps'],
+                    'steps'  => $checkResult['data']['steps'],
                     'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
                 ],
             ];
@@ -180,7 +180,9 @@ class Sports extends Api
             $data = json_decode($data,true);
             $stepList = $data['stepInfoList'];
             $stepListToday = end($stepList)['step'];
-            $stuHeat = $this->getStuHeat($stu_id,$stepListToday);
+            //步数超过一万步则双倍
+            $stepScoreToday = $stepListToday >= 10000 ? 2*$stepListToday : $stepListToday;
+            $stuHeat = $this->getStuHeat($stu_id,$stepScoreToday);
            
             $info = [
                 'status' => 200,
@@ -192,7 +194,7 @@ class Sports extends Api
                 ],
             ];
             //将用户步数放入缓存,存放时间为一天
-            Cache::set($stu_id."_steps", $stepListToday, 86400);
+            Cache::set($stu_id."_steps", $stepScoreToday, 86400);
             return json($info);
 
         } else {
@@ -236,7 +238,7 @@ class Sports extends Api
                 'msg'  => '今日已经捐过',
                 'data' => [
                     'donate_status' => false,
-                    'donate_steps'  => $checkResult['data']['steps'],
+                    'steps'  => $checkResult['data']['steps'],
                     'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
                 ],
             ];
@@ -272,7 +274,7 @@ class Sports extends Api
         $temp = [
             'total_steps'   => $newSteps,
             'total_person'  => $newPerson,
-            'average_steps' => $newSteps/self::COLLEGE_PERSON_ARRAY[$stuInfo['YXDM']],
+            'average_steps' => number_format($newSteps/self::COLLEGE_PERSON_ARRAY[$stuInfo['YXDM']],4),
         ];
         // 启动事务
         Db::startTrans();     
@@ -385,7 +387,7 @@ class Sports extends Api
                     -> where('YXDM',$stuInfo['YXDM'])
                     -> find();
         $newSteps = (int)$collegeInfo['total_steps'] + (int)$stepListToday;
-        $newAverage = $newSteps/self::COLLEGE_PERSON_ARRAY[$stuInfo['YXDM']];
+        $newAverage = number_format($newSteps/self::COLLEGE_PERSON_ARRAY[$stuInfo['YXDM']],4);
         $oldAverage = $collegeInfo['average_steps'];
         $newHeat = $SportsModel -> getHeat($newAverage);
         $oldHeat = $SportsModel -> getHeat($oldAverage);
