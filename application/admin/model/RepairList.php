@@ -3,6 +3,9 @@
 namespace app\admin\model;
 use think\Db;
 use think\Model;
+use \WeChat\Template;
+use \WeChat\Qrcode;
+use think\Config;
 
 class RepairList extends Model
 {
@@ -37,12 +40,12 @@ class RepairList extends Model
     }
     //获取受理人名称
     public function getname(){
-        return $this->belongsTo('Admin', 'admin_id')->setEagerlyType(0);
+        return $this->belongsTo('Admin', 'admin_id');
     }
     //获取工人名称
     public function getworkername()
     {
-        return $this -> belongsTo('RepairWorker','dispatched_id')->setEagerlyType(0);
+        return $this -> belongsTo('RepairWorker','dispatched_id');
     }
 
     //获取报修类型
@@ -52,17 +55,17 @@ class RepairList extends Model
     
     //获取报修类型
     public function gettypename(){
-        return $this->belongsTo('RepairType', 'specific_id')->setEagerlyType(0);
+        return $this->belongsTo('RepairType', 'specific_id');
     }
 
     //获取分配的单位的名称
     public function getcompany(){
-        return $this->belongsTo('Admin', 'distributed_id')->setEagerlyType(0);
+        return $this->belongsTo('Admin', 'distributed_id');
     }
 
     //获取地址名称
     public function getaddress(){
-        return $this->belongsTo('RepairAreas', 'address_id')->setEagerlyType(0);
+        return $this->belongsTo('RepairAreas', 'address_id');
     }
 
     //处理数据用来显示
@@ -96,12 +99,55 @@ class RepairList extends Model
         $this->where('id = '.$ids)->update(['distributed_time' => $time]);
         return $res;
     }
-    //指派工人
+    //指派工人并且微信发送通知
     public function dispatch($ids,$worker_id){
         $time = time();
+        $worker_name = Db::name('repair_worker') -> where('id',$worker_id) -> find()['name'];
+        $bindInfo = Db::name('repair_bind') -> where('type',2) -> where('name',$worker_name) -> find();
+        if (empty($bindInfo)) {
+            //return ['status' => false,'msg' => "该工人尚未绑定微信，请联系。"];
+        } else {
+            $open_id = $bindInfo['open_id'];
+            $res = $this -> sendTemplate($open_id);
+        }
         $res = $this->where('id ='.$ids)->update(['status' => 'dispatched', 'dispatched_id' => $worker_id]);
         $this->where('id = '.$ids)->update(['dispatched_time' => $time]);
         return $res;
+    }
+
+    /**
+     * 发送微信模板消息
+     */
+    private function sendTemplate($open_id)
+    {
+        try {
+            $config = Config::Get('wechatConfig');
+            // 实例对应的接口对象
+            $user = new \WeChat\Template($config);
+            
+            // 调用接口对象方法
+            $data = [
+                'touser' => $open_id,
+                'template_id' => 've3jbz7x4m_daJveaPFoPVpFubl8cOlzBoKjF6PdocY',
+                'data'   => [
+                    'name' => [
+                        'value' => "刘涛",
+                        'color' => '#173177',
+                    ],
+                    'time' => [
+                        'value' => date('Y-m-d H:i',time()),
+                        'color' => '#173177',
+                    ],
+                ]	
+            ];
+            $list = $user->send($data);
+            
+            return $list;
+            
+        } catch (Exception $e) {
+            // 出错啦，处理下吧
+            echo $e->getMessage() . PHP_EOL;
+        }
     }
 
     //驳回申请

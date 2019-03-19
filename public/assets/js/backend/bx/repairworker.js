@@ -38,6 +38,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             buttons: [
                                 {name: 'workProgress',  classname: 'btn btn-xs btn-primary btn-success btn-workProgress  btn-dialog',text:'待维修订单', title:'待维修订单', url: 'bx/Repairworker/workProgress', callback: function (data){}},      
                                 {name: 'workResult',  classname: 'btn btn-xs btn-primary btn-info btn-workResult  btn-dialog',text:"已完成订单",title:'已完成订单', url: 'bx/Repairworker/workResult', callback: function (data){}},      
+                                {name: 'bindWx',  classname: 'btn btn-xs btn-primary btn-bindWx  btn-dialog',text:"绑定微信", url: 'bx/Repairworker/bindWx?name={name}', callback: function (data){}},      
                             ],      
                         }
                     ]

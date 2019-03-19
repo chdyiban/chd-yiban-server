@@ -25,7 +25,8 @@
         "karsonzhang/fastadmin-addons": "~1.1.4",
         "overtrue/pinyin": "~3.0",
         "phpoffice/phpexcel": "^1.8",
-        "qiniu/php-sdk": "^7.2"
+        "qiniu/php-sdk": "^7.2",
+        "zoujingli/wechat-developer": "^1.2"
     },
     "config": {
         "preferred-install": "dist"

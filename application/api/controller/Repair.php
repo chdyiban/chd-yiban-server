@@ -4,6 +4,7 @@ namespace app\api\controller;
 
 use app\common\controller\Api;
 use think\Config;
+use \WeChat\Template;
 use think\Db;
 use think\Cache;
 use fast\Http;
@@ -28,10 +29,12 @@ class Repair extends Api
         $repair = new RepairlistModel;
         $res = $repair->saveData($key);
         // 发送短信功能
-        $this->isNotice();
+        //$this->isNotice();
         // $mobile = '15991651685';
         // $msg = "[宿舍管理系统]通知：刚有新的订单产生，请前往处理";
         // $res = Smslib::notice($mobile, $msg);
+        //微信模板消息
+        $res = $this -> sendTemplate();
         $info = [
             'status' => 200,
             'message' => 'success',
@@ -71,6 +74,7 @@ class Repair extends Api
         ];
         return json($info);
     }
+
     //获取报修工单的详细信息
     public function get_repair_detail(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
@@ -136,6 +140,40 @@ class Repair extends Api
             'message' => 'success',
         ];
         return json($info);
+    }
+    /**
+     * 发送微信模板消息
+     */
+    public function sendTemplate()
+    {
+        try {
+            $config = Config::Get('wechatConfig');
+            // 实例对应的接口对象
+            $user = new \WeChat\Template($config);
+            
+            // 调用接口对象方法
+            $data = [
+                'touser' => 'oeWmS5_6nCIi8JqqP3lr8o8_sCaM',
+                'template_id' => 've3jbz7x4m_daJveaPFoPVpFubl8cOlzBoKjF6PdocY',
+                'data'   => [
+                    'name' => [
+                        'value' => "刘涛",
+                        'color' => '#173177',
+                    ],
+                    'time' => [
+                        'value' => date('Y-m-d H:i',time()),
+                        'color' => '#173177',
+                    ],
+                ]	
+            ];
+            $list = $user->send($data);
+            
+            return $list;
+            
+        } catch (Exception $e) {
+            // 出错啦，处理下吧
+            echo $e->getMessage() . PHP_EOL;
+        }
     }
 
     // public function upload(){
