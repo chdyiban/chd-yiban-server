@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>处理订单</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <style type="text/css">
+        .demos-content-padded {
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <input style="display:none" id="listId" type="text" value="{$listInfo.id}">
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-cells">
+            <div class="weui-cells__title">订单详情</div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修人</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.stu_name}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>联系方式</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.phone}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修标题</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.title}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修内容</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.content}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修区域</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.address_id}#{$listInfo.address}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修时间</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.submit_time|date="Y-m-d H:i",###}</div>
+            </div>
+        </div>
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cells__title">历史操作</div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>派单时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.distributed_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {eq name="$listInfo.status" value="distributed"}
+        <div class="weui-cells__title">选择派遣工人</div>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select">
+                <div class="weui-cell__bd">
+                <select class="weui-select" id="workerId" name="selectWorker">
+                    {foreach name="$workerInfo" item="vo"}     
+                    <option value="{$vo.id}">{$vo.name}</option>
+                    {/foreach}
+                </select>
+                </div>
+            </div>
+        </div>
+        <div class="weui-btn-area demos-content-padded">
+            <a class="weui-btn weui-btn_primary" href="javascript:" id="confirmDispatch">确定派工</a>
+        </div>
+        {/eq}
+        {eq name="$listInfo.status" value="dispatched"}
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>派工时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.dispatched_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {/eq}
+        {eq name="$listInfo.status" value="finished"}
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>派工时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.dispatched_time|date="Y-m-d H:i",###}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>完工时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.finished_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {/eq}
+        <div class="demos-content-padded">
+            <a href="javascript:;" class="weui-btn weui-btn_disabled weui-btn_primary">订单派工</a>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+    <script src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script>
+        var listId = $("#listId").val();
+        var workerId = $("#workerId").val();
+        $(document).on('click', '#confirmDispatch', function () {
+            $.ajax({
+                type: 'GET',
+                url: './dispatchWorker',
+                data:{
+                    'listId': listId,
+                    'workerId': workerId,
+                },
+                success: function(data) {
+                    if (data) {
+                        $.toast("分配成功");
+                        $("#confirmDispatch").addClass("weui-btn_disabled");
+                        $("#confirmDispatch").text("成功派工");
+                    } else {
+                        $.toast("分配失败","forbidden");
+                    }
+                }
+            });
+        });   
+    </script>
+</body>
+
+</html>

@@ -36,6 +36,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
 
             // 为表格绑定事件
             Table.api.bindevent(table);//当内容渲染完成后
+            //点击绑定微信请求获取二维码
+
+            $(".bindWx").on("click", function () {
+                var adminId = $("#adminId").val();
+                $.ajax({
+                    type: 'POST',
+                    url: './bx/Repairworker/bindAdminWx',
+                    data: {
+                        'id':adminId,
+                    },
+                    success: function(data) {
+                        if (data.status) {
+                            $("#adminCode").attr("src",data.data.imgUrl);
+                        }
+                    }
+                });
+            });
 
             // 给上传按钮添加上传成功事件
             $("#plupload-avatar").data("upload-success", function (data) {

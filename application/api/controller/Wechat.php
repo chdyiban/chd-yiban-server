@@ -15,17 +15,17 @@ class Wechat
 	public function valid()
     {
         $echoStr = $_GET["echostr"];
- 
-        //valid signature , option
-        if($this->checkSignature()){
-        	echo $echoStr;//这里你把它正确输出了，就完成了开发者验证
-        	exit;
+        if (!empty($echoStr)) {
+            //valid signature , option
+            if($this->checkSignature()){
+                echo $echoStr;//这里你把它正确输出了，就完成了开发者验证
+                exit;
+            }
         }
     }
  
     public function responseMsg()
     {
-		//$postStr = file_get_contents('php://input');
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
       	//extract post data
 		if (!empty($postStr)){
@@ -45,13 +45,13 @@ class Wechat
             if(!empty( $keyword ))
             {
                 $msgType = "text";
-                $contentStr = "Welcome to wechat world!";
+                $contentStr = "请勿重复绑定!";
                 $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 echo $resultStr;
             }else{//初次绑定
                 $bindName = $this->insertInfo($postObj);
                 $msgType = "text";
-                $contentStr = $bindName."先生，绑定成功，请及时留意推送!";
+                $contentStr = "绑定成功，请及时留意推送!";
                 $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 echo $resultStr;
             }
@@ -66,19 +66,30 @@ class Wechat
      */
     private function insertInfo($postObj)
     {
-        $bindArray = $postObj->EventKey;//示例：qrscene_2_刘涛
+        $bindArray = $postObj->EventKey;//示例：qrscene_2_1
         $bindArray = explode("_", $bindArray);
         $bindType = $bindArray[1];
-        $bindName = $bindArray[2];
+        $bindId = $bindArray[2];
         $FromUserName = $postObj->FromUserName;
         $temp = [
-            'name'    => $bindName,
+            'user_id'    => $bindId,
             'open_id' => $FromUserName,
             'type'    => $bindType,
             'time'    => time(),
         ];
-        $res = Db::name('repair_bind') -> insert($temp);
-        return $bindName;
+        $checkBind = Db::name("repair_bind") 
+                    -> where('type',$bindType)
+                    -> where('user_id',$bindId)
+                    -> find();
+        if (!empty($checkBind)) {
+            $res = Db::name('repair_bind') 
+                -> where('type',$bindType)
+                -> where('user_id',$bindId)
+                -> update($temp);
+        } else {
+            $res = Db::name('repair_bind') -> insert($temp);
+        }
+        return $res;
 
     }
 		

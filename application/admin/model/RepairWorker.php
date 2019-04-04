@@ -28,6 +28,8 @@ class RepairWorker extends Model
                     ->field('repair_worker.id,mobile,name')
                     ->select();
         foreach ($list as $k => $v) {
+            $checkBind = Db::name('repair_bind') -> where('type',2) -> where('user_id',$v['id'])->find();
+            $list[$k]['isBind'] = !empty($checkBind) ? true : false ;
             $list[$k]['needRepairCount'] = count($this->getWorkerNotFinishList($v['id']));
             $list[$k]['allRepairCount'] = count($this->getWorkerList($v['id']));
             $list[$k]['star'] = $this->getWorkerStar($v['id'])['data']['star'];

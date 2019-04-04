@@ -22,19 +22,42 @@ class Repair extends Api
 
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
+    //为工人发出的模板消息id
+    const WORKER_TEMPLATE_ID = "BNtZm-iUDytuPjYpo1iu1fLC0LfMEbH9lhKWeE99yeo";
+    //为公司发的模板消息id
+    const COMPANY_TEMPLATE_ID = "hyHcF_da4GLq1_4-SxIejrl1O92eMQkJzkc8mw3LImU";
+    //模板消息跳转url
+    const TEMPLATE_URL = " http://xevrk3.natappfree.cc/yibanbx/public/index/Bx/";
 
     public function submit(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
         //将数据写入数据库
         $repair = new RepairlistModel;
-        $res = $repair->saveData($key);
+        $listId = $repair->saveData($key);
         // 发送短信功能
-        //$this->isNotice();
+        // $this->isNotice();
         // $mobile = '15991651685';
         // $msg = "[宿舍管理系统]通知：刚有新的订单产生，请前往处理";
         // $res = Smslib::notice($mobile, $msg);
-        //微信模板消息
-        $res = $this -> sendTemplate();
+        // 微信模板消息
+        $adminControllerInfo = Db::name('admin')->where('nickname',"总控")->field('nickname,id') -> find();
+        $bindInfo = Db::name('repair_bind') -> where('type',1) -> where('user_id',$adminControllerInfo['id']) -> find();
+        if (!empty($bindInfo)) {
+            $url = self::TEMPLATE_URL."wxrouter?func=distribute&list_id=$listId";
+            $open_id = $bindInfo['open_id'];
+            $template_id = self::COMPANY_TEMPLATE_ID;
+            $data = [
+                'name' => [
+                    'value' => $adminControllerInfo['nickname'],
+                    'color' => '#000066',
+                ],
+                'time' => [
+                    'value' => date('Y-m-d H:i',time()),
+                    'color' => '#173177',
+                ],
+            ];	
+        }
+        $res = $this -> sendTemplate($template_id,$url,$data,$open_id);
         $info = [
             'status' => 200,
             'message' => 'success',
@@ -143,30 +166,26 @@ class Repair extends Api
     }
     /**
      * 发送微信模板消息
+     * @param string template_id
+     * @param string url
+     * @param array data
+     * @param string open_id
      */
-    public function sendTemplate()
+    private function sendTemplate($template_id, $url,$data, $open_id)
     {
         try {
             $config = Config::Get('wechatConfig');
             // 实例对应的接口对象
             $user = new \WeChat\Template($config);
-            
+
             // 调用接口对象方法
-            $data = [
-                'touser' => 'oeWmS5_6nCIi8JqqP3lr8o8_sCaM',
-                'template_id' => 've3jbz7x4m_daJveaPFoPVpFubl8cOlzBoKjF6PdocY',
-                'data'   => [
-                    'name' => [
-                        'value' => "刘涛",
-                        'color' => '#173177',
-                    ],
-                    'time' => [
-                        'value' => date('Y-m-d H:i',time()),
-                        'color' => '#173177',
-                    ],
-                ]	
+            $templateData = [
+                'touser' => $open_id,
+                'template_id' => $template_id,
+                'data'   => $data,
+                'url'    => $url,
             ];
-            $list = $user->send($data);
+            $list = $user->send($templateData);
             
             return $list;
             

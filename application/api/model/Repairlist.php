@@ -31,7 +31,7 @@ class Repairlist extends Model
             'specific_id' => $array['SpecificId'],
         ]);
         $res = $this->save();
-        return $res;
+        return $this->id;
     }
 
     //获取数据库中的报修信息，并整理格式。
