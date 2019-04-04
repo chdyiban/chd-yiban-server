@@ -3,7 +3,9 @@
 namespace app\admin\controller\bx;
 
 use app\common\controller\Backend;
-
+use \WeChat\Template;
+use \WeChat\Qrcode;
+use think\Config;
 /**
  * 
  *
@@ -120,6 +122,67 @@ class Repairworker extends Backend
         $finishList = $this -> model -> getWorkerFinishList($workerId);
         $this->view->assign('finishList',$finishList);
         return $this->view->fetch('workResult');
+    }
+    /**
+     * 获取工人绑定公众号二维码
+     * @param string name
+     */
+    public function bindWx()
+    {
+        $workerId = $this -> request -> get('id');
+        if (empty($workerId)) {
+            $this -> error("params error!");
+        } else {
+            try {
+                $config = Config::Get('wechatConfig');
+                // 实例对应的接口对象
+                $code = new \WeChat\Qrcode($config);
+                
+                // 调用接口对象方法
+                $scene = '2_'.$workerId;//自定义参数:2_workerId
+                $expire_seconds = 3600;
+                $list = $code->create($scene,$expire_seconds);
+                $ticket = $list['ticket'];
+                $url = $code->url($ticket);
+                //获取工人名称
+                $workInfo = $this->model->get($workerId);
+                return $this->view->fetch('bindWx',['imageUrl' => $url,'workerInfo' => $workInfo]);
+                
+            } catch (Exception $e) {
+                // 出错啦，处理下吧
+                echo $e->getMessage() . PHP_EOL;
+            }
+        }
+    }
+    /**
+     * 获取管理者绑定公众号二维码
+     * @param string name
+     */
+    public function bindAdminWx()
+    {
+        $adminId = $this ->request->param('id');
+        if (empty($adminId)) {
+            $this -> error("params error!");
+        } else {
+            try {
+                $config = Config::Get('wechatConfig');
+                // 实例对应的接口对象
+                $code = new \WeChat\Qrcode($config);
+                
+                // 调用接口对象方法
+                $scene = '1_'.$adminId;//自定义参数:1_adminId
+                $expire_seconds = 3600;
+                $list = $code->create($scene,$expire_seconds);
+                $ticket = $list['ticket'];
+                $url = $code->url($ticket);
+                $array = ["status" => true,"data" => ['imgUrl' => $url]];
+                return json($array);
+                
+            } catch (Exception $e) {
+                // 出错啦，处理下吧
+                echo $e->getMessage() . PHP_EOL;
+            }
+        }
     }
 
 }

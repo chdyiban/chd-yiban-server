@@ -446,9 +446,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         'worker_id':worker_id,
                     },
                     success: function(data) {
-                        if (data === 1) {
+                        if (data == 1) {
                             Fast.api.close();
-                            alert('分配成功');
+                            alert("工人分配成功");
                             window.parent.location.reload();  
                         }
                     }

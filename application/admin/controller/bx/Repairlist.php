@@ -90,14 +90,18 @@ class Repairlist extends Backend
             }else{
                 if ($now_admin_id == $this -> control_id || $now_admin_id == 1) {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
+                            ->with(['getaddress','gettypename','getworkername',
+                            'getcompany'=> function($query){$query->withField('id,nickname,username');},
+                            'getname'  => function($query){$query->withField('id,nickname,username');}])
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
+                            ->with(['getaddress','gettypename','getworkername',
+                            'getcompany'=> function($query){$query->withField('id,nickname,username');},
+                            'getname'  => function($query){$query->withField('id,nickname,username');}])
                             ->where("status",$status)
                             ->where($where)
                             ->order($sort, $order)
@@ -105,7 +109,9 @@ class Repairlist extends Backend
                             ->select();
                 } else {
                     $total = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
+                            ->with(['getaddress','gettypename','getworkername',
+                            'getcompany'=> function($query){$query->withField('id,nickname,username');},
+                            'getname'  => function($query){$query->withField('id,nickname,username');}])
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
@@ -113,7 +119,9 @@ class Repairlist extends Backend
                             ->count();
 
                     $list = $this->model
-                            ->with('getname,getaddress,getcompany,gettypename,getworkername')
+                            ->with(['getaddress','gettypename','getworkername',
+                            'getcompany'=> function($query){$query->withField('id,nickname,username');},
+                            'getname'  => function($query){$query->withField('id,nickname,username');}])
                             ->where("status",$status)
                             ->where('distributed_id',$now_admin_id)
                             ->where($where)
@@ -222,6 +230,7 @@ class Repairlist extends Backend
         if ($this->request->isPost()){
             $worker_id = $this->request->post()['worker_id'];
             $res = $this->model->dispatch($ids, $worker_id);
+
             return $res;
         }else{
            $this -> error('请求错误');
