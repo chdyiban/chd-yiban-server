@@ -589,7 +589,7 @@ class Wxuser extends Api
         $return = [];
         $response = Http::post(self::TEST_URL,$post_data);
         $response = json_decode($response,true);
-        $return['status'] = (bool)$response['success'];
+        $return['status'] = $response['success'] == "true" ? true:false;
         if ($return['status']) {
             $return['message'] = "绑定成功!";
         } else {
