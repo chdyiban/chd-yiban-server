@@ -28,7 +28,7 @@ class RepairList extends Model
     //为公司发的模板消息id
     const COMPANY_TEMPLATE_ID = "hyHcF_da4GLq1_4-SxIejrl1O92eMQkJzkc8mw3LImU";
     //模板消息跳转url
-    const TEMPLATE_URL = " http://xevrk3.natappfree.cc/yibanbx/public/index/Bx/";
+    const TEMPLATE_URL = " https://yiban.chd.edu.cn/yibanbx/public/index/Bx/";
 
     public function getStatusList()
     {
