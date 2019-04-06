@@ -15,7 +15,7 @@ class Repairlist extends Model{
     //为公司发的模板消息id
     const COMPANY_TEMPLATE_ID = "hyHcF_da4GLq1_4-SxIejrl1O92eMQkJzkc8mw3LImU";
     //模板消息跳转url
-    const TEMPLATE_URL = " https://yiban.chd.edu.cn/yibanbx/public/index/Bx/";
+    const TEMPLATE_URL = " https://yiban.chd.edu.cn/index/Bx/";
 
     //自修和总控在写入时都按照自修的id来写
     public function finish($ids)

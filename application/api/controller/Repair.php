@@ -27,7 +27,7 @@ class Repair extends Api
     //为公司发的模板消息id
     const COMPANY_TEMPLATE_ID = "hyHcF_da4GLq1_4-SxIejrl1O92eMQkJzkc8mw3LImU";
     //模板消息跳转url
-    const TEMPLATE_URL = " https://yiban.chd.edu.cn/yibanbx/public/index/Bx/";
+    const TEMPLATE_URL = " https://yiban.chd.edu.cn/index/Bx/";
 
     public function submit(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
