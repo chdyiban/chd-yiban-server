@@ -56,8 +56,8 @@ class Repair extends Api
                     'color' => '#173177',
                 ],
             ];	
+            $res = $this -> sendTemplate($template_id,$url,$data,$open_id);
         }
-        $res = $this -> sendTemplate($template_id,$url,$data,$open_id);
         $info = [
             'status' => 200,
             'message' => 'success',
