@@ -144,6 +144,7 @@ class Repairworker extends Backend
                 $list = $code->create($scene,$expire_seconds);
                 $ticket = $list['ticket'];
                 $url = $code->url($ticket);
+                
                 //获取工人名称
                 $workInfo = $this->model->get($workerId);
                 return $this->view->fetch('bindWx',['imageUrl' => $url,'workerInfo' => $workInfo]);
