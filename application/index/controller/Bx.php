@@ -19,7 +19,7 @@ class Bx extends Frontend
     const GET_TICKET_URL = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=';
     const APPID = "wx7127494fe62b5813";
     const APPSECRIPT = "8ceca4754c5225323bcddf71469dfd3a";
-    const DOMAIN = "http://xevrk3.natappfree.cc";
+    const DOMAIN = "https://yiban.chd.edu.cn";
 
     public function _initialize()
     {
