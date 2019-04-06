@@ -70,7 +70,7 @@ class Sports extends Model
 
     public function getHeat($averageSteps){
         $maxSteps = Db::name('sports_score') -> max('average_steps');
-        $minSteps = Db::name('sports_score') -> min('average_steps');
+        $minSteps = Db::name('sports_score') -> min('average_steps');   
         if ($averageSteps >= $maxSteps) {
             $heat = 99.9;
         } else {
@@ -185,7 +185,10 @@ class Sports extends Model
                 'list' => [],
             ]
         ];
-        $scheduleList = Db::name('sports_date') -> where('sports_time','>',time())->select();
+        $scheduleList = Db::name('sports_date') 
+                    -> where('sports_time','>',time())
+                    -> order('sports_time','asc')
+                    -> select();
 
         foreach ($scheduleList as $key => $value) {
             $temp = [];

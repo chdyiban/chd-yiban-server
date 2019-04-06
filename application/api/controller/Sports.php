@@ -158,7 +158,8 @@ class Sports extends Api
             }
         }
         $stu_id = $dbResult['portal_id'];
-        $checkResult = $this->checkDonate($stu_id);
+        //验证是否捐过检验学号以及openid
+        $checkResult = $this->checkDonate($stu_id,$key['openid']);
         if ($checkResult['status']) {
             $info = [
                 'status' => 200,
@@ -207,7 +208,7 @@ class Sports extends Api
         }
 
     }
-
+    //捐献步数api
     public function donate()
     {
         
@@ -230,7 +231,7 @@ class Sports extends Api
             }
         }
         $stu_id = $dbResult['portal_id'];
-        $checkResult = $this->checkDonate($stu_id);
+        $checkResult = $this->checkDonate($stu_id,$key['openid']);
         //再次验证是否捐过
         if ($checkResult['status']) {
             $info = [
@@ -260,10 +261,11 @@ class Sports extends Api
         }
 
         $tempDetail = [
-            'YXDM'   =>  $stuInfo['YXDM'],
-            'stu_id' =>  $stu_id,
-            'steps'  =>  $stepListToday,
-            'time'   =>  time(),
+            'YXDM'     =>  $stuInfo['YXDM'],
+            'stu_id'   =>  $stu_id,
+            'open_id'  =>  $key['openid'],
+            'steps'    =>  $stepListToday,
+            'time'     =>  time(),
         ];
         $collegeInfo = Db::name('sports_score') 
                     -> where('YXDM',$stuInfo['YXDM'])
@@ -362,17 +364,21 @@ class Sports extends Api
      * @param int $stu_id
      * @return array 
      */
-    private function checkDonate($stu_id) {
-        $beginToday=mktime(0,0,0,date('m'),date('d'),date('Y'));
+    private function checkDonate($stu_id,$openid) {
+        $beginToday = mktime(0,0,0,date('m'),date('d'),date('Y'));
         $donateList = Db::name('sports_steps_detail') 
                         -> where('stu_id',$stu_id)
                         -> where('time','>',$beginToday)
                         -> find();
-        if (empty($donateList)) {
+        $donateOpenidList = Db::name('sports_steps_detail') 
+                        -> where('open_id',$openid)
+                        -> where('time','>',$beginToday)
+                        -> find();
+        if (empty($donateList) && empty($donateOpenidList)) {
             //未进行捐赠
             return ['status'=> false,'data' => '' ];
         } else {
-            return ['status'=> true,'data' => $donateList];
+            return ['status'=> true,'data' => $donateOpenidList];
         }
     }
 
