@@ -27,7 +27,7 @@ class Sports extends Model
         $list = Db::name('dict_college') -> select();
         $collegeJson = array();
         foreach ($list as $key => $value) {
-            if ($value['YXDM'] != 1800 && $value['YXDM'] != 1801 &&  $value['YXDM'] != 5100 && $value['YXDM'] != 9999) {
+            if ($value['YXDM'] != 1700 && $value['YXDM'] != 1800 && $value['YXDM'] != 1801 &&  $value['YXDM'] != 5100 && $value['YXDM'] != 9999 && $value['YXDM'] != "7100") {
                 $collegeJson[$value['YXJC']] = $value['YXJC'];
             }
         }
