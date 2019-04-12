@@ -21,6 +21,7 @@ class Wxuser extends Api
 
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const TEST_URL = "http://202.117.64.236:8080/auth/login";
+    const GET_INFO_URL = "http://202.117.64.236:8007/userinfo";
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
     /**
@@ -334,6 +335,7 @@ class Wxuser extends Api
      * 根据用户的微信openid获取数据库里存在的基本信息
      * @param $open_id 微信open_id
      * @return $data 数据库中用户的基本信息
+     * @time 2019/4/11 将chd_teacher_detail表内容迁移至fa_teacher_detail
      */
     private function queryStuInfoByOpenId($open_id){
         $data = [];
@@ -345,87 +347,92 @@ class Wxuser extends Api
 
             //先判断是教职工还是学生
             if(strlen($bindInfo) == 6){
-                $info = Db::connect('chd_config')
-                    ->view('chd_teacher_detail')
+                $info = Db::view('teacher_detail')
                     ->where('ID',$bindInfo)
                     //->view('chd_dict_nation','MZDM,MZMC','chd_teacher_detail.MZDM = chd_dict_nation.MZDM')
-                    ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_teacher_detail.YXDM = chd_dict_college.YXDM')
+                    ->view('dict_college','YXDM,YXMC,YXJC','teacher_detail.YXDM = dict_college.YXDM')
                     ->find();
-                        $data = [
-                            'is_bind' => true,
-                            'user' => [
-                                'openid' => $open_id,
-                                'type' => '教职工',
-                                'id' => $bindInfo,
-                                'info'=>[
-                                    'yxm'=>$info['YXMC'],
-                                    //如果注释掉这两个，则跳转到完善信息界面
-                                    'build'=>' ',
-                                    'room'=>' ',
-                                    'mobile'=>$appendInfo['mobile']
-                                ],
-                                'name' => $info['XM']
-                            ],
-                            'time' => [
-                                'term' => '2018-2019 第2学期',
-                                'week' => get_weeks(),
-                                'day' => date("w")
-                            ],
-                            'token' => rand_str_10(),
-                            'status' => 200,
-                        ];
+                // $info = Db::connect('chd_config')
+                //     ->view('chd_teacher_detail')
+                //     ->where('ID',$bindInfo)
+                //     //->view('chd_dict_nation','MZDM,MZMC','chd_teacher_detail.MZDM = chd_dict_nation.MZDM')
+                //     ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_teacher_detail.YXDM = chd_dict_college.YXDM')
+                //     ->find();
+                $data = [
+                    'is_bind' => true,
+                    'user' => [
+                        'openid' => $open_id,
+                        'type' => '教职工',
+                        'id' => $bindInfo,
+                        'info'=>[
+                            'yxm'=>$info['YXMC'],
+                            //如果注释掉这两个，则跳转到完善信息界面
+                            'build'=>' ',
+                            'room'=>' ',
+                            'mobile'=>$appendInfo['mobile']
+                        ],
+                        'name' => $info['XM']
+                    ],
+                    'time' => [
+                        'term' => '2018-2019 第2学期',
+                        'week' => get_weeks(),
+                        'day' => date("w")
+                    ],
+                    'token' => rand_str_10(),
+                    'status' => 200,
+                ];
 
-                    }else{
-                        //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
-                        $nj = substr($bindInfo,0,4);
-                        if ($nj == '2018') {
-                            $info = Db::connect('chd_config')
-                                ->view('chd_stu_detail')
-                                ->where('XH', $bindInfo)
-                                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
-                                ->find();
-                            $info['ZYMC'] = '';
-                        } else {
-                            $info = Db::connect('chd_config')
-                                ->view('chd_stu_detail')
-                                ->where('XH', $bindInfo)
-                                ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                                ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
-                                ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
-                                ->find();
-                        }
-                        //年级将学号的前四位截取
-                        $info['NJ'] = substr($info['XH'],0,4);
-                        $data = [
-                            'is_bind' => true,
-                            'user' => [
-                                'openid' => $open_id,
-                                'type' => '学生',
-                                'id' => $bindInfo,
-                                'info'=>[
-                                    'yxm'=>$info['YXMC'],
-                                    'build'=>$appendInfo['build'],
-                                    'room'=>$appendInfo['room'],
-                                    'mobile'=>$appendInfo['mobile']
-                                ],
-                                'more' => [
-                                    'zym'=>$info['ZYMC'],
-                                    'nj'=>$info['NJ'],
-                                    'bj'=>$info['BJDM'],
-                                    'sex' => ($info['XBDM'] == 1) ? '男' : '女',
-                                ],
-                                'name' => $info['XM']
-                            ],
-                            'time' => [
-                                'term' => '2018-2019 第2学期',
-                                'week' => get_weeks(),
-                                'day' => date("w")
-                            ],
-                            'token' => rand_str_10(),
-                            'status' => 200,
-                        ];
-                    }
+            }else{
+                //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
+                $nj = substr($bindInfo,0,4);
+                if ($nj == '2018') {
+                    $info = Db::connect('chd_config')
+                        ->view('chd_stu_detail')
+                        ->where('XH', $bindInfo)
+                        ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                        ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                        ->find();
+                    $info['ZYMC'] = '';
+                } else {
+                    $info = Db::connect('chd_config')
+                        ->view('chd_stu_detail')
+                        ->where('XH', $bindInfo)
+                        ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                        ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM')
+                        ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                        ->find();
+                }
+                //年级将学号的前四位截取
+                $info['NJ'] = substr($info['XH'],0,4);
+                $data = [
+                    'is_bind' => true,
+                    'user' => [
+                        'openid' => $open_id,
+                        'type' => '学生',
+                        'id' => $bindInfo,
+                        'info'=>[
+                            'yxm'=>$info['YXMC'],
+                            'build'=>$appendInfo['build'],
+                            'room'=>$appendInfo['room'],
+                            'mobile'=>$appendInfo['mobile']
+                        ],
+                        'more' => [
+                            'zym'=>$info['ZYMC'],
+                            'nj'=>$info['NJ'],
+                            'bj'=>$info['BJDM'],
+                            'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                        ],
+                        'name' => $info['XM']
+                    ],
+                    'time' => [
+                        'term' => '2018-2019 第2学期',
+                        'week' => get_weeks(),
+                        'day' => date("w")
+                    ],
+                    'token' => rand_str_10(),
+                    'status' => 200,
+                ];
+            }
         }else{
             $data = [
                 'is_bind' => false,
@@ -582,6 +589,39 @@ class Wxuser extends Api
     */
 
     private function checkBind($username, $password){
+        //判断数据库中有没有教师信息
+        if (strlen($username) == 6) {
+            $info = Db::name('teacher_detail')
+                    ->where('ID',$username)
+                    ->find();
+            //为空则请求接口获取学院以及性别
+            if (empty($info)) {
+                $get_data = [
+                    'userName' => $username,
+                    'password' => $password,
+                ];
+                $response = Http::get(self::GET_INFO_URL,$get_data); 
+                $response = json_decode($response,true);
+                if ($response['status'] == "success") {
+                    $college_id = Db::name('dict_college') 
+                            -> where("YXMC",$response['college_name'])
+                            -> field("YXDM")
+                            -> find()["YXDM"];
+                    $sex = $response['sex'] == "男" ? 1 : 2;
+                    $insertData = [
+                        "ID"   =>  $username,
+                        "XM"   =>  $response["name"],
+                        "XBDM" =>  $sex,
+                        "MZDM" =>  "1",
+                        "YXDM" =>  $college_id,
+                        "SJH"  =>  "",
+                        "LXDH" =>  "",
+                        "ROLE" =>  "1"
+                    ];
+                    $res = Db::name("teacher_detail") -> insert($insertData);
+                }
+            } 
+        }
         $post_data = [
             'userName' => $username,
             'pwd' => $password,

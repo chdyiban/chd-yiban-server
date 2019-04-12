@@ -209,6 +209,7 @@ class Index extends Backend
         $collegeInfo = Db::name('dict_college') 
                 -> where('yb_group_id','<>','') 
                 -> where('YXDM','<>','2101') 
+                -> where('YXDM','<>','7100') 
                 -> where('YXDM','<>','9999') 
                 -> select();
         foreach ($collegeInfo as $key => $value) {

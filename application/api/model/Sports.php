@@ -91,16 +91,24 @@ class Sports extends Model
 
      /**
      * 获取学生信息
+     * @time 2019/4/11添加获取教职工相关信息
      */
     public function getStuInfo($key)
     {
         $today = strtotime(date("Y-m-d"),time());
         $return = [];
         $infoList = Db::name('wx_user') -> where('open_id',$key['openid'])->find();
-        $stuInfo = Db::view('stu_detail')
-                -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM') 
-                -> where('XH',$infoList['portal_id']) 
-                -> find();
+        if(strlen($infoList['portal_id']) == 6){
+            $stuInfo = Db::view("teacher_detail")
+                    ->view('dict_college','YXDM,YXMC,YXJC','teacher_detail.YXDM = dict_college.YXDM')
+                    ->where('ID',$infoList['portal_id'])
+                    ->find();
+        } else {
+            $stuInfo = Db::view('stu_detail')
+                    -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM') 
+                    -> where('XH',$infoList['portal_id']) 
+                    -> find();
+        }
         $return['college_id'] = empty($stuInfo['YXDM']) ? "未获取" : $stuInfo['YXDM'];
         $return['college_name'] = empty($stuInfo['YXJC']) ? "未获取" : $stuInfo['YXJC'];
         
@@ -174,15 +182,15 @@ class Sports extends Model
     {
         $return = [
             [
+                'date' => "04-17",
+                'list' => [],
+            ],
+            [
                 'date' => "04-18",
                 'list' => [],
             ],
             [
                 'date' => "04-19",
-                'list' => [],
-            ],
-            [
-                'date' => "04-20",
                 'list' => [],
             ]
         ];
