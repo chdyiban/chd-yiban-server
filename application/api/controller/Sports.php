@@ -245,8 +245,12 @@ class Sports extends Api
             ];
             return json($info);
         }
-       
-        $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> field('YXDM')->find();
+        
+        if (strlen($stu_id) == 6) {
+            $stuInfo = Db::name('teacher_detail') -> where('ID',$stu_id) -> field('YXDM')->find();
+        } else {
+            $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> field('YXDM')->find();
+        }
 
         $stepListToday = Cache::get($stu_id."_steps");
         //获取缓存是否有该学生步数
@@ -384,11 +388,16 @@ class Sports extends Api
 
     /**
      * 获取学生可为学院贡献多少热度
+     * @time 2019/4/11 新增stu_id为教师工号
      */
     private function getStuHeat($stu_id,$stepListToday)
     {
         $SportsModel = new SportsModel;  
-        $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> field('YXDM')->find();
+        if (strlen($stu_id) == 6) {
+            $stuInfo = Db::name('teacher_detail') -> where('ID',$stu_id) -> field('YXDM')->find();
+        } else {
+            $stuInfo = Db::name('stu_detail') -> where('XH',$stu_id) -> field('YXDM')->find();
+        }
         $collegeInfo = Db::name('sports_score') 
                     -> where('YXDM',$stuInfo['YXDM'])
                     -> find();
