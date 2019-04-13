@@ -596,11 +596,11 @@ class Wxuser extends Api
                     ->find();
             //为空则请求接口获取学院以及性别
             if (empty($info)) {
-                $get_data = [
-                    'userName' => $username,
-                    'password' => $password,
+                $post_data = [
+                    "username" => $username,
+                    "password" => $password
                 ];
-                $response = Http::get(self::GET_INFO_URL,$get_data); 
+                $response = Http::post(self::GET_INFO_URL,$post_data);
                 $response = json_decode($response,true);
                 if ($response['status'] == "success") {
                     $college_id = Db::name('dict_college') 
