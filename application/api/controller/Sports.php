@@ -350,12 +350,12 @@ class Sports extends Api
     // {
     //     $insertList = Db::name('sports_date_back') -> select();
     //     $timeArray = [
-    //         '1' => '2019-04-18',
-    //         '2' => '2019-04-18',
-    //         '3' => '2019-04-19',
-    //         '4' => '2019-04-19',
-    //         '5' => '2019-04-20',
-    //         '6' => '2019-04-20',
+    //         '1' => '2019-04-17',
+    //         '2' => '2019-04-17',
+    //         '3' => '2019-04-18',
+    //         '4' => '2019-04-18',
+    //         '5' => '2019-04-19',
+    //         '6' => '2019-04-19',
     //     ];
     //     foreach ($insertList as $key => $value) {
     //         $newTime = strtotime($timeArray[$value['sports_day']]." ".$value['sports_time']);
