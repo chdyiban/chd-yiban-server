@@ -601,7 +601,7 @@ class Wxuser extends Api
                 //设置抓取的url
                 curl_setopt($curl, CURLOPT_URL, self::GET_INFO_URL);
                 //设置头文件的信息作为数据流输出
-                curl_setopt($curl, CURLOPT_HEADER, 1);
+                curl_setopt($curl, CURLOPT_HEADER, 0);
                 //设置获取的信息以文件流的形式返回，而不是直接输出。
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 //设置post方式提交
@@ -613,7 +613,7 @@ class Wxuser extends Api
                     );
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                 //执行命令
-                $response = curl_exec($curl);
+                $responseInfo = curl_exec($curl);
                 //关闭URL请求
                 curl_close($curl);
                 // $post_data = [
@@ -621,16 +621,16 @@ class Wxuser extends Api
                 //     "password" => $password
                 // ];
                 // $response = Http::post(self::GET_INFO_URL,$post_data);
-                $response = json_decode($response,true);
-                if ($response['status'] == "success") {
+                $responseInfo = json_decode($responseInfo,true);
+                if ($responseInfo['status'] == "success") {
                     $college_id = Db::name('dict_college') 
-                            -> where("YXMC",$response['college_name'])
+                            -> where("YXMC",$responseInfo['data']['college_name'])
                             -> field("YXDM")
                             -> find()["YXDM"];
-                    $sex = $response['sex'] == "男" ? 1 : 2;
+                    $sex = $responseInfo['data']['sex'] == "男" ? 1 : 2;
                     $insertData = [
                         "ID"   =>  $username,
-                        "XM"   =>  $response["name"],
+                        "XM"   =>  $responseInfo['data']["name"],
                         "XBDM" =>  $sex,
                         "MZDM" =>  "1",
                         "YXDM" =>  $college_id,
