@@ -596,11 +596,31 @@ class Wxuser extends Api
                     ->find();
             //为空则请求接口获取学院以及性别
             if (empty($info)) {
-                $post_data = [
+                //初始化
+                $curl = curl_init();
+                //设置抓取的url
+                curl_setopt($curl, CURLOPT_URL, self::GET_INFO_URL);
+                //设置头文件的信息作为数据流输出
+                curl_setopt($curl, CURLOPT_HEADER, 1);
+                //设置获取的信息以文件流的形式返回，而不是直接输出。
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                //设置post方式提交
+                curl_setopt($curl, CURLOPT_POST, 1);
+                //设置post数据
+                $post_data = array(
                     "username" => $username,
                     "password" => $password
-                ];
-                $response = Http::post(self::GET_INFO_URL,$post_data);
+                    );
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+                //执行命令
+                $response = curl_exec($curl);
+                //关闭URL请求
+                curl_close($curl);
+                // $post_data = [
+                //     "username" => $username,
+                //     "password" => $password
+                // ];
+                // $response = Http::post(self::GET_INFO_URL,$post_data);
                 $response = json_decode($response,true);
                 if ($response['status'] == "success") {
                     $college_id = Db::name('dict_college') 
