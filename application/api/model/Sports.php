@@ -18,7 +18,7 @@ class Sports extends Model
         $return = [];
         $collegeList = Db::view('sports_score')
                         -> view('dict_college','YXDM,YXMC','dict_college.YXDM = sports_score.YXDM')
-                        -> where('sports_score.YXDM',"!=","1400") // 没有体育系
+                        -> where('sports_score.YXDM',"<>","1400") // 没有体育系
                         -> order('total_score desc')
                         -> select();
        $temp = [];
