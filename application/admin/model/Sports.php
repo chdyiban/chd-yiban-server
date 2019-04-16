@@ -27,7 +27,7 @@ class Sports extends Model
         $list = Db::name('dict_college') -> select();
         $collegeJson = array();
         foreach ($list as $key => $value) {
-            if ($value['YXDM'] != 1700 && $value['YXDM'] != 1800 && $value['YXDM'] != 1801 &&  $value['YXDM'] != 5100 && $value['YXDM'] != 9999 && $value['YXDM'] != "7100") {
+            if ($value['YXDM'] != 1500 && $value['YXDM'] != 1400 && $value['YXDM'] != 1700 && $value['YXDM'] != 1800 && $value['YXDM'] != 1801 &&  $value['YXDM'] != 5100 && $value['YXDM'] != 9999 && $value['YXDM'] != 7100) {
                 $collegeJson[$value['YXJC']] = $value['YXJC'];
             }
         }
@@ -48,8 +48,8 @@ class Sports extends Model
             'remark'  =>  $params['row']['remark'],
         ];
         $collegeInfo = Db::name('sports_score') 
-            -> where('YXDM',$params['row']['college'])
-            -> find();
+                    -> where('YXDM',$params['row']['college'])
+                    -> find();
 
         $newScore = $collegeInfo['total_score'] + $params['row']['score'];
         $temp = [
@@ -118,7 +118,7 @@ class Sports extends Model
             return ['status'=> false, 'msg' => "录入失败"];
         }
     }
-
+//注意这里得加上换了学院删除原来分数
     public function editDetail($params)
     {
         $tempDetail = [
@@ -128,34 +128,41 @@ class Sports extends Model
             'score'  =>  $params['row']['score'],
             'remark'  =>  $params['row']['remark'],
         ];
-
-        $collegeInfo = Db::name('sports_score') 
-                -> where('YXDM',$params['row']['college'])
-                -> find();
-
-        $newScore = $collegeInfo['total_score'] + $params['row']['score'] - $params['row']['old_score'];
-        $temp = [
-            'total_score'   => $newScore,
-        ];
-        // 启动事务
-        Db::startTrans();     
-        $insertFlag = false;
-        $updateFlag = false;       
-        try{
-            $insertFlag = Db::name('sports_score_detail') ->where('id',$params['row']['detail_id'])-> update($tempDetail);
-            $updateFlag = Db::name('sports_score') -> where('YXDM',$params['row']['college'])-> update($temp);
-            // 提交事务
-            Db::commit();  
-        } catch (\Exception $e) {
-                // 回滚事务
-                Db::rollback();
-            }
-        if ($insertFlag && $updateFlag) {
-            return ['status'=> true, 'msg' => "录入成功"];
-        } else {
-            return ['status'=> false, 'msg' => "录入失败"];
+        if ($params["row"]["college"] != $params['row']['old_college']) {
+            return ['status'=> false, 'msg' => "请勿修改学院"];
         }
+        if ($params['row']['score'] == $params['old_score']) {
+            $insertFlag = Db::name('sports_score_detail') ->where('id',$params['row']['detail_id'])-> update($tempDetail);
+            return $insertFlag == 1 ? ["status" => true, "msg" => "录入成功"] : ["status" => false, "msg" => "录入失败"];
+        } else {
 
+            $collegeInfo = Db::name('sports_score') 
+                    -> where('YXDM',$params['row']['college'])
+                    -> find();
+
+            $newScore = $collegeInfo['total_score'] + $params['row']['score'] - $params['row']['old_score'];
+            $temp = [
+                'total_score'   => $newScore,
+            ];
+            // 启动事务
+            Db::startTrans();     
+            $insertFlag = false;
+            $updateFlag = false;       
+            try{
+                $insertFlag = Db::name('sports_score_detail') ->where('id',$params['row']['detail_id'])-> update($tempDetail);
+                $updateFlag = Db::name('sports_score') -> where('YXDM',$params['row']['college'])-> update($temp);
+                // 提交事务
+                Db::commit();  
+            } catch (\Exception $e) {
+                    // 回滚事务
+                    Db::rollback();
+                }
+            if ($insertFlag && $updateFlag) {
+                return ['status'=> true, 'msg' => "录入成功"];
+            } else {
+                return ['status'=> false, 'msg' => "录入失败"];
+            }
+        }
 
     }
 
