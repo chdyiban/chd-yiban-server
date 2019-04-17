@@ -131,7 +131,7 @@ class Sports extends Model
         if ($params["row"]["college"] != $params['row']['old_college']) {
             return ['status'=> false, 'msg' => "请勿修改学院"];
         }
-        if ($params['row']['score'] == $params['old_score']) {
+        if ($params['row']['score'] == $params['row']['old_score']) {
             $insertFlag = Db::name('sports_score_detail') ->where('id',$params['row']['detail_id'])-> update($tempDetail);
             return $insertFlag == 1 ? ["status" => true, "msg" => "录入成功"] : ["status" => false, "msg" => "录入失败"];
         } else {
