@@ -25,13 +25,18 @@ class Sports extends Model
         foreach ($collegeList as $key => $value) {
             $temp['college_id'] = $value['YXDM'];
             $temp['college_name'] = $value['YXMC'];
-            if ($key > 0 && $collegeList[$key-1]['total_score'] == $value['total_score']) {
-                $temp['ranking'] = $key;
-            } else {
-                $temp['ranking'] = $key + 1;
-            }
+            $temp['ranking'] = $key;
             $temp['total'] = $value['total_score'];
             $return[] = $temp;
+        }
+
+        foreach ($return as $key => $value) {
+            if ($key > 0 && $return[$key-1]['total'] == $value['total']) {
+                $return[$key-1]['ranking'] = $key;
+            } else {
+                $return[$key]['ranking'] = $key + 1;
+            }
+            
         }
 
         return $return;
@@ -44,7 +49,7 @@ class Sports extends Model
         $return = [];
         $collegeList = Db::view('sports_score')
                         -> view('dict_college','YXDM,YXJC','dict_college.YXDM = sports_score.YXDM')
-                        -> order('total_steps desc')
+                        -> order('average_steps desc')
                         -> select();
        $temp = [];
         foreach ($collegeList as $key => $value) {
@@ -52,14 +57,19 @@ class Sports extends Model
             $temp['college_name'] = $value['YXJC'];
             $temp['college_logo_url'] = "https://yibancdn.ohao.ren/college_image/".$value['YXDM'].".jpg";
             $temp['total_donate_steps'] = $this -> changeType($value['total_steps']);
-            $temp['total_donate_person'] = $value['total_person'];
-            if ($key > 0 && $collegeList[$key-1]['total_steps'] == $value['total_steps']) {
-                $temp['ranking'] = $key;
-            } else {
-                $temp['ranking'] = $key + 1;
-            }
             $temp['heat'] = $this -> getHeat($value['average_steps']);
+            $temp['total_donate_person'] = $value['total_person'];
+            $temp["ranking"] = $key;
             $return[] = $temp;
+        }
+
+        foreach ($return as $key => $value) {
+            if ($key > 0 && $return[$key-1]['heat'] == $value['heat']) {
+                $return[$key-1]['ranking'] = $key;
+            } else {
+                $return[$key]['ranking'] = $key + 1;
+            }
+            
         }
 
         return $return;
