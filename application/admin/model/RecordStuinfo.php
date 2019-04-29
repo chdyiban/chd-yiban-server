@@ -62,16 +62,25 @@ class RecordStuinfo extends Model
      * 更新个人评价标签
      * 注：此处只实现添加学生ID至flags表中，无法将学生评价删去的评价减去
      */
-    public function updatePersonnalFlag($ZTPJ,$XSID)
+    public function updatePersonnalFlag($XSPJ,$XSID)
     {
-        $flagArray = explode(",",$ZTPJ);
+        if (empty($XSPJ)) {
+            return true;
+        }
+        $flagArray = explode(",",$XSPJ);
         if (empty($flagArray)) {
             return true;
         } else {
             foreach ($flagArray as $key => $value) {
                 $isexist = model("RecordTags") -> where("name",$value) -> find();
+                //此标签数据库中存在则更新反之则新建标签
                 if (!empty($isexist)) {
-                    $res = model("RecordTags") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    $oldArray = explode(",",$isexist["student"]);
+                    if (in_array($XSID,$oldArray)) {
+                        continue;
+                    } else {
+                        $res = model("RecordTags") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    }
                 } else {
                     $insertData = [
                         "name"    => $value,
@@ -80,6 +89,7 @@ class RecordStuinfo extends Model
                     ];
                     $res = model("RecordTags")->insert($insertData);
                 }
+
             }
         }
     }
@@ -88,15 +98,22 @@ class RecordStuinfo extends Model
      */
     public function updateCourseFlag($CXKC,$XSID)
     {
+        if (empty($CXKC)) {
+            return true;
+        }
         $flagArray = explode(",",$CXKC);
         if (empty($flagArray)) {
             return true;
         } else {
             foreach ($flagArray as $key => $value) {
                 $isexist = model("RecordCourse") -> where("name",$value) -> find();
-
                 if (!empty($isexist)) {
-                    $res = model("RecordCourse") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    $oldArray = explode(",",$isexist["student"]);
+                    if (in_array($XSID,$oldArray)) {
+                        continue;
+                    } else {
+                        $res = model("RecordCourse") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    }
                 } else {
                     $insertData = [
                         "name"    => $value,
