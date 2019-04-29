@@ -62,9 +62,12 @@ class RecordStuinfo extends Model
      * 更新个人评价标签
      * 注：此处只实现添加学生ID至flags表中，无法将学生评价删去的评价减去
      */
-    public function updatePersonnalFlag($ZTPJ,$XSID)
+    public function updatePersonnalFlag($XSPJ,$XSID)
     {
-        $flagArray = explode(",",$ZTPJ);
+        if (empty($XSPJ)) {
+            return true;
+        }
+        $flagArray = explode(",",$XSPJ);
         if (empty($flagArray)) {
             return true;
         } else {
@@ -95,6 +98,9 @@ class RecordStuinfo extends Model
      */
     public function updateCourseFlag($CXKC,$XSID)
     {
+        if (empty($CXKC)) {
+            return true;
+        }
         $flagArray = explode(",",$CXKC);
         if (empty($flagArray)) {
             return true;
