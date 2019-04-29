@@ -70,8 +70,14 @@ class RecordStuinfo extends Model
         } else {
             foreach ($flagArray as $key => $value) {
                 $isexist = model("RecordTags") -> where("name",$value) -> find();
+                //此标签数据库中存在则更新反之则新建标签
                 if (!empty($isexist)) {
-                    $res = model("RecordTags") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    $oldArray = explode(",",$isexist["student"]);
+                    if (in_array($XSID,$oldArray)) {
+                        continue;
+                    } else {
+                        $res = model("RecordTags") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    }
                 } else {
                     $insertData = [
                         "name"    => $value,
@@ -80,6 +86,7 @@ class RecordStuinfo extends Model
                     ];
                     $res = model("RecordTags")->insert($insertData);
                 }
+
             }
         }
     }
@@ -94,9 +101,13 @@ class RecordStuinfo extends Model
         } else {
             foreach ($flagArray as $key => $value) {
                 $isexist = model("RecordCourse") -> where("name",$value) -> find();
-
                 if (!empty($isexist)) {
-                    $res = model("RecordCourse") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    $oldArray = explode(",",$isexist["student"]);
+                    if (in_array($XSID,$oldArray)) {
+                        continue;
+                    } else {
+                        $res = model("RecordCourse") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                    }
                 } else {
                     $insertData = [
                         "name"    => $value,

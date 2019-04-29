@@ -97,7 +97,7 @@ class RecordContent extends Model
                             -> count();
         //本月累积谈话学生
         $allTalkMonthStuCount = Db::view("record_stuinfo","XH,XM")
-                            -> view("record_content","XSID,THNR,THSJ","record_stuInfo.ID = record_content.XSID")
+                            -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
                             -> group("XSID")
                             -> where("admin_id",$adminId)
                             -> where("record_stuinfo.THSJ",'>=',$beginThismonth)
