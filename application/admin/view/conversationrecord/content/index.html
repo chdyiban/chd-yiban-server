@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-xs-12">
         <h2 class="page-header">
-            <i class="fa fa-user-circle"></i> 学生基本信息
+            <i class="fa fa-user-circle"></i> 学生档案
             <small class="pull-right">建档时间: {$stuInfo.JDSJ|date="Y-m-d",###}</small>
         </h2>
         </div>
@@ -38,8 +38,8 @@
                     {switch name="$stuInfo.GZLX" }
                         {case value="1"}<td><span class="badge bg-yellow">一般</span></td>{/case}
                         {case value="2"}<td><span class="badge bg-red">重点</span></td>{/case}
-                        {case value="0"}<span class="badge bg-gray">取消关注</span>{/case}
-                        {case value="3"}<span class="badge bg-yellow">非重点关注</span>{/case}
+                        {case value="0"}<td><span class="badge bg-gray">取消关注</span></td>{/case}
+                        {case value="3"}<td><span class="badge bg-yellow">非重点关注</span></td>{/case}
                     {/switch}
                     <td>{$stuInfo.ZTPJ}</td>
                     <td>{$stuInfo.THCS}</td>
