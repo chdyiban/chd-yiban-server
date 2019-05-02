@@ -15,6 +15,20 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             });
 
             var table = $("#table");
+
+            table.on('load-success.bs.table', function (e,value,data) {
+                valueList = {}
+                $.each(value.rows,function (i,v) {
+                    valueList[i] = v["THNR"];
+                    // $(this).find("td:eq(2)").html(1);
+                })
+                $("#table tbody tr").each(function(i,v){
+                    console.log(valueList[i]);
+                    $(this).find("td:eq(2)").html(valueList[i]);
+                    $(this).find("td:eq(2)").attr("style","text-align:left");
+                });
+            });
+
             var XSID = $("#ID").val();
             // 初始化表格
             table.bootstrapTable({
@@ -28,9 +42,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'JLID', title: __('ID')},
-                        {field: 'THNR', title: __('谈话内容'),operate:false,},
-                        {field: 'THSJ', title: __('谈话时间'),formatter:function(value,row){ 
+                        {field: 'JLID', title: __('ID'),width:20},
+                        {field: 'THNR', title: __('谈话内容'),operate:false,width:250,formatter:function(value,row){                             
+                            return value;
+                        }},
+                        {field: 'THSJ', title: __('谈话时间'),width:40,formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";
                             } else{
@@ -39,7 +55,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                                 return time; 
                             }
                         }},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ],
                 queryParams: function (params) { //自定义搜索条件

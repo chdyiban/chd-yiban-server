@@ -23,6 +23,7 @@
                     <th>所欠学分</th>
                     <th>所欠学分课程</th>
                     <th>关注类型</th>
+                    <th>总体评价</th>
                     <th>谈话次数</th>
                 </tr>
             </thead>
@@ -38,7 +39,9 @@
                         {case value="1"}<td><span class="badge bg-yellow">一般</span></td>{/case}
                         {case value="2"}<td><span class="badge bg-red">重点</span></td>{/case}
                         {case value="0"}<span class="badge bg-gray">取消关注</span>{/case}
+                        {case value="3"}<span class="badge bg-yellow">非重点关注</span>{/case}
                     {/switch}
+                    <td>{$stuInfo.ZTPJ}</td>
                     <td>{$stuInfo.THCS}</td>
                 </tr>
             </tbody>

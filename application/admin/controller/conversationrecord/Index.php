@@ -119,12 +119,14 @@ class Index extends Backend
                     }
                     else
                     {
-                        $this->error($this->model->getError());
+                        // $this->error($this->model->getError());
+                        $this->error();
                     }
                 }
                 catch (\think\exception\PDOException $e)
                 {
-                    $this->error($e->getMessage());
+                    // $this->error($e->getMessage());
+                    $this->error("数据有误");
                 }
             }
             $this->error(__('Parameter %s can not be empty', ''));
@@ -254,6 +256,20 @@ class Index extends Backend
             $name = $this->request->post('name');
             $stuInfo = $this->model->searchStuByName($name);
             return json($stuInfo);
+        } else {
+            $this->error('请求错误');
+        }
+    }
+    /**
+     * 获取学生宿舍号
+     */
+    public function getSSDM()
+    {
+        if ($this->request->isAjax()) {
+            $XH = $this->request->post('XH');
+            $dormitoryInfo = $this->model->getSSDM($XH);
+            $result = ["status"=>true,"data" => ["dormitory"=>$dormitoryInfo]];
+            return json($result);
         } else {
             $this->error('请求错误');
         }
