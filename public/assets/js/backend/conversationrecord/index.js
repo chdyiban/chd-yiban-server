@@ -25,7 +25,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 search:false,
                 columns: [
                     [
-                        {checkbox: true},
+                        // {checkbox: true},
                         {field: 'ID', title: __('ID'),operate: false, visible:false},
                         {field: 'XH', title: __('学号'),operate: 'LIKE %...%'},
                         {field: 'XM', title: __('姓名')},
@@ -56,8 +56,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                                 return time; 
                             }
                         }},
-                        {field: 'GZLX', title: __('关注类型'), visible:false,searchList: {"1":__('一般'),"2":__('重点'),"0":"取消关注"},},
-                        {field: 'GZLX_text', title: __('关注类型'), operate:false,formatter:Table.api.formatter.flag, custom:{"一般": 'warning', "重点":'danger',"取消关注":"info"}},
+                        {field: 'GZLX', title: __('关注类型'), visible:false,searchList: {"1":__('一般'),"2":__('重点'),"0":"取消关注"},"3":"非重点关注"},
+                        {field: 'GZLX_text', title: __('关注类型'), operate:false,formatter:Table.api.formatter.flag, custom:{"一般": 'warning', "重点":'danger',"取消关注":"info","非重点关注":'warning'}},
                         
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons: [
@@ -81,6 +81,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
         },
         add: function () {
             //时间选择模块
+
             var now = new Date();
             var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
             //时间选择模块
@@ -188,6 +189,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             });
 
             Controller.api.bindevent();
+            //获取学生宿舍信息
+            $("#option").change(function () {
+                var info = $("#option").val();
+                var infoarray = info.split('-');
+                var XH = infoarray[0];
+                $.ajax({
+                    type: 'POST',
+                    url: './conversationrecord/index/getSSDM',
+                    data: {"XH":XH},
+                    success: function(data) {
+                        $('#c-SSDM').val(data.data.dormitory);
+                    }
+                });
+            });
+            
         },
         edit: function () {
              //时间选择模块
