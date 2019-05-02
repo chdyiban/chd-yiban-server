@@ -10,7 +10,6 @@ class Adviser extends Model
 {
     // 表名
     protected $name = 'bzr_adviser';
-
     
     public function getStatus($key){
         //判断有无班主任
@@ -25,7 +24,7 @@ class Adviser extends Model
         if (empty($BJDM)) {
             return ['status' => 200,'step' => 0,'msg' => "未找到相应班级"];
         }
-        $adviserInfoList = $this -> where('class_id', $BJDM) ->find();
+        $adviserInfoList = $this -> where('class_id', "LIKE", $BJDM) ->find();
         if (empty($adviserInfoList)) {
             return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
         }
@@ -36,32 +35,35 @@ class Adviser extends Model
                         -> field('YXJC') 
                         -> find()['YXJC'];
         $adviser_class = $adviserInfoList['class_id'];
-        if (empty($adviserInfoList['timestamp'])) {
-            return [
-                'status' => 200, 
-                'step' => 2, 
-                'data' => [
-                    'adviser_name' => $adviser_name,
-                    'adviser_college' => $adviser_college,
-                    'adviser_class' => $adviser_class,
-                ],
-                'msg' => "待发布",
-            ];
-        }
+        // if (empty($adviserInfoList['timestamp'])) {
+        //     return [
+        //         'status' => 200, 
+        //         'step' => 2, 
+        //         'data' => [
+        //             'adviser_name' => $adviser_name,
+        //             'adviser_college' => $adviser_college,
+        //             'adviser_class' => $adviser_class,
+        //         ],
+        //         'msg' => "待发布",
+        //     ];
+        // }
         //判断学生完成评价
         $stuResult = Db::name('bzr_result') 
                     -> where('stu_id',$stu_id) 
-                    -> where('q_id',1)
+                    // -> where('q_id',1)
+                    -> where('q_id',2)
                     -> find();
         if (empty($stuResult)) {
             //未完成评价
-            $questionList = Db::name('bzr_questionnaire') -> where('q_id',1) -> where('status',1) -> select();
+            // $questionList = Db::name('bzr_questionnaire') -> where('q_id',1) -> where('status',1) -> select();
+            $questionList = Db::name('bzr_questionnaire') -> where('q_id',2) -> where('status',1) -> select();
             $questionnaire = array();
             foreach ($questionList as $value) {
                 $temp = array();
                 $temp['title'] = $value['title'];
                 $temp['options'] =  json_decode($value['options'],true);
                 $temp['type'] = $value['type'];
+                $temp['must'] = $value['must'] == 1? true : false;
                 $questionnaire[] = $temp;
             }
             return [
@@ -71,11 +73,11 @@ class Adviser extends Model
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
                     'adviser_class' => $adviser_class,
-                    'working_logs' => [
-                        'input1'  =>  $adviserInfoList['HDCS'],
-                        'input2'  =>  $adviserInfoList['BHCS'],
-                        'input3'  =>  $adviserInfoList['FDXS'],
-                    ],
+                    // 'working_logs' => [
+                    //     'input1'  =>  $adviserInfoList['HDCS'],
+                    //     'input2'  =>  $adviserInfoList['BHCS'],
+                    //     'input3'  =>  $adviserInfoList['FDXS'],
+                    // ],
                     'questionnaire' => $questionnaire,
                 ],
             ];
@@ -87,11 +89,11 @@ class Adviser extends Model
                     'adviser_name' => $adviser_name,
                     'adviser_college' => $adviser_college,
                     'adviser_class' => $adviser_class,
-                    'working_logs' => [
-                        'input1'  =>  $adviserInfoList['HDCS'],
-                        'input2'  =>  $adviserInfoList['BHCS'],
-                        'input3'  =>  $adviserInfoList['FDXS'],
-                    ],
+                    // 'working_logs' => [
+                    //     'input1'  =>  $adviserInfoList['HDCS'],
+                    //     'input2'  =>  $adviserInfoList['BHCS'],
+                    //     'input3'  =>  $adviserInfoList['FDXS'],
+                    // ],
                 ],
                 'msg' => "已完成评价",
             ];
@@ -124,7 +126,7 @@ class Adviser extends Model
         $oldResult = Db::name('bzr_result') -> where('stu_id',$stu_id) -> find();
         if (empty($oldResult)) {
             $res = Db::name('bzr_result') -> insert([
-                'q_id'       => 1,
+                'q_id'       => 2,
                 'stu_id'     => $stu_id,
                 'class_id'   => $stuInfo['BJDM'],
                 'adviser_id' => $adviserInfoList['id'],
