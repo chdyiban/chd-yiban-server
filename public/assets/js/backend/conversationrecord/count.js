@@ -26,7 +26,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'THSJ', title: __('谈话时间'),formatter:function(value,row){ 
+                        {field: 'THSJ', title: __('谈话时间'),width:100,formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";
                             } else{
@@ -35,8 +35,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 return time; 
                             }
                         }},
-                        {field: 'XH', title: __('谈话人学号')},
-                        {field: 'XM', title: __('谈话人姓名')},
+                        {field: 'XH', title: __('谈话人学号'),width:60},
+                        {field: 'XM', title: __('谈话人姓名'),width:40},
                         {field: 'THNR', title: __('谈话内容')},
                         // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]

@@ -26,7 +26,7 @@ class RecordStuinfo extends Model
     
     public function getGzlxList()
     {
-        return ['0' => __('取消关注'),'1' => __('一般'),'2' => __('重点')];
+        return ['0' => __('取消关注'),'1' => __('一般'),'2' => __('重点'),'3' => __('非重点关注')];
     }     
 
 
@@ -192,6 +192,23 @@ class RecordStuinfo extends Model
         }
         //$result = array("total" => $total, "rows" => $resultInfo);    
         return $resultInfo;
+    }
+
+    /**
+     * 获取学生住宿信息
+     */
+    public function getSSDM($XH)
+    {
+        $dormitoryInfo = Db::view("dormitory_beds","FYID,XH,CH")
+                        -> view("dormitory_rooms","ID,XQ,LH,SSH","dormitory_beds.FYID = dormitory_rooms.ID")
+                        -> where("XH",$XH)
+                        -> find();
+        if (empty($dormitoryInfo)) {
+            return "";
+        } else {
+            $result = $dormitoryInfo["XQ"]."-".$dormitoryInfo["LH"]."#".$dormitoryInfo["SSH"]."-".$dormitoryInfo["CH"];
+            return $result;
+        }
     }
 
 }
