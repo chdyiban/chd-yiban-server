@@ -120,11 +120,25 @@ class Information extends Api
     public function nav()
     {
         $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
-        $i = 0;
+        $i = 1;
         foreach ($all as $k => $v) {
-            $id_array = [3, 4, 5, 7, 47];
+            $id_array = [3, 4, 5];
+            if ($v['id'] == 7) {
+                $list[0] = [
+                    'id'    => 0,
+                    'type'   => 'all',
+                    'name'   => $v['name'],
+                    'storage' => [],
+                    'channel' => $v['id'],
+                    'enabled' => [
+                        'guest' => true,
+                        'student' => true,
+                        'teacher' => true,
+                    ]
+                ];
+            }
             if(in_array($v['id'], $id_array)){
-                $list[] = [
+                $list[$i] = [
                     'id'    => $i,
                     'type'   => 'all',
                     'name'   => $v['name'],

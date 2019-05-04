@@ -17,6 +17,7 @@ require.config({
         'drag': 'jquery.drag.min',
         'drop': 'jquery.drop.min',
         'echarts': 'echarts.min',
+        'chart': 'chart.min',
         'echarts-theme': 'echarts-theme',
         'adminlte': 'adminlte',
         'bootstrap-table-commonsearch': 'bootstrap-table-commonsearch',
