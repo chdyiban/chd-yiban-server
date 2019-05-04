@@ -13,7 +13,22 @@ class Ykt extends Model
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const CAPTCHA_URL = 'http://ids.chd.edu.cn/authserver/captcha.html';
-    
+    const GET_CURRENT_DATA_URL = "http://202.117.64.236:8011/info";
+    const GET_HISTORY_DATA_URL = "http://202.117.64.236:8011/history";
+    //一卡通获取数据由爬取改为从接口获取数据
+    public function get_yikatong_data($key)
+    {
+        $username = $key['id'];
+        $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
+        $password = _token_decrypt($info['portal_pwd'], $info['open_id']);
+        //获取当日消费记录
+        $post_data = ["username" => $username, "password" => "888888"];
+        $todayData = Http::post(self::GET_CURRENT_DATA_URL,$post_data);
+        return $todayData;
+    }
+
+
+    /*
     public function get_yikatong_data($key){
         $username = $key['id'];
         $info = $this->where('portal_id',$username)->field('open_id,portal_pwd')->find();
@@ -137,4 +152,5 @@ class Ykt extends Model
             return $res;
         }
     }
+    */
 }

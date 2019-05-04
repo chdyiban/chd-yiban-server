@@ -63,4 +63,21 @@ class Count extends Backend
         return $this->view->fetch();
     }
 
+    /**
+     * 获取图表信息
+     * @return  { "label":[5.1,5.2...],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
+     */
+    public function getChartData()
+    {
+        if ($this->request->isAjax()){
+           //设置过滤方法
+            $adminId = $this->auth->id;
+            $info = $this->model->getChartData($adminId);
+            return json($info);
+        } else {
+            $this -> error("请求错误");
+        }
+    }
+
+
 }

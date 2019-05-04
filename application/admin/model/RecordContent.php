@@ -93,14 +93,14 @@ class RecordContent extends Model
         $allTalkMonthCount = Db::view("record_stuinfo","XH,XM")
                             -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
                             -> where("admin_id",$adminId)
-                            -> where("record_stuinfo.THSJ",'>=',$beginThismonth)
+                            -> where("THSJ",'>=',$beginThismonth)
                             -> count();
         //本月累积谈话学生
         $allTalkMonthStuCount = Db::view("record_stuinfo","XH,XM")
                             -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
                             -> group("XSID")
                             -> where("admin_id",$adminId)
-                            -> where("record_stuinfo.THSJ",'>=',$beginThismonth)
+                            -> where("THSJ",'>=',$beginThismonth)
                             -> count();
 
         $array = [
@@ -110,5 +110,58 @@ class RecordContent extends Model
             "allTalkMonthStuCount" =>  $allTalkMonthStuCount,
         ];
         return $array;
+    }
+
+     /**
+     * 获取到今天为止的图表统计信息
+     * @return  { "label":[5.1,5.2,5.3,5.4],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
+     */
+
+    public function getChartData($adminId)
+    {
+        $days = date("d");
+        //每月日期
+        $daysArray  = array();
+        //每天谈话学生数
+        $daysStuArrayMap  = array();
+        //每天谈话次数
+        $daysNumArrayMap  = array();
+        $keyMap = array();
+        for($i = 1;$i <= $days; $i++){
+                $daysArray[] = date("n")."-".$i;
+                $daysNumArrayMap[] = 0;
+                $daysStuArrayMap[] = 0;
+                $keyMap[date("n")."-".$i] = $i-1;
+        }
+        //本月累积谈话次数
+        $beginThismonth = mktime(0,0,0,date('m'),1,date('Y'));
+    
+        $allTalkMonthInfo = Db::view("record_stuinfo","XH,XM")
+                        -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                        -> where("admin_id",$adminId)
+                        -> where("THSJ",'>=',$beginThismonth)
+                        -> select();
+
+        foreach ($allTalkMonthInfo as $key => $value) {
+            $THSJ = date("n-j",$value['THSJ']);
+            $daysNumArrayMap[ $keyMap[$THSJ] ] =$daysNumArrayMap[ $keyMap[$THSJ] ]+1;
+        }
+        //本月谈话学生
+        $allTalkMonthStuInfo = Db::view("record_stuinfo","XH,XM")
+                            -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                            -> group("XSID")
+                            -> where("admin_id",$adminId)
+                            -> where("THSJ",'>=',$beginThismonth)
+                            -> select();
+        foreach ($allTalkMonthStuInfo as $key => $value) {
+            $THSJ = date("n-j",$value['THSJ']);
+            $daysStuArrayMap[ $keyMap[$THSJ] ] = $daysStuArrayMap[ $keyMap[$THSJ] ] + 1;
+        }
+        $result = [
+            "label" => $daysArray,
+            "numCount" => $daysNumArrayMap,
+            "stuCount" => $daysStuArrayMap,
+        ];
+        return $result;
     }
 }

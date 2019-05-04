@@ -57,7 +57,22 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                             }
                         }},
                         {field: 'GZLX', title: __('关注类型'), visible:false,searchList: {"1":__('一般'),"2":__('重点'),"0":"取消关注"},"3":"非重点关注"},
-                        {field: 'GZLX_text', title: __('关注类型'), operate:false,formatter:Table.api.formatter.flag, custom:{"一般": 'warning', "重点":'danger',"取消关注":"info","非重点关注":'warning'}},
+                        {field: 'GZLX_text', title: __('关注类型'), operate:false,formatter:function(value,row){ 
+                            switch (value) {
+                                case "一般":
+                                    str = "<span class=\"badge bg-yellow\">"+value+"</span>";
+                                    return str;
+                                case "重点":
+                                    str = "<span class=\"badge bg-red\">"+value+"</span>";
+                                    return str;
+                                case "取消关注":
+                                    str = "<span class=\"badge bg-blue\">"+value+"</span>";
+                                    return str;
+                                case "非重点关注":
+                                    str = "<span>"+value+"</span>";
+                                    return str;
+                            }
+                        }},
                         
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons: [
@@ -206,9 +221,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             
         },
         edit: function () {
-             //时间选择模块
-             var now = new Date($('#selectInsertTime').val()*1000);
-             var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+            //时间选择模块
+            var now = new Date($('#selectInsertTime').val()*1000);
+            var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+
+            var dormitory = $('#c-SSDM').val();
+            if (dormitory == "") {
+                var XH = $("#c-XH").val();
+                $.ajax({
+                    type: 'POST',
+                    url: './conversationrecord/index/getSSDM',
+                    data: {"XH":XH},
+                    success: function(data) {
+                        $('#c-SSDM').val(data.data.dormitory);
+                    }
+                });
+            }
+
             //时间选择模块
             $('#selectInsertTime').daterangepicker({
                 "singleDatePicker": true,
