@@ -26,7 +26,8 @@ class Adviser extends Model
         }
         $adviserInfoList = $this -> where('class_id', "LIKE", $BJDM) ->find();
         if (empty($adviserInfoList)) {
-            return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
+            // return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
+            return ['status' => 200,'step' => 0,'msg' => "未获取辅导员信息"];
         }
         //判断班主任提交问卷
         $adviser_name = $adviserInfoList['XM'];
@@ -121,7 +122,8 @@ class Adviser extends Model
 
         $adviserInfoList = $this -> where('class_id',$stuInfo['BJDM']) -> find();
         if (empty($adviserInfoList['id'])) {
-            return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
+            // return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
+            return ['status' => 200,'code' => 2, 'msg' => "未获取辅导员信息"];            
         }
         $oldResult = Db::name('bzr_result') -> where('stu_id',$stu_id) -> find();
         if (empty($oldResult)) {
