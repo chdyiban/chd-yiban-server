@@ -121,24 +121,11 @@ class Information extends Api
     {
         $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
         $i = 1;
+        $list = array();
         foreach ($all as $k => $v) {
-            $id_array = [3, 4, 5];
-            if ($v['id'] == 7) {
-                $list[0] = [
-                    'id'    => 0,
-                    'type'   => 'all',
-                    'name'   => $v['name'],
-                    'storage' => [],
-                    'channel' => $v['id'],
-                    'enabled' => [
-                        'guest' => true,
-                        'student' => true,
-                        'teacher' => true,
-                    ]
-                ];
-            }
+            $id_array = [3, 4, 5, 7];
             if(in_array($v['id'], $id_array)){
-                $list[$i] = [
+                $list[] = [ 
                     'id'    => $i,
                     'type'   => 'all',
                     'name'   => $v['name'],
