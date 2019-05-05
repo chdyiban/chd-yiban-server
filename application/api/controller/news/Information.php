@@ -120,7 +120,7 @@ class Information extends Api
     public function nav()
     {
         $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
-        $i = 1;
+        $i = 0;
         $list = array();
         foreach ($all as $k => $v) {
             $id_array = [3, 4, 5, 7];
