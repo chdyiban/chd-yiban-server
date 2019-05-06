@@ -127,7 +127,7 @@ class Information extends Api
             if(in_array($v['id'], $id_array)){
                 $list[] = [ 
                     'id'    => $i,
-                    'type'   => 'all',
+                    // 'type'   => 'all',之前用来在前端修改样式，此时只有白色无需该字段
                     'name'   => $v['name'],
                     'storage' => [],
                     'channel' => $v['id'],
