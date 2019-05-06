@@ -41,7 +41,7 @@ class Count extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             
-            $info = $this -> model -> getTableData($adminId);
+            $info = $this -> model -> getTableData($adminId,$offset,$limit);
             $total = $info['count'];
             $data = $info['data'];
             //遍历进行分页

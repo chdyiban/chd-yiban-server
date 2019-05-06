@@ -28,7 +28,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                         // {checkbox: true},
                         {field: 'ID', title: __('ID'),operate: false, visible:false},
                         {field: 'XH', title: __('学号'),operate: 'LIKE %...%'},
-                        {field: 'XM', title: __('姓名')},
+                        {field: 'XM', title: __('姓名'),operate: 'LIKE %...%'},
                         {field: 'tags', title: __('评价'),operate: 'LIKE %...%',formatter:function(value,row){ 
                             var flagArray = value.split(',');
                             var str = ""
