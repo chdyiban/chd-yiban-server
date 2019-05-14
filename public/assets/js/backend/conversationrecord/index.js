@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepicker','bootstrap-select'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap-daterangepicker','bootstrap-select'], function ($, undefined, Backend, Table, Form) {
 
     var Controller = {
         index: function () {
@@ -204,6 +204,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
             });
 
             Controller.api.bindevent();
+            $('#add-form').validator({
+                dataFilter: function(data) {
+                    if (data.status === 200) return "";
+                    else return data.error;
+                },
+                fields: {
+                    "row[info]": "required; remote(./conversationrecord/index/getStatus)"
+                }
+            });
             //获取学生宿舍信息
             $("#option").change(function () {
                 var info = $("#option").val();
