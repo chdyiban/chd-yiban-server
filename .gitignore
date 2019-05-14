@@ -6,6 +6,7 @@
 /addons/bootstrap
 /addons/example
 /addons/simditor
+/addons/summernote
 /sjkglrj/*
 /application/admin/command/Install/*.lock
 /public/assets/addons/*

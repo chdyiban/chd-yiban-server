@@ -126,7 +126,7 @@ class Index extends Backend
                 catch (\think\exception\PDOException $e)
                 {
                     // $this->error($e->getMessage());
-                    $this->error("数据有误");
+                    $this->error("学生数据已经存在");
                 }
             }
             $this->error(__('Parameter %s can not be empty', ''));
@@ -269,6 +269,31 @@ class Index extends Backend
             $XH = $this->request->post('XH');
             $dormitoryInfo = $this->model->getSSDM($XH);
             $result = ["status"=>true,"data" => ["dormitory"=>$dormitoryInfo]];
+            return json($result);
+        } else {
+            $this->error('请求错误');
+        }
+    }
+    /**
+     * 判断学生在数据库中是否已经添加
+     */
+    public function getStatus()
+    {
+        if ($this->request->isAjax()) {
+            $info = $this->request->post();
+            if (!empty($info["row"]["info"])) {
+                $info = $info["row"]["info"];
+                $XH = explode("-",$info)[0];
+            } else {
+                $XH = $info["XH"];
+            }
+            $listInfo = Db::name("record_stuinfo")->where("XH",$XH) -> find();
+            if (!empty($listInfo)) {
+                $result = ["status"=>500, "data"=> ["error"=> "学生已经录入"]];
+            } else {
+                $result = ["status"=>200, "data"=> ["ok"=> ""]];
+            }
+
             return json($result);
         } else {
             $this->error('请求错误');
