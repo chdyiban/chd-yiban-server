@@ -1,8 +1,8 @@
 <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
     <div class="form-group" id="search-user">
         <label class="col-xs-2 control-label" >学号/姓名</label>
-        <div class="col-xs-8">
-            <select data-rule="required" class="form-control selectpicker" id="option" data-live-search="true"  name="row[info]">
+        <div class="col-xs-4">
+            <select data-rule="required;remote(conversationrecord/index/getStatus)" class="form-control selectpicker" id="option" data-live-search="true"  name="row[info]">
                 
             </select>
         </div>
