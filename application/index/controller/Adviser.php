@@ -83,7 +83,9 @@ class Adviser extends Frontend
         } else {
             if ($YXDM == "4100") {
                 $njArray = ["2018","2017","2016","2015","2014"];
-            } else {
+            } else if ($YXDM == "0001") {
+                $njArray = ["2018"];
+            }else {
                 $njArray = ["2018","2017","2016","2015"];
             }
             $result = array();
