@@ -382,7 +382,7 @@ class Wxuser extends Api
                     'status' => 200,
                 ];
 
-            }else{
+            } else {
                 //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
                 $nj = substr($bindInfo,0,4);
                 if ($nj == '2018') {
@@ -412,7 +412,7 @@ class Wxuser extends Api
                         'type' => '学生',
                         'id' => $bindInfo,
                         'info'=>[
-                            'yxm'=>empty($info['ZYMC']) ? "" : $info["ZYMC"],
+                            'yxm'=>empty($info["YXMC"]) ? "" : $info["YXMC"],
                             'build'=>$appendInfo['build'],
                             'room'=>$appendInfo['room'],
                             'mobile'=>$appendInfo['mobile']
