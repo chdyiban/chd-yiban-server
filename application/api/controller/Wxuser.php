@@ -398,10 +398,10 @@ class Wxuser extends Api
                         ->view('chd_stu_detail')
                         ->where('XH', $bindInfo)
                         // ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                        ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM',"LEFT")
+                        // ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM',"LEFT")
                         ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
                         ->find();
-                        // $info['ZYMC'] = '';
+                        $info['ZYMC'] = '';
                 }
                 //年级将学号的前四位截取
                 $info['NJ'] = substr($info['XH'],0,4);
@@ -412,7 +412,7 @@ class Wxuser extends Api
                         'type' => '学生',
                         'id' => $bindInfo,
                         'info'=>[
-                            'yxm'=>$info['YXMC'],
+                            'yxm'=>empty($info['ZYMC']) ? "" : $info["ZYMC"],
                             'build'=>$appendInfo['build'],
                             'room'=>$appendInfo['room'],
                             'mobile'=>$appendInfo['mobile']
