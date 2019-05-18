@@ -24,7 +24,7 @@ class Adviser extends Model
         if (empty($BJDM)) {
             return ['status' => 200,'step' => 0,'msg' => "未找到相应班级"];
         }
-        $adviserInfoList = $this -> where('class_id', "LIKE", $BJDM) ->find();
+        $adviserInfoList = $this -> where('class_id', $BJDM) ->find();
         if (empty($adviserInfoList)) {
             // return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
             return ['status' => 200,'step' => 0,'msg' => "未获取辅导员信息"];
