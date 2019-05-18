@@ -123,13 +123,15 @@ class Information extends Api
         $i = 0;
         $list = array();
         foreach ($all as $k => $v) {
-            $id_array = [3, 4, 5, 7];
-            if(in_array($v['id'], $id_array)){
+            // $id_array = [3, 4, 5, 7];
+            // if(in_array($v['id'], $id_array)){
+            if ($v["parent_id"] == 1) {
                 $list[] = [ 
                     'id'    => $i,
                     // 'type'   => 'all',之前用来在前端修改样式，此时只有白色无需该字段
                     'name'   => $v['name'],
-                    'storage' => [],
+                    // 'storage' => [],
+                    'type_id' => 0,
                     'channel' => $v['id'],
                     'enabled' => [
                         'guest' => true,
@@ -183,5 +185,70 @@ class Information extends Api
             'archives_id' => $article_id,
             'timestamp'   => time(),
         ]);
+    }
+    /**
+     * 保存用户自定义的标签
+     */
+    public function setnav()
+    {
+        // $key = json_decode($this->request->post('key'),true);
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key["openid"])) {
+            $info = [
+                'status' => 500,
+                'message' => 'param error',
+                'data' => '',
+            ];
+        } else {
+            $userTags = array();
+            $userChannel = array();
+            $mynav = $key["mynav"];
+            foreach ($mynav as $value) {
+                if (!empty($value["channel"])) {
+                    $userChannel[] =  $value;
+                }
+                if (!empty($value["tag"])) {
+                    $userTags[] = $value;
+                }
+            }
+            $userTags = json_encode($userTags);
+            $userChannel = json_encode($userChannel);
+            $res = Db::name("cms_user_tags")-> insert(["channel" => $userChannel,"tag" => $userTags]);
+                if ($res) {
+                    $info = [
+                        'status' => 200,
+                        'message' => 'success',
+                        'data' => '',
+                    ];
+                } else {
+                    $info = [
+                        'status' => 500,
+                        'message' => 'data error',
+                        'data' => '',
+                    ];
+                }
+        }
+        return json($info);
+    }
+
+    public function tags()
+    {
+        $list = Db::name("config")
+                -> where("name","tagsShow") 
+                -> field("value")
+                -> find();
+        $tagsList = json_decode($list["value"] ,true);
+        $i = 0;
+        foreach ($tagsList as $key => $value) {
+            $tagsList[$key]["id"] = $key;
+        }
+        // $tagsList = $list["value"];
+        $info = [
+            "status" => 200,
+            "message" => "success",
+            "data"    => $tagsList,
+        ];
+        return json($info);
+
     }
 }
