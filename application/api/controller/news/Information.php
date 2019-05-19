@@ -3,6 +3,7 @@
 namespace app\api\controller\news;
 
 use addons\cms\model\Archives as ArchivesModel;
+use addons\cms\model\Tags as TagsModel;
 use app\api\model\News as NewsModel;
 use addons\cms\model\Channel;
 use addons\cms\model\Comment;
@@ -36,30 +37,36 @@ class Information extends Api
 
         $model = (int) $this->request->request('model');
         $channel = (int) $this->request->request('channel');
-
-        if ($model) {
-            $params['model'] = $model;
+        $tag = $this->request->request('tag');
+        //判断是通过标签搜索返回结果
+        if (!empty($tag)) {
+            $list = $this->getListByTags($tag);
+        } else {
+            if ($model) {
+                $params['model'] = $model;
+            }
+            if ($channel) {
+                $params['channel'] = $channel;
+            }
+            $page = max(1, $page);
+            $params['limit'] = ($page - 1) * 10 . ',10';
+            $params['orderby'] = 'id';
+            if ($channel == 47) {
+                $params['channel'] = [3, 4, 5, 7];
+                $params['flag'] = 'recommend';
+            }
+            $list = ArchivesModel::getArchivesList($params);
+            //$list = ArchivesModel::getWeAppArchivesList($params);
+            foreach ($list as $key => &$value) {
+                $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
+                $value['style_id'] = $style_id;
+                $value['create_date'] = date("Y-m-d", $value['createtime']);
+                // if ($value['power'] != $params['power']) {
+                //     unset($list[$key]);
+                // }
+            }
         }
-        if ($channel) {
-            $params['channel'] = $channel;
-        }
-        $page = max(1, $page);
-        $params['limit'] = ($page - 1) * 10 . ',10';
-        $params['orderby'] = 'id';
-        if ($channel == 47) {
-            $params['channel'] = [3, 4, 5, 7];
-            $params['flag'] = 'recommend';
-        }
-        $list = ArchivesModel::getArchivesList($params);
-        //$list = ArchivesModel::getWeAppArchivesList($params);
-        foreach ($list as $key => $value) {
-            $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
-            $list[$key]['style_id'] = $style_id;
-            $list[$key]['create_date'] = date("Y-m-d", $value['createtime']);
-            // if ($value['power'] != $params['power']) {
-            //     unset($list[$key]);
-            // }
-        }
+        
         $info = [
             'status' => 200,
             'message' => 'success',
@@ -68,7 +75,72 @@ class Information extends Api
 
         return json($info);
     }
+/**
+     * 根据标签获取文章内容
+     * 参考cms模块cms\controller\Tags.php\index方法
+     * @time 2019/5/19
+     */
 
+    private function getListByTags($name)
+    {
+        // $name = "长大官网--学校要闻";
+        // $name = $this->request->param('name');
+        if ($name) {
+            $tags = TagsModel::getByName($name);
+        }
+        if (!$tags) {
+            $this->error(__('No specified tags found'));
+        }
+
+        $filterlist = [];
+        $orderlist = [];
+        $page = (int) $this->request->get('page');
+        $page = max(1, $page);
+        $limit = ($page - 1) * 10 . ',10';
+
+        // $orderby = $this->request->get('orderby', '');
+        $orderby = "id";
+        // $orderway = $this->request->get('orderway', '', 'strtolower');
+        $orderway = "desc";
+        $params = [];
+        if ($orderby)
+            $params['orderby'] = $orderby;
+        if ($orderway)
+            $params['orderway'] = $orderway;
+        if ($tags) {
+            $sortrank = [
+                ['name' => 'id', 'field' => 'id', 'title' => __('Post date')],
+                ['name' => 'default', 'field' => 'weigh', 'title' => __('Default')],
+                ['name' => 'views', 'field' => 'views', 'title' => __('Views')],
+            ];
+
+            $orderby = $orderby && in_array($orderby, ['default', 'id', 'views']) ? $orderby : 'default';
+            $orderway = $orderway ? $orderway : 'desc';
+            foreach ($sortrank as $k => $v) {
+                $url = '?' . http_build_query(array_merge($params, ['orderby' => $v['name'], 'orderway' => ($orderway == 'desc' ? 'asc' : 'desc')]));
+                $v['active'] = $orderby == $v['name'] ? true : false;
+                $v['orderby'] = $orderway;
+                $v['url'] = $url;
+                $orderlist[] = $v;
+            }
+            $orderby = $orderby == 'default' ? 'weigh' : $orderby;
+        }
+        $pagelist = ArchivesModel::where('status', 'normal')
+                    ->where('id', 'in', explode(',', $tags['archives']))
+                    ->order($orderby, $orderway)
+                    ->limit($limit)
+                    ->select();
+        foreach ($pagelist as $key => &$value) {
+            $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
+            $value['style_id'] = $style_id;
+            $value['create_date'] = date("Y-m-d", $value['createtime']);
+            // if ($value['power'] != $params['power']) {
+            //     unset($list[$key]);
+            // }
+        }
+        // dump($pagelist);
+        return $pagelist;
+    }
     //对应CMS模块下的新闻详情
     public function detail()
     {
@@ -116,33 +188,25 @@ class Information extends Api
 
         return json($info);
     }
-
+    /**
+     * 判断数据库中用户是否自定义标签修改
+     * @time 2019/5/18
+     */
     public function nav()
     {
-        $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
-        $i = 0;
-        $list = array();
-        foreach ($all as $k => $v) {
-            // $id_array = [3, 4, 5, 7];
-            // if(in_array($v['id'], $id_array)){
-            if ($v["parent_id"] == 1) {
-                $list[] = [ 
-                    'id'    => $i,
-                    // 'type'   => 'all',之前用来在前端修改样式，此时只有白色无需该字段
-                    'name'   => $v['name'],
-                    // 'storage' => [],
-                    'type_id' => 0,
-                    'channel' => $v['id'],
-                    'enabled' => [
-                        'guest' => true,
-                        'student' => true,
-                        'teacher' => true,
-                    ]
-                ];
-                $i = $i + 1;
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key["openid"])) {
+            $list = $this->getNav();
+        } else {
+            $user = new WxuserModel;
+            $XH = $user->where('open_id',$key["openid"])->value('portal_id');
+            $res = Db::name("cms_user_tags") -> where("XH",$XH) -> find();
+            if (empty($res)) {
+                $list = $this->getNav();
+            } else {
+                $list = $this->getNav($XH);
             }
         }
-
         // $list = [
         //     [
         //         'id' => 0,
@@ -178,6 +242,53 @@ class Information extends Api
 
     }
 
+    private function getNav($XH)
+    {   
+        $list = array();
+        if (empty($XH)) {
+            $all = collection(Channel::order("weigh desc,id desc")->select())->toArray();
+            $i = 0;
+            foreach ($all as $k => $v) {
+                // $id_array = [3, 4, 5, 7];
+                // if(in_array($v['id'], $id_array)){
+                if ($v["parent_id"] == 1) {
+                    $list[] = [ 
+                        'id'    => $i,
+                        // 'type'   => 'all',之前用来在前端修改样式，此时只有白色无需该字段
+                        'name'   => $v['name'],
+                        'storage' => [],
+                        'type_id' => 0,
+                        'channel' => $v['id'],
+                        'enabled' => [
+                            'guest' => true,
+                            'student' => true,
+                            'teacher' => true,
+                        ]
+                    ];
+                    $i = $i + 1;
+                }
+            }
+        } else {
+            $userTags = Db::name("cms_user_tags") -> where("XH",$XH)->find();
+            $channelList = json_decode($userTags["channel"],true);
+            $tagsList = json_decode($userTags["tag"],true);
+            $i = 0;
+            foreach ($channelList as $key => &$value) {
+                $value["id"] = $i;
+                $value["storage"] = [];
+                $i = $i+1;
+                $list[] = $value;
+            }
+            foreach ($tagsList as $key => &$value) {
+                $value["id"] = $i;
+                $value["storage"] = [];
+                $i = $i+1;
+                $list[] = $value;
+            }
+        }
+        return $list;
+    }
+
     private function insertLog($article_id,$open_id)
     {
         $res = Db::name('cms_archives_log') -> insert([
@@ -193,7 +304,8 @@ class Information extends Api
     {
         // $key = json_decode($this->request->post('key'),true);
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key["openid"])) {
+        $XH = $key["id"];
+        if (empty($key["openid"]) || empty($XH)) {
             $info = [
                 'status' => 500,
                 'message' => 'param error',
@@ -213,7 +325,25 @@ class Information extends Api
             }
             $userTags = json_encode($userTags);
             $userChannel = json_encode($userChannel);
-            $res = Db::name("cms_user_tags")-> insert(["channel" => $userChannel,"tag" => $userTags]);
+            $isExit = Db::name("cms_user_tags") -> where("XH",$XH)->find();
+            if (!empty($isExit)) {
+                $res = Db::name("cms_user_tags")->where("XH",$XH) -> update(["channel" => $userChannel,"tag" => $userTags]);
+                //没有更新
+                if ($res) {
+                    $info = [
+                        'status' => 200,
+                        'message' => 'success',
+                        'data' => '',
+                    ];
+                } else {
+                    $info = [
+                        'status' => 200,
+                        'message' => '未更新标签',
+                        'data' => '',
+                    ];
+                }
+            } else {
+                $res = Db::name("cms_user_tags")-> insert(["XH" => $XH,"channel" => $userChannel,"tag" => $userTags]);
                 if ($res) {
                     $info = [
                         'status' => 200,
@@ -227,6 +357,8 @@ class Information extends Api
                         'data' => '',
                     ];
                 }
+            }
+           
         }
         return json($info);
     }
@@ -239,8 +371,9 @@ class Information extends Api
                 -> find();
         $tagsList = json_decode($list["value"] ,true);
         $i = 0;
-        foreach ($tagsList as $key => $value) {
-            $tagsList[$key]["id"] = $key;
+        foreach ($tagsList as $key => &$value) {
+            $value["id"] = $key;
+            $value["storage"] = [];
         }
         // $tagsList = $list["value"];
         $info = [
