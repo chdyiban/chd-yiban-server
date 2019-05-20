@@ -242,7 +242,7 @@ class Information extends Api
 
     }
 
-    private function getNav($XH)
+    private function getNav($XH="")
     {   
         $list = array();
         if (empty($XH)) {
