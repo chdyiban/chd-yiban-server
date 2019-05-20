@@ -196,13 +196,15 @@ class Information extends Api
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key["openid"])) {
-            $list = $this->getNav();
+            $XH = "";
+            $list = $this->getNav($XH);
         } else {
             $user = new WxuserModel;
             $XH = $user->where('open_id',$key["openid"])->value('portal_id');
             $res = Db::name("cms_user_tags") -> where("XH",$XH) -> find();
             if (empty($res)) {
-                $list = $this->getNav();
+                $XH = "";
+                $list = $this->getNav($XH);
             } else {
                 $list = $this->getNav($XH);
             }
@@ -242,7 +244,7 @@ class Information extends Api
 
     }
 
-    private function getNav($XH="")
+    private function getNav($XH)
     {   
         $list = array();
         if (empty($XH)) {
