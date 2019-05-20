@@ -107,6 +107,7 @@ class Adviser extends Frontend
                 $rate = round($finishedStuCount/$stuAllCount,4)*100;
                 $temp = [
                     "NJ"  => $value,
+                    "YXDM" => $YXDM,
                     "stuAllCount" => $stuAllCount,
                     "finishedStuCount" => $finishedStuCount,
                     "finishedRate"   => "$rate%",
@@ -116,5 +117,47 @@ class Adviser extends Frontend
             $this->view->assign(["info" => $result]);
             return $this->view->fetch();
         }
+    }
+    /**
+     * 获取学院某年级未完成人员名单
+     */
+    public function student()
+    {
+        $info = $this->request->param();
+        $YXDM = $info["college"];
+        $NJ = $info["nj"];
+        $YXJC = $info["name"];
+        if (empty($YXDM) || empty($NJ)) {
+            $this->error("param error!");
+        } else {
+            // $this->success('请求成功');
+            $stuAllList = Db::name("stu_detail") 
+                    -> where("YXDM",$YXDM)
+                    -> where('XH','like',"$NJ%")
+                    -> order("BJDM")
+                    -> where("XSLBDM",3)
+                    -> select();
+            $infoShow = array(
+                "YXJC" => $YXJC,
+                "YXDM" => $YXDM,
+                "NJ" => $NJ,
+            );
+            foreach ($stuAllList as $key => $value) {
+                $info = Db::name("bzr_result")->where("stu_id",$value["XH"])->find();
+                if (empty($info)) {
+                    $temp = [
+                        "XH" => $value["XH"],
+                        "BJ" => empty($value["BJDM"])?"":$value["BJDM"],
+                        "YXDM" => $YXDM,
+                        "NJ" => $NJ,
+                        "XM" => $value["XM"],        
+                    ];
+                    $infoShow["student"][] = $temp;
+                }
+            }
+            $this->view->assign(["info"=>$infoShow]);
+            return $this->view->fetch();
+        }
+
     }
 }
