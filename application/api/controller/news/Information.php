@@ -272,15 +272,15 @@ class Information extends Api
             }
         } else {
             $userTags = Db::name("cms_user_tags") -> where("XH",$XH)->find();
-            $channelList = json_decode($userTags["channel"],true);
+            // $channelList = json_decode($userTags["channel"],true);
             $tagsList = json_decode($userTags["tag"],true);
             $i = 0;
-            foreach ($channelList as $key => &$value) {
-                $value["id"] = $i;
-                $value["storage"] = [];
-                $i = $i+1;
-                $list[] = $value;
-            }
+            // foreach ($channelList as $key => &$value) {
+            //     $value["id"] = $i;
+            //     $value["storage"] = [];
+            //     $i = $i+1;
+            //     $list[] = $value;
+            // }
             foreach ($tagsList as $key => &$value) {
                 $value["id"] = $i;
                 $value["storage"] = [];
@@ -315,21 +315,21 @@ class Information extends Api
             ];
         } else {
             $userTags = array();
-            $userChannel = array();
-            $mynav = $key["mynav"];
-            foreach ($mynav as $value) {
-                if (!empty($value["channel"])) {
-                    $userChannel[] =  $value;
-                }
-                if (!empty($value["tag"])) {
-                    $userTags[] = $value;
-                }
-            }
-            $userTags = json_encode($userTags);
-            $userChannel = json_encode($userChannel);
+            // $userChannel = array();
+            // $mynav = $key["mynav"];
+            // foreach ($mynav as $value) {
+            //     if (!empty($value["channel"])) {
+            //         $userChannel[] =  $value;
+            //     }
+            //     if (!empty($value["tag"])) {
+            //         $userTags[] = $value;
+            //     }
+            // }
+            $userTags = json_encode($key["mynav"]);
+            // $userChannel = json_encode($userChannel);
             $isExit = Db::name("cms_user_tags") -> where("XH",$XH)->find();
             if (!empty($isExit)) {
-                $res = Db::name("cms_user_tags")->where("XH",$XH) -> update(["channel" => $userChannel,"tag" => $userTags]);
+                $res = Db::name("cms_user_tags")->where("XH",$XH) -> update(["tag" => $userTags]);
                 //没有更新
                 if ($res) {
                     $info = [
@@ -345,7 +345,7 @@ class Information extends Api
                     ];
                 }
             } else {
-                $res = Db::name("cms_user_tags")-> insert(["XH" => $XH,"channel" => $userChannel,"tag" => $userTags]);
+                $res = Db::name("cms_user_tags")-> insert(["XH" => $XH,"tag" => $userTags]);
                 if ($res) {
                     $info = [
                         'status' => 200,
@@ -374,8 +374,9 @@ class Information extends Api
         $tagsList = json_decode($list["value"] ,true);
         $i = 0;
         foreach ($tagsList as $key => &$value) {
-            $value["id"] = $key;
+            $value["id"] = $i;
             $value["storage"] = [];
+            $i = $i+1;
         }
         // $tagsList = $list["value"];
         $info = [
