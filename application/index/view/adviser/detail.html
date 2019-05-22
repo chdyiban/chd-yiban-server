@@ -14,15 +14,14 @@
         <div class="weui-panel__hd">{$info.YXJC}</div>
         <div class="weui-panel__bd">
             {foreach name="$info.count" item="vo"}   
-            <!-- <a class="weui-cell weui-cell_access" href="./student?college={$vo.YXDM}&nj={$vo.NJ}&name={$info.YXJC}"> -->
-            <a class="weui-cell weui-cell_access" href="#">
+            <a class="weui-cell weui-cell_access" href="./student?college={$vo.YXDM}&nj={$vo.NJ}&name={$info.YXJC}">
                 <div class="weui-cell__bd weui-cell_primary">
                     <h5 class="weui-media-box__title">{$vo.NJ}级</h4>
                     <p class="weui-media-box__desc">年级总人数：<strong>{$vo.stuAllCount}</strong></p>
                     <p class="weui-media-box__desc">完成人数：<strong>{$vo.finishedStuCount}</strong></p>
                     <p class="weui-media-box__desc">完成率：<strong>{$vo.finishedRate}</strong></p>
                 </div>
-                <!-- <div class="weui-cell__ft" style="text-align: right" >查看未评价名单</div> -->
+                <div class="weui-cell__ft" style="text-align: right" >查看未评价名单</div>
             </a>
             {/foreach}
         </div>
