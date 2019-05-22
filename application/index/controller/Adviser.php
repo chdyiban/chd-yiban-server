@@ -33,6 +33,8 @@ class Adviser extends Frontend
      */
     public function index()
     {
+        return $this->success("请求成功");
+        /* 
         $njArray = ["2018","2017","2016","2015"];
         $info = Db::name("dict_college")
                 ->where("YXDM","<>","1500")
@@ -70,10 +72,12 @@ class Adviser extends Frontend
         array_multisort($arr, SORT_DESC, $info );
         $this->view->assign(["info" => $info]);
         return $this->view->fetch();
+        */
     }
     /**
      * 获取详细统计信息
      */
+    /*
     public function detail()
     {
         $info = $this->request->param();
@@ -118,9 +122,11 @@ class Adviser extends Frontend
             return $this->view->fetch();
         }
     }
+    */
     /**
      * 获取学院某年级未完成人员名单
      */
+    /*
     public function student()
     {
         $info = $this->request->param();
@@ -158,6 +164,7 @@ class Adviser extends Frontend
             $this->view->assign(["info"=>$infoShow]);
             return $this->view->fetch();
         }
-
+        
     }
+    */
 }
