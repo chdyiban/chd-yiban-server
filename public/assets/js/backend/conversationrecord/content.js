@@ -42,7 +42,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'JLID', title: __('ID'),width:20},
+                        // {field: 'JLID', title: __('ID'),width:20},
                         {field: 'THNR', title: __('谈话内容'),operate:false,width:250,formatter:function(value,row){                             
                             return value;
                         }},

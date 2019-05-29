@@ -96,9 +96,22 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
         },
         add: function () {
             //时间选择模块
+            window.load
+            var loading = layer.load(0, {
+                shade: [0.8, '#FFFFFF'],
+                time: 2*10000
+            });
 
             var now = new Date();
             var time = now.getFullYear() + "-" +((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
+
+            $('#option').selectpicker({   
+                title:'未选择',
+                liveSearchPlaceholder:'请输入姓名或学号',
+                maxOptions:20,
+                width:'auto',
+            });
+
             //时间选择模块
             $('#selectInsertTime').daterangepicker({
                 "singleDatePicker": true,
@@ -112,12 +125,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                 singleDatePicker: true,
                 startDate: time,
             }, );
-            $('#option').selectpicker({   
-                title:'未选择',
-                liveSearchPlaceholder:'请输入姓名或学号',
-                maxOptions:20,
-                width:'auto',
-            });
+            //关闭loading
+            layer.close(loading);
             var timeOut = ""; 
 
             $('#search-user input').bind('input propertychange',function(){
