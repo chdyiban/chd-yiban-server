@@ -11,45 +11,59 @@
         <!-- /.col -->
     </div>
     <!-- Table row -->
+
     <div class="row">
-        <div class="col-xs-12 table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>学号</th>
-                    <th>姓名</th>
-                    <th>学生标签</th>
-                    <th>累计挂科数</th>
-                    <th>所欠学分</th>
-                    <th>所欠学分课程</th>
-                    <th>关注类型</th>
-                    <th>总体评价</th>
-                    <th>谈话次数</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{$stuInfo.XH}</td>
-                    <td>{$stuInfo.XM}</td>
-                    <td>{$stuInfo.tags}</td>
-                    <td>{$stuInfo.LJGK}</td>
-                    <td>{$stuInfo.SQXF}</td>
-                    <td>{$stuInfo.CXKC}</td>
-                    {switch name="$stuInfo.GZLX" }
+        <div class="col-xs-12">
+ 
+            <table class="table table-bordered" style="text-align: center;">
+                <tbody>
+                    <tr>
+                        <td>学号</td>
+                        <td>{$stuInfo.XH}</td>
+                        <td>姓名</td>
+                        <td>{$stuInfo.XM}</td>
+                        <td>宿舍号</td>
+                        <td>{$stuInfo.SSDM}</td>
+                    </tr>
+                    <tr>
+                        <td>标签</td>
+                        <td colspan="3">
+                            {php}
+                                $array = explode(",",$stuInfo["tags"]);
+                                foreach($array as $key => $value){
+                                    echo "<span class=\"badge bg-blue\">$value</span>";
+                                }
+                            {/php}
+                        </td>
+                        <td>关注类型</td>
+                        {switch name="$stuInfo.GZLX" }
                         {case value="1"}<td><span class="badge bg-yellow">一般</span></td>{/case}
                         {case value="2"}<td><span class="badge bg-red">重点</span></td>{/case}
-                        {case value="0"}<td><span class="badge bg-gray">取消关注</span></td>{/case}
-                        {case value="3"}<td><span class="badge bg-yellow">非重点关注</span></td>{/case}
-                    {/switch}
-                    <td>{$stuInfo.ZTPJ}</td>
-                    <td>{$stuInfo.THCS}</td>
-                </tr>
-            </tbody>
-        </table>
+                        {case value="0"}<td><span class="badge bg-blue">取消关注</span></td>{/case}
+                        {case value="3"}<td><span>非重点关注</span></td>{/case}
+                        {/switch}
+                    </tr>
+                    <tr>
+                        <td>累计挂科数</td>
+                        <td>{$stuInfo.LJGK}</td>
+                        <td>所欠学分</td>
+                        <td>{$stuInfo.SQXF}</td>
+                        <td>谈话次数</td>
+                        <td>{$stuInfo.THCS}</td>
+                    </tr>
+                    <tr>
+                        <td>所欠学分课程</td>
+                        <td colspan="5">{$stuInfo.CXKC}</td>
+                    </tr>
+                    <tr>
+                        <td>总体评价</td>
+                        <td colspan="5">{$stuInfo.ZTPJ}</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
         </div>
-        <!-- /.col -->
     </div>
-
 </section>
 
 
