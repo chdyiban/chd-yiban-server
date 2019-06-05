@@ -24,8 +24,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 })
                 $("#table tbody tr").each(function(i,v){
                     console.log(valueList[i]);
-                    $(this).find("td:eq(2)").html(valueList[i]);
-                    $(this).find("td:eq(2)").attr("style","text-align:left");
+                    $(this).find("td:eq(1)").html(valueList[i]);
+                    $(this).find("td:eq(1)").attr("style","text-align:left");
                 });
             });
 
@@ -42,11 +42,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                 columns: [
                     [
                         {checkbox: true},
-                        // {field: 'JLID', title: __('ID'),width:20},
-                        {field: 'THNR', title: __('谈话内容'),operate:false,width:250,formatter:function(value,row){                             
-                            return value;
-                        }},
-                        {field: 'THSJ', title: __('谈话时间'),width:40,formatter:function(value,row){ 
+                        // {field: 'JLID', title: __('ID'),width:20,visible:false,},
+                        {field: 'THNR', title: __('谈话内容'),operate:false},
+                        {field: 'THSJ', title: __('谈话时间'),formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";
                             } else{
@@ -65,6 +63,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                     op.XH= "=";  //group_id的操作方法的为 找到相等的
                     params.filter = JSON.stringify(filter); //将搜索过滤器和操作方法 都转为JSON字符串
                     params.op = JSON.stringify(op);
+                    // params.sort = "";
+                    // params.order = "";
                     //如果希望忽略搜索栏搜索条件,可使用
                     //params.filter = JSON.stringify({url: 'login'});
                     //params.op = JSON.stringify({url: 'like'});
