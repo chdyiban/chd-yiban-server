@@ -149,7 +149,8 @@ class Content extends Backend
                     //将时间转为时间戳
                     $params['THSJ'] = strtotime($params['THSJ']);
                     $result = $row->allowField(true)->save($params);
-                    $resulUpdate = $this->model->UpdateLatestTime($ids);
+                    $XSID = $this->model->get($ids)["XSID"];
+                    $resulUpdate = $this->model->UpdateLatestTime($XSID);
                     if ($result !== false)
                     {
                         $this->success();

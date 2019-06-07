@@ -176,6 +176,7 @@ class RecordContent extends Model
      * 获取到本月为止的图表统计信息
      * @return  { "label":[1,2,3,4,5],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
      */
+    /* 调整为以周围统计单位
     public function getChartData($adminId)
     {
         $month = date("n");
@@ -223,5 +224,60 @@ class RecordContent extends Model
             "stuCount" => $monthsStuArrayMap,
         ];
         return $result;
+    }*/
+
+     /**
+     * 获取本周之前三周的统计信息
+     * @return  { "label":[5.13-5.19,5.20-5.26,5.27-6.2,6.3-6.7],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
+     */
+
+    public function getChartData($adminId)
+    {
+        
+        $num = 5;
+        $weekArray = array();
+        for ($i = 0; $i < $num ; $i++) { 
+            $temp1 =  date("n-j",strtotime("-$i week",strtotime("this week")));
+            $temp2 =  date("n-j",strtotime("-$i week",strtotime("this sunday")));
+            // $keyMap = $num-$i;
+            $weekArray[$i] = "$temp1~$temp2";
+        }
+        $weekArray = array_reverse($weekArray);
+        //每天谈话学生数
+        $weekStuArrayMap  = array();
+        //每天谈话次数
+        $weekNumArrayMap  = array();
+        foreach ($weekArray as $key => $value) {
+            $weekDay = explode("~",$value);
+            $startTimestamp = strtotime(date('Y')."-".$weekDay[0]);
+            $endTimestamp = strtotime(date('Y')."-".$weekDay[1])+86400;
+            $allTalkWeekCount = Db::view("record_stuinfo","XH,XM")
+                                -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                -> where("admin_id",$adminId)
+                                -> where("THSJ",'>',$startTimestamp)
+                                -> where("THSJ",'<',$endTimestamp)
+                                -> count();
+                                // dump($allTalkWeekCount);
+            //当周谈话学生数量
+            $allTalkWeekStuCount = Db::view("record_stuinfo","XH,XM")
+                                -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                -> group("XSID")
+                                -> where("admin_id",$adminId)
+                                -> where("THSJ",'>',$startTimestamp)
+                                -> where("THSJ",'<',$endTimestamp)
+                                -> count();
+                                // dump($allTalkWeekStuCount);
+            // $mapKey = $num-$key-1;
+            $weekStuArrayMap[$key] = $allTalkWeekStuCount;
+            $weekNumArrayMap[$key] = $allTalkWeekCount;
+        }
+       
+        $result = [
+            "label" => $weekArray,
+            "numCount" => $weekNumArrayMap,
+            "stuCount" => $weekStuArrayMap,
+        ];
+        return $result;
+        
     }
 }
