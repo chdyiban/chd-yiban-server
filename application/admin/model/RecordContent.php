@@ -25,7 +25,11 @@ class RecordContent extends Model
     public function getStuInfo($ID)
     {
         $stuInfo = model("RecordStuinfo") -> get($ID);
-        return $stuInfo;
+        $stuFamilyInfo = Db::name("fresh_family_info")
+                        -> where("XH",$stuInfo["XH"])
+                        -> select();
+
+        return [ "stuInfo" => $stuInfo, "familyInfo" => $stuFamilyInfo];
     }
 
     //添加内容

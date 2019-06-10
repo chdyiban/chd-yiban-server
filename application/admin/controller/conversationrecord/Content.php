@@ -64,9 +64,12 @@ class Content extends Backend
             return json($result);
         } else {
             $params = $this->request->param();
-            $stuInfo = $this->model->getStuInfo($params["ID"]);
+            $result = $this->model->getStuInfo($params["ID"]);
+            $stuInfo = $result["stuInfo"];
+            $familyInfo = $result["familyInfo"];
             $this->view->assign(["params" => $params]);
             $this->view->assign(["stuInfo" => $stuInfo]);
+            $this->view->assign(["familyInfo" => $familyInfo]);
             return $this->view->fetch();
         }
     }
