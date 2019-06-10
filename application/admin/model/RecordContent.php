@@ -234,7 +234,7 @@ class RecordContent extends Model
     public function getChartData($adminId)
     {
         
-        $num = 5;
+        $num = 12;
         $weekArray = array();
         for ($i = 0; $i < $num ; $i++) { 
             $temp1 =  date("n-j",strtotime("-$i week",strtotime("this week")));
