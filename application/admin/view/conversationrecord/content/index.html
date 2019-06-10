@@ -59,7 +59,34 @@
                         <td>总体评价</td>
                         <td colspan="5">{$stuInfo.ZTPJ}</td>
                     </tr>
-                    
+                    {notempty name="$familyInfo"}
+                    {volist name="$familyInfo" id="vo"}
+                    <tr>
+                        <td>家长姓名</td>
+                        <td>{$vo.XM}</td>
+                        <td>年龄</td>
+                        <td>{$vo.NL}</td>
+                        <td>与学生关系</td>
+                        <td>{$vo.GX}</td>
+                    </tr>
+                    <tr>
+                        <td>工作单位</td>
+                        <td>{$vo.GZDW}</td>
+                    </tr>
+                    <tr>
+                        <td>职业</td>
+                        <td colspan="2">{$vo.ZY}</td>
+                        <td>年收入(元)</td>
+                        <td colspan="2">{$vo.NSR}</td>
+                    </tr>
+                    <tr>
+                        <td>健康状况</td>
+                        <td colspan="2">{$vo.JKZK}</td>
+                        <td>联系电话</td>
+                        <td colspan="2"> {$vo.LXDH}</td>
+                    </tr>
+                    {/volist}
+                    {/notempty}
                 </tbody>
             </table>
         </div>
