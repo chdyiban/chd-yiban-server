@@ -18,7 +18,7 @@ class Geturl extends Api
 
     public function geturl()
     {
-        $url = "http://w54qzp.natappfree.cc";
+        $url = "http://3ywaaz.natappfree.cc";
         $this->success('返回成功', $url);
     }
 
