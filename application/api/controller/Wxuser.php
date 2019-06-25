@@ -358,30 +358,56 @@ class Wxuser extends Api
                 //     //->view('chd_dict_nation','MZDM,MZMC','chd_teacher_detail.MZDM = chd_dict_nation.MZDM')
                 //     ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_teacher_detail.YXDM = chd_dict_college.YXDM')
                 //     ->find();
-                $data = [
-                    'is_bind' => true,
-                    'user' => [
-                        'openid' => $open_id,
-                        'type' => '教职工',
-                        'id' => $bindInfo,
-                        'info'=>[
-                            'yxm'=>$info['YXMC'],
-                            //如果注释掉这两个，则跳转到完善信息界面
-                            'build'=>' ',
-                            'room'=>' ',
-                            'mobile'=>$appendInfo['mobile']
+                //若数据库中不存在教师信息
+                if (empty($info)) {
+                    $data = [
+                        'is_bind' => true,
+                        'user' => [
+                            'openid' => $open_id,
+                            'type' => '教职工',
+                            'id' => $bindInfo,
+                            'info'=>[
+                                'yxm'=>"",
+                                //如果注释掉这两个，则跳转到完善信息界面
+                                'build'=>' ',
+                                'room'=>' ',
+                                'mobile'=>$appendInfo['mobile']
+                            ],
+                            'name' => "暂无数据",
                         ],
-                        'name' => $info['XM']
-                    ],
-                    'time' => [
-                        'term' => '2018-2019 第2学期',
-                        'week' => get_weeks(),
-                        'day' => date("w")
-                    ],
-                    'token' => rand_str_10(),
-                    'status' => 200,
-                ];
-
+                        'time' => [
+                            'term' => '2018-2019 第2学期',
+                            'week' => get_weeks(),
+                            'day' => date("w")
+                        ],
+                        'token' => rand_str_10(),
+                        'status' => 200,
+                    ];
+                } else {
+                    $data = [
+                        'is_bind' => true,
+                        'user' => [
+                            'openid' => $open_id,
+                            'type' => '教职工',
+                            'id' => $bindInfo,
+                            'info'=>[
+                                'yxm'=>$info['YXMC'],
+                                //如果注释掉这两个，则跳转到完善信息界面
+                                'build'=>' ',
+                                'room'=>' ',
+                                'mobile'=>$appendInfo['mobile']
+                            ],
+                            'name' => $info['XM']
+                        ],
+                        'time' => [
+                            'term' => '2018-2019 第2学期',
+                            'week' => get_weeks(),
+                            'day' => date("w")
+                        ],
+                        'token' => rand_str_10(),
+                        'status' => 200,
+                    ];
+                }
             } else {
                 //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
                 $nj = substr($bindInfo,0,4);
@@ -403,36 +429,69 @@ class Wxuser extends Api
                         ->find();
                         $info['ZYMC'] = '';
                 }
-                //年级将学号的前四位截取
-                $info['NJ'] = substr($info['XH'],0,4);
-                $data = [
-                    'is_bind' => true,
-                    'user' => [
-                        'openid' => $open_id,
-                        'type' => '学生',
-                        'id' => $bindInfo,
-                        'info'=>[
-                            'yxm'=>empty($info["YXMC"]) ? "" : $info["YXMC"],
-                            'build'=>$appendInfo['build'],
-                            'room'=>$appendInfo['room'],
-                            'mobile'=>$appendInfo['mobile']
+
+                //如果数据库中没有数据
+                if (empty($info["XH"])) {
+                    $data = [
+                        'is_bind' => true,
+                        'user' => [
+                            'openid' => $open_id,
+                            'type' => '学生',
+                            'id' => $bindInfo,
+                            'info'=>[
+                                'yxm'=> "" ,
+                                'build'=>$appendInfo['build'],
+                                'room'=>$appendInfo['room'],
+                                'mobile'=>$appendInfo['mobile']
+                            ],
+                            'more' => [
+                                'zym'=>"",
+                                'nj'=>"",
+                                'bj'=>"",
+                                'sex' => "",
+                            ],
+                            'name' => "暂无数据",
                         ],
-                        'more' => [
-                            'zym'=>empty($info['ZYMC']) ? "" : $info["ZYMC"],
-                            'nj'=>$info['NJ'],
-                            'bj'=>$info['BJDM'],
-                            'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                        'time' => [
+                            'term' => '2018-2019 第2学期',
+                            'week' => get_weeks(),
+                            'day' => date("w")
                         ],
-                        'name' => $info['XM']
-                    ],
-                    'time' => [
-                        'term' => '2018-2019 第2学期',
-                        'week' => get_weeks(),
-                        'day' => date("w")
-                    ],
-                    'token' => rand_str_10(),
-                    'status' => 200,
-                ];
+                        'token' => rand_str_10(),
+                        'status' => 200,
+                    ];
+                } else {
+                    //年级将学号的前四位截取
+                    $info['NJ'] = substr($info['XH'],0,4);
+                    $data = [
+                        'is_bind' => true,
+                        'user' => [
+                            'openid' => $open_id,
+                            'type' => '学生',
+                            'id' => $bindInfo,
+                            'info'=>[
+                                'yxm'=>empty($info["YXMC"]) ? "" : $info["YXMC"],
+                                'build'=>$appendInfo['build'],
+                                'room'=>$appendInfo['room'],
+                                'mobile'=>$appendInfo['mobile']
+                            ],
+                            'more' => [
+                                'zym'=>empty($info['ZYMC']) ? "" : $info["ZYMC"],
+                                'nj'=>$info['NJ'],
+                                'bj'=>$info['BJDM'],
+                                'sex' => ($info['XBDM'] == 1) ? '男' : '女',
+                            ],
+                            'name' => $info['XM']
+                        ],
+                        'time' => [
+                            'term' => '2018-2019 第2学期',
+                            'week' => get_weeks(),
+                            'day' => date("w")
+                        ],
+                        'token' => rand_str_10(),
+                        'status' => 200,
+                    ];
+                }
             }
         }else{
             $data = [
