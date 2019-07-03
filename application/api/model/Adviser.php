@@ -10,7 +10,8 @@ class Adviser extends Model
 {
     // 表名
     protected $name = 'bzr_adviser';
-    
+    const Q_ID = 3;
+
     public function getStatus($key){
         //判断有无班主任
         $stu_id = $key['id'];
@@ -19,15 +20,15 @@ class Adviser extends Model
         // if (empty($safe)) {
         //     return ['status' => '500', 'msg' => "请求非法"];
         // }
-
+        $q_id = self::Q_ID;
         $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
         if (empty($BJDM)) {
             return ['status' => 200,'step' => 0,'msg' => "未找到相应班级"];
         }
-        $adviserInfoList = $this -> where('class_id', $BJDM) ->find();
+        $adviserInfoList = $this -> where('class_id', $BJDM)->where("q_id",$q_id) ->find();
         if (empty($adviserInfoList)) {
-            // return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
-            return ['status' => 200,'step' => 0,'msg' => "未获取辅导员信息"];
+            return ['status' => 200,'step' => 0,'msg' => "未获取班主任信息"];
+            // return ['status' => 200,'step' => 0,'msg' => "未获取辅导员信息"];
         }
         //判断班主任提交问卷
         $adviser_name = $adviserInfoList['XM'];
@@ -52,12 +53,12 @@ class Adviser extends Model
         $stuResult = Db::name('bzr_result') 
                     -> where('stu_id',$stu_id) 
                     // -> where('q_id',1)
-                    -> where('q_id',2)
+                    -> where('q_id',$q_id)
                     -> find();
         if (empty($stuResult)) {
             //未完成评价
             // $questionList = Db::name('bzr_questionnaire') -> where('q_id',1) -> where('status',1) -> select();
-            $questionList = Db::name('bzr_questionnaire') -> where('q_id',2) -> where('status',1) -> select();
+            $questionList = Db::name('bzr_questionnaire') -> where('q_id',$q_id) -> where('status',1) -> select();
             $questionnaire = array();
             foreach ($questionList as $value) {
                 $temp = array();
@@ -104,6 +105,7 @@ class Adviser extends Model
 
     public function submit($key)
     {
+        $q_id = self::Q_ID;
         $stu_id = $key['id'];
         $form_data = json_encode($key['options']);
         $open_id = $key['openid'];
@@ -120,15 +122,15 @@ class Adviser extends Model
             return ['status' => 200,'code' => 2, 'msg' => "未获取学生班级信息"];
         }
 
-        $adviserInfoList = $this -> where('class_id',$stuInfo['BJDM']) -> find();
+        $adviserInfoList = $this -> where("q_id",$q_id)->where('class_id',$stuInfo['BJDM']) -> find();
         if (empty($adviserInfoList['id'])) {
-            // return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
-            return ['status' => 200,'code' => 2, 'msg' => "未获取辅导员信息"];            
+            return ['status' => 200,'code' => 2, 'msg' => "未获取班主任信息"];            
+            // return ['status' => 200,'code' => 2, 'msg' => "未获取辅导员信息"];            
         }
-        $oldResult = Db::name('bzr_result') -> where('stu_id',$stu_id) -> find();
+        $oldResult = Db::name('bzr_result') -> where("q_id",$q_id)->where('stu_id',$stu_id) -> find();
         if (empty($oldResult)) {
             $res = Db::name('bzr_result') -> insert([
-                'q_id'       => 2,
+                'q_id'       => $q_id,
                 'stu_id'     => $stu_id,
                 'class_id'   => $stuInfo['BJDM'],
                 'adviser_id' => $adviserInfoList['id'],
