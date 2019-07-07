@@ -10,6 +10,7 @@ use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Ykt as YktModel;
 use app\api\model\Books as BooksModel;
 use app\api\model\Score as ScoreModel;
+use app\api\controller\Bigdata as BigdataController;
 /**
  * 获取课表
  */
@@ -127,8 +128,21 @@ class Portal extends Api
     //获取考试成绩
     public function score(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        $score = new ScoreModel;
-        $data = $score -> get_score($key);
+        // $score = new ScoreModel;
+        // $data = $score -> get_score($key);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        // return json($info);
+        $score = new BigdataController;
+        $Wxuser = new WxuserModel;
+        $XH = $key["id"];
+        $access_token = $score->getAccessToken();
+        $access_token = $access_token["access_token"];
+        $params = ["access_token" => $access_token,"XH" => $XH];
+        $data = array_reverse($score->getScore($params));
         $info = [
             'status' => 200,
             'message' => 'success',
