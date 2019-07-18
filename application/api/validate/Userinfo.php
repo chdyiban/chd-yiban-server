@@ -14,7 +14,8 @@ class Userinfo extends Validate
         'JTRKS' => 'require|between:1,20',
         'YZBM'  => 'require|number|length:6',
         'BRDH' => 'require|/^[1][3,4,5,6,7,8,9][0-9]{9}$/',
-        'BRQQ'   => 'number|length:5,11',
+        'BRQQ'   => 'number|length:5,14',
+        'qq'   => 'number|length:5,14',
         'SZDQ' => 'require',
         'XXDZ' => 'require|min:5',
         'ZSR' => 'require|number',
@@ -45,6 +46,7 @@ class Userinfo extends Validate
         'YZBM'  => "邮政编码为6位数字",
         'BRDH' => "请输入有效联系方式",
         'BRQQ'  => '请填写正确的QQ号码',
+        'qq'  => '请填写正确的QQ号码',
         'SZDQ' => '所在地区不能为空',
         'XXDZ' => '详细地址最少5字',
         'ZSR' => '总收入必须为数字',
@@ -69,7 +71,8 @@ class Userinfo extends Validate
         'LXDH' => '请填写有效的联系电话',
     ];
     protected $scene = [
-        'user'  =>  ['XH','RXQHK','ZP', 'JTRKS', 'YZBM','BRDH','BRQQ','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
+        'qq'     =>  ['qq'],
+        'user'   =>  ['XH','RXQHK','ZP', 'JTRKS', 'YZBM','BRDH','BRQQ','SZDQ', 'XXDZ','ZSR','RJSR' ,'FQZY' ,'MQZY' ,'FQLDNL','MQLDNL','YLZC' ,'SZQK' ,'JTBG','ZCYF'],
         'family' => ['XM', 'NL','GX','ZY','NSR','JKZK','LXDH','GZDW'],
     ];
      // 自定义验证规则
