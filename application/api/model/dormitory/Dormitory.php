@@ -161,7 +161,7 @@ class Dormitory extends Model
                 -> view("fresh_info","XH,XM","fresh_result.XH = fresh_info.XH")
                 -> where("XQ",$XQ)
                 -> where("SSDM",$building."#".$dormitory)
-                -> where("status","finished")
+                // -> where("status","finished")
                 -> select();
         $length = strlen($allCount["CPXZ"]);
         $list = [];
@@ -432,6 +432,8 @@ class Dormitory extends Model
                             $data['CZSJ'] = time();
                             unset($data["CWDM"]);
                             unset($data['ID']);
+                            unset($data['latitude']);
+                            unset($data['longitude']);
                             //第一步 把取消的选择插入特殊列表
                             $insert_exception = Db::name('fresh_cancel') -> insert($data);  
                             //第二步 将原先锁定的数据删除

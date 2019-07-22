@@ -21,7 +21,7 @@ class User extends Api
     protected $_token = '';
     //Token默认有效时长
     protected $keeptime = 2592000;
-    protected $AppSecretKey = "T_NgFg_clNNMPjFI2miMNQ**";
+    protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
     /**
      * 登录接口
@@ -80,8 +80,8 @@ class User extends Api
         }
         $params = [
             "aid" => $params["appid"],
-            // "AppSecretKey" => $this->AppSecretKey,
-            "AppSecretKey" => "0paIib2iL0L6tirAVigty0Q**",
+            "AppSecretKey" => $this->AppSecretKey,
+            // "AppSecretKey" => "0paIib2iL0L6tirAVigty0Q**",
 
             "Ticket" => $params["ticket"],
             "Randstr" => $params["randstr"],
