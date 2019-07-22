@@ -10,6 +10,8 @@ class Recommend extends Model
 {
     // 表名
     protected $name = 'fresh_recommend_question';
+    // const RECOMMEND_URL = "http://202.117.64.236:8000/booklst";
+    const RECOMMEND_URL = "http://120.79.197.180:8008/recommend";
     
     /**
      * 初始化
@@ -20,29 +22,60 @@ class Recommend extends Model
         $questionList = $this->where("XH",$userInfo["XH"])->find();
         if ($questionList) {
             $data = [
-                "step"       => 1,
-                "num"  => 0,
-                "list" => [],
+                "step"    => 1,
+                "num"     => 0,
+                "list"    => [],
             ];
-
-            $recommendList = Db::name("fresh_info") -> where("XH","<>",$userInfo["XH"]) ->limit(3) ->select();
-            $recommend_num = count($recommendList);
-            $recommend_list = [];
-            foreach ($recommendList as  $value) {
-                $temp = [
-                    "XH"         => $value["XH"],
-                    "XM"         => $value['XM'],
-                    "avatar"     => $value["avatar"],
-                    "QQ"         => $value["QQ"],
-                    "SYD"        => $value["SYD"],
-                    "similarity" => "80%",
-                ];
-                $recommend_list[] = $temp;
-            }
-            // $data["num"] = $recommend_num;
-            // $data["list"] = $recommend_list;
             
-            return ["status" => true,"msg" => "", "data" => $data];
+            $postData = [
+                "ID"    => $questionList["ID"],
+                "index" => $questionList["stu_index"],
+                "YXDM"  => $questionList["YXDM"],
+                "XBDM"  => $questionList["XBDM"],
+                "q_1"   => $questionList["q_1"],
+                "q_2"   => $questionList["q_2"],
+                "q_3"   => $questionList["q_3"],
+                "q_4"   => $questionList["q_4"],
+                "q_5"   => $questionList["q_5"],
+                "label" => $questionList["label"],
+            ];
+            $postData = json_encode($postData);
+            $recommendResult = Http::post(self::RECOMMEND_URL,$postData);
+            $recommendResult = json_decode($recommendResult,true);
+
+            if ($recommendResult["code"] != 0) {
+                return ["status" => true,"msg" => "", "data" => $data];                
+            } else {
+                $recommend_num = empty($recommendResult["num"])?0:$recommendResult["list"];
+                $recommend_list = [];
+                if (empty($recommendResult["list"])) {
+                    $data["num"] = $recommend_num;
+                    $data["list"] = $recommend_list;
+                    return ["status" => true,"msg" => "", "data" => $data];
+                }
+                foreach ($recommendResult["list"] as  $value) {
+                    $infoList = Db::view("fresh_info","XH,XM,avatar,QQ,SYD")
+                                -> view("fresh_recommend_question","XH,YXDM,XBDM,stu_index","fresh_info.XH = fresh_recommend_question.XH")
+                                -> where("YXDM",$value["yxdm"])
+                                -> where("stu_index",$value["index"])
+                                -> where("XBDM",$value["gender"])
+                                -> find();
+                                
+                    $temp = [
+                        "XH"         => $infoList["XH"],
+                        "XM"         => $infoList['XM'],
+                        "avatar"     => $infoList["avatar"],
+                        "QQ"         => $infoList["QQ"],
+                        "SYD"        => $infoList["SYD"],
+                        "similarity" => $value["similarity"],
+                    ];
+                    $recommend_list[] = $temp;
+                }
+                $data["num"] = $recommend_num;
+                $data["list"] = $recommend_list;
+                return ["status" => true,"msg" => "", "data" => $data];
+            }
+            
         } else {
             $data = [
                 "step" => 0,
@@ -95,11 +128,12 @@ class Recommend extends Model
 
         $param["option"] = empty($param["option"]) ? $param["opiton"] : $param["option"] ;
         $param["tags"]   = empty($param["tags"]) ? [] : $param["tags"] ;
-        $stu_index       = $this->where("YXDM",$userInfo["YXDM"])->max("stu_index");
+        $stu_index       = $this->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
         $stu_index = $stu_index + 1;
         $inserData = [
             "XH"        => $userInfo["XH"],
             "YXDM"      => $userInfo["YXDM"],
+            "XBDM"      => $userInfo["XBDM"],
             "stu_index" => $stu_index,
         ];
         foreach ($param["option"] as $key => $value) {

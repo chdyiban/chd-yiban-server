@@ -9,7 +9,7 @@ use app\api\model\dormitory\Yiban as YibanModel;
 /**
  * 
  */
-class Extra extends Api
+class Yiban extends Api
 {
     protected $noNeedLogin = [];
 

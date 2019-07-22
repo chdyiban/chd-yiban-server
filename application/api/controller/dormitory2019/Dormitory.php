@@ -4,6 +4,7 @@ namespace app\api\controller\dormitory2019;
 
 use app\api\controller\dormitory2019\Api;
 use think\Config;
+use fast\Http;
 use app\api\model\dormitory\Dormitory as DormitoryModel;
 use Qiniu\Storage\UploadManager;
 use Qiniu\Auth;
@@ -15,7 +16,7 @@ use Qiniu\Auth;
 class Dormitory extends Api
 {
     protected $noNeedLogin = [];
-
+    protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
 
     /**
@@ -112,6 +113,15 @@ class Dormitory extends Api
     public function submit()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+        if (empty($key["verify"])) {
+            $this->error("params error!");
+        }
+        $key["verify"]["userip"] =  $this->request->ip();
+        $response = $this->captcha($key["verify"]);
+
+        if (!$response["status"]) {
+            $this->error($response["msg"]);
+        }
         $DormitoryModel = new DormitoryModel();
         $data = $DormitoryModel->submit($key,$this->_user);
         if ($data["status"]) {
@@ -180,6 +190,40 @@ class Dormitory extends Api
         $auth = new Auth(Config::get('qiniu.AccessKey'), Config::get('qiniu.SecretKey'));
         $token = $auth->uploadToken(Config::get('qiniu.bucket2018'));
         $this -> success('success', $token);
+    }
+
+    /**
+     * 腾讯验证码后台接入
+     * @param $param["appid"]
+     * @param $param["AppSecretKey"]
+     * @param $param["Ticket"]
+     * @param $param["randstr"]
+     */
+
+    private function captcha($params)
+    {
+        $getUrl = "https://ssl.captcha.qq.com/ticket/verify";
+        if (empty($params["appid"]) || empty($params["ticket"]) || empty($params["randstr"])) {
+            return ["status" => false,"msg"=>"params error!","data" => null];
+        }
+        $params = [
+            "aid" => $params["appid"],
+            // "AppSecretKey" => "0paIib2iL0L6tirAVigty0Q**",
+            "AppSecretKey" => $this->AppSecretKey,
+
+            "Ticket"  => $params["ticket"],
+            "Randstr" => $params["randstr"],
+            "UserIP"  => $params["userip"]
+        ];
+        // dump($params);
+        $params = http_build_query($params);
+        $response = Http::get($getUrl,$params);
+        $result = json_decode($response,true);
+        if ($result["response"] == 1) {
+            return ["status" => true,"msg"=>"验证成功","data" => null];
+        } else {
+            return ["status" => false,"msg"=> $result["err_msg"],"data" => null];
+        }
     }
 
 }

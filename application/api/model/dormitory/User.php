@@ -164,6 +164,28 @@ class User extends Model
                 $bedCount = strlen($dormitoryInfo["CPXZ"]);
                 $returnList["cost"] = $bedCount == 4 ? 1200 : 900; 
                 return $returnList;
+                
+            case "FIN":
+                $returnList = [];
+                $selectList = Db::name("fresh_result")->where("XH",$XH)->field("YXDM,XH,SSDM,CH,XQ")->find();
+                if (!empty($selectList)) {
+                    $returnList = [
+                        "XH"       => $selectList["XH"],
+                        "XQ"       => $selectList["XQ"] == "north" ? "渭水" : "雁塔",
+                        "building" => explode("#",$selectList["SSDM"])[0],
+                        "room"     => explode("#",$selectList["SSDM"])[1],
+                        "bed"      => $selectList["CH"],
+                    ];
+                }
+
+                $dormitoryInfo = Db::name("fresh_dormitory_".$selectList["XQ"])
+                                ->where("SSDM",$selectList["SSDM"])
+                                ->where("YXDM",$selectList["YXDM"])
+                                ->field("CPXZ")
+                                ->find();
+                $bedCount = strlen($dormitoryInfo["CPXZ"]);
+                $returnList["cost"] = $bedCount == 4 ? 1200 : 900; 
+                return $returnList;
             
             default:
                 # code...
