@@ -60,10 +60,7 @@ class Dormitory extends Api
 
                 // $res = model('fresh_questionnaire_base') -> insert($data);
                 $res = $DormitoryModel->insertBase($data);
-                foreach ($info as $key => $value) {
-                    // $res1 = model('fresh_questionnaire_family') -> insert($value);
-                    $res1 = $DormitoryModel->insertFamily($data);
-                }
+                $res1 = $DormitoryModel->insertFamily($info);
                 if ($res && $res1) {
                     $this -> success("信息录入成功");
                 }else {
@@ -71,14 +68,13 @@ class Dormitory extends Api
                 }
             }
         }
-        
     }
 
     /**
      * 查询当前各个宿舍状态
      */
     public function room()
-    {
+    {   
         $DormitoryModel = new DormitoryModel();
         $data = $DormitoryModel->room($this->_user);
         if ($data["status"]) {
@@ -113,15 +109,15 @@ class Dormitory extends Api
     public function submit()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        if (empty($key["verify"])) {
-            $this->error("params error!");
-        }
-        $key["verify"]["userip"] =  $this->request->ip();
-        $response = $this->captcha($key["verify"]);
+        // if (empty($key["verify"])) {
+        //     $this->error("params error!");
+        // }
+        // $key["verify"]["userip"] =  $this->request->ip();
+        // $response = $this->captcha($key["verify"]);
 
-        if (!$response["status"]) {
-            $this->error($response["msg"]);
-        }
+        // if (!$response["status"]) {
+        //     $this->error($response["msg"]);
+        // }
         $DormitoryModel = new DormitoryModel();
         $data = $DormitoryModel->submit($key,$this->_user);
         if ($data["status"]) {
@@ -149,7 +145,7 @@ class Dormitory extends Api
     
     /**
      * 标记床位
-     * @param string $key["action"] get||set
+     * @param string $key["action"] mark||get | unmark
      * @return array ["code" "msg" "data"=>["mark_list" => []]]
      */
     public function mark()

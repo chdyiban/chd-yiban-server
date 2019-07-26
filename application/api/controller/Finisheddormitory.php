@@ -16,8 +16,8 @@ class Finisheddormitory extends Freshuser
 {
     //记得该权限
     //distribute
-    protected $noNeedLogin = [''];
-    protected $noNeedRight = [''];
+    protected $noNeedLogin = ['*'];
+    protected $noNeedRight = ['*'];
 
     private $loginInfo = null;
     private $token = null;
@@ -37,7 +37,7 @@ class Finisheddormitory extends Freshuser
         set_time_limit(0);
         $t1 = microtime(true);
         //第一步分配少数民族学生
-        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.MZ not like '汉族' AND (SELECT COUNT(1) FROM `fa_fresh_list` B WHERE B.XH = A.XH) = 0";
+        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.MZ not like '汉族' AND (SELECT COUNT(1) FROM `fa_fresh_result` B WHERE B.XH = A.XH) = 0";
         $not_hz = Db::query($sql);
         echo "未分配少数民族人数:".count($not_hz).'<br/>';
         Log::write('未分配少数民族人数:'.count($not_hz));
@@ -47,7 +47,7 @@ class Finisheddormitory extends Freshuser
         $t2 = microtime(true);
         echo '<br/>耗时'.round($t2-$t1,3).'秒<br>';
         //第二步分配外省人数
-        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.SYD not like '陕西' AND (SELECT COUNT(1) FROM `fa_fresh_list` B WHERE B.XH = A.XH) = 0";
+        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A  WHERE A.SYD not like '陕西' AND (SELECT COUNT(1) FROM `fa_fresh_result` B WHERE B.XH = A.XH) = 0";
         $not_sx = Db::query($sql);
         echo "未分配外省人数:".count($not_sx).'<br/>';
         Log::write('未分配外省人数'.count($not_sx));
@@ -59,15 +59,15 @@ class Finisheddormitory extends Freshuser
 
         
         //2.统计未分配的非陕西籍学生数量
-        //$sql = "select count(*) as num from `fa_fresh_info` as A left join `fa_fresh_list` as B on A.XH=B.XH where B.ID is null and A.SYD not like '陕西' LIMIT 1";
+        //$sql = "select count(*) as num from `fa_fresh_info` as A left join `fa_fresh_result` as B on A.XH=B.XH where B.ID is null and A.SYD not like '陕西' LIMIT 1";
         //效率太差注释掉
-        //$sql = "select A.ID as stu_id from `fa_fresh_info` as A left join `fa_fresh_list` as B on A.XH=B.XH where B.ID is null and A.SYD not like '陕西'";
+        //$sql = "select A.ID as stu_id from `fa_fresh_info` as A left join `fa_fresh_result` as B on A.XH=B.XH where B.ID is null and A.SYD not like '陕西'";
         //$not_hz = Db::query($sql);
         //dump($not_hz);
         //$count_of_not_hz = count($not_hz);
         //echo "未分配非陕西籍人数:".$count_of_not_hz.'<br/>';
         
-        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A left join `fa_fresh_list` B on A.XH=B.XH where B.ID is null";
+        $sql = "select A.ID,A.XH,A.XM,A.YXDM,A.XBDM,A.MZ,A.SYD from `fa_fresh_info` A left join `fa_fresh_result` B on A.XH=B.XH where B.ID is null";
         $nomal = Db::query($sql);
         echo "未分配正常人数:".count($nomal).'<br/>';
         Log::write('未分配正常人数'.count($nomal));
@@ -80,23 +80,23 @@ class Finisheddormitory extends Freshuser
 
 
     private function distributenomal($person){
-        $rooms = Db::name('fresh_dormitory')
+        $rooms = Db::name('fresh_dormitory_north')
                 ->where('YXDM',$person['YXDM'])//找学院
                 ->where('XB',$person['XBDM'])//找性别
                 ->where('SYRS','>=',1)
                 ->select();
-        //echo Db::name('fresh_dormitory')->getLastSql();
+        //echo Db::name('fresh_dormitory_north')->getLastSql();
         //遍历每一个宿舍
         foreach ($rooms as $k => $v) {
             // dump($v);
             //遍历可用宿舍
             $map['SSDM'] = $v['SSDM'];
-            //$roommates = Db::name('fresh_list')->where($map)->select();
+            //$roommates = Db::name('fresh_result')->where($map)->select();
             //判断是否“可住”:
             //1.是不是有相同少数民族，学生为汉族则不用考虑，为了通用性，这里要判断一下
             if($person['MZ'] !== '汉族'){
-                $roommates = Db::view('fresh_list') 
-                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                $roommates = Db::view('fresh_result') 
+                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                         ->where($map) 
                         ->where('MZ','like',$person['MZ'])
                         ->count();
@@ -107,8 +107,8 @@ class Finisheddormitory extends Freshuser
             }
             //2.如果不是陕西籍，那么该省份有几个？
             if($person['SYD'] != '陕西'){
-                $roommates = Db::view('fresh_list') 
-                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                $roommates = Db::view('fresh_result') 
+                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                         ->where($map) 
                         ->where('SYD','like',$person['SYD'])
                         ->count();
@@ -135,6 +135,7 @@ class Finisheddormitory extends Freshuser
                 'SSDM'=>$v['SSDM'],
                 'CH'=>$bedNum,
                 'YXDM'=>$person['YXDM'],
+                'CWDM'=>"north-".$v["SSDM"]."-".$bedNum,
                 'SDSJ'=>time(),
                 'origin'=>'system',
                 'status'=>'finished',
@@ -142,32 +143,32 @@ class Finisheddormitory extends Freshuser
             Log::write('正常学生的插入数据'.json_encode($data));
             //dump($data);
             //走到这里，应该是符合选宿舍条件了，直接插入,插入成功则退出
-            if(Db::name('fresh_list')->insert($data)){
+            if(Db::name('fresh_result')->insert($data)){
                 //宿舍信息表更新一下
-                Db::name('fresh_dormitory')
+                Db::name('fresh_dormitory_north')
                     ->where('SSDM',$v['SSDM'])
                     ->where('YXDM',$person['YXDM'])
                     ->update([
                         'SYRS' => $restNum,
                         'CPXZ' => implode('',$bedArray)
                     ]);
-                $sql = Db::name('fresh_list')->getLastSql();
+                $sql = Db::name('fresh_result')->getLastSql();
                 //Log::write('正常学生的SQL语句'.$sql,Log::SQL);
-               // echo Db::name('fresh_dormitory')->getLastSql();
+               // echo Db::name('fresh_dormitory_north')->getLastSql();
                 //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
                 //echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
                 break;
             }else{
-                $sql = Db::name('fresh_list')->getLastSql();
+                $sql = Db::name('fresh_result')->getLastSql();
                 //Log::write('正常学生的SQL语句'.$sql,Log::SQL);
-                //echo Db::name('fresh_list')->getLastSql();
+                //echo Db::name('fresh_result')->getLastSql();
             }
         }
     }
     private function distributeplace($person)
     {
         //随机分配少数民族宿舍，否则会出现少数民族在前面聚集的情况
-        $rooms = Db::name('fresh_dormitory')
+        $rooms = Db::name('fresh_dormitory_north')
                 ->where('YXDM',$person['YXDM'])//找学院
                 ->where('XB',$person['XBDM'])//找性别
                 ->where('SYRS','>=',1)
@@ -177,8 +178,8 @@ class Finisheddormitory extends Freshuser
                 $map['SSDM'] = $v['SSDM'];
                 //民族
                 if($person['MZ'] != '汉族'){
-                    $roommates = Db::view('fresh_list') 
-                            ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                    $roommates = Db::view('fresh_result') 
+                            ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                             ->where($map) 
                             ->where('MZ','like',$person['MZ'])
                             ->count();
@@ -191,8 +192,8 @@ class Finisheddormitory extends Freshuser
                 }
 
                 //生源地
-                $roommates = Db::view('fresh_list') 
-                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                $roommates = Db::view('fresh_result') 
+                        ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                         ->where($map) 
                         ->where('SYD','like',$person['SYD'])
                         ->count();
@@ -243,15 +244,16 @@ class Finisheddormitory extends Freshuser
                 'SSDM'=>$restRoom['SSDM'],
                 'CH'=>$bedNum,
                 'YXDM'=>$person['YXDM'],
+                'CWDM'=>"north-".$v["SSDM"]."-".$bedNum,
                 'SDSJ'=>time(),
                 'origin'=>'system',
                 'status'=>'finished',
             ];
             Log::write('外省插入的数据'.json_encode($data));
             //dump($data);
-            if(Db::name('fresh_list')->insert($data)){
+            if(Db::name('fresh_result')->insert($data)){
                 //宿舍信息表更新一下
-                Db::name('fresh_dormitory')
+                Db::name('fresh_dormitory_north')
                     ->where('SSDM',$restRoom['SSDM'])
                     ->where('YXDM',$person['YXDM'])
                     ->update([
@@ -259,23 +261,23 @@ class Finisheddormitory extends Freshuser
                         'CPXZ' => implode('',$bedArray)
                     ]);
                 //echo '床铺号：'.$bedNum.'<br/>';
-                //echo Db::name('fresh_dormitory')->getLastSql();
-                //$sql = Db::name('fresh_dormitory')->getLastSql();
+                //echo Db::name('fresh_dormitory_north')->getLastSql();
+                //$sql = Db::name('fresh_dormitory_north')->getLastSql();
                 //Log::write('外省插入的SQL语句'.$sql,Log::SQL);
                 
                 //echo 'Now memory_get_usage: ' . memory_get_usage()/(1024*1024) . 'MB <br />';
                 //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
                 //echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
             }else{
-                //$sql = Db::name('fresh_list')->getLastSql();
+                //$sql = Db::name('fresh_result')->getLastSql();
                 //Log::write('外省插入的SQL语句'.$sql,Log::SQL);
-                //echo Db::name('fresh_list')->getLastSql();
+                //echo Db::name('fresh_result')->getLastSql();
             } 
     }
     private function distributenation($person)
     {
         //随机分配少数民族宿舍，否则会出现少数民族在前面聚集的情况
-        $rooms = Db::name('fresh_dormitory')
+        $rooms = Db::name('fresh_dormitory_north')
                 ->where('YXDM',$person['YXDM'])//找学院
                 ->where('XB',$person['XBDM'])//找性别
                 ->where('SYRS','>=',1)
@@ -283,8 +285,8 @@ class Finisheddormitory extends Freshuser
 
         foreach($rooms as $k => $v){
             $map['SSDM'] = $v['SSDM'];
-            $roommates = Db::view('fresh_list') 
-                ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+            $roommates = Db::view('fresh_result') 
+                ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                 ->where($map) 
                 ->where('MZ','like',$person['MZ'])
                 ->count();
@@ -296,8 +298,8 @@ class Finisheddormitory extends Freshuser
             }
 
             if($person['SYD'] != '陕西'){
-                $roommates = Db::view('fresh_list') 
-                    ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_list.XH = fresh_info.XH')
+                $roommates = Db::view('fresh_result') 
+                    ->view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                     ->where($map) 
                     ->where('SYD','like',$person['SYD'])
                     ->count();
@@ -349,24 +351,25 @@ class Finisheddormitory extends Freshuser
             'SSDM'=>$restRoom['SSDM'],
             'CH'=>$bedNum,
             'YXDM'=>$person['YXDM'],
+            'CWDM'=>"north-".$v["SSDM"]."-".$bedNum,
             'SDSJ'=>time(),
             'origin'=>'system',
             'status'=>'finished',
         ];
         Log::write('少数民族插入的数据'.json_encode($data));
-        if(Db::name('fresh_list')->insert($data)){
+        if(Db::name('fresh_result')->insert($data)){
             //宿舍信息表更新一下
-            Db::name('fresh_dormitory')
+            Db::name('fresh_dormitory_north')
                 ->where('SSDM',$restRoom['SSDM'])
                 ->where('YXDM',$person['YXDM'])
                 ->update([
                     'SYRS' => $restRoom['SYRS'] - 1,
                     'CPXZ' => implode('',$bedArray)
                 ]);
-            $sql = Db::name('fresh_dormitory')->getLastSql();
+            $sql = Db::name('fresh_dormitory_north')->getLastSql();
             //Log::write('少数民族插入时的SQL语句'.$sql,Log::SQL);
            // echo '床铺号：'.$bedNum.'<br/>';
-            //echo Db::name('fresh_dormitory')->getLastSql();
+            //echo Db::name('fresh_dormitory_north')->getLastSql();
             //echo '<script>window.location.href="http://localhost/fastadmin/public/api/Finisheddormitory/distribute";</script>';
             // echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
         }
@@ -386,7 +389,7 @@ class Finisheddormitory extends Freshuser
         //将已经选过的人从数组中去掉
         foreach ($stu_info as $k => $value) {
             $stu_id   = $value['XH'];
-            $exit_stu = Db::name('fresh_list') -> where('XH', $stu_id) -> find();
+            $exit_stu = Db::name('fresh_result') -> where('XH', $stu_id) -> find();
             if (!empty($exit_stu)) {
                 unset($stu_info[$k]);
             }
