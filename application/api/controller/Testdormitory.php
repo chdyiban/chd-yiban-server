@@ -32,8 +32,8 @@ class Testdormitory extends Freshuser
         $id = $this->request->get("id");
 		// for ($i=0; $i < 100; $i++) { 
 		// 	$stime=microtime(true);
-        $this->test($id);
-        // echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/testdormitory/finish?id='.($id+1).'";</script>';
+        $this->test();
+        echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/testdormitory/finish?id='.($id+1).'";</script>';
         
 		// 	$etime=microtime(true); 
 		// 	$total=$etime-$stime;
@@ -78,11 +78,8 @@ class Testdormitory extends Freshuser
         $params[CURLOPT_HTTPHEADER] = array("Authorization:$token");
 
         $response_setinfo = Http::post($questionnaireUrl,$postData,$params);
-
         $response_setinfo = json_decode($response_setinfo,true);
-
         $show_url = $url_base."dormitory/room";
-
         $response_show_building = Http::get($show_url,"",$params);
         $response_show_building = json_decode($response_show_building,true);
         $building = $response_show_building['data']["list"];
@@ -116,12 +113,19 @@ class Testdormitory extends Freshuser
 
         $show_bed_url = $url_base."dormitory/bed";
         $response_show_bed = Http::post($show_bed_url,$postData,$params);
-		$response_show_bed = json_decode($response_show_bed,true);
-		// dump($response_show_bed);
+        $response_show_bed = json_decode($response_show_bed,true);
+        // dump($params);
+        // dump($postData);
+        // dump($response_show_bed);
+		// while (!empty($response_show_bed) ) {
+        //     $response_show_bed = Http::post($show_bed_url,$postData,$params);
+        //     $response_show_bed = json_decode($response_show_bed,true);
+        // }
 		$bed = $response_show_bed['data']["list"];
 		$count = count($bed);
         $bed_choice = rand(0, $count-1);
-		$bed_choice = $bed[$bed_choice];
+        $bed_choice = $bed[$bed_choice];
+        
 		while ($bed_choice["disabled"]) {
 			$building = $response_show_building['data']["list"];
             $count = count($building);
@@ -222,6 +226,11 @@ class Testdormitory extends Freshuser
         $confirm_url = $url_base."dormitory/confirm";
         $response_confirm= Http::post($confirm_url,$postData,$params);
         $response_confirm = json_decode($response_confirm,true);
+
+        // if ($response_confirm["code"] != 0) {
+        //     dump($response_confirm);
+        //     exit;
+        // }
         dump($response_confirm);
     	// dump($response_confirm);
         // $finish_url = $url_base."dormitory/finished?token=".$token."&type=confirm";
