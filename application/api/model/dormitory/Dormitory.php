@@ -160,7 +160,7 @@ class Dormitory extends Model
         if (empty($allCount)) {
             return ["status"  => false, "msg" => "info error!" , "data" => null];            
         }
-        $roommate = Db::view("fresh_result","XQ,SSDM,XH")
+        $roommate = Db::view("fresh_result","XQ,SSDM,XH,CH")
                 -> view("fresh_info","XH,XM,avatar","fresh_result.XH = fresh_info.XH")
                 -> where("XQ",$XQ)
                 -> where("SSDM",$building."#".$dormitory)
