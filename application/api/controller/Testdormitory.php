@@ -22,77 +22,210 @@ class Testdormitory extends Freshuser
     private $loginInfo = null;
     private $token = null;
     private $userInfo = null;
-    const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/";
-    const SERVICE_URL = "https://service.knocks.tech/api/";
+    const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/dormitory2019/";
+    const SERVICE_URL = "https://yiban.chd.edu.cn/api/";
+	
+
+	public function finish()
+	{
+        set_time_limit(0);
+        $id = $this->request->get("id");
+		// for ($i=0; $i < 100; $i++) { 
+		// 	$stime=microtime(true);
+        $this->test($id);
+        // echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/testdormitory/finish?id='.($id+1).'";</script>';
+        
+		// 	$etime=microtime(true); 
+		// 	$total=$etime-$stime;
+        //     echo $total;
+        //     break;
+		// }
+	}
+	
 
     public function test()
     {
         $type = $this -> request -> get('type');
-        if ($type = "local"){
-            $url_base = self::LOCAL_URL;
-        }
-        if ($type = "service") {
-            $url_base = self::SERVICE_URL;
-        }
-        $stu_info = Db::name('fresh_info') -> where('LXDH','') -> find();
+        // if ($type = "local"){
+        $url_base = self::SERVICE_URL;
+        //     $url_base = self::LOCAL_URL;
+        // }
+        // if ($type = "service") {
+        //     $url_base = self::SERVICE_URL;
+        // }
+		$stu_info = Db::name('fresh_info') -> where('QQ','') -> find();
         $stu_id   = $stu_info['XH'];
         $stu_name = $stu_info['XM'];
-        $stu_zkzh = $stu_info['ZKZH'];
-        $login_url = $url_base."Freshuser/login?XM=".$stu_name."&XH=".$stu_id."&ZKZH=".$stu_zkzh;
-        $response_login = Http::get($login_url);
+        $stu_sfzh = substr($stu_info['SFZH'], -6);
+        $login_url = $url_base."user/login";
+        $param = [
+            "studentID" => $stu_id,
+            "password"  => $stu_sfzh,
+        ];
+        $postData = [
+            "key" => base64_encode(urlencode(json_encode($param))),
+        ];
+        $response_login = Http::post($login_url,$postData);
         $response_login = json_decode($response_login,true);
-        $token = $response_login['data'][1];
-        $res = Db::name('fresh_info') -> where('XH', $stu_id) -> update(['LXDH' => '1']);
-        
-        $show_url = $url_base."dormitory/show?token=".$token."&type=building";
-        $response_show_building = Http::get($show_url);
+        $token = $response_login['data']["token"];
+        $res = Db::name('fresh_info') -> where('XH', $stu_id) -> update(['QQ' => '282813637']);
+
+        $questionnaireUrl = $url_base."dormitory/setinfo";
+        $postData = [
+            "key" => "JTdCJTIyZm9ybTElMjIlM0ElN0IlMjJtZW1iZXIlMjIlM0ElNUIlN0IlMjJuYW1lJTIyJTNBJTIyJUU2JUI1JThCJUU4JUFGJTk1JTIyJTJDJTIyYWdlJTIyJTNBJTIyMzUlMjIlMkMlMjJyZWxhdGlvbiUyMiUzQSUyMiVFNyU4OCVCNiVFNCVCQSVCMiUyMiUyQyUyMnVuaXQlMjIlM0ElMjIlRTYlQjUlOEIlRTglQUYlOTUlMjIlMkMlMjJqb2IlMjIlM0ElMjIlRTYlQjUlOEIlRTglQUYlOTUlMjIlMkMlMjJpbmNvbWUlMjIlM0ElMjIxMDAwMDAlMjIlMkMlMjJoZWFsdGglMjIlM0ElMjIlRTYlOTclQTAlMjIlMkMlMjJtb2JpbGUlMjIlM0ElMjIxODg5MDg3NjUzMiUyMiU3RCU1RCUyQyUyMlFRJTIyJTNBJTIyMjgyODEzNjM3NyUyMiUyQyUyMkJSREglMjIlM0ElMjIxNTUxNzc4OTk4OCUyMiUyQyUyMlJYUUhLJTIyJTNBJTIyJUU1JTlGJThFJUU5JTk1JTg3JTIyJTJDJTIyU0ZHQyUyMiUzQSUyMiVFNSU5MCVBNiUyMiUyQyUyMllaQk0lMjIlM0ElMjI0NTQ2NTAlMjIlMkMlMjJYWERaJTIyJTNBJTIyJUU2JUIyJUIzJUU1JThEJTk3JUU3JTlDJTgxJUU2JUI1JThFJUU2JUJBJTkwJUU1JUI4JTgyJUU1JTg1JThCJUU0JUJBJTk1JUU5JTk1JTg3JTIyJTJDJTIyU1pEUSUyMiUzQSU1QiUyMjExMDAwMCUyMiUyQyUyMjExMDEwMCUyMiUyQyUyMjExMDEwMSUyMiU1RCUyQyUyMlNaRFFfQ04lMjIlM0ElMjIlRTUlOEMlOTclRTQlQkElQUMlRTUlQjglODIrJUU1JUI4JTgyJUU4JUJFJTk2JUU1JThDJUJBKyVFNCVCOCU5QyVFNSU5RiU4RSVFNSU4QyVCQSUyMiUyQyUyMkpUUktTJTIyJTNBMiU3RCUyQyUyMmZvcm0yJTIyJTNBJTVCJTVCJTIyMyUyMiU1RCUyQyU1QiUyMjMlMjIlNUQlMkMlNUIlMjIyJTIyJTVEJTJDJTVCJTIyMSUyMiU1RCUyQyU1QiUyMjElMjIlNUQlMkMlNUIlMjIzJTIyJTVEJTJDJTVCJTIyMiUyMiU1RCUyQyU1QiUyMjMlMjIlMkMlMjIxJTIyJTVEJTVEJTdE",
+        ];
+        $params[CURLOPT_HTTPHEADER] = array("Authorization:$token");
+
+        $response_setinfo = Http::post($questionnaireUrl,$postData,$params);
+
+        $response_setinfo = json_decode($response_setinfo,true);
+
+        $show_url = $url_base."dormitory/room";
+
+        $response_show_building = Http::get($show_url,"",$params);
         $response_show_building = json_decode($response_show_building,true);
-        $building = $response_show_building['data'];
+        $building = $response_show_building['data']["list"];
         $count = count($building);
         $building_choice = rand(0, $count-1);
         $building_choice = $building[$building_choice];
-
-        $show_dormitory_url = $url_base."dormitory/show?token=".$token."&type=dormitory&building=".$building_choice;
-        $response_show_dormitory = Http::get($show_dormitory_url);
-        $response_show_dormitory = json_decode($response_show_dormitory,true);
-        $dormitory = $response_show_dormitory['data'];
-        $count = count($dormitory);
-        $dormitory_choice = rand(0, $count-1);
-        $dormitory_choice = $dormitory[$dormitory_choice];
-        
-        $show_bed_url = $url_base."dormitory/show?token=".$token."&type=bed&building=".$building_choice."&dormitory=".$dormitory_choice;
-        $response_show_bed = Http::get($show_bed_url);
-        $response_show_bed = json_decode($response_show_bed,true);
-        $bed = $response_show_bed['data'];    
-        while ($bed == "该宿舍陕西省人数过多，请更换！") {
-            $show_dormitory_url = $url_base."dormitory/show?token=".$token."&type=dormitory&building=".$building_choice;
-            $response_show_dormitory = Http::get($show_dormitory_url);
-            $response_show_dormitory = json_decode($response_show_dormitory,true);
-            $dormitory = $response_show_dormitory['data'];
-            $count = count($dormitory);
-            $dormitory_choice = rand(0, $count-1);
-            $dormitory_choice = $dormitory[$dormitory_choice];
-            
-            $show_bed_url = $url_base."dormitory/show?token=".$token."&type=bed&building=".$building_choice."&dormitory=".$dormitory_choice;
-            $response_show_bed = Http::get($show_bed_url);
-            $response_show_bed = json_decode($response_show_bed,true);
-            $bed = $response_show_bed['data']; 
+        $room = $building_choice["room"];
+        // $show_dormitory_url = $url_base."dormitory/show?token=".$token."&type=dormitory&building=".$building_choice;
+        // $response_show_dormitory = Http::get($show_dormitory_url);
+        // $response_show_dormitory = json_decode($response_show_dormitory,true);
+        // $dormitory = $response_show_dormitory['data'];
+        $roomcount = count($room);
+        $dormitory_choice = rand(0, $roomcount-1);
+        while(!$room[$dormitory_choice]["free"]){
+            $building_choice = rand(0, $count-1);
+            $building_choice = $building[$building_choice];
+            $room = $building_choice["room"];
+            $roomcount = count($room);
+            $dormitory_choice = rand(0, $roomcount-1);
         }
-        $count = count($bed);
+        $buildingSubmit = $building_choice["value"];
+        $roomSubmit     = $room[$dormitory_choice]["value"];
+        
+        $postData = [
+            "building"  =>  $buildingSubmit,
+            "room"      =>  $roomSubmit,
+        ];
+        $postData = [
+			"key" => base64_encode(urlencode(json_encode($postData))),
+        ];
+
+        $show_bed_url = $url_base."dormitory/bed";
+        $response_show_bed = Http::post($show_bed_url,$postData,$params);
+		$response_show_bed = json_decode($response_show_bed,true);
+		// dump($response_show_bed);
+		$bed = $response_show_bed['data']["list"];
+		$count = count($bed);
         $bed_choice = rand(0, $count-1);
-        $bed_choice = $bed[$bed_choice];
+		$bed_choice = $bed[$bed_choice];
+		while ($bed_choice["disabled"]) {
+			$building = $response_show_building['data']["list"];
+            $count = count($building);
+            $building_choice = rand(0, $count-1);
+            $building_choice = $building[$building_choice];
+            $room = $building_choice["room"];
+            // $show_dormitory_url = $url_base."dormitory/show?token=".$token."&type=dormitory&building=".$building_choice;
+            // $response_show_dormitory = Http::get($show_dormitory_url);
+            // $response_show_dormitory = json_decode($response_show_dormitory,true);
+            // $dormitory = $response_show_dormitory['data'];
+            $roomcount = count($room);
+            $dormitory_choice = rand(0, $roomcount-1);
+            while(!$room[$dormitory_choice]["free"]){
+                $building_choice = rand(0, $count-1);
+                $building_choice = $building[$building_choice];
+                $room = $building_choice["room"];
+                $roomcount = count($room);
+                $dormitory_choice = rand(0, $roomcount-1);
+            }
+            $buildingSubmit = $building_choice["value"];
+            $roomSubmit     = $room[$dormitory_choice]["value"];
+            
+            $postData = [
+                "building"  =>  $buildingSubmit,
+                "room"      =>  $roomSubmit,
+            ];
+            $postData = [
+                "key" => base64_encode(urlencode(json_encode($postData))),
+            ];
+
+            $show_bed_url = $url_base."dormitory/bed";
+            $response_show_bed = Http::post($show_bed_url,$postData,$params);
+            $response_show_bed = json_decode($response_show_bed,true);
+            // dump($response_show_bed);
+            $bed = $response_show_bed['data']["list"];
+            $count = count($bed);
+            $bed_choice = rand(0, $count-1);
+            $bed_choice = $bed[$bed_choice];
+        }
         
-        $submit_url = $url_base."dormitory/submit?token=".$token."&dormitory_id=".$building_choice."_".$dormitory_choice."&bed_id=".$bed_choice;
-        $response_submit = Http::get($submit_url);
+		$bedSubmit = $bed_choice["value"];
+		$postData = [
+			"building"  =>  $buildingSubmit,
+			"room"      =>  $roomSubmit,
+			"bed"       =>  $bedSubmit,
+        ];
+        
+        dump($postData);
+		$postMarkData = [
+			"building"  =>  $buildingSubmit,
+			"room"      =>  $roomSubmit,
+			"bed"       =>  $bedSubmit,
+			"action"    =>  "mark",
+		];
+
+		$postData = [
+			"key" => base64_encode(urlencode(json_encode($postData))),
+		];
+		$postMarkData = [
+			"key" => base64_encode(urlencode(json_encode($postMarkData))),
+		];
+
+        // while ($bed == "该宿舍陕西省人数过多，请更换！") {
+        //     $show_dormitory_url = $url_base."dormitory/show?token=".$token."&type=dormitory&building=".$building_choice;
+        //     $response_show_dormitory = Http::get($show_dormitory_url);
+        //     $response_show_dormitory = json_decode($response_show_dormitory,true);
+        //     $dormitory = $response_show_dormitory['data'];
+        //     $count = count($dormitory);
+        //     $dormitory_choice = rand(0, $count-1);
+        //     $dormitory_choice = $dormitory[$dormitory_choice];
+            
+        //     $show_bed_url = $url_base."dormitory/show?token=".$token."&type=bed&building=".$building_choice."&dormitory=".$dormitory_choice;
+        //     $response_show_bed = Http::get($show_bed_url);
+        //     $response_show_bed = json_decode($response_show_bed,true);
+        //     $bed = $response_show_bed['data']; 
+        // }
+        // $count = count($bed);
+        // $bed_choice = rand(0, $count-1);
+        // $bed_choice = $bed[$bed_choice];
+		
+		$mark_url   = $url_base."dormitory/mark";
+        $response_submit = Http::post($mark_url,$postMarkData,$params);
+        
+        dump($response_submit);
+        $submit_url = $url_base."dormitory/submit";
+		$response_submit = Http::post($submit_url,$postData,$params);
+		
         $response_submit = json_decode($response_submit,true);
-        
-        $confirm_url = $url_base."dormitory/confirm?token=".$token."&type=confirm";
-        $response_confirm= Http::get($confirm_url);
+        dump($response_submit);
+ 
+		$postData = [
+			"type" => "confirm",
+		];
+		$postData = [
+			"key" => base64_encode(urlencode(json_encode($postData))),			
+		];
+
+        $confirm_url = $url_base."dormitory/confirm";
+        $response_confirm= Http::post($confirm_url,$postData,$params);
         $response_confirm = json_decode($response_confirm,true);
-       
-        $finish_url = $url_base."dormitory/finished?token=".$token."&type=confirm";
-        $finish_url= Http::get($finish_url);
-        $finish_url = json_decode($finish_url,true);
+        dump($response_confirm);
+    	// dump($response_confirm);
+        // $finish_url = $url_base."dormitory/finished?token=".$token."&type=confirm";
+        // $finish_url= Http::get($finish_url);
+        // $finish_url = json_decode($finish_url,true);
         
     }
     

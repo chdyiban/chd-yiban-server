@@ -4,6 +4,7 @@ namespace app\api\controller\dormitory2019;
 
 use app\api\controller\dormitory2019\Api;
 use app\common\library\Token;
+use think\Cache;
 use app\api\model\dormitory\User as UserModel;
 use fast\Random;
 use think\Db;
@@ -28,25 +29,30 @@ class User extends Api
      * @param string $key["studentID"]
      * @param string $key["password"]
      * @param array  $key["verify"]
+     * 35ms-60ms
      */
     public function login(){
         header('Access-Control-Allow-Origin:*');  
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+        // if (empty($key["verify"])) {
+        //     $this->error("params error!");
+        // }
+        // $key["verify"]["userip"] =  $this->request->ip();
+        // $response = $this->captcha($key["verify"]);
 
-        if (empty($key["verify"])) {
-            $this->error("params error!");
-        }
-        $key["verify"]["userip"] =  $this->request->ip();
-        $response = $this->captcha($key["verify"]);
-
-        if (!$response["status"]) {
-            $this->error($response["msg"]);
-        }
+        // if (!$response["status"]) {
+        //     $this->error($response["msg"]);
+        // }
         $User = new UserModel();
         $userid = $User->check($key);
         if($userid){
+            $token_old = Cache::get("dormitory_user_$userid");
+            if ($token_old) {
+                $info = Token::delete($token_old);
+            }
             $this->_token = Random::uuid();
             Token::set($this->_token, $userid, $this->keeptime);
+            Cache::set("dormitory_user_$userid",$this->_token,$this->keeptime);
             Hook::listen("user_login_successed", $userid);
             //判断是否是否信息填完并且是否需要修改
             $data = [
