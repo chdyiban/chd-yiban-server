@@ -11,6 +11,7 @@ use fast\Random;
 use app\common\library\Token;
 
 use app\api\model\Dormitory as DormitoryModel;
+use app\api\model\dormitory\Dormitory as Dormitory2019Model;
 /**
  * 
  */
@@ -48,8 +49,8 @@ class Testdormitory extends Freshuser
         set_time_limit(0);
         $type = $this -> request -> get('type');
         // if ($type = "local"){
-        $url_base = self::SERVICE_URL;
-            // $url_base = self::LOCAL_URL;
+        // $url_base = self::SERVICE_URL;
+            $url_base = self::LOCAL_URL;
         // }
         // if ($type = "service") {
         //     $url_base = self::SERVICE_URL;
@@ -69,6 +70,7 @@ class Testdormitory extends Freshuser
         $response_login = Http::post($login_url,$postData);
         $response_login = json_decode($response_login,true);
         $token = $response_login['data']["token"];
+        dump($response_login);    
         $res = Db::name('fresh_info') -> where('XH', $stu_id) -> update(['QQ' => '282813637']);
 
         $questionnaireUrl = $url_base."dormitory/setinfo";
@@ -238,7 +240,123 @@ class Testdormitory extends Freshuser
         // $finish_url = json_decode($finish_url,true);
         
     }
-    
+
+    /**
+     * 测试查询房源并发
+     */
+    public function testRoom()
+    {
+        $dormitory2019Model = new Dormitory2019Model();
+        $userInfo = [
+            "XH"  => "2018900345",
+            "XM"  => "全奕帆",
+            "YXDM"=> "2800",
+            "XBDM"=> "1",
+            "MZ"  => "汉族",
+            "SYD" => "河南",
+            "LXDH"=> "13837720840",
+            "SFZH"=> "411323200008260013",
+            "type"=> "0",
+            "XQ"  => "north",
+        ];
+        $roomList = $dormitory2019Model->room($userInfo);
+        if ($roomList["status"]) {
+            $this->success($roomList["msg"],$roomList["data"]);
+        } else {
+            $this->error($roomList["msg"],$roomList["data"]);
+        }
+    }
+
+    /**
+     * 测试提交并发
+     */
+    public function testBed()
+    {
+        $dormitory2019Model = new Dormitory2019Model();
+        $userInfo = [
+            "XH"  => "2018900345",
+            "XM"  => "全奕帆",
+            "YXDM"=> "2800",
+            "XBDM"=> "1",
+            "MZ"  => "汉族",
+            "SYD" => "河南",
+            "LXDH"=> "13837720840",
+            "SFZH"=> "411323200008260013",
+            "type"=> "0",
+            "XQ"  => "north",
+        ];
+        $key = [
+            "building" => "20",
+            "room"     => "802",
+        ];
+        $bedList = $dormitory2019Model->bed($key,$userInfo);
+        if ($bedList["status"]) {
+            $this->success($bedList["msg"],$bedList["data"]);
+        } else {
+            $this->error($bedList["msg"],$bedList["data"]);
+        }
+    }
+
+    /**
+     * 测试提交并发
+     */
+    public function testSubmit()
+    { 
+        $dormitory2019Model = new Dormitory2019Model();
+        $userInfo = [
+            "XH"  => "2018900345",
+            "XM"  => "全奕帆",
+            "YXDM"=> "2800",
+            "XBDM"=> "1",
+            "MZ"  => "汉族",
+            "SYD" => "陕西",
+            "LXDH"=> "13837720840",
+            "SFZH"=> "411323200008260013",
+            "type"=> "0",
+            "XQ"  => "north",
+        ];
+
+        $rooms = Db::name('fresh_dormitory_north')
+                ->where('YXDM',$userInfo['YXDM'])//找学院
+                ->where('XB',$userInfo['XBDM'])//找性别
+                ->where('SYRS','>=',1)
+                ->select();
+
+        foreach ($rooms as $k => $v) {
+
+            $map['SSDM'] = $v['SSDM'];
+            //3.顺序选择床铺并插入
+            $bedNum = 0;//床号
+            $bedArray = str_split($v['CPXZ']);
+            foreach ($bedArray as $key => &$value) {
+                if($value != '0'){
+                    //符合宣传条件
+                    $bedNum = $key + 1;
+                    $value = 0;
+                    $restNum = $v['SYRS']-1;
+                    break;
+                }
+            }
+       
+            $key = [
+                "building" => explode("#",$v["SSDM"])[0],
+                "room"     => explode("#",$v["SSDM"])[1],
+                "bed"      => $bedNum,
+            ];
+         
+
+            $roomList = $dormitory2019Model->submit($key,$userInfo);
+            if ($roomList["status"]) {
+                $this->success($roomList["msg"],$roomList["data"]);
+            } else {
+                $this->error($roomList["msg"],$roomList["data"]);
+            }
+        }
+        
+    }
+
+
+
     /**
      * 测试并发登录
      */

@@ -268,7 +268,7 @@ class Dormitory extends Model
             }
 
             $data = Db::name('fresh_result') -> where('XH', $stu_id) ->field('ID') ->find();
-            if(empty($data)){
+            // if(empty($data)){
                 $insert_flag = false;
                 $update_flag = false;
                 Db::startTrans();
@@ -327,9 +327,9 @@ class Dormitory extends Model
                 }else{
                     return ['status' => false, 'msg' => "未成功选择", 'data' => null];
                 }
-            } else {
-                return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
-            }
+            // } else {
+                // return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
+            // }
         //}    
     }
 
