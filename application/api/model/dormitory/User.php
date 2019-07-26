@@ -16,6 +16,7 @@ class User extends Model
      * @param string param["XH"]
      * @param int    param["ID"]
      * @return array
+     * 5次SQL
      */
     public function getMeInfo($param)
     {
@@ -32,6 +33,9 @@ class User extends Model
                             -> view("dict_college","YXDM,YXMC","fresh_info.YXDM = dict_college.YXDM")
                             -> where("fresh_info.XH",$param["XH"])
                             -> find();
+        //标记床位
+        $markList = Db::name("fresh_mark")->field("SSDM,CH")->where("XH",$param["XH"])->find();
+        $result["user_info"]["BJCW"] = empty($markList) ? "" : $markList["SSDM"]."-".$markList["CH"]; 
         $nowStep = $this->getSteps($param["XH"]);
         $nowData = $this->getStepData($nowStep,$param["XH"]);
         $nowData["now"] = $nowStep;

@@ -13,8 +13,8 @@ class Dormitory extends Model
      */
     public function setinfo($param,$userInfo)
     {
-        $exit_info = Db::name('fresh_questionnaire_base') -> where('XH', $userInfo['XH']) -> field('ID') -> count();
-        if ($exit_info) {
+        $exit_info = Db::name('fresh_questionnaire_base') -> where('XH', $userInfo['XH']) -> field('ID') -> find();
+        if (!empty($exit_info)) {
             return ['status' => false, 'msg' => "信息已经完善", 'data' => null];
         } 
         $ZCYF = '';
@@ -41,7 +41,7 @@ class Dormitory extends Model
         $data['ZSR'] = !empty($param["form1"]['ZSR']) ? $param["form1"]['ZSR'] : 0;
         //$data['RJSR'] = $RJSR;
         if (empty($param['form2'][0]) ||empty($param['form2'][1]) ||empty($param['form2'][2]) ||empty($param['form2'][3]) ||empty($param['form2'][4]) ||empty($param['form2'][5]) ||empty($param['form2'][6]) ) {
-            return ['status' => false, 'msg' => "请先完成家庭经济情况调查", 'data' => null];
+            return ['status' => false, 'msg' => "请完成家庭经济情况调查", 'data' => null];
         } 
         $data['FQZY']   = $param['form2'][0][0];
         $data['MQZY']   = $param['form2'][1][0];
@@ -51,7 +51,6 @@ class Dormitory extends Model
         $data['SZQK']   = $param['form2'][5][0];
         $data['JTBG']   = $param['form2'][6][0];
         $data['ZCYF']   = $ZCYF; 
-        
         if (empty($param["form1"]['member']) || empty($param["form1"]['member'][0]) ) {
             $family_info = array();
             $info_family = array();
@@ -59,7 +58,8 @@ class Dormitory extends Model
             $info_family = array(); 
             $family_info = array();
             foreach ($param["form1"]['member'] as $k => $v) {
-                $data['ZSR'] += $v["income"];
+                //这里income不是纯数字的时候还存在bug
+                $data['ZSR'] += (int)$v["income"];
                 $family_info = array(
                     'XH'   => $userInfo['XH'],
                     'XM'   => $v['name'],
@@ -93,7 +93,7 @@ class Dormitory extends Model
      */
     public function insertFamily($data)
     {
-        $res = Db::name("fresh_questionnaire_family") ->insert($data);
+        $res = Db::name("fresh_questionnaire_family") ->insertAll($data);
         return $res;
     }
 
@@ -107,6 +107,7 @@ class Dormitory extends Model
             $roomList = Db::name("fresh_dormitory_north")
                     ->where("YXDM",$college)
                     ->where("XB",$userInfo["XBDM"])
+                    ->field("SSH,CPXZ,SYRS,LH")
                     ->select();
             $temp = [];
             foreach ($roomList as $key => $value) {
@@ -128,7 +129,7 @@ class Dormitory extends Model
                 $returnData["list"][] = $newArray;
             }
         } else {
-            $roomList = Db::name("fresh_dormitory_south")->where("YXDM",$college)->select();
+            // $roomList = Db::name("fresh_dormitory_south")->where("YXDM",$college)->select();
         }
         return ["status" => true,"msg" =>null,"data" => $returnData];
     }
@@ -149,29 +150,33 @@ class Dormitory extends Model
         $building = $param["building"];
         $dormitory = $param["room"];
         $allCount = Db::name("fresh_dormitory_".$XQ) 
-                        -> where("LH",$building)
-                        -> where("SSH",$dormitory)
+                        // -> where("LH",$building)
+                        // -> where("SSH",$dormitory)
+                        -> where("SSDM",$building."#".$dormitory)
                         -> where("YXDM",$userInfo["YXDM"])
                         -> field("CPXZ")
                         -> find();
+        // dump($this->getLastSql());
         if (empty($allCount)) {
             return ["status"  => false, "msg" => "info error!" , "data" => null];            
         }
-        $roommate = Db::view("fresh_result")
-                -> view("fresh_info","XH,XM","fresh_result.XH = fresh_info.XH")
+        $roommate = Db::view("fresh_result","XQ,SSDM,XH")
+                -> view("fresh_info","XH,XM,avatar","fresh_result.XH = fresh_info.XH")
                 -> where("XQ",$XQ)
                 -> where("SSDM",$building."#".$dormitory)
                 // -> where("status","finished")
                 -> select();
+        // dump($this->getLastSql());
         $length = strlen($allCount["CPXZ"]);
         $list = [];
         if ($length == 4) {
             for ($i=0; $i < 4; $i++) { 
                 $temp = [
                     "type"      => "上床下柜",
-                    "disabled"  => false,
+                    "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
+                    "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
             }
@@ -179,14 +184,16 @@ class Dormitory extends Model
                 $k = $value["CH"] - 1;
                 $list[$k]["disabled"] = true;
                 $list[$k]["user"] = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $list[$k]["avatar"] = $value['avatar'];
             }
         } else {
             for ($i=0; $i < 6; $i++) { 
                 $temp = [
                     "type"      => "上床下柜",
-                    "disabled"  => false,
+                    "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
+                    "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
                 if ($i + 1== 3) {
@@ -203,6 +210,7 @@ class Dormitory extends Model
                 $k = $value["CH"] - 1;
                 $list[$k]["disabled"] = true;
                 $list[$k]["user"] = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $list[$k]["avatar"] = $value['avatar'];
             }
         }
 
@@ -282,7 +290,7 @@ class Dormitory extends Model
                                 -> where('YXDM',$college_id)
                                 -> where('SSDM', $dormitory_id)
                                 -> field('CPXZ, SYRS, ID')
-                                -> find();
+                                -> find();          
                     if (empty($list)) {
                         return ['status' => false, 'msg' => "未发现所选宿舍", 'data' => null];
                     }
@@ -305,7 +313,7 @@ class Dormitory extends Model
                                         -> update([
                                             'SYRS' => $rest_num,
                                             'CPXZ' => $choice,
-                                        ]);
+                                        ]);                        
                         //提交事务
                         Db::commit();      
                     }
@@ -483,7 +491,7 @@ class Dormitory extends Model
 
     /**
      * 标记宿舍
-     * @param string $param["action"] mark||set
+     * @param string $param["action"] mark||get | unmark
      * @param string $param["building"]
      * @param string $param["room"] 
      * @param string $param["bed"] 
@@ -537,7 +545,7 @@ class Dormitory extends Model
             }
 
         } elseif ($param["action"] == "get") {
-            $markList = Db::view("fresh_mark")
+            $markList = Db::view("fresh_mark","XH")
                         -> view("fresh_info","XH,XM,avatar","fresh_mark.XH = fresh_info.XH")
                         -> where("XQ",$XQ)
                         -> where("SSDM",$SSDM)
@@ -580,7 +588,7 @@ class Dormitory extends Model
     {
         $XQ = $userInfo["XQ"];
         $XH = $userInfo["XH"];
-        $personalResult = Db::name("fresh_result")
+        $personalResult = Db::name("fresh_result","SSDM,status")
                         -> where("XQ",$XQ)
                         -> where("XH",$XH)
                         -> find();
@@ -589,7 +597,7 @@ class Dormitory extends Model
         } else {
             $SSDM = $personalResult["SSDM"];
             $listStatus = $personalResult["status"];
-            $roommateList = Db::view("fresh_result")
+            $roommateList = Db::view("fresh_result","CH,XH")
                             -> view("fresh_info","XH,XM,QQ,avatar","fresh_result.XH = fresh_info.XH")
                             -> where("XH","<>",$XH)
                             -> where("XQ",$XQ)
@@ -626,7 +634,7 @@ class Dormitory extends Model
      * 用来验证民族选择情况
      */
     private function checkNation($XQ,$dormitory_id, $nation){
-        $place_number = Db::view('fresh_result') 
+        $place_number = Db::view('fresh_result',"ID,XH") 
                         -> view('fresh_info', 'XM, XH, SYD, MZ', 'fresh_result.XH = fresh_info.XH')
                         -> where("XQ",$XQ)
                         -> where('SSDM', $dormitory_id) 
@@ -642,7 +650,7 @@ class Dormitory extends Model
      * 用来验证生源地选择情况
      */
     private function checkPlace ($XQ,$dormitory_id, $place) {
-        $place_number = Db::view('fresh_result') 
+        $place_number = Db::view('fresh_result',"XH") 
                         -> view('fresh_info', 'XM, XH, SYD', 'fresh_result.XH = fresh_info.XH')
                         -> where("XQ",$XQ)
                         -> where('SSDM', $dormitory_id) 
