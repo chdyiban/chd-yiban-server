@@ -23,7 +23,7 @@ class Testdormitory extends Freshuser
     private $token = null;
     private $userInfo = null;
     const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/dormitory2019/";
-    const SERVICE_URL = "https://yiban.chd.edu.cn/api/";
+    const SERVICE_URL = "https://yiban.chd.edu.cn/api/dormitory2019/";
 	
 
 	public function finish()
@@ -45,10 +45,11 @@ class Testdormitory extends Freshuser
 
     public function test()
     {
+        set_time_limit(0);
         $type = $this -> request -> get('type');
         // if ($type = "local"){
         $url_base = self::SERVICE_URL;
-        //     $url_base = self::LOCAL_URL;
+            // $url_base = self::LOCAL_URL;
         // }
         // if ($type = "service") {
         //     $url_base = self::SERVICE_URL;
