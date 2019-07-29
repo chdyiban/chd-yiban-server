@@ -304,7 +304,7 @@ class Testdormitory extends Freshuser
     { 
         $dormitory2019Model = new Dormitory2019Model();
         $userInfo = [
-            "XH"  => "2018900345",
+            "XH"  => "2018900346",
             "XM"  => "全奕帆",
             "YXDM"=> "2800",
             "XBDM"=> "1",

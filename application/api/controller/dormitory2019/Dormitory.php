@@ -28,6 +28,14 @@ class Dormitory extends Api
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel();
         // dump($key);
+        if (!empty($key["form1"]['member'])) {   
+            foreach ($key["form1"]['member'] as $k => $v) {
+                $incomeInfo = parent::validate($v,'Userinfo.familyincome');
+                if (gettype($incomeInfo) == "string") {
+                    $this->error($incomeInfo);
+                }
+            }
+        }
         $result = $DormitoryModel -> setinfo($key, $this->_user);
         if (!$result['status']) {
             $this -> error($result['msg'], $result['data']);
@@ -109,15 +117,15 @@ class Dormitory extends Api
     public function submit()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        // if (empty($key["verify"])) {
-        //     $this->error("params error!");
-        // }
-        // $key["verify"]["userip"] =  $this->request->ip();
-        // $response = $this->captcha($key["verify"]);
+        if (empty($key["verify"])) {
+            $this->error("params error!");
+        }
+        $key["verify"]["userip"] =  $this->request->ip();
+        $response = $this->captcha($key["verify"]);
 
-        // if (!$response["status"]) {
-        //     $this->error($response["msg"]);
-        // }
+        if (!$response["status"]) {
+            $this->error($response["msg"]);
+        }
         $DormitoryModel = new DormitoryModel();
         $data = $DormitoryModel->submit($key,$this->_user);
         if ($data["status"]) {

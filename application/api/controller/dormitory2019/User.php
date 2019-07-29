@@ -7,7 +7,6 @@ use app\common\library\Token;
 use think\Cache;
 use app\api\model\dormitory\User as UserModel;
 use fast\Random;
-use think\Db;
 use think\Hook;
 use fast\Http;
 
@@ -34,15 +33,15 @@ class User extends Api
     public function login(){
         header('Access-Control-Allow-Origin:*');  
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        // if (empty($key["verify"])) {
-        //     $this->error("params error!");
-        // }
-        // $key["verify"]["userip"] =  $this->request->ip();
-        // $response = $this->captcha($key["verify"]);
+        if (empty($key["verify"])) {
+            $this->error("params error!");
+        }
+        $key["verify"]["userip"] =  $this->request->ip();
+        $response = $this->captcha($key["verify"]);
 
-        // if (!$response["status"]) {
-        //     $this->error($response["msg"]);
-        // }
+        if (!$response["status"]) {
+            $this->error($response["msg"]);
+        }
         $User = new UserModel();
         $userid = $User->check($key);
         if($userid){
@@ -116,6 +115,7 @@ class User extends Api
         $param = [
             "ID" => $this->_user["ID"],
             "XH" => $this->_user["XH"],
+            "XQ" => $this->_user["XQ"],
         ];
         $UserModel = new UserModel();
         $data = $UserModel->getMeInfo($param);
