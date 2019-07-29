@@ -76,7 +76,7 @@ class Position extends Model
                 //本人没有授权位置信息
                 $roommateLocation[] = [
                     "position"   => [],
-                    "avatar" => "#icon-question",
+                    "avatar" => "#icon-question-circle",
                     "CH"     => $value["CH"],
                     "XM"     => $value["XM"],
                     "status" => false,

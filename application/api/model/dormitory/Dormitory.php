@@ -59,7 +59,7 @@ class Dormitory extends Model
             $family_info = array();
             foreach ($param["form1"]['member'] as $k => $v) {
                 //这里income不是纯数字的时候还存在bug
-                $data['ZSR'] += (int)$v["income"];
+                $data['ZSR'] += $v["income"];
                 $family_info = array(
                     'XH'   => $userInfo['XH'],
                     'XM'   => $v['name'],
@@ -174,6 +174,7 @@ class Dormitory extends Model
                 $temp = [
                     "type"      => "上床下柜",
                     "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
+                    "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
                     "avatar"    => "#icon-default",
@@ -182,15 +183,17 @@ class Dormitory extends Model
             }
             foreach ($roommate as $key => $value) {
                 $k = $value["CH"] - 1;
-                $list[$k]["disabled"] = true;
-                $list[$k]["user"] = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $list[$k]["disabled"]   = true;
+                $list[$k]["isfreshbed"] = true;
+                $list[$k]["user"]   = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
                 $list[$k]["avatar"] = $value['avatar'];
             }
         } else {
             for ($i=0; $i < 6; $i++) { 
                 $temp = [
                     "type"      => "上床下柜",
-                    "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
+                    "disabled"  => $allCount["CPXZ"][$i] == 0 ? true  :  false,
+                    "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
                     "avatar"    => "#icon-default",
@@ -208,9 +211,10 @@ class Dormitory extends Model
             }
             foreach ($roommate as $key => $value) {
                 $k = $value["CH"] - 1;
-                $list[$k]["disabled"] = true;
-                $list[$k]["user"] = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $list[$k]["avatar"] = $value['avatar'];
+                $list[$k]["disabled"]   = true;
+                $list[$k]["isfreshbed"] = true;
+                $list[$k]["user"]     = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                $list[$k]["avatar"]   = $value['avatar'];
             }
         }
 
@@ -267,8 +271,8 @@ class Dormitory extends Model
                 $origin = 'system';
             }
 
-            $data = Db::name('fresh_result') -> where('XH', $stu_id) ->field('ID') ->find();
-            // if(empty($data)){
+            $data = Db::name('fresh_result')->lock(true) -> where('XH', $stu_id) ->field('ID') ->find();
+            if(empty($data)){
                 $insert_flag = false;
                 $update_flag = false;
                 Db::startTrans();
@@ -327,10 +331,10 @@ class Dormitory extends Model
                 }else{
                     return ['status' => false, 'msg' => "未成功选择", 'data' => null];
                 }
-            // } else {
-                // return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
-            // }
-        //}    
+            } else {
+                return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
+            }
+    
     }
 
     /**
@@ -536,7 +540,7 @@ class Dormitory extends Model
                     "YXDM"  => $college_id,
                     "BJSJ"  => time(),
                 ];
-                $update_flag = Db::name("fresh_mark") -> insert($updateData);
+                $update_flag = Db::name("fresh_mark") ->where("XH",$stu_id)-> update($updateData);
                 if ($update_flag) {
                     return ["status" => true, "msg" => "标记成功", "data" => null];
                 } else {
