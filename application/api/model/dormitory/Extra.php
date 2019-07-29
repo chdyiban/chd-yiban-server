@@ -15,10 +15,18 @@ class Extra extends Model
     /**
      * 获取选宿问题说明
      */
-    public function introduction()
+    public function question()
     {
         $list = Db::name("fresh_introduction")->select();
-        return ["status"=>true,"msg"=>"查询成功","data"=>["question" => $list]];
+        $returnData = [];
+        foreach ($list as $key => $value) {
+            $temp = [
+                "title" => $value["title"],
+                "desc"  => $value["content"],
+            ];
+            $returnData[] = $temp;
+        }
+        return ["status"=>true,"msg"=>"查询成功","data"=> $returnData ];
     }
 
     /**

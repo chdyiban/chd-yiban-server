@@ -30,7 +30,7 @@ class User extends Model
             return ["status" => false,"msg" =>"param error!","data" => null];
         }
         
-        $result["user_info"] = Db::view("fresh_info","XM,XH,YXDM,ZYMC,XBDM,LXDH,QQ,avatar")
+        $result["user_info"] = Db::view("fresh_info","XM,XH,YXDM,ZYMC,XBDM,LXDH,QQ,avatar,SYD")
                             -> view("dict_college","YXDM,YXMC","fresh_info.YXDM = dict_college.YXDM")
                             -> where("fresh_info.XH",$param["XH"])
                             -> find();
