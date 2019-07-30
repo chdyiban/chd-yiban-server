@@ -10,8 +10,7 @@ class Recommend extends Model
 {
     // 表名
     protected $name = 'fresh_recommend_question';
-    // const RECOMMEND_URL = "http://202.117.64.236:8000/booklst";
-    const RECOMMEND_URL = "http://120.79.197.180:8008/recommend";
+    const RECOMMEND_URL = "http://202.117.64.236:8013/recommend";
     
     /**
      * 初始化
@@ -39,10 +38,11 @@ class Recommend extends Model
                 "q_5"   => $questionList["q_5"],
                 "label" => $questionList["label"],
             ];
+            // dump($postData);
             $postData = json_encode($postData);
             $recommendResult = Http::post(self::RECOMMEND_URL,$postData);
+            // dump($recommendResult);
             $recommendResult = json_decode($recommendResult,true);
-
             if ($recommendResult["code"] != 0) {
                 return ["status" => true,"msg" => "", "data" => $data];                
             } else {
@@ -130,7 +130,7 @@ class Recommend extends Model
         $param["tags"]   = empty($param["tags"]) ? [] : $param["tags"] ;
         $stu_index       = $this->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
         $stu_index = $stu_index + 1;
-        $inserData = [
+        $insertData = [
             "XH"        => $userInfo["XH"],
             "YXDM"      => $userInfo["YXDM"],
             "XBDM"      => $userInfo["XBDM"],
@@ -142,7 +142,7 @@ class Recommend extends Model
                 $mapKey = array_search($value[0],$questionMap[$key]);
             }
             $k = "q_".($key+1);
-            $inserData[$k] = $mapKey;
+            $insertData[$k] = $mapKey;
         }
         $tags = "";
         foreach ($param["tags"] as $key => $value) {
@@ -152,8 +152,8 @@ class Recommend extends Model
                 $tags = $tags.",".$value;
             }
         }
-        $inserData["label"] = $tags;
-        $response = $this->insert($inserData);            
+        $insertData["label"] = $tags;
+        $response = $this->insert($insertData);            
         if ($response) {
             return ["status" => true, "msg" => "提交成功", "data" => null];
         } else {

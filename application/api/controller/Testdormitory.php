@@ -12,6 +12,7 @@ use app\common\library\Token;
 
 use app\api\model\Dormitory as DormitoryModel;
 use app\api\model\dormitory\Dormitory as Dormitory2019Model;
+use app\api\model\dormitory\Recommend as RecommendModel;
 /**
  * 
  */
@@ -448,6 +449,62 @@ class Testdormitory extends Freshuser
         $mem_cost = ($mem_p9 - $mem_p1) / 1024 / 1024 ;
 
         $this -> success('查询成功', ['memory'=> $mem_cost.'mb','list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
+    }
+
+    /**
+     * 测试推荐
+     */
+    public function testRecommend()
+    {
+		$XH = $this->request->param("XH");
+        $RecommendModel = new RecommendModel();
+        // $infoList = Db::name("fresh_recommend_question")->where("YXDM","2400")->select();
+        $userInfo = [
+            "XH" => $XH,
+        ];
+        $result = $RecommendModel->init_recommend($userInfo);
+		return json($result);
+        // foreach ($infoList as $key => $value) {
+        //     $userInfo = [
+        //         "XH" => $value["XH"],
+        //     ];
+        //     $result = $RecommendModel->init_recommend($userInfo);
+        //     dump($result);
+        // }
+
+    }
+    /**
+     * 测试提交推荐问卷
+     * 
+     */
+    public function testSubmitQuestion()
+    {
+		$params = $this->request->param();
+		if (empty($params["XH"]) || empty($params["q_1"]) || empty($params["q_2"]) || empty($params["q_3"]) ||empty($params["q_4"]) || empty($params["q_5"]) ) {
+			return json(["code" => "1", "msg" => "params error!"]);
+		}
+		$userInfo = Db::name("fresh_info")->where("XH",$params["XH"])->find();
+		$stu_index       = Db::name("fresh_recommend_question")->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
+        $stu_index = $stu_index + 1;
+        $insertData = [
+            "XH"        => $userInfo["XH"],
+            "YXDM"      => $userInfo["YXDM"],
+            "XBDM"      => $userInfo["XBDM"],
+			"stu_index" => $stu_index,
+			"q_1"       => $params["q_1"],
+			"q_2"       => $params["q_2"],
+			"q_3"       => $params["q_3"],
+			"q_4"       => $params["q_4"],
+			"q_5"       => $params["q_5"],
+			"label"     => $params["label"],
+		];
+		$response = Db::name("fresh_recommend_question")->insert($insertData);
+		if ($response) {
+			return json(["code" => "0", "msg" => "插入成功","XH" => $userInfo["XH"]]);
+		} else {
+			return json(["code" => "1", "msg" => "插入失败","XH" => $userInfo["XH"]]);
+		}
+
     }
 
     public function testLoad(){
