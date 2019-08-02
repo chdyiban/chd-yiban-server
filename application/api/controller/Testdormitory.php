@@ -456,11 +456,13 @@ class Testdormitory extends Freshuser
      */
     public function testRecommend()
     {
-		$XH = $this->request->param("XH");
+        $XH = $this->request->param("XH");
+        $clear = $this->request->param("clear");
         $RecommendModel = new RecommendModel();
         // $infoList = Db::name("fresh_recommend_question")->where("YXDM","2400")->select();
         $userInfo = [
             "XH" => $XH,
+            "clear" => $clear,
         ];
         $result = $RecommendModel->init_recommend($userInfo);
 		return json($result);
@@ -519,9 +521,9 @@ class Testdormitory extends Freshuser
             $res = $RecommendModel->postRecommend($value["XH"]);
         }
 		if ($response) {
-			return json(["code" => "0", "msg" => "插入成功","XH" => $userInfo["XH"]]);
+			return json(["code" => "0", "msg" => "插入成功"]);
 		} else {
-			return json(["code" => "1", "msg" => "插入失败","XH" => $userInfo["XH"]]);
+			return json(["code" => "1", "msg" => "插入失败"]);
 		}
 
     }
