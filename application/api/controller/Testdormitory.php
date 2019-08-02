@@ -500,11 +500,15 @@ class Testdormitory extends Freshuser
                         "音乐","仙气十足","选择恐惧症",
                         "宅男","追剧","我爱学习","吃饱才有力气减肥",
             ];
-            $length = mt_rand(1,5);
+            $length = mt_rand(1,6);
             $label  = "";
             for ($i=0; $i < $length; $i++) { 
                 $number = mt_rand(0,31);
-                $label = $label.$labelList[$number].",";
+                if ($i == 0) {
+                    $label = $labelList[$number];
+                } else {
+                    $label = $label.",".$labelList[$number];
+                }
             } 
             $insertData = [
                 "XH"        => $value["XH"],
