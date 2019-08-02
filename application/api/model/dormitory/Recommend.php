@@ -25,7 +25,11 @@ class Recommend extends Model
                 "num"  => 0,
                 "list" => [],
             ];
-            $recommendResult = $this->postRecommend($userInfo["XH"],$userInfo["clear"]);
+            if ($userInfo["clear"] == true) {
+                $recommendResult = $this->postClear($userInfo["XH"]);
+            } else {
+                $recommendResult = $this->postRecommend($userInfo["XH"]);
+            }
             // $recommendResult = ["code" => 0,"num" => 2,"list" => []];
             if ($recommendResult["code"] != 0) {
                 return ["status" => true,"msg" => $recommendResult["msg"], "data" => $data];                
@@ -171,7 +175,7 @@ class Recommend extends Model
     /**
      * 向推荐系统发送数据
      */
-    public function postRecommend($XH, $clear = "false")
+    public function postRecommend($XH)
     {
         
         $questionList = $this->where("XH",$XH)->find();
@@ -206,6 +210,40 @@ class Recommend extends Model
     
     }
 
+    /**
+     * 清空推荐系统数据
+     */
+    public function postClear($XH)
+    {
+        $questionList = $this->where("XH",$XH)->find();
+        if ($questionList) {
+            $postData = [
+                "ID"    => $questionList["ID"],
+                "index" => $questionList["stu_index"],
+                "YXDM"  => $questionList["YXDM"],
+                "XBDM"  => $questionList["XBDM"],
+                "q_1"   => $questionList["q_1"],
+                "q_2"   => $questionList["q_2"],
+                "q_3"   => $questionList["q_3"],
+                "q_4"   => $questionList["q_4"],
+                "q_5"   => $questionList["q_5"],
+                "label" => $questionList["label"],
+                "clear" => true,
+            ];
+       
+            // dump($postData);
+            $postData = json_encode($postData);
+            $recommendResult = Http::post(self::RECOMMEND_URL,$postData);
+            // dump($recommendResult);
+            $recommendResult = json_decode($recommendResult,true);
+            return $recommendResult;
+        } else {
+            $data = [
+                "step" => 0,
+            ];
+            return ["status" => true,"msg" => "", "data" => $data];
+        }
+    }
    
     
 }
