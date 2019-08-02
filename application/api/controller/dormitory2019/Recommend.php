@@ -41,4 +41,20 @@ class Recommend extends Api
         }
     }
 
+    /**
+     * 关闭或开启推荐功能
+     * @param string action close|open
+     */
+    public function set()
+    {
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+        $RecommendModel = new RecommendModel();
+        $result = $RecommendModel -> set($key,$this->_user);
+        if ($result["status"]) {
+            $this->success($result["msg"], $result["data"]);
+        } else {
+            $this->error($result["msg"], $result["data"]);
+        }
+    }
+
 }

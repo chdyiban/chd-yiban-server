@@ -23,6 +23,16 @@ class Recommend extends Model
             $userInfo["clear"] = false;
         };
         if ($questionList) {
+
+            if ($questionList["status"] == "close") {
+                $data = [
+                    "step" => 2,
+                    "num"  => 0,
+                    "list" => [],
+                ];
+                return ["status" => true,"msg" => "该功能被关闭啦", "data" => $data];                
+            }
+
             $data = [
                 "step" => 1,
                 "num"  => 0,
@@ -33,7 +43,6 @@ class Recommend extends Model
             } else {
                 $recommendResult = $this->postRecommend($userInfo["XH"]);
             }
-            // $recommendResult = ["code" => 0,"num" => 2,"list" => []];
             if ($recommendResult["code"] != 0) {
                 return ["status" => true,"msg" => $recommendResult["msg"], "data" => $data];                
             } else {
@@ -42,44 +51,27 @@ class Recommend extends Model
                 if (empty($recommendResult["list"])) {
                     $data["num"] = $recommend_num;
                     $data["list"] = $recommend_list;
-                    // $data["num"] = 2;
-                    // $data["list"] = [
-                    //     [
-                    //         "XH"        => "2018900007",
-                    //         "XM"        => "李长宏",
-                    //         "avatar"    => "#icon-default",
-                    //         "QQ"        => "282813637",
-                    //         "SYD"       => "青海",
-                    //         "similarity"=> "0.625",
-                    //     ],
-                    //     [
-                    //         "XH"        => "2018900046",
-                    //         "XM"        => "石自强",
-                    //         "avatar"    => "#icon-default",
-                    //         "QQ"        => "282813637",
-                    //         "SYD"       => "内蒙古",
-                    //         "similarity"=> "0.625",
-                    //     ],
-                    // ];
                     return ["status" => true,"msg" => "", "data" => $data];
                 }
                 foreach ($recommendResult["list"] as  $value) {
                     $infoList = Db::view("fresh_info","XH,XM,avatar,QQ,SYD")
-                                -> view("fresh_recommend_question","XH,YXDM,XBDM,stu_index","fresh_info.XH = fresh_recommend_question.XH")
+                                -> view("fresh_recommend_question","XH,YXDM,XBDM,stu_index,status","fresh_info.XH = fresh_recommend_question.XH")
                                 -> where("YXDM",$value["yxdm"])
                                 -> where("stu_index",$value["index"])
                                 -> where("XBDM",$value["gender"])
                                 -> find();
-                                
-                    $temp = [
-                        "XH"         => $infoList["XH"],
-                        "XM"         => $infoList['XM'],
-                        "avatar"     => $infoList["avatar"],
-                        "QQ"         => $infoList["QQ"],
-                        "SYD"        => $infoList["SYD"],
-                        "similarity" => $value["similarity"],
-                    ];
-                    $recommend_list[] = $temp;
+                    //将关闭功能的人过滤
+                    if ($infoList["status"] == "open") {
+                        $temp = [
+                            "XH"         => $infoList["XH"],
+                            "XM"         => $infoList['XM'],
+                            "avatar"     => $infoList["avatar"],
+                            "QQ"         => $infoList["QQ"],
+                            "SYD"        => $infoList["SYD"],
+                            "similarity" => number_format($value["similarity"],2),
+                        ];
+                        $recommend_list[] = $temp;
+                    }
                 }
                 $data["num"] = $recommend_num;
                 $data["list"] = $recommend_list;
@@ -132,12 +124,19 @@ class Recommend extends Model
                 "2"  => "不确定",
             ],
         ];
+
+        
         $personal = $this->where("XH",$userInfo["XH"])->find();
         if (!empty($personal)) {
             return ["status" => false,"msg"=>"请勿重复提交","data" => null];
         }
 
         $param["option"] = empty($param["option"]) ? $param["opiton"] : $param["option"] ;
+        foreach ($param["option"] as $key => $value) {
+            if (empty($value[0])) {
+                return ["status" => false, "msg" => "选择题必填哦！", "data" => null];            
+            }
+        }
         $param["tags"]   = empty($param["tags"]) ? [] : $param["tags"] ;
         $stu_index       = $this->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
         $stu_index = $stu_index + 1;
@@ -244,6 +243,48 @@ class Recommend extends Model
             return ["status" => true,"msg" => "", "data" => $data];
         }
     }
-   
+
+    /**
+     * 修改推荐状态
+     * @param array $param["action"] open|close
+     * @param array 
+     */
+   public function set($param,$userInfo)
+   {
+       if (empty($param["action"])) {
+            return ["status" => false,"msg" => "param error!", "data" => null];
+       }
+       if ($param["action"] == "close") {
+           $userRecommendInfo = $this->where("XH",$userInfo["XH"])->find();
+           if (empty($userRecommendInfo)) {
+                return ["status" => false,"msg" => "未填写问卷", "data" => null];
+            }
+            if ($userRecommendInfo["status"] == "close") {
+                return ["status" => false,"msg" => "未开启此功能", "data" => null];
+           }
+           $res = $this->where("XH",$userInfo["XH"])->update(["status" => "close"]);
+           if ($res) {
+                return ["status" => true,"msg" => "关闭了就没办法推荐好友了哦,真可惜!", "data" => null];
+            } else {
+                return ["status" => false,"msg" => "网络出现问题，请稍后重试", "data" => null];
+           }
+       } elseif ($param["action"] == "open") {
+            $userRecommendInfo = $this->where("XH",$userInfo["XH"])->find();
+            if (empty($userRecommendInfo)) {
+                return ["status" => false,"msg" => "未填写问卷", "data" => null];
+            }
+            if ($userRecommendInfo["status"] == "open") {
+                return ["status" => false,"msg" => "已开启此功能", "data" => null];
+            }
+            $res = $this->where("XH",$userInfo["XH"])->update(["status" => "open"]);
+            if ($res) {
+                return ["status" => true,"msg" => "开启推荐功能啦,快联系推荐的好友吧！", "data" => null];
+            } else {
+                return ["status" => false,"msg" => "网络出现问题，请稍后重试", "data" => null];
+            }
+        } else {
+            return ["status" => false,"msg" => "params error!", "data" => null];
+       }
+   }
     
 }
