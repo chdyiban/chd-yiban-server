@@ -25,8 +25,8 @@ class Recommend extends Model
                 "num"  => 0,
                 "list" => [],
             ];
-            $recommendResult = $this->postRecommend($userInfo["XH"]);
-            $recommendResult = ["code" => 0,"num" => 2,"list" => []];
+            $recommendResult = $this->postRecommend($userInfo["XH"],$userInfo["clear"]);
+            // $recommendResult = ["code" => 0,"num" => 2,"list" => []];
             if ($recommendResult["code"] != 0) {
                 return ["status" => true,"msg" => $recommendResult["msg"], "data" => $data];                
             } else {
@@ -35,25 +35,25 @@ class Recommend extends Model
                 if (empty($recommendResult["list"])) {
                     $data["num"] = $recommend_num;
                     $data["list"] = $recommend_list;
-                    $data["num"] = 2;
-                    $data["list"] = [
-                        [
-                            "XH"        => "2018900007",
-                            "XM"        => "李长宏",
-                            "avatar"    => "#icon-default",
-                            "QQ"        => "282813637",
-                            "SYD"       => "青海",
-                            "similarity"=> "0.625",
-                        ],
-                        [
-                            "XH"        => "2018900046",
-                            "XM"        => "石自强",
-                            "avatar"    => "#icon-default",
-                            "QQ"        => "282813637",
-                            "SYD"       => "内蒙古",
-                            "similarity"=> "0.625",
-                        ],
-                    ];
+                    // $data["num"] = 2;
+                    // $data["list"] = [
+                    //     [
+                    //         "XH"        => "2018900007",
+                    //         "XM"        => "李长宏",
+                    //         "avatar"    => "#icon-default",
+                    //         "QQ"        => "282813637",
+                    //         "SYD"       => "青海",
+                    //         "similarity"=> "0.625",
+                    //     ],
+                    //     [
+                    //         "XH"        => "2018900046",
+                    //         "XM"        => "石自强",
+                    //         "avatar"    => "#icon-default",
+                    //         "QQ"        => "282813637",
+                    //         "SYD"       => "内蒙古",
+                    //         "similarity"=> "0.625",
+                    //     ],
+                    // ];
                     return ["status" => true,"msg" => "", "data" => $data];
                 }
                 foreach ($recommendResult["list"] as  $value) {
@@ -171,8 +171,9 @@ class Recommend extends Model
     /**
      * 向推荐系统发送数据
      */
-    public function postRecommend($XH)
+    public function postRecommend($XH, $clear = "false")
     {
+        
         $questionList = $this->where("XH",$XH)->find();
         if ($questionList) {
             $postData = [
@@ -187,6 +188,9 @@ class Recommend extends Model
                 "q_5"   => $questionList["q_5"],
                 "label" => $questionList["label"],
             ];
+            if ($clear == true) {
+                $postData["clear"] = true;
+            }
             // dump($postData);
             $postData = json_encode($postData);
             $recommendResult = Http::post(self::RECOMMEND_URL,$postData);
