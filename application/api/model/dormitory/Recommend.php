@@ -192,9 +192,6 @@ class Recommend extends Model
                 "q_5"   => $questionList["q_5"],
                 "label" => $questionList["label"],
             ];
-            if ($clear == true) {
-                $postData["clear"] = true;
-            }
             // dump($postData);
             $postData = json_encode($postData);
             $recommendResult = Http::post(self::RECOMMEND_URL,$postData);
