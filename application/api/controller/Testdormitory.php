@@ -487,7 +487,7 @@ class Testdormitory extends Freshuser
         // }
         set_time_limit(0);
         $RecommendModel = new RecommendModel();
-        $userInfo = Db::name("fresh_info")->where("YXDM","2400")->limit("100")->select();
+        $userInfo = Db::name("fresh_info")->where("YXDM","2400")->limit("300")->select();
         foreach ($userInfo as $key => $value) {
             
             $stu_index       = Db::name("fresh_recommend_question")->where("YXDM",$value["YXDM"])->where("XBDM",$value["XBDM"])->max("stu_index");
