@@ -19,7 +19,9 @@ class Recommend extends Model
     public function init_recommend($userInfo)
     {
         $questionList = $this->where("XH",$userInfo["XH"])->find();
-        $userInfo["clear"] = false;
+        if( empty($userInfo["clear"])){
+            $userInfo["clear"] = false;
+        };
         if ($questionList) {
             $data = [
                 "step" => 1,
