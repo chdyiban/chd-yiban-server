@@ -479,26 +479,45 @@ class Testdormitory extends Freshuser
      */
     public function testSubmitQuestion()
     {
-		$params = $this->request->param();
-		if (empty($params["XH"]) || empty($params["q_1"]) || empty($params["q_2"]) || empty($params["q_3"]) ||empty($params["q_4"]) || empty($params["q_5"]) ) {
-			return json(["code" => "1", "msg" => "params error!"]);
-		}
-		$userInfo = Db::name("fresh_info")->where("XH",$params["XH"])->find();
-		$stu_index       = Db::name("fresh_recommend_question")->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
-        $stu_index = $stu_index + 1;
-        $insertData = [
-            "XH"        => $userInfo["XH"],
-            "YXDM"      => $userInfo["YXDM"],
-            "XBDM"      => $userInfo["XBDM"],
-			"stu_index" => $stu_index,
-			"q_1"       => $params["q_1"],
-			"q_2"       => $params["q_2"],
-			"q_3"       => $params["q_3"],
-			"q_4"       => $params["q_4"],
-			"q_5"       => $params["q_5"],
-			"label"     => $params["label"],
-		];
-		$response = Db::name("fresh_recommend_question")->insert($insertData);
+		// $params = $this->request->param();
+		// if (empty($params["XH"]) || empty($params["q_1"]) || empty($params["q_2"]) || empty($params["q_3"]) ||empty($params["q_4"]) || empty($params["q_5"]) ) {
+		// 	return json(["code" => "1", "msg" => "params error!"]);
+        // }
+        set_time_limit(0);
+        $RecommendModel = new RecommendModel();
+        $userInfo = Db::name("fresh_info")->where("YXDM","2400")->limit("100")->select();
+        foreach ($userInfo as $key => $value) {
+            
+            $stu_index       = Db::name("fresh_recommend_question")->where("YXDM",$value["YXDM"])->where("XBDM",$value["XBDM"])->max("stu_index");
+            $stu_index = $stu_index + 1;
+            $labelList = ["篮球","足球","跑步","二次元","王者荣耀",
+                        "乐器","文艺","手游","绘画","k歌",
+                        "佛系","逛街","自拍","星座","懒癌患者",
+                        "桌游","美妆","抖音","直播","网购",
+                        "动漫","二次元","正能量","旅行","夜猫子",
+                        "音乐","仙气十足","选择恐惧症",
+                        "宅男","追剧","我爱学习","吃饱才有力气减肥",
+            ];
+            $length = mt_rand(1,32);
+            $label  = "";
+            for ($i=0; $i < $length; $i++) { 
+                $label = $label.$labelList[$i].",";
+            } 
+            $insertData = [
+                "XH"        => $value["XH"],
+                "YXDM"      => $value["YXDM"],
+                "XBDM"      => $value["XBDM"],
+                "stu_index" => $stu_index,
+                "q_1"       => mt_rand(0,3),
+                "q_2"       => mt_rand(0,3),
+                "q_3"       => mt_rand(0,2),
+                "q_4"       => mt_rand(0,2),
+                "q_5"       => mt_rand(0,2),
+                "label"     => $label,
+            ];
+            $response = Db::name("fresh_recommend_question")->insert($insertData);
+            $res = $RecommendModel->postRecommend($value["XH"]);
+        }
 		if ($response) {
 			return json(["code" => "0", "msg" => "插入成功","XH" => $userInfo["XH"]]);
 		} else {
