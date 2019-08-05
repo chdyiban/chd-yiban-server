@@ -112,11 +112,12 @@ class User extends Api
     public function me()
     {
         // $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
-        $param = [
-            "ID" => $this->_user["ID"],
-            "XH" => $this->_user["XH"],
-            "XQ" => $this->_user["XQ"],
-        ];
+        // $param = [
+        //     "ID" => $this->_user["ID"],
+        //     "XH" => $this->_user["XH"],
+        //     "XQ" => $this->_user["XQ"],
+        // ];
+        $param = $this->_user;
         $UserModel = new UserModel();
         $data = $UserModel->getMeInfo($param);
         if ($data["status"]) {
