@@ -4,7 +4,7 @@ namespace app\api\model\dormitory;
 
 use think\Model;
 use think\Db;
-use think\Config;
+// use think\Config;
 
 class User extends Model
 {
@@ -42,33 +42,8 @@ class User extends Model
         $nowData["now"] = $nowStep;
         // $result["user_step"] = ["now" => $nowStep,"data" => $nowData];
         $result["user_step"] = $nowData;
-        //读取配置文件决定选宿舍状态
-        $XQ = $param["XQ"];
-        $temp = [];
-        $timeList = Config::get("dormitoryStep.$XQ"); 
-        foreach ($timeList as $key => $value) {
-            $start_time = strtotime($value["start"]);
-            $end_time   = strtotime($value["end"]);
-            $now_time   = strtotime('now');
-            if ($now_time <= $end_time && $now_time >= $start_time) {
-                if ($value["step"] == "NST") {
-                    $temp = [
-                        "step"       => $value["step"],
-                        "msg"        => $value["msg"],
-                        "start_time" => $value["start"],
-                    ];
-                } else {
-                    $temp = [
-                        "step"  => $value["step"],
-                        "msg"   => $value["msg"],
-                    ];
-                }
-                break;
-            }
-            
-        }
-
-        $result["dormitory"] = $temp;
+        //读取配置文件决定选宿舍状态，迁移至基类getstep方法下
+        $result["dormitory"] = $param["step"];
 
         return ["status" => true, "msg" => null, "data" => $result];
     }
