@@ -9,6 +9,7 @@ use think\Loader;
 use think\Request;
 use think\Response;
 use app\api\model\dormitory\User as UserModel;
+use think\Config;
 
 /**
  * 选宿舍API控制器基类
@@ -100,8 +101,6 @@ class Api
         $controllername = strtolower($this->request->controller());
         $actionname = strtolower($this->request->action());
 
-        // token
-        // $token = $this->request->server('HTTP_TOKEN', $this->request->request('token', \think\Cookie::get('token')));
         $token = $this->request->header('Authorization');
 
         $path = str_replace('.', '/', $controllername) . '/' . $actionname;
@@ -225,16 +224,70 @@ class Api
             }
             $userInfo["XQ"] = $userInfo["type"] == 0 ? "north" : "south";
             $this->_logined = TRUE;
-            $this->_user = $userInfo;
-            $this->_token = $token;
+			// $this->_user    = $userInfo;
+            // $this->_step    = $this->getStep($userInfo);  
+			// $this->_user["step"] = $this->_step;
+			$userInfo["step"] = $this->getStep($userInfo);
+			// dump($userInfo);
+			$this->_user    = $userInfo;
+            $this->_token   = $token;
             return TRUE;
         }
         else
         {
-            $this->error('You are not logged in');
+            $this->error('未登录');
             // return FALSE;
         }
     }
+
+    /**
+     * 获取学生当前步骤
+     * @param array userinfo
+	 * @return array 
+     */
+    public function getStep($param)
+	{
+		$XQ = $param["XQ"];
+        $temp = [];
+        $timeList = Config::get("dormitoryStep.$XQ"); 
+        foreach ($timeList as $key => $value) {
+            $start_time = strtotime($value["start"]);
+            $end_time   = strtotime($value["end"]);
+            $now_time   = strtotime('now');
+            if ($now_time <= $end_time && $now_time >= $start_time) {
+                if ($value["step"] == "NST") {
+                    $temp = [
+                        "step"       => $value["step"],
+                        "msg"        => $value["msg"],
+                        "start_time" => $value["start"],
+                    ];
+                } elseif ($value["step"] == "FML") {
+                    $YXDM = $param["YXDM"];
+					$start_college_time = Config::get("dormitory.$YXDM");
+					$start_college_time_back = strtotime($start_college_time);
+                    if ($now_time < $start_college_time_back) {
+                        $temp = [
+                            "step"  => "NST",
+                            "msg"   => "未开始",
+                            "start_time" => $start_college_time,
+                        ];
+                    } else {
+                        $temp = [
+                            "step"  => $value["step"],
+                            "msg"   => $value["msg"],
+                        ];
+                    }
+                } else {
+                    $temp = [
+                        "step"  => $value["step"],
+                        "msg"   => $value["msg"],
+                    ];
+                }
+                break;
+			}
+		}
+		return $temp;
+	}
 
 
        /**

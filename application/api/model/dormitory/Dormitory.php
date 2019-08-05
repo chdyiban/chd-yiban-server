@@ -110,14 +110,27 @@ class Dormitory extends Model
                     ->field("SSH,CPXZ,SYRS,LH")
                     ->select();
             $temp = [];
-            foreach ($roomList as $key => $value) {
-                $LH = $value["LH"];
-                $temp[$LH][] = [
-                    "name"    => $value["SSH"],
-                    "value"   => $value["SSH"],
-                    "selected"=> strlen($value["CPXZ"])-$value["SYRS"]."/".strlen($value["CPXZ"]),
-                    "free"    => $value["SYRS"] == 0 ? false : true, 
-                ];
+            if ($userInfo["step"]["step"] == "NST") {
+                foreach ($roomList as $key => $value) {
+                    $LH = $value["LH"];
+                    $temp[$LH][] = [
+                        "name"    => $value["SSH"],
+                        "value"   => $value["SSH"],
+                        // "selected"=> strlen($value["CPXZ"])-$value["SYRS"]."/".strlen($value["CPXZ"]),
+                        "selected"=> "0/".strlen($value["CPXZ"]),
+                        "free"    => $value["SYRS"] == 0 ? false : true, 
+                    ];
+                }
+            } else {
+                foreach ($roomList as $key => $value) {
+                    $LH = $value["LH"];
+                    $temp[$LH][] = [
+                        "name"    => $value["SSH"],
+                        "value"   => $value["SSH"],
+                        "selected"=> strlen($value["CPXZ"])-$value["SYRS"]."/".strlen($value["CPXZ"]),
+                        "free"    => $value["SYRS"] == 0 ? false : true, 
+                    ];
+                }
             }
             $keyArray = array_keys($temp);
             foreach ($keyArray as $k => $v) {
@@ -146,8 +159,8 @@ class Dormitory extends Model
             return ["status"  => false, "msg" => "param error!" , "data" => null];
         } 
         //本科生
-        $XQ       = $userInfo['XQ'];
-        $building = $param["building"];
+        $XQ        = $userInfo['XQ'];
+        $building  = $param["building"];
         $dormitory = $param["room"];
         $allCount = Db::name("fresh_dormitory_".$XQ) 
                         // -> where("LH",$building)
@@ -174,29 +187,35 @@ class Dormitory extends Model
                 $temp = [
                     "type"      => "上床下柜",
                     "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
-                    "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
+                    // "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
-                    "avatar"    => "#icon-default",
+                    // "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
             }
-            foreach ($roommate as $key => $value) {
-                $k = $value["CH"] - 1;
-                $list[$k]["disabled"]   = true;
-                $list[$k]["isfreshbed"] = true;
-                $list[$k]["user"]   = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $list[$k]["avatar"] = $value['avatar'];
+            //若未开始则。。。
+            if ($userInfo["step"]["step"] == "NST") {
+                foreach ($roommate as $key => $value) {
+                    $k = $value["CH"] - 1;
+                    $list[$k]["disabled"]   = false;
+                }
+            } else {
+                foreach ($roommate as $key => $value) {
+                    $k = $value["CH"] - 1;
+                    $list[$k]["disabled"]   = true;
+                    $list[$k]["user"]   = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                    $list[$k]["avatar"] = $value['avatar'];
+                }
             }
         } else {
             for ($i=0; $i < 6; $i++) { 
                 $temp = [
                     "type"      => "上床下柜",
                     "disabled"  => $allCount["CPXZ"][$i] == 0 ? true  :  false,
-                    "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
                     "value"     => $i+1,
                     "name"      => ($i+1)."床",
-                    "avatar"    => "#icon-default",
+                    // "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
                 if ($i + 1== 3) {
@@ -209,12 +228,18 @@ class Dormitory extends Model
                     $list[$i]["type"] = "下铺靠窗";
                 }
             }
-            foreach ($roommate as $key => $value) {
-                $k = $value["CH"] - 1;
-                $list[$k]["disabled"]   = true;
-                $list[$k]["isfreshbed"] = true;
-                $list[$k]["user"]     = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
-                $list[$k]["avatar"]   = $value['avatar'];
+            if ($userInfo["step"]["step"] == "NST") {
+                foreach ($roommate as $key => $value) {
+                    $k = $value["CH"] - 1;
+                    $list[$k]["disabled"]   = false;
+                }
+            } else {
+                foreach ($roommate as $key => $value) {
+                    $k = $value["CH"] - 1;
+                    $list[$k]["disabled"]   = true;
+                    $list[$k]["user"]     = mb_substr($value['XM'], 0, 1, 'utf-8').'**';
+                    $list[$k]["avatar"]   = $value['avatar'];
+                }
             }
         }
 
@@ -244,7 +269,6 @@ class Dormitory extends Model
             $XQ           = $userInfo['XQ'];
             $dormitory_id = "$building#$room";
             $CWDM         = "$XQ-$dormitory_id-$bed";
-            // $CWDM         = $userInfo['XQ']."-".$userInfo["dormitory_id"]."-".$userInfo["bed_id"];
             //判断提交的宿舍数据是否合法
             if (!$this->checkDormitory($building,$room,$bed,$userInfo)) {
                 return ['status' => false, 'msg' => "数据有误！", 'data' => null];            
