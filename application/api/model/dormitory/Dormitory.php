@@ -85,9 +85,9 @@ class Dormitory extends Model
     public function insertBase($data)
     {
         $res = Db::name("fresh_questionnaire_base") ->insert($data);
-        $response  = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"]]);
-        $response1 = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["LXDH" => $data["BRDH"]]);
-        return $res&&$response&&$response1;
+        $response  = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"],"LXDH" => $data["BRDH"]]);
+        // $response1 = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["LXDH" => $data["BRDH"]]);
+        return $res;
     }  
     
     /**
@@ -187,7 +187,7 @@ class Dormitory extends Model
         if ($length == 4) {
             for ($i=0; $i < 4; $i++) { 
                 $temp = [
-                    "type"      => "上床下柜",
+                    "type"      => "上床下桌",
                     "disabled"  => $allCount["CPXZ"][$i] == 0 ? true : false,
                     // "isfreshbed"=> $allCount["CPXZ"][$i] == 0 ? false : true,
                     "value"     => $i+1,
@@ -195,6 +195,15 @@ class Dormitory extends Model
                     // "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
+                if ($i + 1 == 1) {
+                    $list[$i]["type"] = "上床下桌-靠门";                    
+                } elseif ($i+1==2) {
+                    $list[$i]["type"] = "上床下桌-靠窗";
+                } elseif ($i+1==3) {
+                    $list[$i]["type"] = "上床下桌-靠门";
+                } elseif ($i+1==4) {
+                    $list[$i]["type"] = "上床下桌-靠窗";
+                }
             }
             //若未开始则。。。
             if ($userInfo["step"]["step"] == "NST") {
@@ -220,14 +229,18 @@ class Dormitory extends Model
                     // "avatar"    => "#icon-default",
                 ];
                 $list[$i] = $temp;
-                if ($i + 1== 3) {
-                    $list[$i]["type"] = "上铺靠门";
+                if ($i + 1 == 1) {
+                    $list[$i]["type"] = "上床下柜-靠门";
+                } elseif ($i + 1 == 2) {
+                    $list[$i]["type"] = "上床下柜-靠窗";
+                } elseif ($i + 1== 3) {
+                    $list[$i]["type"] = "上铺-靠门";
                 } elseif ($i+1==4) {
-                    $list[$i]["type"] = "下铺靠门";
+                    $list[$i]["type"] = "下铺-靠门";
                 } elseif ($i+1==5) {
-                    $list[$i]["type"] = "上铺靠窗";
+                    $list[$i]["type"] = "上铺-靠窗";
                 } elseif ($i+1==6) {
-                    $list[$i]["type"] = "下铺靠窗";
+                    $list[$i]["type"] = "下铺-靠窗";
                 }
             }
             if ($userInfo["step"]["step"] == "NST") {
