@@ -59,8 +59,8 @@ class Index extends Api
             $i = $i+1;
             $data[] = $temp;
         }
-		// return json($data);
-		return json([]);		
+		return json($data);
+		// return json([]);		
     }
 
     /**
