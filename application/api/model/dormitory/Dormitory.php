@@ -4,6 +4,7 @@ namespace app\api\model\dormitory;
 
 use think\Model;
 use think\Db;
+use think\Config;
 
 class Dormitory extends Model
 {
@@ -272,6 +273,10 @@ class Dormitory extends Model
             //判断提交的宿舍数据是否合法
             if (!$this->checkDormitory($building,$room,$bed,$userInfo)) {
                 return ['status' => false, 'msg' => "数据有误！", 'data' => null];            
+            }
+            //判断提交时间是否合法
+            if (!$this->checkTime($userInfo)) {
+                return ['status' => false, 'msg' => "未到规定选宿时间哦！", 'data' => null];            
             }
 
             //如果是少数民族验证要选的宿舍是否满足要求
@@ -732,7 +737,22 @@ class Dormitory extends Model
                 -> find();
         return empty($check) ? false : true;
     }
-
+    
+    /**
+     * 检查用户提交的时间是否在规定时间内
+     * @param array userInfo
+     */
+    private function checkTime($userInfo)
+    {
+        $now_time = time();
+        $YXDM = $userInfo["YXDM"];
+        $start_college_time = Config::get("dormitory.$YXDM");
+        $start_college_time_back = strtotime($start_college_time);
+        if ($now_time < $start_college_time_back) {
+            return false;
+        }
+        return true;
+    }
 
 
 }
