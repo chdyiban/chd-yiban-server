@@ -115,6 +115,17 @@ class Index extends Api
                     "errMsg" => '应用升级中',
                 ],
                 [
+                    "id"   =>  'form',
+                    "icon" =>  'formfill',
+                    "color"=>  'cyan',
+                    "name" =>  "万能表单",
+                    "permissions" => [ 
+                        "unauthorized" => false,
+                        "teacher"      => true,
+                    ],
+                    "usable" => true,
+                ],
+                [
                     "icon" =>  'babyfill',
                     "color"=>  'blue',
                     "badge"=>   0,

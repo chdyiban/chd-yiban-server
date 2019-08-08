@@ -85,7 +85,7 @@ class Dormitory extends Model
     {
         $res = Db::name("fresh_questionnaire_base") ->insert($data);
         $response = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"]]);
-        return $res;
+        return $res&&$response;
     }  
     
     /**

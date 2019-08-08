@@ -255,11 +255,12 @@ class Api
             $end_time   = strtotime($value["end"]);
             $now_time   = strtotime('now');
             if ($now_time <= $end_time && $now_time >= $start_time) {
+                $YXDM = $param["YXDM"];
                 if ($value["step"] == "NST") {
                     $temp = [
                         "step"       => $value["step"],
                         "msg"        => $value["msg"],
-                        "start_time" => $value["start"],
+                        "start_time" => Config::get("dormitory.$YXDM"),
                     ];
                 } elseif ($value["step"] == "FML") {
                     $YXDM = $param["YXDM"];

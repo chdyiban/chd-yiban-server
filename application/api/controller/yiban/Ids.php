@@ -67,7 +67,7 @@ class Ids extends Api
      * @return array
      */
     private function getphone($stu_id){
-        $phone = Db::name('fresh_info_add') -> where('XH', $stu_id) -> field('BRDH') -> find();
+        $phone = Db::name('fresh_questionnaire_base') -> where('XH', $stu_id) -> field('BRDH') -> find();
         if (empty($phone)) {
             return ['status' => false, 'msg' => '请先在选宿舍系统填写调查问卷' , 'data' => null];
         } else {
