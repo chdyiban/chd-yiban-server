@@ -194,6 +194,7 @@ class Dormitory extends Model
                     "name"      => ($i+1)."床",
                     // "avatar"    => "#icon-default",
                 ];
+                $list[$i] = $temp;
                 if ($i + 1 == 1) {
                     $list[$i]["type"] = "上床下桌-靠门";                    
                 } elseif ($i+1==2) {
@@ -203,7 +204,6 @@ class Dormitory extends Model
                 } elseif ($i+1==4) {
                     $list[$i]["type"] = "上床下桌-靠窗";
                 }
-                $list[$i] = $temp;
             }
             //若未开始则。。。
             if ($userInfo["step"]["step"] == "NST") {
