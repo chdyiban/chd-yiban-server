@@ -275,8 +275,9 @@ class Dormitory extends Model
                 return ['status' => false, 'msg' => "数据有误！", 'data' => null];            
             }
             //判断提交时间是否合法
-            if (!$this->checkTime($userInfo)) {
-                return ['status' => false, 'msg' => "未到规定选宿时间哦！", 'data' => null];            
+            $checkResult = $this->checkTime($userInfo);
+            if (!$checkResult["status"]) {
+                return ['status' => false, 'msg' => $checkResult["msg"], 'data' => null];            
             }
 
             //如果是少数民族验证要选的宿舍是否满足要求
@@ -744,14 +745,13 @@ class Dormitory extends Model
      */
     private function checkTime($userInfo)
     {
-        $now_time = time();
-        $YXDM = $userInfo["YXDM"];
-        $start_college_time = Config::get("dormitory.$YXDM");
-        $start_college_time_back = strtotime($start_college_time);
-        if ($now_time < $start_college_time_back) {
-            return false;
+        if ($userInfo["step"]["step"] == "NST") {
+            return ["status" => false,"msg" => "选宿尚未开始！"];
+        } elseif ($userInfo["step"]["step"] == "END") {
+            return ["status" => false,"msg" => "选宿舍已结束！"];
+        } else {
+            return ["status" => true, "msg" => ""];
         }
-        return true;
     }
 
 
