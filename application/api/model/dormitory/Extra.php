@@ -83,6 +83,30 @@ class Extra extends Model
         return ["status" => true,"msg" => "", "data" => $return ];    
 
     }
+
+    /**
+     * 获取学工部通知
+     */
+    public function notice()
+    {
+        $data = Db::name("fresh_xgb")->where("ID",1)->find();
+
+        if (!empty($data)) {
+            $returnData = [
+                "title"  => $data["title"],
+                "content"=> $data["content"],
+                "meta"   => [
+                    "source" => "学生工作部(处)社区管理中心",
+                    "date"   => "2019-08-10",
+                ]
+            ];
+            return ["status" => true,"msg" => "", "data" => $returnData ];                
+        } else {
+            return ["status" => false,"msg" => "暂无通知", "data" => [] ];                
+        }
+    }
    
     
 }
+
+

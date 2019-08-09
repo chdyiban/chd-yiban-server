@@ -130,14 +130,13 @@ class Recommend extends Model
         if (!empty($personal)) {
             return ["status" => false,"msg"=>"请勿重复提交","data" => null];
         }
-
-        $param["option"] = empty($param["option"]) ? $param["opiton"] : $param["option"] ;
-        foreach ($param["option"] as $key => $value) {
-            if (empty($value[0])) {
-                return ["status" => false, "msg" => "选择题必填哦！", "data" => null];            
-            }
+        if (empty($param["option"]) || count($param["option"]) < 5 ) {
+            return ["status" => false, "msg" => "个人习惯必选！", "data" => null];                        
         }
         $param["tags"]   = empty($param["tags"]) ? [] : $param["tags"] ;
+        if (count($param["tags"]) > 5) {
+            return ["status" => false, "msg" => "标签至多5项", "data" => null];                        
+        }
         $stu_index       = $this->where("YXDM",$userInfo["YXDM"])->where("XBDM",$userInfo["XBDM"])->max("stu_index");
         $stu_index = $stu_index + 1;
         $insertData = [
