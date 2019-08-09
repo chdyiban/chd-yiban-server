@@ -10,7 +10,7 @@ class Extra extends Model
 {
     // 表名
     // protected $name = 'fresh_info';
-    const MAP_URL = "http://cdn.knocks.tech/college_maps/";
+    const MAP_URL = "http://cdn.knocks.tech/college_2019/";
     
     /**
      * 获取选宿问题说明
@@ -68,11 +68,11 @@ class Extra extends Model
             $k    = "map.".$XQ;
             $LH   = $value["LH"];
             $positionSite = Config::get("map.north")[$LH];
-
+            $mapName      = Config::get("dormitoryMap")[$college][$XB][$LH];
             $temp["position"] = $positionSite;
             $temp["label"]["content"] = "可选:".$LH."号学生公寓";
             $temp["map"]["value"] = $XQ."-".$LH;
-            $temp["map"]["src"] = self::MAP_URL.$college."_".$XB.".jpg";
+            $temp["map"]["src"] = self::MAP_URL.$mapName.".jpg";
             if ($XQ == "north") {
                 $temp["map"]["name"] = $LH."号学生公寓(渭水)";
             } else {
