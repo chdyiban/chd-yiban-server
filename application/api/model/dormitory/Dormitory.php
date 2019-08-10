@@ -196,13 +196,13 @@ class Dormitory extends Model
                 ];
                 $list[$i] = $temp;
                 if ($i + 1 == 1) {
-                    $list[$i]["type"] = "上床下桌-靠门";                    
+                    $list[$i]["type"] = "上床下桌(靠门)";                    
                 } elseif ($i+1==2) {
-                    $list[$i]["type"] = "上床下桌-靠窗";
+                    $list[$i]["type"] = "上床下桌(靠窗)";
                 } elseif ($i+1==3) {
-                    $list[$i]["type"] = "上床下桌-靠门";
+                    $list[$i]["type"] = "上床下桌(靠窗)";
                 } elseif ($i+1==4) {
-                    $list[$i]["type"] = "上床下桌-靠窗";
+                    $list[$i]["type"] = "上床下桌(靠门)";
                 }
             }
             //若未开始则。。。
@@ -230,17 +230,17 @@ class Dormitory extends Model
                 ];
                 $list[$i] = $temp;
                 if ($i + 1 == 1) {
-                    $list[$i]["type"] = "上床下柜-靠门";
+                    $list[$i]["type"] = "上床下柜(靠门)";
                 } elseif ($i + 1 == 2) {
-                    $list[$i]["type"] = "上床下柜-靠窗";
+                    $list[$i]["type"] = "上床下柜(靠窗)";
                 } elseif ($i + 1== 3) {
-                    $list[$i]["type"] = "上铺-靠门";
+                    $list[$i]["type"] = "上铺(靠窗)";
                 } elseif ($i+1==4) {
-                    $list[$i]["type"] = "下铺-靠门";
+                    $list[$i]["type"] = "下铺(靠窗)";
                 } elseif ($i+1==5) {
-                    $list[$i]["type"] = "上铺-靠窗";
+                    $list[$i]["type"] = "上铺(靠门)";
                 } elseif ($i+1==6) {
-                    $list[$i]["type"] = "下铺-靠窗";
+                    $list[$i]["type"] = "下铺(靠门)";
                 }
             }
             if ($userInfo["step"]["step"] == "NST") {
