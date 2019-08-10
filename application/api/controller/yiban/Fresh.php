@@ -17,6 +17,7 @@ class Fresh extends Api
         session_start();
     
         $token = $this->request->get("token");
+        $type = $this->request->get("type");
         $data = Token::get($token);
         if (empty($data)) {
             return json(["code" => 1,"msg" => "请先登录", "data" => null]);
@@ -53,7 +54,11 @@ class Fresh extends Api
             'instructor_id'	=> '',//辅导员工号
         );
         // $goto = 'https://www.yiban.cn/forum/article/show/channel_id/70896/puid/5370552/article_id/45394140/group_id/0';
-        $goto = 'http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552';
+        if ($type == "join") {
+            $goto = "https://www.yiban.cn/forum/article/show/channel_id/70896/puid/5370552/article_id/87061346/";
+        } else {
+            $goto = 'http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552';
+        }
         YB_Uis::getInstance()->run($infoArr,'',false,$goto);
     }
     
