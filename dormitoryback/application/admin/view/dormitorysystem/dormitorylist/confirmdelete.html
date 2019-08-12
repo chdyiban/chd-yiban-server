@@ -1,0 +1,84 @@
+<div class="row">
+    <p class="hidden" id="LH">{$param.LH}</p>
+    <p class="hidden" id="SSH">{$param.SSH}</p>
+    <p class="hidden" id="CH">{$param.CH}</p>
+    <p class="hidden" id="XH">{$param.XH}</p>
+</div>
+<div class="box box-info">
+    <div class="box-header with-border">
+        <div class="callout callout-warning">
+            <h4>您正在操作的是</h4>
+            <font size = "5px">{$param.LH}#{$param.SSH}-{$param.CH}</font>
+            学号为：<font size = "5px">{$param.XH}</font>
+            姓名：<font size = "5px">{$param.XM}</font>
+        </div>
+    </div>
+
+    <div class="box-body">
+        <form class="form-horizontal" role="form">
+                <div class="form-group" id="selectreason">
+                    <label class="col-xs-2 control-label">请选择原因</label>
+                    <div class="col-xs-10">
+                            <input type="radio" name="reason"  value="XX" checked="">休学
+                            <input type="radio" name="reason" value="TX">退学
+                            <input type="radio" name="reason" value="XW">校外
+                            <input type="radio" name="reason" value="TS">调宿
+                            <input type="radio" name="reason" value="QT">其它
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="selectstarttime" class="col-xs-2 control-label">开始日期</label>
+                    <div class="col-xs-8">
+                        <input type="hidden" class="operate" name="selectstarttime-operate" data-name="selecttime" value="RANGE" readonly="">
+                        <input type="text" class="datetimerange form-control" autocomplete="off" name="selectstarttime" value="" id="selectstarttime" data-index="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="selectendtime" class="col-xs-2 control-label">结束日期</label>
+                    <div class="col-xs-8">
+                        <input type="hidden" class="operate" name="selectendtime-operate" data-name="selectendtime" value="RANGE" readonly="">
+                        <input type="text" class="datetimerange form-control" name="selectendtime" value="" autocomplete="off" id="selectendtime" data-index="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="remark" class="col-xs-2 control-label">备注</label>
+                    <div class="col-xs-8">
+                        <textarea id="remark" name="remark" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
+
+        </form>
+        <div class="col-xs-12">
+            <table class="table table-striped ">
+                <p class="lead">操作记录</p>
+                <thead>
+                <tr>
+                    <th>操作</th>
+                    <th>操作人</th>
+                    <th>操作时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                {empty name="$historyOperate"}
+                    <tr>
+                        <td colspan="3">暂无历史操作记录</td>
+                    </tr>
+                {else /}
+                    {foreach $historyOperate as $vo}
+                        <tr>
+                            <td>{$vo.operation}</td>
+                            <td>{$vo.nickname}</td>
+                            <td>{$vo.operate_time}</td>
+                        </tr>
+                    {/foreach}
+                {/empty}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box-footer">
+        <button type="button" class="btn btn-danger " id="confirmdelete"><i class="fa fa-times">确认移除</i></button>
+        <button type="button" class="btn btn-default pull-right cancel" style="margin-right: 50px;"> <i class="fa fa-times-circle">取消</i></button>
+    </div>
+</div>

@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>查询结果</title>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.">
+
+<link rel="stylesheet" href="http://jqweui.com/dist/lib/weui.min.css">
+<link rel="stylesheet" href="http://jqweui.com/dist/css/jquery-weui.css">
+<link rel="stylesheet" href="http://jqweui.com/dist/demos/css/demos.css">
+<style>
+    body{
+        background-color: #f8f8f8;
+    }
+</style>
+  </head>
+
+  <body ontouchstart>
+
+
+
+    <header class='demos-header'>
+        <h1 class="demos-title" style="color:black">查询结果</h1>
+    </header>
+
+    
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-form-preview">
+            {volist name='result' id='v'}
+            <div class="weui-form-preview__hd">
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">状态</label>
+                    <em class="weui-form-preview__value" style="color:green">可以领取</em>
+                </div>
+            </div>
+            <div class="weui-form-preview__bd">
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">姓名</label>
+                    <span class="weui-form-preview__value">{$v.name}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">学校</label>
+                    <span class="weui-form-preview__value">{$v.school}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">毕业日期</label>
+                    <span class="weui-form-preview__value">{$v.date}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">学号</label>
+                    <span class="weui-form-preview__value">{$v.number}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">专业</label>
+                    <span class="weui-form-preview__value">{$v.major}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">遗留原因</label>
+                    <span class="weui-form-preview__value">{$v.reason}</span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">备注</label>
+                    <span class="weui-form-preview__value">{$v.other}</span>
+                </div>
+                <div>
+                    <span style="color:red">请按照档案领取流程，办理齐全手续后到学工部教育管理科领取。</span>
+                </div>
+            </div>
+            {/volist}  
+            <div class="weui-form-preview__ft">
+                <a class="weui-form-preview__btn weui-form-preview__btn_primary" href="{:url('index/filequery/index')}" id="showTooltips">返回</a>
+            </div>
+        </div>
+        <!-- <div class="weui-panel__bd">
+            {volist name='result' id='v'}
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">姓名：{$v.name}</h4>
+                <p class="weui-media-box__desc">学校：{$v.school}</p>
+                <p class="weui-media-box__desc">毕业日期：{$v.date}</p>
+                <p class="weui-media-box__desc">学号：{$v.number}</p>
+                <p class="weui-media-box__desc">专业：{$v.major}</p>
+                <p class="weui-media-box__desc">遗留原因：{$v.reason}</p>
+                <p class="weui-media-box__desc">备注：{$v.other}</p>
+                <p class="weui-media-box__desc">状态：可以领取</p>
+                请按照档案领取流程，办理齐全手续后到学工部教育管理科领取。
+            </div>
+            {/volist}  
+      
+        </div> -->
+    </div>
+
+</body>
+</html>

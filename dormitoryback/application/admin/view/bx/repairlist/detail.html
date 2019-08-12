@@ -1,0 +1,295 @@
+<section class="invoice">
+        <!-- title row -->
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="page-header">
+                    <input type="text" value="{$row.id}" class="hidden" id="id">
+                    <i class="fa fa-gavel" aria-hidden="true"></i> 订单详情
+                <small class="pull-right">{$row.new_time}</small>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <p class="lead">报修者信息</p>
+                <div class="table-responsive">
+                <table class="table">
+                    <tbody><tr>
+                    <th style="width:50%">申报人：</th>
+                    <td>{$row.stu_name}</td>
+                    </tr>
+                    <tr>
+                    <th>联系方式：</th>
+                    <td>{$row.phone}</td>
+                    </tr>
+                    <tr>
+                    <th>维修地点：</th>
+                    <td>{$row.address}</td>
+                    </tr>
+                    <tr>
+                    <th>维修内容: </th>
+                    <td>{$row.content}</td>
+                    </tr>
+                </tbody></table>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <p class="lead">报修图片</p>
+                <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+                    {foreach name="$row.image" item="vo" key="s"}            
+                    <img src={$vo}  alt="" height="100" width="100" data-toggle="modal" data-target="#{$s}">       
+                    {/foreach}
+                    {foreach name="$row.image" item="vo" key="s"}
+                    <!-- Modal -->
+                    <div class="modal fade" id="{$s}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">    
+                            <div class="modal-dialog">        
+                                <div class="modal-content">            
+                                    <div class="modal-header">                
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>             
+                                   </div>            
+                                   <div class="modal-body">             
+                                       <img src={$vo}  alt="" style="width:50%;">                                   
+                                   </div>            
+                                   <div class="modal-footer">                
+                                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>            
+                                   </div>        
+                               </div><!-- /.modal-content -->    
+                           </div><!-- /.modal-dialog -->
+                       </div>
+                    {/foreach}
+                </p>
+            </div>           
+        </div>
+        <!-- Table row -->
+        {switch name="$row.status" }
+        {case value = "waited"}
+         <!-- this row will not appear when printing -->
+         <div class="row no-print">
+            <div class="form-group hidden" id="refuse_text">
+                <label>驳回理由</label>
+                <textarea class="form-control" rows="3" placeholder="请输入驳回的原因" id="refuse_content"></textarea>
+            </div>
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-danger  btn-refuse pull-right" style="margin-right: 5px;">
+                    <i class="fa fa-times"></i> 驳回
+                </button>
+                <button type="button" class="btn btn-success btn-accept pull-right"><i class="fa fa-hand-paper-o"></i> 受理
+                </button>
+            </div>
+        </div>
+        {/case}
+        {case value="accepted"}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>对象</th>
+                        <th>联系方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{$row.accepted_time}</td>
+                        <td>受理</td>
+                        <td>{$row.admin_name}</td>
+                        <td></td>
+                    </tr>  
+                </tbody>
+                </table>
+            </div>
+        </div>
+
+        <form id="cxselectform" action="">
+            <div class="row">
+                <div class="col-xs-9">
+                    <label>指派单位</label>
+                    <div class="form-inline" data-toggle="cxselect" data-selects="company,worker"  data-required="true">
+                        <select class="company form-control" name="company" id="company"   data-url="bx/repairlist/getcompany"></select>
+                        <select class="worker form-control" name="worker" id="worker" data-url="bx/repairlist/getworker"></select>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row no-print">
+            <div class="col-xs-12">
+                <button type="button" class="btn  btn-success btn-distribute pull-right" style="margin-right: 5px;">
+                <i class="fa fa-times fa-hand-paper-o"></i> 分配
+                </button>
+            </div>
+        </div>
+        {/case}
+        {case value="distributed"}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>对象</th>
+                        <th>联系方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{$row.accepted_time}</td>
+                        <td>受理</td>
+                        <td>{$row.admin_name}</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.distributed_time}</td>
+                        <td>派单</td>
+                        <td>{$row.company_name}</td>
+                        <td></td>
+                    </tr>  
+                </tbody>
+                </table>
+            </div>
+        </div>
+        {eq name="$row.distributed_id" value="$row.now_admin_id"}
+        <div class="form-group">
+            <label>请选择要指派的工人</label>
+            <select class="form-control" id="worker">
+                {foreach name="$row.worker" item="vo"}     
+                <option value="{$vo.id}">{$vo.name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="row no-print">
+                <div class="col-xs-12">
+                    <button type="button" class="btn  btn-success btn-dispatch pull-right" style="margin-right: 5px;">
+                        <i class="fa fa-times fa-hand-paper-o"></i> 指派工人
+                    </button>
+                </div>
+            </div>
+        {else/}
+        <div class="row no-print">
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-redistribute btn-success pull-right" style="margin-right: 5px;">
+                    <i class="fa fa-download"></i> 重新指派
+                </button>
+            </div>
+        </div>
+        {/eq}
+        {/case}
+        {case value="dispatched"}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>对象</th>
+                        <th>联系方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{$row.accepted_time}</td>
+                        <td>受理</td>
+                        <td>{$row.admin_name}</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.distributed_time}</td>
+                        <td>派单</td>
+                        <td>{$row.company_name}</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.dispatched_time}</td>
+                        <td>派工</td>
+                        <td>{$row.worker_info.name}</td>
+                        <td>{$row.worker_info.mobile}</td>
+                    </tr>  
+                </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row no-print">
+            <div class="col-xs-12">
+                <button id="btnPrint" type="button" class="btn  btn-default pull-left" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
+                <button type="button" class="btn  btn-success btn-finish pull-right" style="margin-right: 5px;">
+                    <i class="fa fa-times fa-hand-paper-o"></i> 工单结算
+                </button>
+                <button type="button" class="btn btn-redistribute pull-right" style="margin-right: 5px;">
+                    <i class="fa fa-download"></i> 重新指派
+                </button>
+            </div>
+        </div>
+        {/case}
+        {case value="finished"}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>对象</th>
+                        <th>联系方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{$row.accepted_time}</td>
+                        <td>受理</td>
+                        <td>{$row.admin_name}</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.distributed_time}</td>
+                        <td>派单</td>
+                        <td>{$row.company_name}</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.dispatched_time}</td>
+                        <td>派工</td>
+                        <td>{$row.worker_info.name}</td>
+                        <td>{$row.worker_info.mobile}</td>
+                    </tr>  
+                    <tr>
+                        <td>{$row.finished_time}</td>
+                        <td>完工</td>
+                        <td>{$row.worker_info.name}</td>
+                        <td>{$row.worker_info.mobile}</td>
+                    </tr> 
+                </tbody>
+                </table>
+            </div>
+            <button id="btnPrint" type="button" class="btn  btn-default pull-right" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
+        </div>
+        {/case}
+        {default/}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>操作</th>
+                        <th>对象</th>
+                        <th>原因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{$row.refused_time}</td>
+                        <td>驳回</td>
+                        <td>{$row.admin_name}</td>
+                        <td>{$refused_content}</td>
+                    </tr>  
+                </tbody>
+                </table>
+            </div>
+            <button id="btnPrint" type="button" class="btn  btn-default pull-right" onclick="javascript:window.print();" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
+        </div>
+        {/switch}
+    </section>

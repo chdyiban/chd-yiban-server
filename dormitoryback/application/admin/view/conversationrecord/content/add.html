@@ -1,0 +1,30 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('谈话内容')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea name="row[THNR]" id="c-THNR" rows="15" class="form-control editor" type="text"></textarea>
+        </div>
+    </div>
+    <div class="form-group hidden">
+        <label class="col-xs-2 control-label">{:__('ID')}:</label>
+        <div class="col-xs-8">
+            <input type="text" class="form-control" name="row[ID]" value="{$params.ID}" autocomplete="off" data-index="30">
+        </div>
+    </div>
+    <div class="form-group ">
+        <label for="selectInsertTime" class="col-xs-2 control-label">{:__('谈话时间')}:</label>
+        <div class="col-xs-8">
+            <input type="hidden" class="operate" name="selectInsertTime-operate" data-name="selectInsertTime" value="RANGE" readonly="">
+            <input type="text" class="form-control" name="row[THSJ]" value="" autocomplete="off" id="selectInsertTime" data-index="30">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+

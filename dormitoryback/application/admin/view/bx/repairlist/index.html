@@ -1,0 +1,37 @@
+<div class="panel panel-default panel-intro">
+    {:build_heading()}
+<span id="fuck-params" style="display:none;">{$status_params}</span>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">                           
+                        <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
+                        <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('bx/repairlist/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
+                        {eq name="status_params" value="waited"}
+                        <a href="javascript:;" class="btn btn-info btn-multi-accept " title="{:__('批量受理')}" ><i class="fa fa-hand"></i> {:__('批量受理')}</a>
+                        {/eq}
+                        {eq name="status_params" value="accepted"}
+                        <form id="cxselectform" action="" style="display:inline-block;">         
+                            <div class="form-inline" data-toggle="cxselect" data-selects="company,worker"  data-required="true">
+                                <select class="company form-control" name="company" id="company"   data-url="bx/repairlist/getcompany"></select>
+                                <select class="worker form-control" name="worker" id="worker" data-url="bx/repairlist/getworker"></select>
+                            </div>
+                        </form>
+                        <a href="javascript:;" class="btn btn-info btn-multi-dispatch " title="{:__('批量派工')}" ><i class="fa fa-hand"></i> {:__('批量派工')}</a>
+                        {/eq}
+                        
+                    </div>
+                        
+                    <table id="table" class="table table-striped table-bordered table-hover" 
+                           data-operate-edit="0" 
+                           data-operate-del="0" 
+                           width="100%">
+                    </table>
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
