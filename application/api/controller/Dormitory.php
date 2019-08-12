@@ -21,7 +21,7 @@ class Dormitory extends Freshuser
     private $userInfo = null;
     private $steps = null;
 
-    function _initialize(){
+    /*function _initialize(){
         header('Access-Control-Allow-Origin:*');    
         $this -> token = $this->request->param('token');
         $this -> loginInfo = $this->isLogin($this -> token);
@@ -101,7 +101,8 @@ class Dormitory extends Freshuser
             }
         }
     }
-
+    */
+    /*
     public function init(){
         header('Access-Control-Allow-Origin:*');
         $DormitoryModel = new DormitoryModel;
@@ -148,6 +149,7 @@ class Dormitory extends Freshuser
                 break;
         }
     }
+    */
     /**
      * demo 可以这样实现。
      */
@@ -163,6 +165,7 @@ class Dormitory extends Freshuser
      * @param string $type 有building, dormitory, bed
      * @return array $list 包含楼号/宿舍号/床号
      */
+    /*
     public function show()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
@@ -175,7 +178,7 @@ class Dormitory extends Freshuser
             $this -> error($list['msg'], $list['data']);
         }   
     }
-
+    */
     /**
      * 补充完善信息的接口
      * @param array $infomation
@@ -205,6 +208,7 @@ class Dormitory extends Freshuser
      * @param string $bed_id
      * @return array data => true/false 
      */
+    /*
     public function submit()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
@@ -217,13 +221,14 @@ class Dormitory extends Freshuser
             $this -> error($info['msg'], $info['data']);
         }   
     }
-
+    */
     /**
      * 确认床铺接口
      * @param array $infomation ['stu_id', 'college_id', 'sex', 'place']
      * @param string type confirm/cancel
      * 
      */
+    /*
     public function confirm()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
@@ -236,13 +241,14 @@ class Dormitory extends Freshuser
             $this -> error($info['msg'], $info['data']);
         }   
 
-    }
+    }*/
 
     /**
      * 宿舍确定结束接口
      * @param array $token
      * 
      */
+    /*
     public function finished()
     {
         //$key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
@@ -256,11 +262,13 @@ class Dormitory extends Freshuser
             $this -> error($info['msg'], $info['data']);
         }
     }
+    */
 
     /**
      * 获取七牛云上传token
      * bucket2018 => stu2018
      */
+    /*
     public function uploadtoken(){
 
         $upManager = new UploadManager();
@@ -268,11 +276,12 @@ class Dormitory extends Freshuser
         $token = $auth->uploadToken(Config::get('qiniu.bucket2018'));
         $this -> success('success', $token);
     }
-
+*/
     /**
      * 通过token获取学生信息
      * @param string $token
      */
+    /*
     private function get_info($token)
     {
         $user_id = $this->loginInfo['user_id'];
@@ -294,7 +303,7 @@ class Dormitory extends Freshuser
         } else {
             $this -> error('信息不存在');
         }
-    }
+    }*/
 
 }
 
