@@ -5,7 +5,6 @@ namespace app\api\model\dormitory;
 use think\Model;
 use think\Db;
 use think\Config;
-use think\Log;
 
 class Dormitory extends Model
 {
@@ -86,13 +85,8 @@ class Dormitory extends Model
     public function insertBase($data)
     {
         $res = Db::name("fresh_questionnaire_base") ->insert($data);
-        Log::error("插入基本信息结果".$res);
-        Log::error("插入基本信息SQL".Db::name("fresh_questionnaire_base")->getLastSql());
         $response  = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"],"LXDH" => $data["BRDH"]]);
-        Log::error("更新基本信息结果".$response);
-        Log::error("更新基本信息SQL".Db::name("fresh_questionnaire_base")->getLastSql());
 
-        // $response1 = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["LXDH" => $data["BRDH"]]);
         return $res;
     }  
     
@@ -102,8 +96,6 @@ class Dormitory extends Model
     public function insertFamily($data)
     {
         $res = Db::name("fresh_questionnaire_family") ->insertAll($data);
-        Log::error("插入家庭信息结果".$res);
-        Log::error("插入家庭信息SQL".Db::name("fresh_questionnaire_family")->getLastSql());
         return $res;
 
     }
