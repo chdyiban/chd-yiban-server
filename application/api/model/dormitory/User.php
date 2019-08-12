@@ -37,7 +37,7 @@ class User extends Model
         //标记床位
         $markList = Db::name("fresh_mark")->field("SSDM,CH")->where("XH",$param["XH"])->find();
         $result["user_info"]["BJCW"] = empty($markList) ? "" : $markList["SSDM"]."-".$markList["CH"]; 
-        $nowStep = $this->getSteps($param["XH"]);
+        $nowStep = $this->getSteps($param);
         $nowData = $this->getStepData($nowStep,$param["XH"]);
         $nowData["now"] = $nowStep;
         // $result["user_step"] = ["now" => $nowStep,"data" => $nowData];
@@ -117,12 +117,15 @@ class User extends Model
      * @return string
      */
 
-    private function getSteps($userXh){
+    private function getSteps($param){
         //判断信息是否完善
+        $userXh = $param["XH"];
         $isInfoExist = Db::name('fresh_questionnaire_base') -> where('XH', $userXh) -> field('ID,XH') -> find();
         $isListExist = Db::name('fresh_result') -> where('XH', $userXh) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
             return 'QUE';
+        } elseif ($param["step"]["step"] == "NST"){
+            return 'SEL';
         } elseif (empty($isListExist)) {
             return 'SEL';
         } elseif ($isListExist['status'] == "waited"){
