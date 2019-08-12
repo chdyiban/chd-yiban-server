@@ -1,0 +1,450 @@
+<!-- <div class="row">
+    <table border = "2" cellspacing="5" cellpadding="5" style="text-align:center" width="100%">
+        {foreach name="buildingMaps" item="vo"}
+        <tr>
+            {foreach name="vo" item="vo1"}
+                {empty name="vo1.rowspan"}
+                    {empty name="vo1.status"}
+                    <td style="background-color:{$vo1.color}">{$vo1.value}<br/></td>
+                    {else /}
+                    <td  style="background-color:{$vo1.color}">{$vo1.value}<br/>{$vo1.status}</td>
+                    {/empty}
+                {else /}
+                <td width="40" rowspan= "{$vo1.rowspan}">{$vo1.value}</td>
+                {/empty}
+                
+                
+            {/foreach}
+        </tr>
+        {/foreach}
+    </table>
+</div> -->
+
+<style type="text/css">
+	.dormitory {
+		width: 100%;
+		height: auto;
+		margin: 10px auto;
+		border-radius: 5px;
+		table-layout: fixed;
+		word-wrap: break-word;
+	}
+
+	.one {
+		width: 30px;
+		height: 30px;
+		font-size: 10px;
+		text-align: center;
+		background: #E63F00;
+		border: none;
+		border-radius: 2px;
+	}
+
+	.passage td {
+		height: 10px;
+		font-size: 10px;
+		text-align: center;
+		background: #00AA55;
+		border: none;
+	}
+
+	.two {
+		background: #00AA55;
+		width: 40px;
+		text-align: center;
+		border: none;
+		border-radius: 5px;
+	}
+</style>
+<div class="row">
+	<table class="dormitory" border="2">
+		<tr class="block">
+			<td class="one">1554</td>
+			<td class="one">1552</td>
+			<td class="one">1550</td>
+			<td class="one">1548</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1544</td>
+			<td class="one">1542</td>
+			<td class="one">1540</td>
+			<td class="one">1538</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1536</td>
+			<td class="one">1534</td>
+			<td class="one">1532</td>
+			<td class="one">1530</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1526</td>
+			<td class="one">1524</td>
+			<td class="one">1522</td>
+			<td class="one">1520</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1518</td>
+			<td class="one">1516</td>
+			<td class="one">1514</td>
+			<td class="one">1512</td>
+			<td class="one">水房</td>
+			<td class="one">厕所</td>
+			<td class="one">1508</td>
+			<td class="one">1506</td>
+			<td class="one">1504</td>
+			<td class="one">1502</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">五层</td>
+			<td colspan="10">五层</td>
+			<td colspan="10">五层</td>
+		</tr>
+		<tr class="block">
+			<td class="one">1553</td>
+			<td class="one">1551</td>
+			<td class="one">1549</td>
+			<td class="one">1547</td>
+			<td class="one">1545</td>
+			<td class="one">1543</td>
+			<td class="one">1541</td>
+			<td class="one">1540</td>
+			<td class="one">1539</td>
+			<td class="one">1537</td>
+
+			<td class="one">1535</td>
+			<td class="one">1533</td>
+			<td class="one">1531</td>
+			<td class="one">1529</td>
+			<td class="one">1528</td>
+			<td class="one">1527</td>
+			<td class="one">1525</td>
+			<td class="one">1523</td>
+			<td class="one">1521</td>
+			<td class="one">1519</td>
+
+			<td class="one">1517</td>
+			<td class="one">1515</td>
+			<td class="one">1513</td>
+			<td class="one">1511</td>
+			<td class="one">1510</td>
+			<td class="one">1509</td>
+			<td class="one">1507</td>
+			<td class="one">1505</td>
+			<td class="one">1503</td>
+			<td class="one">1501</td>
+		</tr>
+	</table>
+	<table class="dormitory" border="2">
+		<tr class="block">
+			<td class="one">1454</td>
+			<td class="one">1452</td>
+			<td class="one">1450</td>
+			<td class="one">1448</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1444</td>
+			<td class="one">1442</td>
+			<td class="one">1440</td>
+			<td class="one">1438</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1436</td>
+			<td class="one">1434</td>
+			<td class="one">1432</td>
+			<td class="one">1430</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1426</td>
+			<td class="one">1424</td>
+			<td class="one">1422</td>
+			<td class="one">1420</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1418</td>
+			<td class="one">1416</td>
+			<td class="one">1414</td>
+			<td class="one">1412</td>
+			<td class="one">水房</td>
+			<td class="one">厕所</td>
+			<td class="one">1408</td>
+			<td class="one">1406</td>
+			<td class="one">1404</td>
+			<td class="one">1402</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">四层</td>
+			<td colspan="10">四层</td>
+			<td colspan="10">四层</td>
+		</tr>
+		<tr class="block">
+			<td class="one">1453</td>
+			<td class="one">1451</td>
+			<td class="one">1449</td>
+			<td class="one">1447</td>
+			<td class="one">1445</td>
+			<td class="one">1443</td>
+			<td class="one">1441</td>
+			<td class="one">1440</td>
+			<td class="one">1439</td>
+			<td class="one">1437</td>
+
+			<td class="one">1435</td>
+			<td class="one">1433</td>
+			<td class="one">1431</td>
+			<td class="one">1429</td>
+			<td class="one">1428</td>
+			<td class="one">1427</td>
+			<td class="one">1425</td>
+			<td class="one">1423</td>
+			<td class="one">1421</td>
+			<td class="one">1419</td>
+
+			<td class="one">1417</td>
+			<td class="one">1415</td>
+			<td class="one">1413</td>
+			<td class="one">1411</td>
+			<td class="one">1410</td>
+			<td class="one">1409</td>
+			<td class="one">1407</td>
+			<td class="one">1405</td>
+			<td class="one">1403</td>
+			<td class="one">1401</td>
+		</tr>
+	</table>
+	<table class="dormitory" border="2">
+		<tr class="block">
+			<td class="one">1354</td>
+			<td class="one">1352</td>
+			<td class="one">1350</td>
+			<td class="one">1348</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1344</td>
+			<td class="one">1342</td>
+			<td class="one">1340</td>
+			<td class="one">1338</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1336</td>
+			<td class="one">1334</td>
+			<td class="one">1332</td>
+			<td class="one">1330</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1326</td>
+			<td class="one">1324</td>
+			<td class="one">1322</td>
+			<td class="one">1320</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1318</td>
+			<td class="one">1316</td>
+			<td class="one">1314</td>
+			<td class="one">1312</td>
+			<td class="one">水房</td>
+			<td class="one">厕所</td>
+			<td class="one">1308</td>
+			<td class="one">1306</td>
+			<td class="one">1304</td>
+			<td class="one">1302</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">三层</td>
+			<td colspan="10">三层</td>
+			<td colspan="10">三层</td>
+		</tr>
+		<tr class="block">
+			<td class="one">1353</td>
+			<td class="one">1351</td>
+			<td class="one">1349</td>
+			<td class="one">1347</td>
+			<td class="one">1345</td>
+			<td class="one">1343</td>
+			<td class="one">1341</td>
+			<td class="one">1340</td>
+			<td class="one">1339</td>
+			<td class="one">1337</td>
+
+			<td class="one">1335</td>
+			<td class="one">1333</td>
+			<td class="one">1331</td>
+			<td class="one">1329</td>
+			<td class="one">1328</td>
+			<td class="one">1327</td>
+			<td class="one">1325</td>
+			<td class="one">1323</td>
+			<td class="one">1321</td>
+			<td class="one">1319</td>
+
+			<td class="one">1317</td>
+			<td class="one">1315</td>
+			<td class="one">1313</td>
+			<td class="one">1311</td>
+			<td class="one">1310</td>
+			<td class="one">1309</td>
+			<td class="one">1307</td>
+			<td class="one">1305</td>
+			<td class="one">1303</td>
+			<td class="one">1301</td>
+		</tr>
+	</table>
+	<table class="dormitory" border="2">
+		<tr class="block">
+			<td class="one">1254</td>
+			<td class="one">1252</td>
+			<td class="one">1250</td>
+			<td class="one">1248</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1244</td>
+			<td class="one">1242</td>
+			<td class="one">1240</td>
+			<td class="one">1238</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1236</td>
+			<td class="one">1234</td>
+			<td class="one">1232</td>
+			<td class="one">1230</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1226</td>
+			<td class="one">1224</td>
+			<td class="one">1222</td>
+			<td class="one">1220</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">1218</td>
+			<td class="one">1216</td>
+			<td class="one">1214</td>
+			<td class="one">1212</td>
+			<td class="one">水房</td>
+			<td class="one">厕所</td>
+			<td class="one">1208</td>
+			<td class="one">1206</td>
+			<td class="one">1204</td>
+			<td class="one">1202</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">二层</td>
+			<td colspan="10">二层</td>
+			<td colspan="10">二层</td>
+		</tr>
+		<tr class="block">
+			<td class="one">1253</td>
+			<td class="one">1251</td>
+			<td class="one">1249</td>
+			<td class="one">1247</td>
+			<td class="one">1245</td>
+			<td class="one">1243</td>
+			<td class="one">1241</td>
+			<td class="one">1240</td>
+			<td class="one">1239</td>
+			<td class="one">1237</td>
+
+			<td class="one">1235</td>
+			<td class="one">1233</td>
+			<td class="one">1231</td>
+			<td class="one">1229</td>
+			<td class="one">1228</td>
+			<td class="one">1227</td>
+			<td class="one">1225</td>
+			<td class="one">1223</td>
+			<td class="one">1221</td>
+			<td class="one">1219</td>
+
+			<td class="one">1217</td>
+			<td class="one">1215</td>
+			<td class="one">1213</td>
+			<td class="one">1211</td>
+			<td class="one">1210</td>
+			<td class="one">1209</td>
+			<td class="one">1207</td>
+			<td class="one">1205</td>
+			<td class="one">1203</td>
+			<td class="one">1201</td>
+		</tr>
+	</table>
+	<table class="dormitory" border="2">
+		<tr class="block">
+			<td class="one" data-id="1148">1148</td>
+			<td class="one">1146</td>
+			<td class="one">1144</td>
+			<td class="one">1142</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">1138</td>
+			<td class="one">1136</td>
+			<td class="one">1134</td>
+			<td class="one">1132</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">网络</td>
+			<td class="one">辅</td>
+			<td class="one">辅</td>
+			<td class="one">楼长</td>
+			<td class="one">厕所</td>
+			<td class="one">水房</td>
+			<td class="one">洗衣</td>
+			<td class="one">配电</td>
+			<td class="one">公办</td>
+			<td class="one">网络</td>
+
+			<td class="two" rowspan="3">楼梯</td>
+
+			<td class="one">值</td>
+			<td class="one">1116</td>
+			<td class="one">1114</td>
+			<td class="one">1112</td>
+			<td class="one">水房</td>
+			<td class="one">厕所</td>
+			<td class="one">1108</td>
+			<td class="one">1106</td>
+			<td class="one">1104</td>
+			<td class="one">1102</td>
+		</tr>
+		<tr class="passage">
+			<td colspan="10">一层</td>
+			<td colspan="10">一层</td>
+			<td colspan="10">一层</td>
+		</tr>
+		<tr class="block">
+			<td class="one">1147</td>
+			<td class="one">1145</td>
+			<td class="one">1143</td>
+			<td class="one">1141</td>
+			<td class="one">1140</td>
+			<td class="one">1139</td>
+			<td class="one">1137</td>
+			<td class="one">1135</td>
+			<td class="one">1133</td>
+			<td class="one">值</td>
+			<td class="one">辅</td>
+			<td class="one">辅</td>
+			<td class="one">辅</td>
+			<td class="one">1123</td>
+			<td class="one" colspan="2">团</td>
+			<td class="one">1121</td>
+			<td class="one" colspan="3">公寓办公室</td>
+			<td class="one">1117</td>
+			<td class="one">1115</td>
+			<td class="one">1113</td>
+			<td class="one">1111</td>
+			<td class="one">1110</td>
+			<td class="one">1109</td>
+			<td class="one">1107</td>
+			<td class="one">1105</td>
+			<td class="one">1103</td>
+			<td class="one">1101</td>
+		</tr>
+	</table>
+</div>

@@ -1,0 +1,46 @@
+
+<div class="box box-success">
+    <div class="panel-heading">
+        短信配置            
+    </div>
+    <div class="panel-body">
+
+        <form  id="update-form" role="form" data-toggle="validator" method="POST" action="./index" class="nice-validator form-horizontal n-default n-bootstrap" novalidate="novalidate">
+
+                
+            <div class="form-group">
+                <label for="mail_phone" class="col-xs-2 control-label">手机号码</label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control" data-rule="mobile;required"  id="mail_phone" autocomplete="off"  name="row[object]" placeholder="请填写短信发送手机的号码" value="{$configinfo.object}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="mail_content" class="col-xs-2 control-label">短信内容</label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control" data-rule="required" id="mail_content" autocomplete="off"  name="row[content]" placeholder="请填写短信内容" value="{$configinfo.content}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="mail_wait_time" class="col-xs-2 control-label">间隔时间(分钟)</label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control" data-rule="integer(+)" id="mail_wait_time" autocomplete="off"  name="row[wait_time]" placeholder="请填写短信发送间隔时间" value="{$configinfo.wait_time}"/>
+                </div>
+            </div>
+            <div class="form-group" id="select_status">
+                <label class="col-xs-2 control-label">状态配置</label>
+                <div class="col-xs-10">
+                    <input type="radio" name="row[status]" value="1" checked="">开启
+                    <input type="radio" name="row[status]"  value="0" >关闭
+                </div>
+            </div>
+            <div class="form-group" >
+                <div class="col-xs-4">
+                    <button type="submit" class="btn btn-success">提交</button>
+                    <button type="reset" class="btn btn-default">重置</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+

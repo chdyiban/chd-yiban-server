@@ -1,0 +1,88 @@
+<section class="invoice">
+    <!-- title row -->
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+            <i class="fa fa-building-o"></i> 宿舍信息
+            </h2>
+        </div>
+      <!-- /.col -->
+    </div>
+    <!-- info row -->
+    <div class="row invoice-info">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="fa fa-map-marker"></i></span>
+                <div class="info-box-content">
+                <span class="info-box-text">校区</span>
+                <span class="info-box-number">{$dormitoryInfoList.XQ}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="fa fa-at"></i></span>
+                <div class="info-box-content">
+                <span class="info-box-text">宿舍号</span>
+                <span class="info-box-number" id='dormitory'>{$dormitoryInfoList.LH}-{$dormitoryInfoList.SSH}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="fa fa-sort-numeric-desc"></i></span>
+                <div class="info-box-content">
+                <span class="info-box-text">楼层</span>
+                <span class="info-box-number">{$dormitoryInfoList.LC}层</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box ">
+                <span class="info-box-icon bg-green"><i class="fa fa-location-arrow"></i></span>
+                <div class="info-box-content">
+                <span class="info-box-text">楼段</span>
+                <span class="info-box-number">{$dormitoryInfoList.LD}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <!-- Table row -->
+    <div class="row">
+      <div class="col-xs-12 table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+                <th>床号</th>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>学院</th>
+                <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {foreach name="dormitoryInfoList.dormitory" item="vo" key="s"}
+            <tr>
+                <td>{$vo.CH}</td>
+                <td>{$vo.stuinfo.XH}</td>
+                <td>{$vo.stuinfo.XM}</td>
+                <td>{$vo.stuinfo.YXJC}</td>
+                {eq name="$vo.stuinfo.XH" value="---"}
+                <td><a href="./dormitorysystem/dormitorylist/confirmdistribute?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}" class="btn btn-xs btn-success btn-distribute  btn-dialog" ><i class="fa fa-hand-rock-o"> 入住</i></a></td>
+                {else/} 
+                <td><a href="./dormitorysystem/dormitorylist/confirmdelete?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}&XH={$vo.stuinfo.XH}&XM={$vo.stuinfo.XM}" class="btn btn-xs btn-danger btn-delete  btn-dialog" ><i class="fa fa-times"> 退宿</i></a>
+                <a href="./dormitorysystem/dormitorylist/confirmchange?LH={$dormitoryInfoList.LH}&CH={$vo.CH}&SSH={$dormitoryInfoList.SSH}&XH={$vo.stuinfo.XH}" class="btn btn-xs btn-primary btn-changebed btn-dialog" ><i class="fa fa-exchange"> 调宿</i></a></td>
+                <!-- <button type="button" class="btn btn-danger btn-delete" value="{$vo.CH}-{$vo.stuinfo.XH}">移除</button></td> -->
+                {/eq}
+ 
+            </tr>
+            {/foreach}
+          </tbody>
+        </table>
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </section>

@@ -1,0 +1,50 @@
+<div class="row">
+    <div class="hidden" id="LH">{$param.LH}</div>
+    <div class="hidden" id="CH">{$param.CH}</div>
+    <div class="hidden" id="SSH">{$param.SSH}</div>
+    <div class="hidden" id="XH">{$param.XH}</div>
+</div>
+
+
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">调换宿舍</h3>
+    </div>
+    <div class="box-body">
+        <form class="form-horizontal" role="form">
+
+            <div class="form-group" id="search-user">
+                <label class="col-xs-2 control-label" >调换人</label>
+                <div class="col-xs-8">
+                    <select class="form-control selectpicker" id="option" data-live-search="true">
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label for="selecthandletime" class="col-xs-2 control-label">手续办理时间</label>
+                <div class="col-xs-8">
+                    <input type="hidden" class="operate" name="selecthandletime-operate" data-name="selecthandletime" value="RANGE" readonly="">
+                    <input type="text" class="datetimerange form-control" name="selecthandletime" value="" autocomplete="off" id="selecthandletime" data-index="30">
+                </div>
+            </div>
+
+            <!-- <div class="form-group">
+                <label for="nowclass" class="col-xs-2 control-label">现班级号</label>
+                <div class="col-xs-8">
+                    <input type="text" class="form-control"  id="nowclass" autocomplete="off"  name="nowclass" placeholder="请输入该学生现在的班级号" value=""/>
+                </div>
+            </div> -->
+            <div class="form-group">
+                <label for="remark" class="col-xs-2 control-label">备注</label>
+                <div class="col-xs-8">
+                    <textarea id="remark" name="remark" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+		<button type="button" class="btn btn-success" id="confirmchange"><i class="fa fa-check">确定</i></button>
+		<button type="button" class="btn btn-default pull-right cancel" style="margin-right: 50px;"><i class="fa fa-close">取消</i></button>
+	</div>
+</div>

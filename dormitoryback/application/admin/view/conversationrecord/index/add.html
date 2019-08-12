@@ -1,0 +1,85 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group" id="search-user">
+        <label class="col-xs-2 control-label" >学号/姓名</label>
+        <div class="col-xs-4">
+            <select data-rule="required;remote(conversationrecord/index/getStatus)" class="form-control selectpicker" id="option" data-live-search="true"  name="row[info]">
+                
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('关注类型')}:</label>
+       <div class="col-xs-12 col-sm-8">
+                       
+           <select  id="c-GZLX" data-rule="required" class="form-control selectpicker" name="row[GZLX]">
+               {foreach name="gzlxList" item="vo"}
+                   <option value="{$key}" {in name="key" value="1"}selected{/in}>{$vo}</option>
+               {/foreach}
+           </select>
+
+       </div>
+   </div>
+    <div class="form-group">
+        <label for="c-tags" class="control-label col-xs-12 col-sm-2">{:__('学生标签')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-tags"  class="form-control selectpage" placeholder="请手动输入或选择标签" data-source="conversationrecord/tags/selectpage" data-primary-key="name" data-multiple="true" name="row[tags]" type="text" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('学生宿舍')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-SSDM" data-rule="required;" class="form-control" name="row[SSDM]" type="text">
+        </div>
+    </div>
+    <div class="form-group ">
+        <label for="selectInsertTime" class="col-xs-2 control-label">建档时间</label>
+        <div class="col-xs-8">
+            <input type="hidden" class="operate" name="selectInsertTime-operate" data-name="selectInsertTime" value="RANGE" readonly="">
+            <input type="text" class="form-control" name="row[JDSJ]" value="" autocomplete="off" id="selectInsertTime" data-index="30">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('累积挂科数')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-LJGK" data-rule="required;range(0~20);integer" class="form-control" value="0" name="row[LJGK]" type="number">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('所欠学分')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-SQXF" data-rule="required;range(0~30)" value="0" class="form-control" name="row[SQXF]" type="number">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-tags" class="control-label col-xs-12 col-sm-2">{:__('所欠学分课程')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-CXKC" data-rule=""   class="form-control selectpage" placeholder="请手动输入或选择课程" data-source="conversationrecord/course/selectpage" data-primary-key="name" data-multiple="true" name="row[CXKC]" type="text" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('家长联系方式')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-JZDH" data-rule="required;mobile" class="form-control" autocomplete="off" name="row[JZDH]" type="text">
+        </div>
+    </div>
+    <!-- <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('总体评价')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea name="row[ZTPJ]" id="c-ZTPJ" cols="20" rows="3" class="form-control" type="text"></textarea>
+        </div>
+    </div> -->
+    <div class="form-group">
+        <label for="c-content" class="control-label col-xs-12 col-sm-2">{:__('总体评价')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-ZTPJ" data-rule="required" class="form-control editor" name="row[ZTPJ]" rows="15" ></textarea>
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+

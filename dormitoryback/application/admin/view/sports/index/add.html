@@ -1,0 +1,45 @@
+
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label for="c-college" class="control-label col-xs-6 col-sm-2">选择项目</label>
+        <div class="col-xs-6 col-sm-8 form-inline" data-toggle="cxselect" data-selects="type,event">
+            <select class="type form-control" name="type" id="type" data-url="sports/index/gettype"></select>
+            <select class="event form-control" name="event" id="event" data-url="sports/index/getevent"></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-college" class="control-label col-xs-6 col-sm-2">{:__('学院')}:</label>
+        <div class="col-xs-6 col-sm-8" data-toggle="cxselect" data-selects="college" data-required="true">
+            <select id="c-college" class="college form-control" name="row[college]" data-url="sports/index/getCollege" ></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-ranking" class="control-label col-xs-12 col-sm-2">{:__('排名')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-ranking" data-rule="required;integer" autocomplete="off" class="form-control" name="row[ranking]" type="text" autocomplete="off">
+        </div>
+    </div>
+    <div class="form-group">
+            <label for="c-score" class="control-label col-xs-12 col-sm-2">{:__('得分')}:</label>
+        <div class="col-xs-12 col-sm-8" data-selects="repaircontent" data-required="true">
+            <input id="c-score" data-rule="required" autocomplete="off" class="form-control" name="row[score]" type="text" autocomplete="off">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-remark" class="control-label col-xs-12 col-sm-2">{:__('备注')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-remark"  autocomplete="off" class="form-control" name="row[remark]" type="text">
+        </div>
+    </div>
+  
+    
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+
