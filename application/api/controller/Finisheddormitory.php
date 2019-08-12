@@ -31,7 +31,7 @@ class Finisheddormitory extends Freshuser
      * 
      * 原理：在允许分配的原则内，先分配少数民族，再分配非陕西籍，最后按顺序填空
      */
-
+    /*
     public function distribute(){
 
         set_time_limit(0);
@@ -374,11 +374,12 @@ class Finisheddormitory extends Freshuser
             // echo '<script>window.location.href="http://localhost:8080/yibanbx/public/api/Finisheddormitory/distribute";</script>';
         }
     }
-    
+    */
     //从这里开始都是用来提供测试数据的方法
     /**
      * 分配宿舍方法
      */
+    /*
     public function finish()
     {
         set_time_limit(0);
@@ -462,10 +463,12 @@ class Finisheddormitory extends Freshuser
         }
         return '本次处理数据'.count($stu_info).'个';
     }
+    */
     /**
      * 得到一个随机选择的楼号
      * @return int
      */
+    /*
     private function getBuilding($steps, $info)
     {
         $DormitoryModel = new DormitoryModel;
@@ -478,11 +481,13 @@ class Finisheddormitory extends Freshuser
         $building_choice = $building[$building_choice]['value'];
         return $building_choice;
     }
+    */
     /**
      * 获取对应楼号能选的宿舍号
      * @return array ['status' => true, 'msg' => "查询成功", 'data' => array]
      * @return array ['status' => false, 'msg' => '该楼已经没有空宿舍了', 'data' => null]
      */
+    /*
     private function getDormitory($info, $building_choice)
     {
         $DormitoryModel = new DormitoryModel;
@@ -492,11 +497,13 @@ class Finisheddormitory extends Freshuser
         return $dormitory;
 
     }
+    */
     /**
      * 获取某楼某宿舍对应的床号
      * @return array ['status' => false, 'msg' => "因不符合学校相关住宿规定，该宿舍无法选择", 'data' => null];
      * @return array ['status' => true, 'msg' => "查询成功", 'data' => $list];
      */
+    /*
     private function getBed($info, $building_choice, $dormitory_choice)
     {
         $DormitoryModel = new DormitoryModel;
@@ -505,6 +512,7 @@ class Finisheddormitory extends Freshuser
         $bed = $DormitoryModel -> show($info, $key);
         return $bed;
     }
+    */
 
 }
 

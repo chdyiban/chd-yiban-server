@@ -27,7 +27,7 @@ class Testdormitory extends Freshuser
     const LOCAL_URL = "http://localhost:8080/yibanbx/public/api/dormitory2019/";
     const SERVICE_URL = "https://yiban.chd.edu.cn/api/dormitory2019/";
 	
-
+    /*
 	public function finish()
 	{
         set_time_limit(0);
@@ -241,10 +241,12 @@ class Testdormitory extends Freshuser
         // $finish_url = json_decode($finish_url,true);
         
     }
+    */
 
     /**
      * 测试查询房源并发
      */
+    /*
     public function testRoom()
     {
         $dormitory2019Model = new Dormitory2019Model();
@@ -267,10 +269,11 @@ class Testdormitory extends Freshuser
             $this->error($roomList["msg"],$roomList["data"]);
         }
     }
-
+*/
     /**
      * 测试提交并发
      */
+    /*
     public function testBed()
     {
         $dormitory2019Model = new Dormitory2019Model();
@@ -297,10 +300,11 @@ class Testdormitory extends Freshuser
             $this->error($bedList["msg"],$bedList["data"]);
         }
     }
-
+*/
     /**
      * 测试提交并发
      */
+    /*
     public function testSubmit()
     { 
         $dormitory2019Model = new Dormitory2019Model();
@@ -356,11 +360,12 @@ class Testdormitory extends Freshuser
         
     }
 
-
+*/
 
     /**
      * 测试并发登录
      */
+    /*
     public function testlogin()
     {
         header('Access-Control-Allow-Origin:*');
@@ -395,9 +400,11 @@ class Testdormitory extends Freshuser
             return $userid;
         }
     }
+    */
     /**
      * 测试返回剩余房间数和床位数
      */
+    /*
     public function testshow(){
         header('Access-Control-Allow-Origin:*');
         $mem_p1 = memory_get_usage();
@@ -450,10 +457,11 @@ class Testdormitory extends Freshuser
 
         $this -> success('查询成功', ['memory'=> $mem_cost.'mb','list' => $list, 'dormitory_number' => $dormitory_number, 'bed_number' => $bed_number]);
     }
-
+*/
     /**
      * 测试推荐
      */
+    /*
     public function testRecommend()
     {
         $XH = $this->request->param("XH");
@@ -475,10 +483,12 @@ class Testdormitory extends Freshuser
         // }
 
     }
+    */
     /**
      * 测试提交推荐问卷
      * 
      */
+    /*
     public function testSubmitQuestion()
     {
 		// $params = $this->request->param();
@@ -541,9 +551,11 @@ class Testdormitory extends Freshuser
     public function testPHP(){
         $this->success('success');
     }
+    */
     /**
      * 测试服务器环境
      */
+    /*
     public function testinfo()
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
@@ -588,9 +600,11 @@ class Testdormitory extends Freshuser
             }
         }
     }
+    */
     /**
      * 查找数据库中的重复数据
      */
+    /*
     public function searchsame(){
         $data = Db::name('fresh_dormitory') -> field('SSDM,CPXZ') -> select();
         foreach ($data as $key => $value) {
@@ -621,6 +635,6 @@ class Testdormitory extends Freshuser
         // echo "未选择人数".$no;
         // echo "异常人数".$except;
     }
-
+*/
 }
     
