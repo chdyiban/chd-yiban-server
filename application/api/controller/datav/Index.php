@@ -511,35 +511,19 @@ class Index extends Api
 	{
 		$param = $this->request->get("action");
 		if ($param == "labelCount") {
-			return json([["value" => 5 ]]);
+			return json([["value" => 33 ]]);
 		} elseif ($param == "labelContent") {
-			$label = [
-				[
-					"name"  => "王者荣耀",
-					"value" => "1",
-					"type"  => "0",
-				],
-				[
-					"name"  => "篮球",
-					"value" => "1",
-					"type"  => "0",
-				],
-				[
-					"name"  => "游戏",
-					"value" => "1",
-					"type"  => "0",
-				],
-				[
-					"name"  => "动漫",
-					"value" => "1",
-					"type"  => "0",
-				],
-				[
-					"name"  => "二次元",
-					"value" => "1",
-					"type"  => "0",
-				],
-			];
+            $labelList = ["篮球","足球","跑步","二次元","王者荣耀","乐器","文艺","手游","绘画","K歌","佛系","逛街","自拍","星座","桌游","懒癌患者",'美妆', '抖音','直播', '网购', '动漫', '二次元', '正能量', '旅行', '夜猫子', '音乐', '仙气十足','bilibili', '选择恐惧症', '宅男', '追剧', '我爱学习', '吃饱才有力气减肥'];
+            $label = [];
+            foreach ($labelList as $key => $value) {
+                $temp = [
+                    "name" => $value,
+                    "value"=> Db::name("fresh_recommend_question")->where("label","LIKE","%$value%")->count(),
+                    "type" => 0,
+                ];
+                $label[] = $temp;
+            }
+			
 			return json($label);
 		} elseif ($param == "finishedNumber") {
 			$count = Db::name("fresh_recommend_question")->count();
