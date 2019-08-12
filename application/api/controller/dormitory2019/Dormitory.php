@@ -8,6 +8,7 @@ use fast\Http;
 use app\api\model\dormitory\Dormitory as DormitoryModel;
 use Qiniu\Storage\UploadManager;
 use Qiniu\Auth;
+use think\Db;
 
 
 /**
@@ -65,11 +66,20 @@ class Dormitory extends Api
                 }
                 $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
                 $data['RJSR'] = round($data['RJSR'], 2);
-
+                $insert_flag_one = false;
+                $insert_flag_two = false;
+                Db::startTrans();
+                try{  
                 // $res = model('fresh_questionnaire_base') -> insert($data);
-                $res = $DormitoryModel->insertBase($data);
-                $res1 = $DormitoryModel->insertFamily($info);
-                if ($res && $res1) {
+                    $insert_flag_one = $DormitoryModel->insertBase($data);
+                    $insert_flag_two = $DormitoryModel->insertFamily($info);
+                    //提交事务
+                    Db::commit();    
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    Db::rollback();
+                }  
+                if ($insert_flag_one && $insert_flag_two) {
                     $this -> success("信息录入成功");
                 }else {
                     $this -> error("信息录入失败");
