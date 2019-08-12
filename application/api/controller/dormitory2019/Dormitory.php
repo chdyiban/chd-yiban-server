@@ -68,21 +68,21 @@ class Dormitory extends Api
                 $data['RJSR'] = round($data['RJSR'], 2);
                 $insert_flag_one = false;
                 $insert_flag_two = false;
-                // Db::startTrans();
-                // try{  
+                Db::startTrans();
+                try{  
                 // $res = model('fresh_questionnaire_base') -> insert($data);
                     $insert_flag_one = $DormitoryModel->insertBase($data);
                     $insert_flag_two = $DormitoryModel->insertFamily($info);
                     //提交事务
-                //     Db::commit();    
-                // } catch (\Exception $e) {
-                //     // 回滚事务
-                //     Db::rollback();
-                // }  
+                    Db::commit();    
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    Db::rollback();
+                }  
                 if ($insert_flag_one && $insert_flag_two) {
-                    $this -> success("信息录入成功","$sql_1,$sql_2");
+                    $this -> success("信息录入成功");
                 }else {
-                    $this -> error("信息录入失败","$sql_1,$sql_2");
+                    $this -> error("信息录入失败");
                 }
             }
         }
