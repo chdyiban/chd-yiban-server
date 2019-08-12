@@ -72,9 +72,7 @@ class Dormitory extends Api
                 // try{  
                 // $res = model('fresh_questionnaire_base') -> insert($data);
                     $insert_flag_one = $DormitoryModel->insertBase($data);
-                    $sql_1 = $DormitoryModel->getLastSql();
                     $insert_flag_two = $DormitoryModel->insertFamily($info);
-                    $sql_2 = $DormitoryModel->getLastSql();
                     //提交事务
                 //     Db::commit();    
                 // } catch (\Exception $e) {
