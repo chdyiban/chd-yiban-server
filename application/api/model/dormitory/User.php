@@ -124,8 +124,6 @@ class User extends Model
         $isListExist = Db::name('fresh_result') -> where('XH', $userXh) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
             return 'QUE';
-        } elseif ($param["step"]["step"] == "NST"){
-            return 'SEL';
         } elseif (empty($isListExist)) {
             return 'SEL';
         } elseif ($isListExist['status'] == "waited"){
