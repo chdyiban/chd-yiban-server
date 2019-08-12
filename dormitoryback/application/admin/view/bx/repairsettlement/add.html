@@ -1,0 +1,53 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label for="c-name" class="control-label col-xs-12 col-sm-2">{:__('订单id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" data-rule="required" class="form-control" name="row[list_id]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="" class="control-label col-xs-12 col-sm-2">{:__('维修单位')}:</label>
+        <div class="col-xs-12 col-sm-8" data-toggle="cxselect" data-selects="company" data-required="true">
+            <select class="company form-control" name="row[repair_company_id]" data-url="bx/repairsettlement/getcompany" ></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('维修地点')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="required" class="form-control" name="row[repair_address]" type="text" autocomplete="off">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="" class="control-label col-xs-12 col-sm-2">{:__('维修内容')}:</label>
+        <div class="col-xs-12 col-sm-8" data-toggle="cxselect" data-selects="repaircontent" data-required="true">
+            <select class="repaircontent form-control" name="row[repair_content_id]"  data-url="bx/repairsettlement/getcontent"></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('收据号码')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="required;integer" class="form-control" name="row[receipt_number]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('费用合计')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="integer" class="form-control" name="row[money]" type="text" autocomplete="off">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('报送人')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="required" class="form-control" name="row[submit_person]" type="text">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+

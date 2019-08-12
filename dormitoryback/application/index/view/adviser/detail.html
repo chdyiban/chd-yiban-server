@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>2019年辅导员满意度调查问卷填写数据</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+
+</head>
+<body>
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">{$info.YXJC}</div>
+        <div class="weui-panel__bd">
+            {foreach name="$info.count" item="vo"}   
+            <a class="weui-cell weui-cell_access" href="./student?college={$vo.YXDM}&nj={$vo.NJ}&name={$info.YXJC}">
+                <div class="weui-cell__bd weui-cell_primary">
+                    <h5 class="weui-media-box__title">{$vo.NJ}级</h4>
+                    <p class="weui-media-box__desc">年级总人数：<strong>{$vo.stuAllCount}</strong></p>
+                    <p class="weui-media-box__desc">完成人数：<strong>{$vo.finishedStuCount}</strong></p>
+                    <p class="weui-media-box__desc">完成率：<strong>{$vo.finishedRate}</strong></p>
+                </div>
+                <div class="weui-cell__ft" style="text-align: right" >查看未评价名单</div>
+            </a>
+            {/foreach}
+        </div>
+        <div class="weui-panel__ft">
+            <a href="./index" class="weui-cell weui-cell_access weui-cell_link">
+            <div class="weui-cell__bd">返回</div>
+                <span class="weui-cell__ft"></span>
+            </a>    
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+    <script src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script>
+        
+        // var appId = 'wx7127494fe62b5813';
+        // var timestamp = (new Date()).getTime();
+        // var nonceStr = 'ae0529bd73c4e0cd24f3478089ddc509';
+        // $.ajax({
+        //     type: 'GET',
+        //     url: '../Wechat/getSignature',
+        //     data:{
+        //         'noceStr': nonceStr,
+        //         'timestamp': timestamp,
+        //         'url':'http://g6avwx.natappfree.cc/yibanbx/public/index/bx/detail',
+        //     },
+        //     success: function(data) {
+        //         var signature = data;
+        //     }
+        // });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <style type="text/css">
+        .demos-content-padded {
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" style="display:none" id="listId" value="{$listInfo.id}">
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-cells">
+            <div class="weui-cells__title">订单详情</div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修人</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.stu_name}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>联系方式</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.phone}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修标题</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.title}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修内容</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.content}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修区域</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.address_id}#{$listInfo.address}</div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>报修时间</p>
+                </div>
+                <div class="weui-cell__ft">{$listInfo.submit_time|date="Y-m-d H:i",###}</div>
+            </div>
+        </div>
+    </div>
+    {eq name="$listInfo.status" value="waited"}
+    <div class="weui-cells">
+        <div class="weui-cells__title">处理订单</div>
+        <div class="weui-cells weui-cells_radio">
+            <label class="weui-cell weui-check__label" for="accept">
+                <div class="weui-cell__bd">
+                    <p>受理</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <input type="radio" class="weui-check" name="radio1" id="accept" checked="checked">
+                    <span class="weui-icon-checked"></span>
+                </div>
+            </label>
+            <label class="weui-cell weui-check__label" for="refuse" width="50%">
+                <div class="weui-cell__bd">
+                    <p>驳回</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <input type="radio" name="radio1" class="weui-check" id="refuse" >
+                    <span class="weui-icon-checked"></span>
+                </div>
+            </label>
+        </div>
+        <div id="changeRefuse" style="display:none">
+            <div class="weui-cells__title">填写拒绝理由</div>
+            <div class="weui-cells weui-cells_form">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                    <textarea id="textarea" class="weui-textarea" placeholder="请输入拒绝理由" rows="3"></textarea>
+                    <div class="weui-textarea-counter"><span id="count">0</span>/200</div>
+                    </div>
+                </div>
+            </div>
+            <a class="weui-btn weui-btn_primary" href="javascript:" id="confirmRefuse">确定</a>
+        </div>
+        <div id="changeSelectCompany">
+            <div class="weui-cells__title">选择单位</div>
+            <div class="weui-cells">
+                <div class="weui-cell weui-cell_select">
+                    <div class="weui-cell__bd">
+                    <select class="weui-select" name="selectCompany" id="selectCompany">
+                        {foreach name="$companyInfo" item="vo"}     
+                        <option value="{$vo.id}">{$vo.nickname}</option>
+                        {/foreach}
+                    </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="changeSelectWorker">
+            <div class="weui-cells__title">选择工人</div>
+            <div class="weui-cells">
+                <div class="weui-cell weui-cell_select">
+                    <div class="weui-cell__bd">
+                    <select class="weui-select" name="selectWorker" id="selectWorker">
+                    </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="btn-distribute" class="demos-content-padded" style="display:none">
+            <a href="javascript:;" id="confirmDistribute" class="weui-btn weui-btn_primary">确定分配</a>
+        </div>
+    </div>
+        {/eq}
+        {in name="$listInfo.status" value="dispatched,distributed,finished"}
+    <div class="weui-cells">
+        <div class="weui-cells__title">历史操作</div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>受理时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.accepted_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {notempty name="$listInfo.distributed_time"}
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>派单时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.distributed_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {/notempty}
+        {notempty name="$listInfo.dispatched_time"}
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>派工时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.dispatched_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {/notempty}
+        {notempty name="$listInfo.finished_time"}
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>完工时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.finished_time|date="Y-m-d H:i",###}</div>
+        </div>
+        {/notempty}
+        <div class="demos-content-padded">
+            <a href="javascript:;" class="weui-btn weui-btn_disabled weui-btn_primary">订单已处理</a>
+        </div>
+    </div>
+        {/in}
+        {eq name="$listInfo.status" value="refused"}
+     <div class="weui-cells">
+        <div class="weui-cells__title">历史操作</div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>驳回时间</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.refused_time|date="Y-m-d H:i",###}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>驳回原因</p>
+            </div>
+            <div class="weui-cell__ft">{$listInfo.refused_content}</div>
+        </div>
+        <div class="demos-content-padded">
+            <a href="javascript:;" class="weui-btn weui-btn_disabled weui-btn_primary">订单已处理</a>
+        </div>
+    </div>
+        {/eq}
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+    <script src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script>
+        
+        //拒绝订单
+        $(document).on('click', '#refuse', function () {
+            $("#changeSelectCompany").hide();
+            $("#changeSelectWorker").hide();
+            $("#btn-distribute").hide();
+            $("#changeRefuse").show();
+            var max = 200;
+            $('#textarea').on('input', function(){
+                var text = $(this).val();
+                var len = text.length;
+                $('#count').text(len);
+                if(len > max){
+                    $(this).closest('.weui_cell').addClass('weui_cell_warn');
+                } else {
+                    $(this).closest('.weui_cell').removeClass('weui_cell_warn');
+                }
+            });
+        });
+        //受理订单
+        $(document).on('click', '#accept', function () {
+            $("#changeSelectCompany").show();
+            $("#changeSelectWorker").show();
+            $("#btn-distribute").show();
+            $("#changeRefuse").hide();
+        });
+        
+        //查询工人
+        $('#selectCompany').on('change',function(){
+            var company = $("#selectCompany option:selected").text();
+            var companyId = $("#selectCompany option:selected").val();
+            if (company != "自修") {
+                //若非自修，则清空工人选择框
+                $("#changeSelectWorker").hide();
+                $("#btn-distribute").show();
+                $("#selectWorker").empty();
+            } else {
+                //再次获取自修工人
+                $.showLoading("数据获取中...");
+                $.ajax({
+                    type: 'POST',
+                    url: './getWorkerJson',
+                    data:{
+                        'companyId': companyId,
+                    },
+                    success: function(data) {
+                        $.hideLoading();
+                        $.each(data.data,function (i,v) {
+                            $("#selectWorker").append("<option value="+v.value+">"+v.name+"</option>");
+                        })
+                        $("#changeSelectWorker").show();
+                        $("#btn-distribute").show();
+                    }
+                });              
+            }
+        });
+
+        //窗口一加载便请求获取自修的工人
+        $(document).ready(function () {
+            var companyId = $("#selectCompany option:selected").val();
+            $.ajax({
+                type: 'POST',
+                url: './getWorkerJson',
+                data:{
+                    'companyId': companyId,
+                },
+                success: function(data) {
+                    $.each(data.data,function (i,v) {
+                        $("#selectWorker").append("<option value="+v.value+">"+v.name+"</option>");
+                    })
+                    $("#btn-distribute").show();
+                }
+            });
+
+        });
+
+        //确定分配工人以及公司
+        $(document).on('click', '#confirmDistribute', function () {
+            var companyId = $("#selectCompany option:selected").val();
+            var workerId = $("#selectWorker option:selected").val();
+            var listId = $("#listId").val();
+            $.showLoading("数据提交中...");
+            $.ajax({
+                type: 'POST',
+                url: './distributeWorker',
+                data:{
+                    'companyId': companyId,
+                    'workerId': workerId,
+                    'listId': listId,
+                },
+                success: function(data) {
+                    $.hideLoading();
+                    if (data) {
+                        $.toast("分配成功");
+                        $("#confirmDistribute").addClass("weui-btn_disabled");
+                        $("#confirmDistribute").text("已分配");
+                    } else{
+                        $.toast("分配失败","forbidden")
+                    }
+                }
+            });
+        });
+
+        //提交拒绝理由
+        $(document).on('click', '#confirmRefuse', function () {
+            var content = $("#textarea").val();
+            var listId = $("#listId").val();
+            $.showLoading("数据提交中...");
+            $.ajax({
+                type: 'POST',
+                url: './refuse',
+                data:{
+                    'content': content,
+                    'listId': listId,
+                },
+                success: function(data) {
+                    $.hideLoading();
+                    if (data) {
+                        $.toast("提交成功");
+                        $("#confirmRefuse").addClass("weui-btn_disabled");
+                        $("#confirmRefuse").text("已驳回");
+                    } else{
+                        $.toast("提交失败","forbidden")
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

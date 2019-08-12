@@ -1,0 +1,44 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label for="c-status" class="control-label col-xs-12 col-sm-2">{:__('住房类别')}:</label>
+        <div class="col-xs-12 col-sm-8" data-toggle="cxselect" data-selects="roomStatus" data-required="true">
+            <select id="roomStatus" class="roomStatus form-control" name="row[status]" data-url="dormitorysystem/dormitorylist/getRoomStatus" data-value="{$row.status}"></select>
+        </div>
+    </div>
+    <div class="form-group roomName hidden">
+        <label for="c-roomName" class="control-label col-xs-12 col-sm-2">{:__('公用房名称')}:</label>
+        <div class="col-xs-12 col-sm-8" >
+            <input id="c-roomName" data-rule="required" autocomplete="off" class="c-roomName form-control" value="{$row.GYFMC}" name="row[GYFMC]" type="text">
+        </div>
+    </div>
+    <div class="form-group stuRoom hidden">
+        <label for="c-XB" class="control-label col-xs-12 col-sm-2">{:__('房间类别')}:</label>
+        <div class="col-xs-12 col-sm-8" data-toggle="cxselect" data-selects="roomStatus" data-required="true" >
+            <select id="c-XB" class="roomStatus form-control" name="row[XBDM]" >
+                {eq name="row.XBDM" value="1"}
+                <option value="1" selected="selected">男宿</option>
+                <option value="2">女宿</option>
+                {else/}
+                <option value="1" >男宿</option>
+                <option value="2" selected="selected">女宿</option>
+                {/eq}
+            </select>
+        </div>
+    </div>
+    <div class="form-group stuRoom hidden">
+        <label for="c-CWS" class="control-label col-xs-12 col-sm-2">{:__('床位数')}:</label>
+        <div class="col-xs-12 col-sm-8" >
+            <input id="c-CWS" data-rule="required" autocomplete="off" class="form-control" name="row[CWS]" type="text" value="{$row.CWS}">
+        </div>
+    </div>
+    
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+

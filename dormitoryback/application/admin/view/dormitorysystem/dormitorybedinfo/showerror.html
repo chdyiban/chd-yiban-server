@@ -1,0 +1,48 @@
+<div id="BoxInfo" class="box box-info">
+    <div class="box-header with-border">
+        <div class="callout callout-warning">
+            <h4>导入数据有误！</h4>
+        </div>
+    </div>
+
+    <div class="box-body">
+        <div class="col-xs-12">
+            <table class="table table-striped ">
+                <!-- <p class="lead">数据有误</p> -->
+                {empty name="$wrongArray"}
+                    <thead>
+                        <tr>
+                            <th>行数</th>
+                            <th colspan="3">问题</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{$wrongItemArray.row}</td>
+                            <td colspan="3">{$wrongItemArray.msg}</td>
+                        </tr>
+                    </tbody>
+                {else /}
+                <thead>
+                    <tr>
+                        <th>行数</th>
+                        <th>问题一</th>
+                        <th>问题二</th>
+                        <th>问题三</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $wrongArray as $vo}
+                        <tr>
+                            <td>{$vo.row}</td>
+                            {foreach $vo.msg as $v}
+                                <td>{$v}</td>
+                            {/foreach}
+                        </tr>
+                    {/foreach}
+                </tbody>
+                {/empty}
+            </table>
+        </div>
+    </div>
+</div>

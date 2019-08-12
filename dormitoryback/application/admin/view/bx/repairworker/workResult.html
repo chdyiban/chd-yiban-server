@@ -1,0 +1,46 @@
+
+<style type="text/css" media="print">
+    .noprint { display:none;}
+</style>
+<div class="box">
+    <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+        <tbody style="text-align:center;" >
+            <tr style="text-align:center;vertical-align:middle;">
+                <th  style="text-align:center;width: 100px">订单ID</th>
+                <th  style="text-align:center;width: 100px">报修区域</th>
+                <th  style="text-align:center;width: 100px">报修地点</th>
+                <th  style="text-align:center;width: 100px">故障描述</th>
+                <th  style="text-align:center;width: 300px">报修内容</th>
+                <th  style="text-align:center;width: 100px">申报人</th>
+                <th  style="text-align:center;width: 100px">联系方式</th>
+                <th  style="text-align:center;width: 100px">报修时间 </th>
+                <th  style="text-align:center;width: 100px">完工时间</th>
+            </tr>
+        {empty name="$finishList"}
+        <tr style="text-align:center;" >
+            <td colspan="9">暂无已完成订单</td>
+        </tr>
+        {else/}
+        {foreach $finishList as $vo}
+        <tr style="text-align:center;" >
+            <td style="vertical-align:middle;"> {$vo.id}</td>
+            <td style="vertical-align:middle;"> {$vo.address_id}号楼</td>
+            <td style="vertical-align:middle;"> {$vo.address}</td>
+            <td style="vertical-align:middle;"> {$vo.title}</td>
+            <td style="vertical-align:middle;"> {$vo.content}</td>
+            <td style="vertical-align:middle;"> {$vo.stu_name}</td>
+            <td style="vertical-align:middle;"> {$vo.phone}</td>
+            <td style="vertical-align:middle;"> {$vo.submit_time|date="Y-m-d",###}</td>
+            <td style="vertical-align:middle;"> {$vo.finished_time|date="Y-m-d",###}</td>
+        </tr>
+        {/foreach}
+    </tbody></table>
+    </div>
+
+    {/empty}
+</div>
+
+
+
+

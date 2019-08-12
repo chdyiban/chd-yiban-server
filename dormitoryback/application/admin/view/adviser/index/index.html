@@ -1,0 +1,108 @@
+<style>
+    .profile-avatar-container {
+        position:relative;
+        width:100px;margin:0 auto;
+    }
+    .profile-avatar-container .profile-user-img{
+        width:100px;
+        height:100px;
+    }
+    .profile-avatar-container .profile-avatar-text {
+        display:none;
+    }
+    .profile-avatar-container:hover .profile-avatar-text {
+        display:block;
+        position:absolute;
+        height:100px;
+        width:100px;
+        background:#444;
+        opacity: .6;
+        color: #fff;
+        top:0;
+        left:0;
+        line-height: 100px;
+        text-align: center;
+    }
+    .profile-avatar-container button{
+        position:absolute;
+        top:0;left:0;width:100px;height:100px;opacity: 0;
+    }
+</style>
+<div class="row animated fadeInRight">
+
+    <div class="box box-success">
+        <div class="panel-body">
+
+            <form id="update-form"  class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+                <div class="box-body box-profile">
+                    
+                    <h3 class="profile-username text-center">{$adviser.GH}</h3>
+                    <h3 class="profile-username text-center">{$adviser.XM}</h3>
+
+                    <div class="form-group">
+                        <label for="c-GH" class="control-label  col-sm-2">{:__('工号')}:</label>
+                        <div class=" col-sm-8">
+                            <input type="hidden" name="row[GH]" value="{$adviser.GH}"/>
+                            <input id="c-GH" type="text" class="form-control"  value="{$adviser.GH}" disabled />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="c-XM" class="control-label  col-sm-2">{:__('姓名')}:</label>
+                        <div class=" col-sm-8">
+                            <input type="hidden" name="row[XM]" value="{$adviser.XM}"/>
+                            <input id="c-XM" type="text" class="form-control"  value="{$adviser.XM}" disabled />
+                        </div>
+                    </div>
+                    {empty name="$adviser.question"}
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('参与班会次数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[BHCS]" type="text" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('参加班级集体活动次数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[HDCS]" type="text" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('单独辅导学生人数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[FDXS]" type="text" autocomplete="off">
+                        </div>
+                    </div>
+                    {else/}
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('参与班会次数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[BHCS]" type="text" value="{$adviser.question.BHCS}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('参加班级集体活动次数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[HDCS]" type="text" value="{$adviser.question.HDCS}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="c-BHCS" class="control-label col-xs-12 col-sm-2">{:__('单独辅导学生人数')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-BHCS" data-rule="required;integer" class="form-control" name="row[FDXS]" type="text" value="{$adviser.question.FDXS}" autocomplete="off">
+                        </div>
+                    </div>
+                    {/empty}
+                  
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2"></label>
+                        <div class="col-xs-12 col-sm-8">
+                            <button type="submit" class="btn btn-success ">{:__('OK')}</button>
+                            <button type="reset" class="btn btn-default ">{:__('Reset')}</button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
