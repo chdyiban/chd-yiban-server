@@ -4,6 +4,7 @@ namespace app\api\controller\datav;
 
 use app\common\controller\Api;
 use think\Db;
+use think\Config;
 
 use app\api\model\Adviser as AdviserModel;
 
@@ -21,16 +22,22 @@ class Index extends Api
         $collegeList = Db::view("fresh_result")
                 ->view("dict_college","YXMC,YXDM","fresh_result.YXDM = dict_college.YXDM")
                 ->group("fresh_result.YXDM")
-                ->column("YXMC,COUNT(*)");
+                ->column("YXMC,COUNT(*),dict_college.YXDM");
+
         // SELECT `YXDM`,COUNT(*) FROM `fa_fresh_result` GROUP BY `YXDM`
         $return = array_keys($collegeList);
         $data = [];
         foreach ($return as $key => $value) {
-            $temp = [
-                "content" => $value,
-                "value"   => $collegeList[$value], 
-            ];
-            $data[] = $temp;
+            $YXDM = $collegeList[$value]["YXDM"];
+            $startTime = strtotime(Config::get("dormitory.$YXDM"));
+            $nowTime = time();
+            if ($nowTime >= $startTime) {
+                $temp = [
+                    "content" => $value,
+                    "value"   => $collegeList[$value], 
+                ];
+                $data[] = $temp;
+            }
         }
         // dump($data);
         return json($data);
@@ -543,14 +550,19 @@ class Index extends Api
 				-> where("status","finished")
 				-> limit(10)
 				-> select();
-		$returnData = [];
+        $returnData = [];
 		foreach ($resultList as $key => $value) {
-			$temp = [
-				"name"  => $value["XM"],
-				"YXMC"  => $value["YXJC"],
-				"result"=> $value["SSDM"]."-".$value["CH"],
-			];
-			$returnData[] = $temp;
+            $YXDM = $value["YXDM"];
+            $startTime = strtotime(Config::get("dormitory.$YXDM"));
+            $nowTime = time();
+            if ($nowTime >= $startTime) {
+                $temp = [
+                    "name"  => $value["XM"],
+                    "YXMC"  => $value["YXJC"],
+                    "result"=> $value["SSDM"]."-".$value["CH"],
+                ];
+                $returnData[] = $temp;
+            }
 		}
 		return json($returnData);
 	}
