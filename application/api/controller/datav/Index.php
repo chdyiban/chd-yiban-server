@@ -140,7 +140,8 @@ class Index extends Api
         // $start = 1534204800;
         $start = Db::name("fresh_result")->min("SDSJ");
         // $end   = 1534251600;
-        $end   = Db::name("fresh_result")->max("SDSJ");
+        // $end   = Db::name("fresh_result")->max("SDSJ");
+        $end    = time();
         $inside = (int)($end - $start) / 10;
 
         //每小时日期
