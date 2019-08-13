@@ -464,12 +464,21 @@ class Index extends Api
 						-> column("LH,sum(SYRS)");
 		$returnData = [];
 		ksort($buildingOldList);
-		foreach ($buildingOldList as $key => $value) {
-			$temp = [
-				"x"  => $key."#",
-				"y"  => $value-$buildingNowList[$key],
-				"s"  => 1,
-			];
+        foreach ($buildingOldList as $key => $value) {
+            $time = time();
+            if ($key == "9" && $time <= 1565676000) {
+                $temp = [
+                    "x"  => $key."#",
+                    "y"  => 0,
+                    "s"  => 1,
+                ];
+            } else {
+                $temp = [
+                    "x"  => $key."#",
+                    "y"  => $value-$buildingNowList[$key],
+                    "s"  => 1,
+                ];
+            }
 			$returnData[] = $temp;
 		}
 		return json($returnData);
@@ -526,12 +535,11 @@ class Index extends Api
             foreach ($labelList as $key => $value) {
                 $temp = [
                     "name" => $value,
-                    "value"=> Db::name("fresh_recommend_question")->where("label","LIKE","%$value%")->count(),
+                    "value"=> Db::name("fresh_recommend_question")->where("label","LIKE","%".$value."%")->count(),
                     "type" => 0,
                 ];
                 $label[] = $temp;
             }
-			
 			return json($label);
 		} elseif ($param == "finishedNumber") {
 			$count = Db::name("fresh_recommend_question")->count();
