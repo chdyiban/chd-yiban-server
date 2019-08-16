@@ -126,10 +126,16 @@ class Index extends Api
                     "usable" => true,
                 ],
                 [
+                    "id"   =>  "cj",
                     "icon" =>  'babyfill',
                     "color"=>  'blue',
                     "badge"=>   0,
                     "name" =>  '成绩查询',
+                    "permissions" => [
+                        "unauthorized" => false, 
+                        "teacher"  => false
+                    ],
+                    "usable"=> true,
                 ],
                 [
                     "icon" =>  'medalfill',
@@ -138,10 +144,16 @@ class Index extends Api
                     "name" =>  '运动会',
                 ],
                 [
+                    "id"   =>  "bzr",
                     "icon" =>  'attentionfavorfill',
                     "color"=>  'mauve',
                     "badge"=>   0,
                     "name" =>  '班主任评价',
+                    "permissions" => [
+                        "unauthorized" => false, 
+                        "teacher"  => true,
+                    ],
+                    "usable"=> true,
                 ],
                 [
                     "icon" =>  'favorfill',
@@ -156,16 +168,28 @@ class Index extends Api
                     "name" =>  '我的宿舍',
                 ],
                 [
+                    "id"   =>  'jy',
                     "icon" =>  'barcode',
                     "color"=>  'green',
                     "badge"=>   0,
                     "name" =>  '借阅信息',
+                    "permissions" => [
+                        "unauthorized" => false, 
+                        "teacher"  => false
+                    ],
+                    "usable"=> true,
                 ],
                 [
-                    "icon" =>  'servicefill',
-                    "color"=>  'blue',
+                    "id"   =>   "kf", 
+                    "color"=>   "blue",
+                    "icon" =>   "servicefill",
+                    "name" =>   "智能客服",
                     "badge"=>   0,
-                    "name" =>  '智能客服',
+                    "permissions" => [
+                            "unauthorized" => true, 
+                            "teacher"     => true,
+                    ],
+                    "usable"=> true,
                 ],
             
             ],
