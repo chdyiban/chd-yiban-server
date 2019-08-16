@@ -78,6 +78,85 @@ class Dormitory extends Model
         return ['status' => true, 'msg' => "填写成功", 'data' => $data, 'info' => $info_family];
         
     }
+    /**
+     * 返回学生家庭信息基本信息
+     */
+    public function getBaseInfo($param)
+    {
+        $XH = $param["XH"];
+        // $XH = "2019901872";
+        $userInfo = Db::name("fresh_questionnaire_base")->where("XH",$XH)->find();
+        $familyInfo = Db::name("fresh_questionnaire_family")->where("XH",$XH)->select();
+        if (empty($userInfo)) {
+            return ["status" => false, "msg" => "未填写家庭信息调查表","data"=>null];
+        } elseif (empty($familyInfo)) {
+            unset($userInfo["ID"]);
+            $userInfo["JTRKS"] = 1; 
+            return ["status" => true, "msg" => "获取成功","data"=> $userInfo];
+        } else {
+            foreach ($familyInfo as $key => &$value) {
+                unset($value["ID"]);
+            }
+            $userInfo["family"] = $familyInfo;
+            return ["status" => true, "msg" => "获取成功","data"=> $userInfo];
+        }
+    }
+
+    /**
+     * 将学生原先数据挪到备份数据表中，并删除之前的数据。
+     */
+    public function setBaseInfo($param)
+    {
+        $XH = $param["XH"];
+        // $XH = "2019900265";
+        $userInfo = Db::name("fresh_questionnaire_base")->where("XH",$XH)->find();
+        $familyInfo = Db::name("fresh_questionnaire_family")->where("XH",$XH)->select();
+        $recheck   = Db::name("fresh_questionnaire_base_backup")->where("XH",$XH)->find();
+        //区分是否已经重填过
+        if (empty($recheck)) {
+            //区分是否填写过家庭问卷
+            if (!empty($userInfo)) {
+                $insert_flag1 = false;
+                $insert_flag2 = false;
+                $delete_flag1  = false;
+                $delete_flag2  = false;
+                $idTemp  = [];
+                Db::startTrans();
+                try{   
+                    $delete_flag1  = Db::name("fresh_questionnaire_base")->delete($userInfo["ID"]);
+                    unset($userInfo["ID"]);
+                    $insert_flag1 = Db::name("fresh_questionnaire_base_backup")->insert($userInfo);
+                    if (!empty($familyInfo)) {
+                        foreach ($familyInfo as $key => &$value) {
+                            $idTemp[$key] = $value["ID"]; 
+                            unset($value["ID"]);
+                        }
+                        $delete_flag2 =  Db::name("fresh_questionnaire_family")->delete($idTemp);
+                        $insert_flag2 = Db::name("fresh_questionnaire_family_backup")->insertAll($familyInfo);
+                    } else {
+                        $delete_flag2 =  true;
+                        $insert_flag2 = true;
+                    }
+                    //提交事务
+                    Db::commit();      
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    Db::rollback();
+                }    
+
+                if ($insert_flag1 && $insert_flag2 && $delete_flag1 && $delete_flag2) {
+                    return ["status" => true, "msg" => "success","data"=>null];
+                } else {
+                    return ["status" => false, "msg" => "error","data"=>null];
+                }
+            } else {
+                return ["status" => false, "msg" => "未填写家庭信息问卷","data"=>null];
+            }
+        } else {
+            return ["status" => false, "msg" => "重填次数已用光！","data"=>null];
+        }
+    }
+
 
     /**
      * 向fa_fresh_questionnaire_base中插入数据

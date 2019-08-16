@@ -16,7 +16,7 @@ use think\Db;
  */
 class Dormitory extends Api
 {
-    protected $noNeedLogin = [];
+    protected $noNeedLogin = ["investigation"];
     protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
 
@@ -87,6 +87,32 @@ class Dormitory extends Api
             }
         }
     }
+
+	/**
+     * 返回学生所填家庭信息
+     * @param string action get|set
+     * @param string action 
+     */
+    public function investigation()
+    {
+        $DormitoryModel = new DormitoryModel();
+		$action = $this->request->get("action");
+		if (empty($action)) {
+			$this->error("param error!");
+		} elseif ($action == "get") {
+			$result = $DormitoryModel->getBaseInfo($this->_user);
+		} elseif ($action == "set") {
+			$result = $DormitoryModel->setBaseInfo($this->_user);
+			// $result = $DormitoryModel->setBaseInfo();
+		}
+		
+		if ($result["status"]) {
+			$this->success($result["msg"],$result["data"]);
+		} else {
+			$this->error($result["msg"],$result["data"]);
+		}
+	}
+	
 
     /**
      * 查询当前各个宿舍状态
