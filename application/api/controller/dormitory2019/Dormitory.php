@@ -16,7 +16,7 @@ use think\Db;
  */
 class Dormitory extends Api
 {
-    protected $noNeedLogin = ["investigation"];
+    protected $noNeedLogin = [];
     protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
 
