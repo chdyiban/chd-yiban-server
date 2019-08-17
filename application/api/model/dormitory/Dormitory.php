@@ -92,6 +92,7 @@ class Dormitory extends Model
         } elseif (empty($familyInfo)) {
             unset($userInfo["ID"]);
             $userInfo["JTRKS"] = 1; 
+            $userInfo["family"] = [];
             return ["status" => true, "msg" => "获取成功","data"=> $userInfo];
         } else {
             foreach ($familyInfo as $key => &$value) {
