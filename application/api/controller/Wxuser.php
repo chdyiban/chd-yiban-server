@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\controller\miniapp;
+namespace app\api\controller;
 
 use app\common\controller\Api;
 use think\Config;
