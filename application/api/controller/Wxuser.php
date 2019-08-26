@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\controller;
+namespace app\api\controller\miniapp;
 
 use app\common\controller\Api;
 use think\Config;
@@ -287,7 +287,7 @@ class Wxuser extends Api
     /**
      * 获取用户联系方式api
      */
-    public function wxmoblie()
+    public function wxmobile()
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
@@ -376,11 +376,11 @@ class Wxuser extends Api
                             'name' => "暂无数据",
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
-                        'token' => rand_str_10(),
+                        // 'token' => rand_str_10(),
                         'status' => 200,
                     ];
                 } else {
@@ -400,11 +400,11 @@ class Wxuser extends Api
                             'name' => $info['XM']
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
-                        'token' => rand_str_10(),
+                        // 'token' => rand_str_10(),
                         'status' => 200,
                     ];
                 }
@@ -428,6 +428,10 @@ class Wxuser extends Api
                         ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
                         ->find();
                         $info['ZYMC'] = '';
+                        //研究生没有班级
+                        if (empty($info["BJDM"])) {
+                            $info["BJDM"] = "";
+                        }
                 }
 
                 //如果数据库中没有数据
@@ -457,7 +461,7 @@ class Wxuser extends Api
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
-                        'token' => rand_str_10(),
+                        // 'token' => rand_str_10(),
                         'status' => 200,
                     ];
                 } else {
@@ -488,7 +492,7 @@ class Wxuser extends Api
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
-                        'token' => rand_str_10(),
+                        // 'token' => rand_str_10(),
                         'status' => 200,
                     ];
                 }
