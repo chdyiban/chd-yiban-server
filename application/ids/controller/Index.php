@@ -35,7 +35,7 @@ class index
         //如果为老师
         if(strlen($user) == 6){
             $row = Db::view("teacher_detail")
-                    -> view("dict_college","YXDM,yb_group_id","fa_teacher_detail.YXDM = fa_dict_college.YXDM")
+                    -> view("dict_college","YXDM,yb_group_id","teacher_detail.YXDM = dict_college.YXDM")
                     -> where("ID",$user)
                     -> find();
             if (!empty($row)) {
@@ -57,7 +57,7 @@ class index
         } else {
         //请求者为学生
             $row = Db::view("stu_detail")
-                    -> view("dict_college","YXDM,yb_group_id","fa_stu_detail.YXDM = fa_dict_college.YXDM")
+                    -> view("dict_college","YXDM,yb_group_id","stu_detail.YXDM = dict_college.YXDM")
                     -> where("XH",$user)
                     -> find();
             if(!empty($row)){
