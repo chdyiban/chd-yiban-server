@@ -82,7 +82,8 @@ EOF;
 	
 	private function encodeArr($infoArr, $path) {
 		$infoJson = json_encode($infoArr);
-		$privkey = file_get_contents($path.'pkcs8_rsa_private_key.pem');
+		// $privkey = file_get_contents($path.'pkcs8_rsa_private_key.pem');
+		$privkey = file_get_contents(dirname(__FILE__).DS.'pkcs8_rsa_private_key.pem');
 		$pack = "";
 		foreach(str_split($infoJson, 245) as $str) {
 			$crypted = "";
