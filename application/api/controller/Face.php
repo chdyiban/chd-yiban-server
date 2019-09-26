@@ -21,24 +21,24 @@ class Face extends Api
         header('Access-Control-Allow-Origin:*');    
         $result = [
             [
-                "name" => "长安大学信息学院",
-                "coverImgUrl" => "******",
+                "name" => "头 像 1",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/1.png",
             ],
             [
-                "name" => "类型2",
-                "coverImgUrl" => "******",
+                "name" => "头 像 2",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/2.png",
             ],
             [
-                "name" => "类型3",
-                "coverImgUrl" => "******",
+                "name" => "头 像 3",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/3.png",
             ],
             [
-                "name" => "类型4",
-                "coverImgUrl" => "******",
+                "name" => "头 像 4",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/4.png",
             ],
             [
-                "name" => "类型5",
-                "coverImgUrl" => "******",
+                "name" => "信息学院",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/xx.png",
             ],
         ];
         $this->success('success', $result);
