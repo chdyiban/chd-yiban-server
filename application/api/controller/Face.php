@@ -37,6 +37,26 @@ class Face extends Api
                 "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/4.png",
             ],
             [
+                "name" => "头 像 5",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/5.png",
+            ],
+            [
+                "name" => "头 像 6",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/6.png",
+            ],
+            [
+                "name" => "头 像 7",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/7.png",
+            ],
+            [
+                "name" => "头 像 8",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/8.png",
+            ],
+            [
+                "name" => "头 像 9",
+                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/9.png",
+            ],
+            [
                 "name" => "信息学院",
                 "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/xx.png",
             ],
