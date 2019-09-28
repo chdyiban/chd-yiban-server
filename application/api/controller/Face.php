@@ -56,10 +56,10 @@ class Face extends Api
                 "name" => "头 像 9",
                 "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/9.png",
             ],
-            [
-                "name" => "信息学院",
-                "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/xx.png",
-            ],
+            // [
+            //     "name" => "信息学院",
+            //     "coverImgUrl" => "https://yibancdn.ohao.ren/guoqing/avatar/xx.png",
+            // ],
         ];
         $this->success('success', $result);
     }
