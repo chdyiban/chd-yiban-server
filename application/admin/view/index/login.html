@@ -76,6 +76,13 @@
                                     <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
                                     <input type="password" class="form-control" id="pd-form-password" placeholder="{:__('Password')}" name="password" autocomplete="off" value="" data-rule="{:__('Password')}:required;password" />
                                 </div>
+                                <div class="input-group">
+                                    <div class="input-group-addon"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+                                    <select type="text" class="form-control" id="pd-form-logintype" placeholder="{:__('登录方式')}" name="logintype" >
+                                        <option value="normal">系统用户</option>
+                                        <option value="school">门户用户</option>
+                                    </select>
+                                </div>
                                 {if $config.fastadmin.login_captcha}
                                 <div class="input-group">
                                     <div class="input-group-addon"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span></div>
