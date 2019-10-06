@@ -2,7 +2,12 @@
 
 namespace app\admin\controller;
 
+use app\admin\model\Admin;
 use app\admin\model\AdminLog;
+use app\admin\model\AuthGroup;
+use app\admin\model\AuthGroupAccess;
+use think\Db;
+use fast\Random;
 use app\common\controller\Backend;
 use think\Config;
 use think\Hook;
@@ -53,6 +58,7 @@ class Index extends Backend
      */
     public function login()
     {
+        $adminModel = new Admin();
         $url = $this->request->get('url', 'index/index');
         if ($this->auth->isLogin()) {
             $this->success(__("You've logged in, do not login again"), $url);
@@ -60,36 +66,92 @@ class Index extends Backend
         if ($this->request->isPost()) {
             $username = $this->request->post('username');
             $password = $this->request->post('password');
+            $logintype = $this->request->post('logintype');
             $keeplogin = $this->request->post('keeplogin');
-            $token = $this->request->post('__token__');
-            $rule = [
-                'username'  => 'require|length:3,30',
-                'password'  => 'require|length:3,30',
-                '__token__' => 'token',
-            ];
-            $data = [
-                'username'  => $username,
-                'password'  => $password,
-                '__token__' => $token,
-            ];
-            if (Config::get('fastadmin.login_captcha')) {
-                $rule['captcha'] = 'require|captcha';
-                $data['captcha'] = $this->request->post('captcha');
-            }
-            $validate = new Validate($rule, [], ['username' => __('Username'), 'password' => __('Password'), 'captcha' => __('Captcha')]);
-            $result = $validate->check($data);
-            if (!$result) {
-                $this->error($validate->getError(), $url, ['token' => $this->request->token()]);
-            }
-            AdminLog::setTitle(__('Login'));
-            $result = $this->auth->login($username, $password, $keeplogin ? 86400 : 0);
-            if ($result === true) {
-                Hook::listen("admin_login_after", $this->request);
-                $this->success(__('Login successful'), $url, ['url' => $url, 'id' => $this->auth->id, 'username' => $username, 'avatar' => $this->auth->avatar]);
-            } else {
-                $msg = $this->auth->getError();
-                $msg = $msg ? $msg : __('Username or password is incorrect');
-                $this->error($msg, $url, ['token' => $this->request->token()]);
+            //辅导员职业能力大赛需要改写登录接口
+            if ($logintype == "normal") {
+                $token = $this->request->post('__token__');
+                $rule = [
+                    'username'  => 'require|length:3,30',
+                    'password'  => 'require|length:3,30',
+                    '__token__' => 'token',
+                ];
+                $data = [
+                    'username'  => $username,
+                    'password'  => $password,
+                    '__token__' => $token,
+                ];
+                if (Config::get('fastadmin.login_captcha')) {
+                    $rule['captcha'] = 'require|captcha';
+                    $data['captcha'] = $this->request->post('captcha');
+                }
+                $validate = new Validate($rule, [], ['username' => __('Username'), 'password' => __('Password'), 'captcha' => __('Captcha')]);
+                $result = $validate->check($data);
+                if (!$result) {
+                    $this->error($validate->getError(), $url, ['token' => $this->request->token()]);
+                }
+                AdminLog::setTitle(__('Login'));
+                $result = $this->auth->login($username, $password, $keeplogin ? 86400 : 0);
+                if ($result === true) {
+                    Hook::listen("admin_login_after", $this->request);
+                    $this->success(__('Login successful'), $url, ['url' => $url, 'id' => $this->auth->id, 'username' => $username, 'avatar' => $this->auth->avatar]);
+                } else {
+                    $msg = $this->auth->getError();
+                    $msg = $msg ? $msg : __('Username or password is incorrect');
+                    $this->error($msg, $url, ['token' => $this->request->token()]);
+                }
+            //门户账号登录
+            } elseif ($logintype == "school") {
+                $token = $this->request->post('__token__');
+                $checkResult = $adminModel->check($username,$password);
+                $checkAdmin  = Db::name("admin") -> where("username",$username) -> find();
+                //如果已经注册，那么直接登录
+                if (!empty($checkAdmin)) {
+                    $result = $this->auth->login($username, $password, $keeplogin ? 86400 : 0);                    
+                    if ($result === true) {
+                        Hook::listen("admin_login_after", $this->request);
+                        $this->success(__('Login successful'), $url, ['url' => $url, 'id' => $this->auth->id, 'username' => $username, 'avatar' => $this->auth->avatar]);
+                    } else {
+                        $msg = $this->auth->getError();
+                        $msg = $msg ? $msg : __('Username or password is incorrect');
+                        $this->error($msg, $url, ['token' => $this->request->token()]);
+                    }
+                }
+                //如果没有注册那么就先注册
+                //门户账号密码正确
+                if ($checkResult === true) {
+                    //在数据中获取导员基本信息
+                    $basicInfo = $this->getBasicInfo($username);
+                    if ($basicInfo["status"] == false) {
+                        $this->error("未查找到相关信息，请联系管理员");
+                    }
+                    $paramsRegister = [
+                        "password"  => $password,
+                        "username"  => $username,
+                        "nickname"  => $basicInfo["data"]["XM"],
+                        "email"     => $username."@QQ.com",
+                    ];
+                    // dump($paramsRegister);
+                    $ret = $this->register($paramsRegister);
+                    
+                    if ($ret["code"] != 0) {
+                        $this->error($ret["msg"]);
+                    }
+
+                    $result = $this->auth->login($username, $password, $keeplogin ? 86400 : 0);
+                    if ($result === true) {
+                        Hook::listen("admin_login_after", $this->request);
+                        $this->success(__('Login successful'), $url, ['url' => $url, 'id' => $this->auth->id, 'username' => $username, 'avatar' => $this->auth->avatar]);
+                    } else {
+                        $msg = $this->auth->getError();
+                        $msg = $msg ? $msg : __('Username or password is incorrect');
+                        $this->error($msg, $url, ['token' => $this->request->token()]);
+                    }
+                } else {
+                    $msg = "账号密码有误，请检查";
+                    $this->error($msg, $url, ['token' => $this->request->token()]);
+                }
+               
             }
         }
 
@@ -113,6 +175,64 @@ class Index extends Backend
         $this->auth->logout();
         Hook::listen("admin_logout_after", $this->request);
         $this->success(__('Logout successful'), 'index/login');
+    }
+
+    /**
+     * 获取辅导员基本信息
+     */
+
+    public function getBasicInfo($username)
+    {
+        $info = Db::name("teacher_detail")
+                -> where("ID",$username)
+                -> field("XM,XBDM")
+                -> find();
+        if (!empty($info)) {
+            return ["status" => true, "data" => $info];
+        }
+        return ["status" => false, "data" => ""];
+    }
+
+     /**
+     * 注册管理员
+     *
+     * @param string username 用户名
+     * @param string nickname 昵称
+     * @param string password 密码
+     * @param string email    邮箱
+     * @param string mobile   手机号
+     */
+    public function register($params)
+    {
+
+        $adminModel = new Admin();
+        $authGroupModel = new AuthGroup();
+        $AuthGroupAccess = new AuthGroupAccess();
+        // $params = $this->request->param();
+   
+        $params['salt'] = Random::alnum();
+        $params['password'] = md5(md5($params['password']) . $params['salt']);
+        $params['avatar'] = '/assets/img/avatar.png'; //设置新管理员默认头像。
+        $params["status"] = "normal";
+        $group = $authGroupModel->where("name","辅导员职业能力测试组")->find()["id"];
+        //判断用户是否存在
+        $checkInfo = Db::name("admin")->where("username",$params["username"])->find();
+        if (!empty($checkInfo)) {
+            $info = ["code" => 10,"msg" => "用户名重复"];
+            return $info;
+        }
+        $result = $adminModel->save($params);
+        if (!$result)
+        {
+            //$adminModel->getError()
+            $info = ["code" => 10,"msg" => "用户名重复"];
+            return $info;
+        }
+
+        $dataset = ['uid' => $adminModel->id, 'group_id' => $group];
+        $AuthGroupAccess->save($dataset);
+        $info = ["code" => 0,"msg" => "注册成功"];
+        return $info;
     }
 
 }
