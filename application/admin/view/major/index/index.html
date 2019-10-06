@@ -1,0 +1,50 @@
+<section class="invoice">
+    <!-- title row -->
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+                <input type="text" value="{$basicInfo.GH}" class="hidden" id="GH">
+                <input type="text" value="false" class="hidden" id="check">
+                <input type="text" value="{$basicInfo.XM}" class="hidden" id="XM">
+                <i class="fa fa-gavel" aria-hidden="true"></i> 报名
+            <small class="pull-right">{$basicInfo.time}</small>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <p class="lead">个人信息</p>
+            <div class="table-responsive">
+            <table class="table" >
+                <tbody><tr>
+                <th style="width:50%;text-align: center">姓名：</th>
+                <td style="text-align: center">{$basicInfo.XM}</td>
+                </tr>
+                <tr>
+                <th style="text-align: center">工号：</th>
+                <td style="text-align: center"> {$basicInfo.GH}</td>
+                </tr>
+                <tr>
+                <th style="text-align: center">学院：</th>
+                <td style="text-align: center">{$basicInfo.YXJC}</td>
+                </tr>
+            </tbody></table>
+            </div>
+        </div>          
+    </div>
+    <div class="form-group">
+            <label class="control-label">请选择考场：</label>
+            <label class="radio-inline">
+                <input type="radio" name="place" value="BB">本部
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="place" value="WS">渭水
+            </label>
+        </div>  
+    <div class="row no-print">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-success btn-sign pull-right"><i class="fa fa-hand-paper-o"></i> 信息确认无误，报名
+            </button>
+        </div>
+    </div>
+</section>

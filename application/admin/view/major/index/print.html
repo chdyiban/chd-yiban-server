@@ -1,0 +1,122 @@
+<section class="invoice" >
+    <!-- title row -->
+    <div id="printcontent">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="page-header">
+                    <input type="text" value="true" class="hidden" id="check">
+                    <input type="text" value="{$requestUrl}" class="hidden" id="url">
+                    <i class="fa fa-gavel" aria-hidden="true"></i> 准考证
+                <small class="pull-right">{$basicInfo.time}</small>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <p class="lead">考试信息</p>
+                <div class="table-responsive">
+                    <table class="table" >
+                        <tbody><tr>
+                        <th style="width:50%;text-align: center">姓名：</th>
+                        <td style="text-align: center">{$basicInfo.XM}</td>
+                        </tr>
+                        <tr>
+                        <th style="text-align: center">工号：</th>
+                        <td style="text-align: center"> {$basicInfo.GH}</td>
+                        </tr>
+                        <tr>
+                        <th style="text-align: center">学院：</th>
+                        <td style="text-align: center">{$basicInfo.YXJC}</td>
+                        </tr>
+                        <tr>
+                        <th style="text-align: center">考场：</th>
+                        <td style="text-align: center">{$signInfo.KC}</td>
+                        </tr>
+                        <tr>
+                        <th style="text-align: center">座号：</th>
+                        <td style="text-align: center">{$signInfo.ZH}</td>
+                        </tr>
+                        <tr>
+                        <th style="text-align: center">考试时间</th>
+                        <td style="text-align: center">2019-10-15 8:30-11:30</td>
+                        </tr>
+                    </tbody></table>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <p class="lead">扫码验证</p>
+                <!-- <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;"> -->
+                    <p id="code"></p>
+                <!-- </p> -->
+            </div>    
+        </div>
+    </div>
+    <div class="row">
+        <button id="btnPrint" type="button" class="btn  btn-default pull-left" onclick="doPrint2()" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
+    </div>
+
+</section>
+<div class="hidden" id="print">
+
+</div>
+
+
+
+<script>
+
+
+
+function doPrint2(){
+    if(getExplorer() == "IE"){
+        pagesetup_null();
+    }
+    //根据div标签ID拿到div中的局部内容
+    bdhtml=window.document.body.innerHTML; 
+    // var jubuData = document.getElementById("printcontent").innerHTML;
+    var jubuData = document.getElementById("print").innerHTML;
+    //把获取的 局部div内容赋给body标签, 相当于重置了 body里的内容
+    window.document.body.innerHTML= jubuData; 
+    //调用打印功能
+    window.print();
+    // window.document.body.innerHTML=bdhtml;//重新给页面内容赋值；
+    window.location.reload();
+    return false;
+}
+
+function pagesetup_null(){                
+    var hkey_root,hkey_path,hkey_key;
+    hkey_root="HKEY_CURRENT_USER";
+    hkey_path="\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
+    try{
+        var RegWsh = new ActiveXObject("WScript.Shell");
+        hkey_key="header";
+        RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
+        hkey_key="footer";
+        RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
+    }catch(e){}
+}
+
+function getExplorer() {
+    var explorer = window.navigator.userAgent ;
+    //ie 
+    if (explorer.indexOf("MSIE") >= 0) {
+        return "IE";
+    }
+    //firefox 
+    else if (explorer.indexOf("Firefox") >= 0) {
+        return "Firefox";
+    }
+    //Chrome
+    else if(explorer.indexOf("Chrome") >= 0){
+        return "Chrome";
+    }
+    //Opera
+    else if(explorer.indexOf("Opera") >= 0){
+        return "Opera";
+    }
+    //Safari
+    else if(explorer.indexOf("Safari") >= 0){
+        return "Safari";
+    }
+}
+</script>
