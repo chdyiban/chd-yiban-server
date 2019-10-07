@@ -6,53 +6,95 @@
                 <h2 class="page-header">
                     <input type="text" value="true" class="hidden" id="check">
                     <input type="text" value="{$requestUrl}" class="hidden" id="url">
-                    <i class="fa fa-gavel" aria-hidden="true"></i> 准考证
-                <small class="pull-right">{$basicInfo.time}</small>
+                    2019年长安大学辅导员素质能力考核-准考证
+                <small class="pull-right">日期：{$basicInfo.time}</small>
                 </h2>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-6">
                 <p class="lead">考试信息</p>
-                <div class="table-responsive">
-                    <table class="table" >
-                        <tbody><tr>
-                        <th style="width:50%;text-align: center">姓名：</th>
-                        <td style="text-align: center">{$basicInfo.XM}</td>
-                        </tr>
-                        <tr>
-                        <th style="text-align: center">工号：</th>
-                        <td style="text-align: center"> {$basicInfo.GH}</td>
-                        </tr>
-                        <tr>
-                        <th style="text-align: center">学院：</th>
-                        <td style="text-align: center">{$basicInfo.YXJC}</td>
-                        </tr>
-                        <tr>
-                        <th style="text-align: center">考场：</th>
-                        <td style="text-align: center">{$signInfo.KC}</td>
-                        </tr>
-                        <tr>
-                        <th style="text-align: center">座号：</th>
-                        <td style="text-align: center">{$signInfo.ZH}</td>
-                        </tr>
-                        <tr>
-                        <th style="text-align: center">考试时间</th>
-                        <td style="text-align: center">2019-10-15 8:30-11:30</td>
-                        </tr>
-                    </tbody></table>
+                <div class="col-xs-3 bmcontent" >
+                    <span>姓&nbsp;&nbsp;&nbsp;&nbsp;名:</span>
+                    <span>工&nbsp;&nbsp;&nbsp;&nbsp;号:</span>
+                    <span>学&nbsp;&nbsp;&nbsp;&nbsp;院:</span>
+                    <span>考&nbsp;&nbsp;&nbsp;&nbsp;场:</span>
+                    <span>座&nbsp;&nbsp;&nbsp;&nbsp;号:</span>
+                    <span>时&nbsp;&nbsp;&nbsp;&nbsp;间:</span>
                 </div>
+                <div class="col-xs-9 bmcontent border">
+                    <strong>{$basicInfo.XM}</strong>
+                    <strong>{$basicInfo.GH}</strong>
+                    <strong>{$basicInfo.YXJC}</strong>
+                    <strong>{$signInfo.KC}</strong>
+                    <strong>{$signInfo.ZH}</strong>
+                    <strong>2019-10-15</strong>
+                </div>
+                <style>
+                .bmcontent span{
+                    display: block;
+                    line-height:2.1;
+                    font-size: 16px;
+                    text-align: right;
+                }
+                .bmcontent strong{
+                    display: block;
+                    line-height:2;
+                    font-size: 16px;
+                    text-align: center;
+                }
+                .border strong{
+                    border-bottom:1px solid #ccc;
+                }
+                </style>
             </div>
             <div class="col-xs-6">
-                <p class="lead">扫码验证</p>
-                <!-- <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;"> -->
-                    <p id="code"></p>
-                <!-- </p> -->
+                <p class="lead">准考证验证</p>
+                    <img src="{$imageUrl}" alt="">
             </div>    
+            
         </div>
+        <div class="row" style="margin-top:25px;">
+            <div class="col-xs-12 table-responsive">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>环节</th>
+                  <th>时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>我写我生</td>
+                  <td>2019-10-15 9:00-9:30</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>基础知识测试</td>
+                  <td>2019-10-15 9:30-11:30</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>理论宣讲</td>
+                    <td>2019-10-18 </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- /.col -->
+          </div>
+          <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+            <strong>注意事项</strong><br/>
+            1.参加考核者须于10月8日-10月12日登录系统，完成报名和打印准考证工作；<br/>
+            2.参加考核者原则上不得请假，因特殊原因不能参加考核者...；<br/>
+            3.参加考核者要按规定时间进入场地。我写我生、基础知识测试缓解，迟到15分钟视为无故不参加考核；<br/>
+          </p>
     </div>
-    <div class="row">
-        <button id="btnPrint" type="button" class="btn  btn-default pull-left" onclick="doPrint2()" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button>
+    <div class="row"  align="center">
+        <!-- <button id="btnPrint" type="button" class="btn  btn-default pull-left" onclick="doPrint2()" style="margin-left: 5px;"><i class="fa fa-print"></i> 打印</button> -->
+        <button id="btnPrint" type="button" class="btn  btn-primary" onclick="doPrint2()" ><i class="fa fa-print"></i> 准考证打印</button>
     </div>
 
 </section>
@@ -72,8 +114,8 @@ function doPrint2(){
     }
     //根据div标签ID拿到div中的局部内容
     bdhtml=window.document.body.innerHTML; 
-    // var jubuData = document.getElementById("printcontent").innerHTML;
-    var jubuData = document.getElementById("print").innerHTML;
+    var jubuData = document.getElementById("printcontent").innerHTML;
+    // var jubuData = document.getElementById("print").innerHTML;
     //把获取的 局部div内容赋给body标签, 相当于重置了 body里的内容
     window.document.body.innerHTML= jubuData; 
     //调用打印功能
