@@ -6,8 +6,8 @@
                 <input type="text" value="{$basicInfo.GH}" class="hidden" id="GH">
                 <input type="text" value="false" class="hidden" id="check">
                 <input type="text" value="{$basicInfo.XM}" class="hidden" id="XM">
-                <i class="fa fa-gavel" aria-hidden="true"></i> 报名
-            <small class="pull-right">{$basicInfo.time}</small>
+                2019年长安大学辅导员素质能力考核-报名
+            <small class="pull-right">日期：{$basicInfo.time}</small>
             </h2>
         </div>
     </div>
@@ -32,19 +32,23 @@
             </div>
         </div>          
     </div>
-    <div class="form-group">
-            <label class="control-label">请选择考场：</label>
-            <label class="radio-inline">
-                <input type="radio" name="place" value="BB">本部
-            </label>
-            <label class="radio-inline">
-                <input type="radio" name="place" value="WS">渭水
-            </label>
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <label class="control-label col-xs-6" style="text-align: center;" >请选择考场：</label>
+                <label class="radio-inline col-xs-1">
+                    <input type="radio" name="place" value="BB">本部
+                </label>
+                <label class="radio-inline col-xs-1">
+                    <input type="radio" name="place" value="WS">渭水
+                </label>
         </div>  
-    <div class="row no-print">
+    </div>
+    <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+        注：若所示信息有误，请联系系统管理员，电话：15029484116。
+    </p>
+    <div class="row">
         <div class="col-xs-12">
-            <button type="button" class="btn btn-success btn-sign pull-right"><i class="fa fa-hand-paper-o"></i> 信息确认无误，报名
-            </button>
+            <button type="button" class="btn btn-success btn-sign pull-right"><i class="fa fa-hand-paper-o"></i> 信息确认无误，报名</button>
         </div>
     </div>
 </section>
