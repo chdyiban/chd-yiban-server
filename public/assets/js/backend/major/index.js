@@ -2,12 +2,7 @@ define(['jquery', 'bootstrap', 'https://cdn.bootcss.com/jquery.qrcode/1.0/jquery
 
     var Controller = {
         index: function () {
-            //判断用户是否报名
-            var check = $("#check").val();
-            if (check == "true") {
-                var requestUrl = $("#url").val();
-                $('#code').qrcode(requestUrl); //任意字符串
-            } else {
+
                 //指派单位
                 $(document).on('click', '.btn-sign', function () {
                 var GH = $("#GH").val();
@@ -36,7 +31,6 @@ define(['jquery', 'bootstrap', 'https://cdn.bootcss.com/jquery.qrcode/1.0/jquery
                     });
                 }
             });  
-        }
         },
 
         api: {
