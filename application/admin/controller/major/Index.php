@@ -108,10 +108,18 @@ class Index extends Backend
             return $this->view->fetch("index",["basicInfo" => $basicInfo]);
 
         } else {
-            $request_url = $this->request->domain().$this->request->root().DS."index/major/index?id=".$adminId;
+            require_once "phpqrcode.php";
+            $request_url = $this->request->domain().$this->request->root().DS."index".DS."major".DS."index?id=".$adminId;
+            $value = $request_url;                    //二维码内容
+            $errorCorrectionLevel = 'L';    //容错级别
+            $matrixPointSize = 5;            //生成图片大小
+            $filename = './uploads/major/'.$basicInfo["username"].'.png';
+            QRcode::png($value,$filename , $errorCorrectionLevel, $matrixPointSize, 2);
+            $QR = $filename;                //已经生成的原始二维码图片文件
+            $imageUrl = $this->request->domain().$this->request->root().$QR;
             $basicInfo["GH"] = $basicInfo["username"];
             $basicInfo["time"] = date("Y-m-d",time());
-            return $this->view->fetch("print",["basicInfo" => $basicInfo,"signInfo" => $checkSign,"requestUrl"=> $request_url]);
+            return $this->view->fetch("print",["basicInfo" => $basicInfo,"signInfo" => $checkSign,"requestUrl"=> $request_url,"imageUrl" => $imageUrl]);
         }
 
     }
