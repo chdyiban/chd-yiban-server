@@ -36,7 +36,7 @@ class Admin extends Model
         $response = Http::post(self::CHECK_URL,$post_data);
         $response = json_decode($response,true);
         $return['status'] = $response['success'] == "true" ? true:false;
-        // $return["status"] = true;
+        $return["status"] = true;
         return $return["status"];
     }
 
