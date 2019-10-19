@@ -30,6 +30,7 @@ class Index extends Api
                 "type"  =>  $value["type"],
                 "color" =>  $value["color"],
                 "url"   =>  $value["url"],
+                "location"=>$value["location"],
             ];
         }
         $info = [
