@@ -107,7 +107,7 @@ class Bigdata extends Api
             sleep(0.1);
             $returnData = Http::post($request_url,$params);
             $returnData = json_decode($returnData,true);   
-            foreach ($returnData["result"]["data"] as $key => $value) {
+            foreach ($returnData["result"]["data_struct"] as $key => $value) {
                 $temp = [
                     "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
                     "XM"    =>  $value["XM"],
@@ -134,7 +134,7 @@ class Bigdata extends Api
         $data = Http::post($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
-        if ($data["msg"] == "ok") {
+        if ($data["message"] == "ok") {
             return [];
         }
         for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
@@ -143,7 +143,7 @@ class Bigdata extends Api
             sleep(0.1);
             $returnData = Http::post($request_url,$params);
             $returnData = json_decode($returnData,true);   
-            foreach ($returnData["result"]["data"] as $key => $value) {
+            foreach ($returnData["result"]["data_struct"] as $key => $value) {
                 $temp = [
                     "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
                     "XM"    =>  $value["XM"],
