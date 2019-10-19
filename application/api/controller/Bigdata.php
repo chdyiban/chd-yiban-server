@@ -102,43 +102,27 @@ class Bigdata extends Api
         $data = json_decode($data,true);
         $result = [];
 
-        // if ($data["message"] != "ok" ) {
-        //     return ["status" => false,"msg" => $data["name"]];
-        // }
+        if ($data["message"] != "ok" ) {
+            return ["status" => false,"msg" => $data["name"]];
+        }
 
-        // for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
-        //     $returnData = [];
-        //     $params["page"] = $i;
-        //     sleep(0.1);
-        //     $returnData = Http::post($request_url,$params);
-        //     $returnData = json_decode($returnData,true);   
-        //     foreach ($returnData["result"]["data"] as $key => $value) {
-        //         $temp = [
-        //             "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y", strtotime("+1 year")) : $value["CSNF"],
-        //             "XM"    =>  $value["XM"],
-        //             "XYMC"  =>  $value["XYMC"],
-        //             "ZF"    =>  $value["ZF"],
-        //             "ZFDJMS"=>  $value["ZFDJMS"],
-        //         ];
-        //         $result[] = $temp;
-        //     }
-        // }
-        $result = [
-            [
-                "CSNF"  => "2018-2019",
-                "XM"    =>  "刘涛",
-                "XYMC"  =>  "信息学院",
-                "ZF"    =>  "72.2",
-                "ZFDJMS"=>  "及格",
-            ],
-            [
-                "CSNF"  => "2019-2020",
-                "XM"    =>  "刘涛",
-                "XYMC"  =>  "信息学院",
-                "ZF"    =>  "65.8",
-                "ZFDJMS"=>  "及格",
-            ]
-        ];
+        for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
+            $returnData = [];
+            $params["page"] = $i;
+            sleep(0.1);
+            $returnData = Http::post($request_url,$params);
+            $returnData = json_decode($returnData,true);   
+            foreach ($returnData["result"]["data"] as $key => $value) {
+                $temp = [
+                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y", strtotime("+1 year")) : $value["CSNF"],
+                    "XM"    =>  $value["XM"],
+                    "XYMC"  =>  $value["XYMC"],
+                    "ZF"    =>  $value["ZF"],
+                    "ZFDJMS"=>  $value["ZFDJMS"],
+                ];
+                $result[] = $temp;
+            }
+        }
         return ["status" => true,"data" => $result];
     }
     /**
