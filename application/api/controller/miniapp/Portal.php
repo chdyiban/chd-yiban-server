@@ -151,6 +151,47 @@ class Portal extends Api
         return json($info);
     }
 
+    /**
+     * 获取学生体测成绩
+     */
+
+    public function tcscore()
+    {
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $score = new BigdataController;
+        $XH = $key["id"];
+        $access_token = $score->getAccessToken();
+        $access_token = $access_token["access_token"];
+        $params = ["access_token" => $access_token,"XH" => $XH];
+        $data = array_reverse($score->getTcScore($params));
+        $info = [
+            'status' => 200,
+            'message' => 'success',
+            'data' => $data,
+        ];
+        return json($info);
+    }
+    /**
+     * 获取学生四六级成绩
+     */
+
+    public function slscore()
+    {
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        $score = new BigdataController;
+        $XH = $key["id"];
+        $access_token = $score->getAccessToken();
+        $access_token = $access_token["access_token"];
+        $params = ["access_token" => $access_token,"XH" => $XH];
+        $data = array_reverse($score->getSlScore($params));
+        $info = [
+            'status' => 200,
+            'message' => 'success',
+            'data' => $data,
+        ];
+        return json($info);
+    }
+
     //获取空闲教室
     public function empty_room(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
