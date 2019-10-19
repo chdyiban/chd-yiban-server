@@ -79,13 +79,13 @@ class Index extends Api
                     "id"   =>  'bx',
                     "icon" =>  'repairfill',
                     "color"=>  'brown',
-                    "badge"=> '试运行',
+                    "badge"=> '升级中',
                     "name" =>  '报修',
                     "permissions" => [ 
                         "unauthorized" => false,
                         "teacher"      => true,
                     ],
-                    "usable" => true,
+                    "usable" => false,
                     "errMsg" => '',
                 ],
                 [
@@ -162,10 +162,16 @@ class Index extends Api
                     "name" =>  '最佳辅导员',
                 ],
                 [
+                    "id"   =>  'ss',
                     "icon" =>  'homefill',
-                    "color"=>  'cyan    ',
+                    "color"=>  'cyan',
                     "badge"=>   0,
                     "name" =>  '我的宿舍',
+                    "permissions" => [
+                        "unauthorized" => false, 
+                        "teacher"  => false
+                    ],
+                    "usable"=> true,
                 ],
                 [
                     "id"   =>  'jy',
@@ -173,9 +179,21 @@ class Index extends Api
                     "color"=>  'green',
                     "badge"=>   0,
                     "name" =>  '借阅信息',
-                    "permissions" => [
+                    " " => [
                         "unauthorized" => false, 
                         "teacher"  => false
+                    ],
+                    "usable"=> true,
+                ],
+                [
+                    "id"    =>  "tc",
+                    "color" =>  "red",
+                    "icon"  =>  "countdownfill",
+                    "name"  =>  "体测成绩",
+                    "badge" =>  0,
+                    "permissions" => [
+                        "unauthorized" => true, 
+                        "teacher"     => true,
                     ],
                     "usable"=> true,
                 ],
