@@ -18,6 +18,11 @@ class Bigdata extends Api
     const GET_TOKEN_URL = "http://bigdata.chd.edu.cn:3003/open_api/authentication/get_access_token";
     //获取成绩的url
     const GET_SCORE_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxxsbkscj/list";
+    //获取体测成绩URL
+    const GET_TC_SCORE_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxxsbkstzjkbzcsxx/full";
+    //获取四六级成绩
+    const GET_SL_SCORE_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxxsbksyysljcj/full";
+    
     const APPKEY = "201906132614147905";
     const APPSECRET = "83004580acbae7bfbae62235c983e5842bf9dbf5";
     
@@ -44,7 +49,7 @@ class Bigdata extends Api
     }
 
     /**
-     * 获取成绩接口
+     * 获取考试成绩接口
      * @param int XH 
      * @param string access_token  
      * @return array 
@@ -81,4 +86,77 @@ class Bigdata extends Api
         // dump($list);
         return $list;
     }
+
+    /**
+     * 获取体测成绩接口
+     * @param int XH
+     * @param string access_token
+     * @return array
+     */
+
+    public function getTcScore($params)
+    {
+        $request_url = self::GET_TC_SCORE_URL."?access_token=".$params["access_token"];
+
+        $data = Http::post($request_url,$params);
+        $data = json_decode($data,true);
+        $result = [];
+        for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
+            $returnData = [];
+            $params["page"] = $i;
+            sleep(0.1);
+            $returnData = Http::post($request_url,$params);
+            $returnData = json_decode($returnData,true);   
+            foreach ($returnData["result"]["data"] as $key => $value) {
+                $temp = [
+                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
+                    "XM"    =>  $value["XM"],
+                    "XYMC"  =>  $value["XYMC"],
+                    "ZF"    =>  $value["ZF"],
+                    "ZFDJMS"=>  $value["ZFDJMS"],
+                ];
+                $result[] = $temp;
+            }
+        }
+        return $result;
+    }
+    /**
+     * 获取四六级成绩接口
+     * @param int XH
+     * @param string access_token
+     * @return array
+     */
+
+    public function getSlScore($params)
+    {
+        $request_url = self::GET_SL_SCORE_URL."?access_token=".$params["access_token"];
+
+        $data = Http::post($request_url,$params);
+        $data = json_decode($data,true);
+        $result = [];
+        if ($data["msg"] == "ok") {
+            return [];
+        }
+        for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
+            $returnData = [];
+            $params["page"] = $i;
+            sleep(0.1);
+            $returnData = Http::post($request_url,$params);
+            $returnData = json_decode($returnData,true);   
+            foreach ($returnData["result"]["data"] as $key => $value) {
+                $temp = [
+                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
+                    "XM"    =>  $value["XM"],
+                    "XYMC"  =>  $value["XYMC"],
+                    "ZF"    =>  $value["ZF"],
+                    "ZFDJMS"=>  $value["ZFDJMS"],
+                ];
+                $result[] = $temp;
+            }
+        }
+        return $result;
+    }
+
+
+
 }
