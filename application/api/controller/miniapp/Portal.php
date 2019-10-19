@@ -163,12 +163,20 @@ class Portal extends Api
         $access_token = $score->getAccessToken();
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
-        $data = array_reverse($score->getTcScore($params));
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
+        $returnData = $score->getTcScore($params);
+        if ($returnData["status"] == true) {
+            $info = [
+                'status' => 200,
+                'message' => 'success',
+                'data' => $returnData["data"],
+            ];
+        } else {
+            $info = [
+                'status' => 200,
+                'message' => $returnData["msg"],
+                'data' => $returnData["data"],
+            ];
+        }
         return json($info);
     }
     /**

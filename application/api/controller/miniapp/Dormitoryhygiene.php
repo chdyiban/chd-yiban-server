@@ -25,20 +25,14 @@ class Dormitoryhygiene extends Api
         if (empty($key['openid'])) {
             return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
+            // $key = "o5WD50Oc4KM3eSn35ibzPQ8TF6oY";
             // $key = $this->request->get("XH");
             $DormitoryhygieneModel = new DormitoryhygieneModel;
             $result = $DormitoryhygieneModel -> index($key);
-            // dump(json($result));
-            return json($result);
+            if ($result["status"]) {
+                return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);
+            }
+            // return json($result);
         }
-    }
-
-     /**
-     * 根据open_id获取学号
-     * @param $open_id
-     * @return 学号/工号
-     */
-    private function getId($open_id){
-        return $user->where('open_id',$open_id)->value('portal_id');
     }
 }

@@ -4,6 +4,7 @@ namespace app\api\controller\miniapp;
 
 use app\common\controller\Api;
 use think\Config;
+use think\Db;
 use app\api\model\Wxuser as WxuserModel;
 
 /**
@@ -21,43 +22,20 @@ class Index extends Api
     public function banner_list(){
         // sleep(3);
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        // $course = $this->get_course($key);
+        $data = Db::name("miniapp_banner")->order("ID")->select();
+        $result = [];
+        foreach ($data as $key => $value) {
+            $result[] = [
+                "id"    =>  $value["ID"],
+                "type"  =>  $value["type"],
+                "color" =>  $value["color"],
+                "url"   =>  $value["url"],
+            ];
+        }
         $info = [
             'status' => 200,
             'msg' => 'success',
-            'data' => [
-                [
-                    "id"   =>  0,
-                    "type" =>  'image',
-                    "color"=>  '#2c6dd1',
-                    "url"  =>  'https://2019.yibancdn.ohao.ren/weapp/test/banner3.jpg',
-                    ""
-                ],
-                [
-                    "id"   =>  1,
-                    "type" =>  'image',
-                    "color"=>  '#090f4d',
-                    "url"  =>  'https://2019.yibancdn.ohao.ren/weapp/test/banner2.jpg',
-                ],
-                [
-                    "id"   =>  2,
-                    "type" =>  'image',
-                    "color"=>  '#1f1669',
-                    "url"  =>  'https://2019.yibancdn.ohao.ren/weapp/test/banner1.jpg',
-                ],
-                [
-                    "id"   =>  3,
-                    "type" =>  'image',
-                    "color"=>  '#51a5fd',
-                    "url"  =>  'https://2019.yibancdn.ohao.ren/weapp/test/banner4.jpg',
-                ],
-                [
-                    "id"   =>  4,
-                    "type" =>  'image',
-                    "color"=>  '#1a47e2',
-                    "url"  =>  'https://2019.yibancdn.ohao.ren/weapp/test/banner5.jpg',
-                ],
-            ]
+            'data' => $data,
         ];
         return json($info);
     }
@@ -68,149 +46,46 @@ class Index extends Api
 
     public function app_list()
     {
-        // sleep(3);
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        // $course = $this->get_course($key);
+        $appInfo = Db::name("miniapp_index")->select();
+        foreach ($appInfo as $key => $value) {
+            $temp = [
+                "id"   =>   $value["item_id"],
+                "icon" =>   $value["icon"],
+                "color"=>   $value["color"],
+                "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
+                "name" =>   $value["name"],
+                "permissions" => [
+                    "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
+                    "teacher"       => $value["teacher"] == 0 ? false : true,
+                ],
+                "usable"    => $value["usable"] == 0 ? false : true,
+                "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
+            ];
+            $data[] = $temp;
+        }
+
         $info = [
             'status' => 200,
             'msg' => 'success',
-            'data' => [
-                [
-                    "id"   =>  'bx',
-                    "icon" =>  'repairfill',
-                    "color"=>  'brown',
-                    "badge"=> '升级中',
-                    "name" =>  '报修',
-                    "permissions" => [ 
-                        "unauthorized" => false,
-                        "teacher"      => true,
-                    ],
-                    "usable" => false,
-                    "errMsg" => '',
-                ],
-                [
-                    "id"   =>  'ykt',
-                    "icon" =>  'card',
-                    "color"=>  'yellow',
-                    "badge"=>   0,
-                    "name" =>  '一卡通',
-                    "permissions" => [ 
-                        "unauthorized" => false,
-                        "teacher"      => true,
-                    ],
-                    "usable" => false,
-                    "errMsg" => '应用升级中',
-                ],
-                [
-                    "id"   =>  'kb',
-                    "icon" =>  'newsfill',
-                    "color"=>  'blue',
-                    "badge"=>   0,
-                    "name" =>  '课表查询',
-                    "permissions" => [ 
-                        "unauthorized" => false,
-                        "teacher"      => false,
-                    ],
-                    "usable" => true,
-                    "errMsg" => '应用升级中',
-                ],
-                [
-                    "id"   =>  'form',
-                    "icon" =>  'formfill',
-                    "color"=>  'cyan',
-                    "name" =>  "万能表单",
-                    "permissions" => [ 
-                        "unauthorized" => false,
-                        "teacher"      => true,
-                    ],
-                    "usable" => true,
-                ],
-                [
-                    "id"   =>  "cj",
-                    "icon" =>  'babyfill',
-                    "color"=>  'blue',
-                    "badge"=>   0,
-                    "name" =>  '成绩查询',
-                    "permissions" => [
-                        "unauthorized" => false, 
-                        "teacher"  => false
-                    ],
-                    "usable"=> true,
-                ],
-                [
-                    "icon" =>  'medalfill',
-                    "color"=>  'orange',
-                    "badge"=>   0,
-                    "name" =>  '运动会',
-                ],
-                [
-                    "id"   =>  "bzr",
-                    "icon" =>  'attentionfavorfill',
-                    "color"=>  'mauve',
-                    "badge"=>   0,
-                    "name" =>  '班主任评价',
-                    "permissions" => [
-                        "unauthorized" => false, 
-                        "teacher"  => true,
-                    ],
-                    "usable"=> true,
-                ],
-                [
-                    "icon" =>  'favorfill',
-                    "color"=>  'mauve',
-                    "badge"=>   0,
-                    "name" =>  '最佳辅导员',
-                ],
-                [
-                    "id"   =>  'ss',
-                    "icon" =>  'homefill',
-                    "color"=>  'cyan',
-                    "badge"=>   0,
-                    "name" =>  '我的宿舍',
-                    "permissions" => [
-                        "unauthorized" => false, 
-                        "teacher"  => false
-                    ],
-                    "usable"=> true,
-                ],
-                [
-                    "id"   =>  'jy',
-                    "icon" =>  'barcode',
-                    "color"=>  'green',
-                    "badge"=>   0,
-                    "name" =>  '借阅信息',
-                    " " => [
-                        "unauthorized" => false, 
-                        "teacher"  => false
-                    ],
-                    "usable"=> true,
-                ],
-                [
-                    "id"    =>  "tc",
-                    "color" =>  "red",
-                    "icon"  =>  "countdownfill",
-                    "name"  =>  "体测成绩",
-                    "badge" =>  0,
-                    "permissions" => [
-                        "unauthorized" => true, 
-                        "teacher"     => true,
-                    ],
-                    "usable"=> true,
-                ],
-                [
-                    "id"   =>   "kf", 
-                    "color"=>   "blue",
-                    "icon" =>   "servicefill",
-                    "name" =>   "智能客服",
-                    "badge"=>   0,
-                    "permissions" => [
-                            "unauthorized" => true, 
-                            "teacher"     => true,
-                    ],
-                    "usable"=> true,
-                ],
+            // 'data' => [
             
-            ],
+            //     [
+            //         "icon" =>  'medalfill',
+            //         "color"=>  'orange',
+            //         "badge"=>   0,
+            //         "name" =>  '运动会',
+            //     ],
+            
+            //     [
+            //         "icon" =>  'favorfill',
+            //         "color"=>  'mauve',
+            //         "badge"=>   0,
+            //         "name" =>  '最佳辅导员',
+            //     ],
+            
+            // ],
+            'data'  =>  $data,
         ];
         return json($info);
     }
