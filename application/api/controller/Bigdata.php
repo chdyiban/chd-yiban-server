@@ -107,9 +107,9 @@ class Bigdata extends Api
             sleep(0.1);
             $returnData = Http::post($request_url,$params);
             $returnData = json_decode($returnData,true);   
-            foreach ($returnData["result"]["data_struct"] as $key => $value) {
+            foreach ($returnData["result"]["data"] as $key => $value) {
                 $temp = [
-                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
+                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y", strtotime("+1 year")) : $value["CSNF"],
                     "XM"    =>  $value["XM"],
                     "XYMC"  =>  $value["XYMC"],
                     "ZF"    =>  $value["ZF"],
@@ -134,7 +134,7 @@ class Bigdata extends Api
         $data = Http::post($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
-        if ($data["message"] == "ok") {
+        if ($data["message"] != "ok") {
             return [];
         }
         for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
@@ -143,15 +143,8 @@ class Bigdata extends Api
             sleep(0.1);
             $returnData = Http::post($request_url,$params);
             $returnData = json_decode($returnData,true);   
-            foreach ($returnData["result"]["data_struct"] as $key => $value) {
-                $temp = [
-                    "CSNF"  => empty($value["CSNF"]) ? date("Y")."-".date("Y")+1 : $value["CSNF"],
-                    "XM"    =>  $value["XM"],
-                    "XYMC"  =>  $value["XYMC"],
-                    "ZF"    =>  $value["ZF"],
-                    "ZFDJMS"=>  $value["ZFDJMS"],
-                ];
-                $result[] = $temp;
+            foreach ($returnData["result"]["data"] as $key => $value) {
+                $result[] = $value;
             }
         }
         return $result;
