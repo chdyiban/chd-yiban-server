@@ -1,5 +1,41 @@
 <input type="text" name="XH" id="XH" class="hidden" value="{$params.XH}">
+<section class="invoice">
+    <!-- title row -->
+    <div class="row">
+        <div class="col-xs-12">
+        <h2 class="page-header">
+            <i class="fa fa-user-circle"></i> 学生考试情况
+            <small class="pull-right">时间: {$time}</small>
+        </h2>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- Table row -->
 
+    <div class="row">
+        <div class="col-xs-12">
+    
+            <table class="table table-bordered" style="text-align: center;">
+                <tbody>
+                    <tr>
+                        <td>学号</td>
+                        <td>{$stuInfo.XH}</td>
+                        <td>姓名</td>
+                        <td>{$stuInfo.XM}</td>
+                        <td>班级号</td>
+                        <td>{$stuExtraInfo.BJDM}</td>
+                    </tr>
+                    <tr>
+                        <td>总成绩数量</td>
+                        <td colspan="2" >{$allCount}</td>
+                        <td>未通过课程数量</td>
+                        <td colspan="2">{$GkCount}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 <div class="panel panel-default panel-intro">
         {:build_heading()}
     
