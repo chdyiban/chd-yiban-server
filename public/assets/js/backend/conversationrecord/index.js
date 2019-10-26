@@ -84,6 +84,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                                     extend:'data-area=\'["100%","100%"]\'',
                                     text: "查看详情",
                                     url: 'conversationrecord/content/index?ID={ID}',
+                                },
+                                {
+                                    name: 'score',
+                                    title: __('查看成绩'),
+                                    classname: 'btn btn-xs btn-success btn-dialog',
+                                    // icon: 'fa fa-list',
+                                    extend:'data-area=\'["100%","100%"]\'',
+                                    text: "查看成绩",
+                                    url: 'conversationrecord/score/index?XH={XH}',
                                 }
                             ]
                         }
