@@ -25,12 +25,13 @@ class RecordContent extends Model
     public function getStuInfo($ID)
     {
         $stuInfo = model("RecordStuinfo") -> get($ID);
+        $stuExtraInfo = Db::name("stu_detail") -> where("XH",$stuInfo["XH"])->find();
         // $stuFamilyInfo = Db::name("fresh_family_info")
         $stuFamilyInfo = Db::name("fresh_questionnaire_family")
                         -> where("XH",$stuInfo["XH"])
                         -> select();
 
-        return [ "stuInfo" => $stuInfo, "familyInfo" => $stuFamilyInfo];
+        return [ "stuInfo" => $stuInfo, "familyInfo" => $stuFamilyInfo,"stuExtraInfo" => $stuExtraInfo];
     }
 
     //添加内容

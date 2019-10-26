@@ -332,6 +332,34 @@ class Wxuser extends Api
     }
 
     /**
+     * 更新用户头像以及昵称API
+     * @param $key["openid"]
+     * @param $key["avatarUrl"]
+     * @param $key["nickName"]
+     */
+    public function avatar()
+    {
+        //   解析后应对签名参数进行验证
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['openid'])) {
+            return json(['code' => 0 , 'msg' => "参数错误"]);
+        } else {
+            $open_id = $key["openid"];
+            $avatar = empty($key["avatarUrl"]) ? "" : $key["avatarUrl"]; 
+            $nickName = empty($key["nickName"]) ? "" : $key["nickName"]; 
+            $user = new WxuserModel;
+            $result = $user->where("open_id",$open_id)->update(["avatar" => $avatar,"nickname" => $nickName]);
+            
+            if ($result) {
+                return json(["code" => 1,"msg" => "更新成功","data" => []]);
+            } else {
+                return json(["code" => 0,"msg" => "请稍后再试","data" => []]);
+            }
+        }
+    }
+
+
+    /**
      * 根据用户的微信openid获取数据库里存在的基本信息
      * @param $open_id 微信open_id
      * @return $data 数据库中用户的基本信息
