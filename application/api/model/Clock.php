@@ -20,7 +20,7 @@ class Clock extends Model
         $open_id = $key['openid'];
         $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
         if (empty($safe)) {
-            return ['status' => 'false', 'msg' => "请求非法"];
+            return ['status' => false, 'msg' => "请求非法"];
         }
         $stu_id = $safe["portal_id"];
         $userInfo = Db::view("stu_detail","YXDM,XH,BJDM")
@@ -29,59 +29,80 @@ class Clock extends Model
             ->find();
         // dump($NJDM);
         if (empty($userInfo)) {
-            return ['status' => 'false', 'msg' => "信息缺失","data" => []];
+            return ['status' => false, 'msg' => "信息缺失","data" => []];
         }
-        //当前时间段是否在某个活动内
-        $activityList = Db::name("clock_activity_list")
-                ->where("KSSJ","<=",time())
-                ->where("JSSJ",">=",time())
-                ->find();
+        //首先判断当前是否有可以报名的活动
+        $activityList = Db::name("clock_activity_list")->where("JSSJ",">=",time())->order("jSSJ asc")->select();
         if (empty($activityList)) {
-            //当前时间不属于某个活动
-            $returnData = Db::name("clock_activity_list")->where("KSSJ",">=",time())->order("KSSJ desc")->select();
-            if (empty($returnData)) {
-                $data = [
-                    "clock_status"  =>  [
-                        "is_activity"   =>  "false",
-                        "is_wait"       =>  "false",
-                    ],
-                ];
-                return ["status"=>true,"msg"=>"当前没有可报名的活动","data"=>$data];
-            } else {
-                $data = [
-                    "clock_status"  =>  [
-                        "is_activity"   =>  "false",
-                        "is_wait"       =>  "true",
-                        "start_time"    =>  date("Y-m-d H:i",$returnData[0]["KSSJ"]),
-                    ],
-                ];
-                return ["status"=>true,"msg"=>"当前没有可报名的活动","data"=>  $data ];
-            }
-        } 
-        //当前时间在某个活动时间内，则判断是否报名
-        $applyInfo = Db::name("clock_apply_list")->where("XH",$userInfo["XH"])->where("HDID",$activityList["ID"])->find();
-        if (empty($applyInfo)) {
-            # 当前有活动，但是用户未报名
+            //没有可报名的活动
             $data = [
                 "clock_status"  =>  [
-                    "is_activity"	=>	true, //当前有活动
-                    "is_apply"		=>	false,	//当前用户
-                    "activity_id"	=>	$activityList["ID"],//活动ID
+                    "is_activity"   =>  false,
+                    "is_wait"       =>  false,
                 ],
-                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"])["data"],
+            ];
+            return ["status"=>true,"msg"=>"当前没有可报名的活动","data" => $data ];
+        } 
+        $activityList = $activityList[0];
+        //判断是否报名
+        $applyInfo = Db::name("clock_apply_list")->where("XH",$userInfo["XH"])->where("HDID",$activityList["ID"])->find();
+        if (empty($applyInfo)) {            
+            $data = [
+                "clock_status"  =>  [
+                    "is_activity"   =>  true,
+                    "is_apply"		=>	false,	//当前用户
+                    "is_wait"       =>  true,
+                    "start_time"    =>  date("Y-m-d H:i",$activityList["KSSJ"]),
+                ],
+                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
                 "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
             ];
             return ["status"=>true,"msg"=>"尚未报名活动，请先报名","data"=>  $data ];
         }
+
         //获取当日打卡开始的日期时间戳
         $startClockTime = strtotime( date("Y-m-d",time())." ".$activityList["DKKSSJ"] );
         //获取当日打卡结束的日期时间戳
         $endClockTime = strtotime( date("Y-m-d",time())." ".$activityList["DKJSSJ"] );
-        //获取下次打卡时间
-        $nextClockTime = strtotime( date( "Y-m-d", strtotime("+1 day") )." ".$activityList["DKKSSJ"] );
+        //获取下次打卡时间，记得判断当前时间是否是活动结束最后一天
+        if ( strtotime( date("Y-m-d",time())) == strtotime( date("Y-m-d",$activityList["JSSJ"]) ) ) {
+            $nextClockTime = null;
+            $timeFarNext = null;
+        } else {
+            $nextClockTime = strtotime( date( "Y-m-d", strtotime("+1 day") )." ".$activityList["DKKSSJ"] );
+            $timeFarNext = gmstrftime("%H:%M:%S",$nextClockTime-time());  
+        }
 
+        //判断当前是否到了活动开始日期
+        if (time() < $activityList["KSSJ"] ) {
 
-        //当前有活动并且用户也已经报名
+            $startClock = strtotime( date("Y-m-d", $activityList["KSSJ"])." ".$activityList["DKKSSJ"] );
+            $hour=floor(($startClock-time())/3600);
+            // dump($hour);
+            if ($hour >= 24) {
+                $timeFar = floor( ($startClock-time()) / (3600*24) );
+            } else {
+                $timeFar = gmstrftime("%H:%M:%S",$startClock-time());
+            }
+
+            $data = [
+                "clock_status"	=>	[
+                    "is_activity"	=>	true, //当前有活动
+                    "is_apply"		=>	true,	//当前用户已经报名
+                    "is_dk"			=>	false,  //尚未打卡
+                    "dk_start_time"	=>	$timeFar ,//距离打卡开始时间
+                    "dk_start_day"  =>  $hour >= 24 ? (int)$timeFar : null,
+                    // "dk_start_time"	=>	date("Y-m-d H:i",$startClock),//打卡开始时间
+                    "activity_id"	=>	$activityList["ID"],//活动ID
+                    "can_dk"		=>	false,//是否可以打卡
+                ],
+                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
+            ];
+            return ["status"=>true,"msg"=>"success","data"=>  $data ];
+        }
+
+        //当前活动开启并且用户也已经报名
         //判断用户是否已经打卡
         $clockInfo  =   Db::name("clock_user_list")
                     ->where("XH",$userInfo["XH"])
@@ -89,32 +110,71 @@ class Clock extends Model
                     ->where("DKSJ",">=",$startClockTime)
                     ->where("DKSJ","<=",$endClockTime)
                     ->find();
+
         if (empty($clockInfo)) {
-            # 当前用户尚未打卡
-            $data = [
-                "clock_status"	=>	[
-                    "is_activity"	=>	true, //当前有活动
-                    "is_apply"		=>	true,	//当前用户已经报名
-                    "is_dk"			=>	false,  //尚未打卡
-                    "dk_start_time"	=>	date("H:i",$startClockTime),//打卡开始时间
-                    "dk_end_time"	=>	date("H:i",$endClockTime),//打卡结束时间
-                    "activity_id"	=>	$activityList["ID"],//活动ID
-                    "can_dk"		=>	time() >= $startClockTime && time() <= $endClockTime ? true : false,//是否可以打卡
-                ],
-                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"])["data"],
-                "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
-            ];
+            # 当前用户尚未打卡，并且判断当前时间是在打卡开始之前还是打卡中还是打卡时间后
+            if (time() < $startClockTime ) {    
+                $timeFarStart = gmstrftime("%H:%M:%S",$startClockTime-time());  
+                $timeFarEnd = gmstrftime("%H:%M:%S",$endClockTime-time());  
+                $data = [
+                    "clock_status"	=>	[
+                        "is_activity"	=>	true, //当前有活动
+                        "is_apply"		=>	true,	//当前用户已经报名
+                        "is_dk"			=>	false,  //尚未打卡
+                        // "dk_start_time"	=>	date("H:i",$startClockTime),//打卡开始时间
+                        "dk_start_time"	=>	$timeFarStart,//打卡开始时间
+                        // "dk_end_time"	=>	date("H:i",$endClockTime),//打卡结束时间
+                        "dk_end_time"	=>	$timeFarEnd,//打卡结束时间
+                        "activity_id"	=>	$activityList["ID"],//活动ID
+                        "can_dk"		=>  false,//是否可以打卡
+                    ],
+                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
+                ];
+            } elseif (time() >= $startClockTime && time() <= $endClockTime ) {
+                $timeFarEnd = gmstrftime("%H:%M:%S",$endClockTime-time());  
+                $data = [
+                    "clock_status"	=>	[
+                        "is_activity"	=>	true, //当前有活动
+                        "is_apply"		=>	true,	//当前用户已经报名
+                        "is_dk"			=>	false,  //尚未打卡
+                        // "dk_start_time"	=>	date("H:i",$startClockTime),//打卡开始时间
+                        // "dk_end_time"	=>	date("H:i",$endClockTime),//打卡结束时间
+                        "dk_end_time"	=>	$timeFarEnd,//打卡结束时间
+                        "activity_id"	=>	$activityList["ID"],//活动ID
+                        "can_dk"		=>  true,//是否可以打卡
+                    ],
+                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
+                ];
+            } elseif (time() > $endClockTime ) {
+
+                $data = [
+                    "clock_status"	=>	[
+                        "is_activity"	=>	true,   //当前有活动
+                        "is_apply"		=>	true,	//当前用户已经报名
+                        "is_dk"			=>	false,  //尚未打卡
+                        // "dk_start_time"	=>	date("H:i",$nextClockTime),//打卡开始时间
+                        "dk_start_time"	=>	$timeFarNext ,//打卡开始时间
+                        "activity_id"	=>	$activityList["ID"],//活动ID
+                        "can_dk"		=>  false,//是否可以打卡
+                    ],
+                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
+                ];
+            }
             return ["status"=>true,"msg"=>"success","data"=>  $data ];
         }
+
         //当前用户已经打卡
         $data = [
             "clock_status"	=>	[
                 "is_activity"	=>	true, //当前有活动
                 "is_apply"		=>	true,	//当前用户
                 "is_dk"			=>	true,
-                "dk_next_time"	=>	$nextClockTime,//下次打卡的时间
+                "dk_start_time"	=>	$timeFarNext,//下次打卡的时间
             ],
-            "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"])["data"],
+            "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
             "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
         ];
         return ["status"=>true,"msg"=>"success","data"=>  $data ];
@@ -126,13 +186,16 @@ class Clock extends Model
      * @param int XH
      * @param int activity_id
      */
-    public function getPersonalInfo($XH,$ID)
+    public function getPersonalInfo($XH,$ID,$open_id)
     {
         $returnData = Db::name("clock_apply_list")->where("XH",$XH)->where("HDID",$ID)->find();
+        $userInfo   = Db::name("wx_user")->where("open_id",$open_id)->find();
         if (empty($returnData)) {
             return ["status"=>false,"msg"=>"error","data" => []];
         } else {
             $data   = [
+                "avatarUrl"             =>  $userInfo["avatar"],
+                "nickName"              =>  $userInfo["nickname"],
                 "running_days"			=>	$returnData["LXTS"],//连续打卡天数
 			    "total_activity_days"	=>	$returnData["LJTS"],//活动期间内累计打卡天数
 			    // "total_days"	        =>  "",
@@ -175,6 +238,7 @@ class Clock extends Model
         //当前活动累积打卡次数排名
         $totalActivityList = Db::view("clock_apply_list")
                 ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
+                ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
                 ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
                 ->where("HDID",$ID)
                 ->order("LJTS desc")
@@ -182,6 +246,7 @@ class Clock extends Model
         //当前活动连续打卡次数排名
         $runningList = Db::view("clock_apply_list")
                 ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
+                ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
                 ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
                 ->where("HDID",$ID)
                 ->order("LXTS desc")
@@ -196,7 +261,7 @@ class Clock extends Model
             //     "total_list"    =>  $totalActivityList,
             //     "runnging_list" =>  $runningList,
             // ],
-            "data"      =>  [ "0"=> $totalActivityList,"1" => $runningList],
+            "data"      =>  [ "0"=> $todayResult,"1" => $runningList],
         ];
     }
 
@@ -222,24 +287,30 @@ class Clock extends Model
         if (empty($userInfo)) {
             return ['status' => false, 'msg' => "信息缺失","data" => []];
         }
+        //获取活动id
+        $activity_id = 0;
+        $activityInfo = $this->index($key);
+        if (!empty($activityInfo["data"]["clock_status"]["activity_id"])) {
+            $activity_id = $activityInfo["data"]["clock_status"]["activity_id"];
+        }
         //当前时间段是否在对应活动内
         $activityList = Db::name("clock_activity_list")
                 ->where("KSSJ","<=",time())
                 ->where("JSSJ",">=",time())
-                ->where("ID",$key["activity_id"])
+                ->where("ID",$activity_id)
                 ->find();
         if (empty($activityList)) {
             return ['status' => false, 'msg' => "报名活动有误","data" => []];
         }
         //判断用户是否报名
-        $check = Db::name("clock_apply_list")->where("XH",$stu_id)->where("HDID",$key["activity_id"])->find();
+        $check = Db::name("clock_apply_list")->where("XH",$stu_id)->where("HDID",$activity_id)->find();
         if(!empty($check)){
             return ['status' => false, 'msg' => "不可重复报名","data" => []];
         }
     
         $insertData = [
             "XH"    =>  $stu_id,
-            "HDID"  =>  $key["activity_id"],
+            "HDID"  =>  $activity_id,
             "BMSJ"  =>  time(),
             "LJTS"  =>  0,
             "LXTS"  =>  0,
@@ -274,11 +345,18 @@ class Clock extends Model
         if (empty($userInfo)) {
             return ['status' => false, 'msg' => "信息缺失","data" => []];
         }
+        //获取活动id
+        $activity_id = 0;
+        $activityInfo = $this->index($key);
+        if (!empty($activityInfo["data"]["clock_status"]["activity_id"])) {
+            $activity_id = $activityInfo["data"]["clock_status"]["activity_id"];
+        }
+
         //当前时间段是否在对应活动内
         $activityList = Db::name("clock_activity_list")
                 ->where("KSSJ","<=",time())
                 ->where("JSSJ",">=",time())
-                ->where("ID",$key["activity_id"])
+                ->where("ID",$activity_id)
                 ->find();
         if (empty($activityList)) {
             return ['status' => false, 'msg' => "活动已结束","data" => []];
@@ -287,7 +365,7 @@ class Clock extends Model
 
         $check = Db::name("clock_apply_list")
                 ->where("XH",$stu_id)
-                ->where("HDID",$key["activity_id"])
+                ->where("HDID",$activity_id)
                 ->find();
 
         if(empty($check)){
@@ -325,7 +403,7 @@ class Clock extends Model
             //判断昨天是否打卡
             $checkLastClock = Db::name("clock_user_list")
                         ->where("XH",$stu_id)
-                        ->where("HDID",$key["activity_id"])
+                        ->where("HDID",$activity_id)
                         ->where("DKSJ",">=",$startLastClockTime)
                         ->where("DKSJ","<=",$endLastClockTime)
                         ->find();
@@ -333,23 +411,23 @@ class Clock extends Model
             if (empty($checkLastClock)) {
                 $updateFlag1 = Db::name("clock_apply_list")
                     ->where("XH",$stu_id)
-                    ->where("HDID",$key["activity_id"])
+                    ->where("HDID",$activity_id)
                     ->update([ "LXTS" => 1]);
             } else{
                 $updateFlag1 = Db::name("clock_apply_list")
                     ->where("XH",$stu_id)
-                    ->where("HDID",$key["activity_id"])
+                    ->where("HDID",$activity_id)
                     ->setInc("LXTS", 1);
             }
 
             $updateFlag = Db::name("clock_apply_list")
                     ->where("XH",$stu_id)
-                    ->where("HDID",$key["activity_id"])
+                    ->where("HDID",$activity_id)
                     ->setInc("LJTS",1);
             
             $insertData = [
                 "XH"    =>  $stu_id,
-                "HDID"  =>  $key["activity_id"],
+                "HDID"  =>  $activity_id,
                 "DKSJ"  =>  time(),
             ];
             $insertFlag = Db::name("clock_user_list")->insert($insertData);
