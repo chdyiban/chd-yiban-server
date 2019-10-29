@@ -61,27 +61,32 @@ class Bigdata extends Api
         $data = Http::post($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
-        for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
-            $returnData = [];
-            $params["page"] = $i;
-            sleep(0.1);
-            $returnData = Http::post($request_url,$params);
-            $returnData = json_decode($returnData,true);   
-            foreach ($returnData["result"]["data"] as $key => $value) {
-                $mykey = $value["XN"]." ".$value["XQ"];
-                $result[$mykey][] = $value;
+        if ($data["code"] == "10000") {
+
+            for ($i = 1; $i <= $data["result"]["max_page"]; $i++) { 
+                $returnData = [];
+                $params["page"] = $i;
+                sleep(0.1);
+                $returnData = Http::post($request_url,$params);
+                $returnData = json_decode($returnData,true);   
+                foreach ($returnData["result"]["data"] as $key => $value) {
+                    $mykey = $value["XN"]." ".$value["XQ"];
+                    $result[$mykey][] = $value;
+                }
             }
-        }
-        $arrayKeys = array_keys($result);
-        $list = [];
-        foreach ($arrayKeys as $key => $value) {
-            $temp = [
-                "XNXQ" => $value,
-                "XN"   => explode(" ",$value)[0],
-                "XQ"   => explode(" ",$value)[1],
-                "list" => $result[$value],
-            ];
-            $list[] = $temp;
+            $arrayKeys = array_keys($result);
+            $list = [];
+            foreach ($arrayKeys as $key => $value) {
+                $temp = [
+                    "XNXQ" => $value,
+                    "XN"   => explode(" ",$value)[0],
+                    "XQ"   => explode(" ",$value)[1],
+                    "list" => $result[$value],
+                ];
+                $list[] = $temp;
+            }
+        } else {
+            return [];
         }
         // dump($list);
         return $list;
