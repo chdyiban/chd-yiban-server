@@ -52,6 +52,7 @@ class Clock extends Model
                     "is_activity"   =>  true,
                     "is_apply"		=>	false,	//当前用户
                     "is_wait"       =>  true,
+                    "activity_id"	=>	$activityList["ID"],//活动ID
                     "start_time"    =>  date("Y-m-d H:i",$activityList["KSSJ"]),
                 ],
                 "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
@@ -172,6 +173,7 @@ class Clock extends Model
                 "is_activity"	=>	true, //当前有活动
                 "is_apply"		=>	true,	//当前用户
                 "is_dk"			=>	true,
+                "activity_id"	=>	$activityList["ID"],//活动ID
                 "dk_start_time"	=>	$timeFarNext,//下次打卡的时间
             ],
             "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
