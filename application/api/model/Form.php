@@ -5,6 +5,7 @@ namespace app\api\model;
 use think\Model;
 use fast\Http;
 use think\Db;
+use think\Validate;
 
 class Form extends Model
 {
@@ -13,13 +14,13 @@ class Form extends Model
     // const Q_ID = 3;
 
     public function initForm($key){
-        $stu_id = "2017902148";
-        // $open_id = $key['openid'];
-        // $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
-        // if (empty($safe)) {
-        //     return ['status' => 'false', 'msg' => "请求非法"];
-        // }
-        // $stu_id = $safe["portal_id"];
+        // $stu_id = "2017902148";
+        $open_id = $key['openid'];
+        $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
+        if (empty($safe)) {
+            return ['status' => 'false', 'msg' => "请求非法"];
+        }
+        $stu_id = $safe["portal_id"];
         $userInfo = Db::name("stu_detail")->where("XH",$stu_id)->field("YXDM,BJDM")->find();
         $NJDM = substr($stu_id,0,4);
         $YXDM = $userInfo["YXDM"];
@@ -140,6 +141,7 @@ class Form extends Model
         $config_id = $param["id"];
         $form_id = Db::name("form_config")->where("ID",$config_id)->field("form_id")->find()["form_id"];
         $questionList = Db::name("form_questionnaire")->where("form_id",$form_id)->select();
+
         //判断用户是否完成该表单
         $userResult   = Db::name("form_result")
                     ->where("user_id",$stu_id)
@@ -152,28 +154,213 @@ class Form extends Model
                 $userResultArray[$value["title"]] = $value["value"];
             } 
         }
-
         $questionArray = [];
         foreach ($questionList as $k => $v) {
-            //将数据库文字选项转换为下标
-            $options = json_decode($v["options"],true);
-            if (!empty($options) && !empty($userResultArray[$v["title"]])) {
-                $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
-            }
+            //如果问题的类型为text
+            if ($v["type"] == "text" ) {
+                $temp_back = [
+                    "title"		=> $v["title"],
+                    "type"		=> $v["type"] == "selector" ? $v["extra"] : $v["type"],
+                    "options"	=> $v["options"],
+                    "status"	=> $v["status"] == 1 ? true : false,
+                    "must"		=> $v["must"]   == 1 ? true : false,
+                    "placeholder"=> $v["placeholder"],
+                    "validate"	=> $v["validate"],
+                    //当选项为第一个选项时，下标为0，empty会判断为空
+                    "value"     => empty($userResultArray[$v["title"]])  ? "" : $userResultArray[$v["title"]],
+                    // "value"     => empty($userResultArray[$v["title"]]) ? "" : $userResultArray[$v["title"]],
+                ];
+                $questionArray[] = $temp_back;
+                
+            } elseif ($v["type"] == "checkbox") {
+                //题目类型为多选
+                $options = json_decode($v["options"],true);
 
-            $temp_back = [
-                "title"		=> $v["title"],
-                // "type"		=> $v["type"],
-                "type"		=> $v["type"] == "selector" ? $v["extra"] : $v["type"],
-                // "extra"		=> $v["extra"],
-                "options"	=> json_decode($v["options"],true),
-                "status"	=> $v["status"] == 1 ? true : false,
-                "must"		=> $v["must"]   == 1 ? true : false,
-                "placeholder"=> $v["placeholder"],
-                "validate"	=> $v["validate"],
-                "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
-            ];
-            $questionArray[] = $temp_back;
+                //当用户填写过问卷时
+                $returnOptions = [];
+                if (!empty($userResultArray[$v["title"]])) {
+                 
+                    $checkBox = substr_count($userResultArray[$v["title"]],",");
+                    if ($checkBox >= 1) {
+                        $checkBoxArray = explode(",",$userResultArray[$v["title"]]);
+                        foreach ($checkBoxArray as $m => $n) {
+                            $temp[] = array_search($n,$options);
+                        }
+                        $userResultArray[$v["title"]] = $temp;
+                    } else {
+                        $temp[] = array_search($userResultArray[$v["title"]], $options);
+                        $userResultArray[$v["title"]] = $temp;
+                    }
+
+                    foreach ($options as $key => $value) {
+                        $arrayTemp = [
+                            "value"    => $value,
+                        ];
+                        $returnOptions[] = $arrayTemp;
+                    }
+                    $useroption =   $userResultArray[$v["title"]];
+                    if (gettype($useroption) == "array") {
+                        foreach ($useroption as $m => $n) {
+                            $returnOptions[$n]["checked"]  = true;
+                        }
+                    } else {
+                        $returnOptions[$useroption]["checked"] = true;
+                    }
+                } else {
+                    $userResultArray[$v["title"]] = "";
+                    foreach ($options as $key => $value) {
+                        $arrayTemp = [
+                            "value"    => $value,
+                        ];
+                        $returnOptions[] = $arrayTemp;
+                    }
+                }
+
+                $temp_back = [
+                    "title"		    => $v["title"],
+                    // "type"		=> $v["type"],
+                    "type"		    => $v["type"] == "selector" ? $v["extra"] : $v["type"],
+                    // "extra"		=> $v["extra"],
+                    // "options"	=> json_decode($v["options"],true),
+                    "options"	    => $returnOptions,
+                    "status"	    => $v["status"] == 1 ? true : false,
+                    "must"		    => $v["must"]   == 1 ? true : false,
+                    "placeholder"   => $v["placeholder"],
+                    "validate"	    => $v["validate"],
+                    //当选项为第一个选项时，下标为0，empty会判断为空
+                    "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                ];
+                $questionArray[] = $temp_back;
+
+            } elseif ($v["type"] == "radio") {
+                //题目类型为单选
+                $options = json_decode($v["options"],true);
+                // dump($v);                
+                //当用户填写过问卷时
+                $returnOptions = [];
+                // dump($userResultArray);
+                if (!empty($userResultArray[$v["title"]])) {
+                    $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
+                    // dump($userResultArray);
+                    // dump($options);
+                    foreach ($options as $key => $value) {
+                        $arrayTemp = [
+                            "value"    => $value,
+                        ];
+                        $returnOptions[] = $arrayTemp;
+                    }
+                    $useroption =   $userResultArray[$v["title"]];
+                    $returnOptions[$useroption]["checked"] = true;
+                } else {
+                    //用户还未填写问卷
+
+                    $userResultArray[$v["title"]] = "";
+                    foreach ($options as $key => $value) {
+                        $arrayTemp = [
+                            "value"    => $value,
+                        ];
+                        $returnOptions[] = $arrayTemp;
+                    }
+                }
+
+                $temp_back = [
+                    "title"		    => $v["title"],
+                    // "type"		=> $v["type"],
+                    "type"		    => $v["type"] == "selector" ? $v["extra"] : $v["type"],
+                    "options"	    => $returnOptions,
+                    "status"	    => $v["status"] == 1 ? true : false,
+                    "must"		    => $v["must"]   == 1 ? true : false,
+                    "placeholder"   => $v["placeholder"],
+                    "validate"	    => $v["validate"],
+                    //当选项为第一个选项时，下标为0，empty会判断为空
+                    "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                ];
+                $questionArray[] = $temp_back;
+
+            } elseif ($v["type"] == "selector") {
+                //题目类型为选择
+
+                $options = json_decode($v["options"],true);
+
+                //如果extra == selector并且用户完成表单
+                if (!empty($options) && !empty($userResultArray[$v["title"]])) {
+                    $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
+                
+                } else {
+                    //完成表单
+                    $userResultArray[$v["title"]] = "";
+                }
+
+                $temp_back = [
+                    "title"		    => $v["title"],
+                    // "type"		=> $v["type"],
+                    "type"		    => $v["type"] == "selector" ? $v["extra"] : $v["type"],
+                    "options"	    => $options,
+                    "status"	    => $v["status"] == 1 ? true : false,
+                    "must"		    => $v["must"]   == 1 ? true : false,
+                    "placeholder"   => $v["placeholder"],
+                    "validate"	    => $v["validate"],
+                    //当选项为第一个选项时，下标为0，empty会判断为空
+                    "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                ];
+                $questionArray[] = $temp_back;
+
+            }
+            // //将数据库文字选项转换为下标
+            // $options = json_decode($v["options"],true);
+            // if (!empty($options) && !empty($userResultArray[$v["title"]])) {
+            //     $checkBox = substr_count($userResultArray[$v["title"]],",");
+            //     if ($checkBox >= 1) {
+            //         $checkBoxArray = explode(",",$userResultArray[$v["title"]]);
+            //         foreach ($checkBoxArray as $m => $n) {
+            //             $temp[] = array_search($n,$options);
+            //         }
+            //         $userResultArray[$v["title"]] = $temp;
+            //     } else {
+            //         $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
+            //     }
+
+            // }
+            // $returnOptions = [];
+            // if (!empty($options)) {
+            //     foreach ($options as $key => $value) {
+            //         $arrayTemp = [
+            //             "value"    => $value,
+            //         ];
+            //         $returnOptions[] = $arrayTemp;
+            //     }
+            //     $useroption =   $userResultArray[$v["title"]];
+            //     // foreach ($returnOptions as $key => &$value) {
+            //         if (gettype($useroption) == "array") {
+            //             foreach ($useroption as $m => $n) {
+            //                 // $value[$n]["checked"] == true;
+            //                 $returnOptions[$n]["checked"]  = true;
+            //             }
+            //         } else {
+            //             $returnOptions[$useroption]["checked"] = true;
+            //         }
+            //     // }
+            // }
+
+            // $temp_back = [
+            //     "title"		=> $v["title"],
+            //     // "type"		=> $v["type"],
+            //     "type"		=> $v["type"] == "selector" ? $v["extra"] : $v["type"],
+            //     // "extra"		=> $v["extra"],
+            //     // "options"	=> json_decode($v["options"],true),
+            //     "options"	=> $returnOptions,
+            //     "status"	=> $v["status"] == 1 ? true : false,
+            //     "must"		=> $v["must"]   == 1 ? true : false,
+            //     "placeholder"=> $v["placeholder"],
+            //     "validate"	=> $v["validate"],
+            //     //当选项为第一个选项时，下标为0，empty会判断为空
+            //     "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+            //     // "value"     => empty($userResultArray[$v["title"]]) ? "" : $userResultArray[$v["title"]],
+            // ];
+            // if (!empty($options)) {
+            //     unset($temp_back["value"]);
+            // }
+            // $questionArray[] = $temp_back;
         }
         return ["status" => true, "data" => $questionArray,"msg" => "查询成功"];
     }
@@ -212,24 +399,36 @@ class Form extends Model
         }
         $questionList = Db::name("form_questionnaire")
                     ->where("form_id",$form_id)
-                    ->field("title,options")
+                    ->field("title,options,validate")
                     ->select();
         $insertData = [];
         $time = time();
         foreach ($param["data"] as $key => $value) {
             $valueArray = "";
+            $result = json_decode($questionList[$key]["options"],true);
+            $validateDatabase = $questionList[$key]["validate"];
+            $title = $questionList[$key]["title"];
+            if (!empty($validateDatabase)) {
+                $checkSafe = new Validate([$title  => $validateDatabase]);
+                if(!$checkSafe->check([$title  => $value])){
+                    return ["status" => false,"msg" => $checkSafe->getError(),"data"=>""];
+                };
+            }
+            // dump($result);
             if (gettype($value) == "array") {
                 foreach ($value as $k => $v) {
-                    $valueArray = $valueArray.$v.",";
+                    if (!empty($result[$v])) {
+                        $valueArray = $valueArray.$result[$v].",";
+                    }
                 }
                 $valueArray = substr($valueArray, 0, -1);
             }
-            $result = json_decode($questionList[$key]["options"],true);
             //将下标转为文字内容存进数据库
-            if (!empty($result[$value])) {
+
+            if (gettype($value) != "array" && !empty($result[$value])) {
                 $value = $result[$value];
             }
-            
+        
             $temp = [
                 "config_id"  => $param["id"],
                 "form_id"    => $form_id,
