@@ -17,11 +17,11 @@ class Form extends Api
     public function index()
     {
         //解析后应对签名参数进行验证
-        // $key = json_decode(base64_decode($this->request->post('key')),true);
-        // if (empty($key['openid'])) {
-        //     return json(['status' => 500 , 'msg' => "参数错误"]);
-        // } else {
-            $key = [];
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['openid'])) {
+            return json(['status' => 500 , 'msg' => "参数错误"]);
+        } else {
+            // $key = [];
             $FormModel = new FormModel;
             $result = $FormModel -> initForm($key);
             if ($result["status"]) {
@@ -29,7 +29,7 @@ class Form extends Api
             } else {
                 return json(["status" => 500,"msg" => $result["msg"],"data" => $result["data"]]);
             }
-        // }
+        }
     }
     /**
      * 获取表单详情
@@ -43,7 +43,7 @@ class Form extends Api
         if (empty($key['openid']) || empty($key["id"])) {
             return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
-            // $key = ["openid" => "o5WD50I1ZhBv7aztZUsaPZRLE30Q","id" => "5"];
+            // $key = ["openid" => "o5WD50I1ZhBv7aztZUsaPZRLE30Q","id" => "1"];
             $FormModel = new FormModel;
             $result = $FormModel -> detail($key);
             if ($result["status"]) {
@@ -65,6 +65,7 @@ class Form extends Api
             return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
             $FormModel = new FormModel;
+            // dump($key);
             $result = $FormModel -> submit($key);
             if ($result["status"]) {
                 return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);

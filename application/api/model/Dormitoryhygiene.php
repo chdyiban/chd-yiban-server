@@ -16,19 +16,28 @@ class Dormitoryhygiene extends Model
      * @url https://www.tapd.cn/47906839/markdown_wikis/#1147906839001000034
      */
     public function index($key){
-        // $XH = Db::name("wx_user")->where('open_id',$key)->value('portal_id');
-        $XH = $key;
-        $myPanel = $this->getInfo($XH);
-        $notice = $this -> getNotice();
-        $listPanel = $this-> getCheckResult($XH);
-        
-        $result = [
-            "myPanel"   => $myPanel,
-            "notice"    => $notice,
-            "listPanel" => $listPanel,
-        ];
+        $openid = $key["openid"];
+        $XH = Db::name("wx_user")->where('open_id',$openid)->value('portal_id');
+        if (!empty($XH)) {
+            $myPanel = $this->getInfo($XH);
+            $notice = $this -> getNotice();
+            $listPanel = $this-> getCheckResult($XH);
+            
+            $result = [
+                "myPanel"   => $myPanel,
+                "notice"    => $notice,
+                "listPanel" => $listPanel,
+            ];
+        } else {
+            $result = [
+                "myPanel"   => "",
+                "notice"    => "",
+                "listPanel" => "",
+            ];
+        }
+        // $XH = $key;
 
-        return $result;
+        return ["status" => true,"msg" => "success","data" =>$result];
     }
 
     /**
@@ -48,15 +57,21 @@ class Dormitoryhygiene extends Model
                         -> view("dormitory_rooms","ID,LH,SSH","dormitory_beds.FYID = dormitory_rooms.ID")
                         -> where("dormitory_beds.XH",$XH)
                         -> find();
-
+        if (empty($dormitoryInfo)) {
+            return [];
+        }
         $roommates = Db::view("dormitory_beds")
                     -> view("stu_detail","XH,XM","dormitory_beds.XH = stu_detail.XH")
                     -> where("dormitory_beds.FYID",$dormitoryInfo["FYID"])
                     -> where("dormitory_beds.XH","<>",$dormitoryInfo["XH"])
                     -> select();
-        $roommatesName = "";
-        foreach ($roommates as $key => $value) {
-            $roommatesName = $value["XM"].",".$roommatesName;
+        $roommatesName = [];
+        if (!empty($roommates)) {
+            foreach ($roommates as $key => $value) {
+                // $roommatesName = $value["XM"].",".$roommatesName;
+                $roommatesName[] = $value["XM"];
+                
+            }
         }
         $myPanel = [
             "name"      => $stuInfo["XM"],
@@ -64,6 +79,7 @@ class Dormitoryhygiene extends Model
             "dormitory" => $dormitoryInfo["LH"]."#".$dormitoryInfo["SSH"],
             "roommates" => $roommatesName,
         ];
+        return [];
         return $myPanel;
     }
 
@@ -103,12 +119,16 @@ class Dormitoryhygiene extends Model
                     -> where("dormitory_beds.XH",$XH)
                     -> select();
         $result = [];
+        if (empty($listInfo)) {
+            return $result;
+        }
         foreach ($listInfo as $key => $value) {
             $result[$key]["remark"] = $value["remark"];
             $result[$key]["id"] = $value["ID"];
             $result[$key]["date"] = date("Y-m-d",$value["time"]);
             $result[$key]["score"] = $value["WSQK"];
         }
+        return [];
         return $result;
     }
 

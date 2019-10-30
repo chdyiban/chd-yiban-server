@@ -342,18 +342,18 @@ class Wxuser extends Api
         //   解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            return json(['code' => 0 , 'msg' => "参数错误"]);
+            $this->error("参数错误");
         } else {
             $open_id = $key["openid"];
             $avatar = empty($key["avatarUrl"]) ? "" : $key["avatarUrl"]; 
             $nickName = empty($key["nickName"]) ? "" : $key["nickName"]; 
             $user = new WxuserModel;
-            $result = $user->where("open_id",$open_id)->update(["avatar" => $avatar,"nickname" => $nickName]);
+            $result = $user->where("open_id",$open_id)->update(["avatar" => $avatar,"nickname" => $nickName,"update_time" => time()]);
             
             if ($result) {
-                return json(["code" => 1,"msg" => "更新成功","data" => []]);
+               $this->success("更新成功");
             } else {
-                return json(["code" => 0,"msg" => "请稍后再试","data" => []]);
+                $this->error("请稍后再试");
             }
         }
     }
