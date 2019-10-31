@@ -48,53 +48,8 @@ class Index extends Api
     public function app_list()
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        $open_id = $key["openid"];
-        $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
-        $stu_id = $safe["portal_id"];
         $appInfo = Db::name("miniapp_index")->select();
-        $data = [];
-        if (empty($safe)) {
-            //说明此人为绑定
-            foreach ($appInfo as $key => $value) {
-                if ($value["unauthorized"] != 0 ) {
-                    $temp = [
-                        "id"   =>   $value["item_id"],
-                        "icon" =>   $value["icon"],
-                        "color"=>   $value["color"],
-                        "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
-                        "name" =>   $value["name"],
-                        "permissions" => [
-                            "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
-                            "teacher"       => $value["teacher"] == 0 ? false : true,
-                        ],
-                        "usable"    => $value["usable"] == 0 ? false : true,
-                        "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
-                    ];
-                    $data[] = $temp;
-                }
-            }
-        } else if (strlen($stu_id) == 6) {
-            //教师登录
-            foreach ($appInfo as $key => $value) {
-                if ($value["teacher"] != 0 ) {
-                    $temp = [
-                        "id"   =>   $value["item_id"],
-                        "icon" =>   $value["icon"],
-                        "color"=>   $value["color"],
-                        "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
-                        "name" =>   $value["name"],
-                        "permissions" => [
-                            "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
-                            "teacher"       => $value["teacher"] == 0 ? false : true,
-                        ],
-                        "usable"    => $value["usable"] == 0 ? false : true,
-                        "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
-                    ];
-                    $data[] = $temp;
-                }
-            }
-        } else {
-            //学生登录
+        if (empty($key["openid"])) {
             foreach ($appInfo as $key => $value) {
                 $temp = [
                     "id"   =>   $value["item_id"],
@@ -111,9 +66,74 @@ class Index extends Api
                 ];
                 $data[] = $temp;
             }
+       
+        } else {
+            $open_id = $key["openid"];
+            $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
+            $stu_id = $safe["portal_id"];
+            
+            $data = [];
+            if (empty($safe)) {
+                //说明此人为绑定
+                foreach ($appInfo as $key => $value) {
+                    if ($value["unauthorized"] != 0 ) {
+                        $temp = [
+                            "id"   =>   $value["item_id"],
+                            "icon" =>   $value["icon"],
+                            "color"=>   $value["color"],
+                            "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
+                            "name" =>   $value["name"],
+                            "permissions" => [
+                                "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
+                                "teacher"       => $value["teacher"] == 0 ? false : true,
+                            ],
+                            "usable"    => $value["usable"] == 0 ? false : true,
+                            "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
+                        ];
+                        $data[] = $temp;
+                    }
+                }
+            } else if (strlen($stu_id) == 6) {
+                //教师登录
+                foreach ($appInfo as $key => $value) {
+                    if ($value["teacher"] != 0 ) {
+                        $temp = [
+                            "id"   =>   $value["item_id"],
+                            "icon" =>   $value["icon"],
+                            "color"=>   $value["color"],
+                            "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
+                            "name" =>   $value["name"],
+                            "permissions" => [
+                                "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
+                                "teacher"       => $value["teacher"] == 0 ? false : true,
+                            ],
+                            "usable"    => $value["usable"] == 0 ? false : true,
+                            "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
+                        ];
+                        $data[] = $temp;
+                    }
+                }
+            } else {
+                //学生登录
+                foreach ($appInfo as $key => $value) {
+                    $temp = [
+                        "id"   =>   $value["item_id"],
+                        "icon" =>   $value["icon"],
+                        "color"=>   $value["color"],
+                        "badge"=>   $value["badge"] == "0" ? 0 : $value["badge"],
+                        "name" =>   $value["name"],
+                        "permissions" => [
+                            "unauthorized"  => $value["unauthorized"] == 0 ? false : true , 
+                            "teacher"       => $value["teacher"] == 0 ? false : true,
+                        ],
+                        "usable"    => $value["usable"] == 0 ? false : true,
+                        "errMsg"    =>  empty($value["errMsg"]) ? "" : $value["errMsg"],
+                    ];
+                    $data[] = $temp;
+                }
+            }
         }
-      
-
+    
         $info = [
             'status' => 200,
             'msg' => 'success',
