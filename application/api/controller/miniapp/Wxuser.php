@@ -404,7 +404,7 @@ class Wxuser extends Api
                             'name' => "暂无数据",
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -428,7 +428,7 @@ class Wxuser extends Api
                             'name' => $info['XM']
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -439,27 +439,37 @@ class Wxuser extends Api
             } else {
                 //此处由于目前18级新生没有专业代码，因此联查时需要少查一个表。
                 $nj = substr($bindInfo,0,4);
-                if ($nj == '2018') {
-                    $info = Db::connect('chd_config')
-                        ->view('chd_stu_detail')
+                // if ($nj == '2018') {
+                //     $info = Db::connect('chd_config')
+                //         ->view('chd_stu_detail')
+                //         ->where('XH', $bindInfo)
+                //         // ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                //         ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                //         ->find();
+                //     $info['ZYMC'] = '';
+                // } else {
+                //     $info = Db::connect('chd_config')
+                //         ->view('chd_stu_detail')
+                //         ->where('XH', $bindInfo)
+                //         // ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
+                //         // ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM',"LEFT")
+                //         ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                //         ->find();
+                //         $info['ZYMC'] = '';
+                //         //研究生没有班级
+                //         if (empty($info["BJDM"])) {
+                //             $info["BJDM"] = "";
+                //         }
+                // }
+
+                $info = Db::view('stu_detail')
                         ->where('XH', $bindInfo)
                         // ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                        ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
+                        ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
                         ->find();
-                    $info['ZYMC'] = '';
-                } else {
-                    $info = Db::connect('chd_config')
-                        ->view('chd_stu_detail')
-                        ->where('XH', $bindInfo)
-                        // ->view('chd_dict_nation','MZDM,MZMC','chd_stu_detail.MZDM = chd_dict_nation.MZDM')
-                        // ->view('chd_dict_major','ZYDM,ZYMC','chd_stu_detail.ZYDM = chd_dict_major.ZYDM',"LEFT")
-                        ->view('chd_dict_college','YXDM,YXMC,YXJC','chd_stu_detail.YXDM = chd_dict_college.YXDM')
-                        ->find();
-                        $info['ZYMC'] = '';
-                        //研究生没有班级
-                        if (empty($info["BJDM"])) {
-                            $info["BJDM"] = "";
-                        }
+                $info['ZYMC'] = '';
+                if (empty($info["BJDM"])) {
+                    $info["BJDM"] = "";
                 }
 
                 //如果数据库中没有数据
@@ -485,7 +495,7 @@ class Wxuser extends Api
                             'name' => "暂无数据",
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -516,7 +526,7 @@ class Wxuser extends Api
                             'name' => $info['XM']
                         ],
                         'time' => [
-                            'term' => '2018-2019 第2学期',
+                            'term' => '2019-2020 第1学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
