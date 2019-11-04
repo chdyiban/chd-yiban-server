@@ -21,11 +21,20 @@
             <div class="weui-media-box weui-media-box_small-appmsg">
             <div class="weui-cells">
                 {foreach name="$info" item="vo"}    
-                <a class="weui-cell weui-cell_access" href="./detail?college={$vo.YXDM}&name={$vo.YXJC}">
+                <!-- <a class="weui-cell weui-cell_access" href="./detail?college={$vo.YXDM}&name={$vo.YXJC}"> -->
+                <a class="weui-cell weui-cell_access" href="#">
                     <div class="weui-cell__bd weui-cell_primary">
                         <p>{$vo.YXJC}</p>
+                        <p class="weui-media-box__desc">完成人数：<strong>{$vo.finishedStuCount}</strong></p>
                     </div>
-                    <span class="weui-cell__ft">（完成率：{$vo.rate}%）</span>
+                </a>
+                {/foreach}
+            </div>
+            <div class="weui-cells">
+                <a class="weui-cell weui-cell_access" href="#">
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <p class="weui-media-box__desc">共计完成人数：<strong>{$all}</strong></p>
+                    </div>
                 </a>
                 {/foreach}
             </div>
