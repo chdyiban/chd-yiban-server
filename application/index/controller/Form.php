@@ -48,16 +48,18 @@ class Form extends Frontend
         foreach ($info as $key => $value) {
             $YXDM = $value["YXDM"];
             if ($YXDM != "4100") {
-                $stuAllCount = Db::name("stu_detail") 
+                $classAllCount = Db::name("stu_detail") 
                         -> where("YXDM",$YXDM)
                         -> where('XH',['like','2015%'],['like','2016%'],['like','2017%'],['like','2018%'],['like','2019%'],'or')
+                        -> group("BJDM")
                         -> where("XSLBDM",3)
                         -> count();
             } else {
-                $stuAllCount = Db::name("stu_detail") 
+                $classAllCount = Db::name("stu_detail") 
                         -> where("YXDM",$YXDM)
                         -> where('XH',['like','2019%'],['like','2016%'],['like','2017%'],['like','2018%'],'or')
                         -> where("XSLBDM",3)
+                        -> group("BJDM")
                         -> count();
             }
             $finishedStuCount = Db::view("form_result")
@@ -66,12 +68,19 @@ class Form extends Frontend
                         -> view("stu_detail","YXDM,XH","form_result.user_id = stu_detail.XH")
                         -> where("stu_detail.YXDM",$YXDM)
                         -> count();
-            $rate = round($finishedStuCount/$stuAllCount,4)*100;
-            $info[$key]["rate"] = $rate;
+            // $rate = round($finishedStuCount/$stuAllCount,4)*100;
+            // $info[$key]["rate"] = $rate;
+            $info[$key]["finishedStuCount"] = $finishedStuCount;
+            $info[$key]["classAllCount"] = $classAllCount;
         }
-        $arr = array_column($info,'rate');
+        $finishedAllCount = Db::name("form_result")
+                        -> group("user_id")
+                        -> where("form_id",1)
+                        -> count();
+        $arr = array_column($info,'finishedStuCount');
         array_multisort($arr, SORT_DESC, $info );
         $this->view->assign(["info" => $info]);
+        $this->view->assign(["all" => $finishedAllCount]);
         return $this->view->fetch();
     }
     /**
@@ -97,26 +106,27 @@ class Form extends Frontend
             $result["YXDM"] = $YXDM;
             $result["count"] = array();
             foreach ($njArray as $value) {
-                $stuAllCount = Db::name("stu_detail") 
+                $classAllCount = Db::name("stu_detail") 
                             -> where("YXDM",$YXDM)
                             -> where("XH","LIKE","$value%")
+                            -> group("BJDM")
                             -> where("XSLBDM",3)
                             -> count();
 
                 $finishedStuCount = Db::view("form_result")
                                     -> group("user_id")
-                                    ->where("form_id",1)
+                                    -> where("form_id",1)
                                     -> view("stu_detail","YXDM,XH","form_result.user_id = stu_detail.XH")
                                     -> where("user_id","LIKE","$value%")
                                     -> where("stu_detail.YXDM",$YXDM)
                                     -> count();
-                $rate = round($finishedStuCount/$stuAllCount,4)*100;
+                // $rate = round($finishedStuCount/$stuAllCount,4)*100;
                 $temp = [
                     "NJ"  => $value,
                     "YXDM" => $YXDM,
-                    "stuAllCount" => $stuAllCount,
+                    "classAllCount" => $classAllCount,
                     "finishedStuCount" => $finishedStuCount,
-                    "finishedRate"   => "$rate%",
+                    // "finishedRate"   => "$rate%",
                 ];
                 $result["count"][] = $temp;
             }
@@ -138,10 +148,10 @@ class Form extends Frontend
             $this->error("param error!");
         } else {
             // $this->success('请求成功');
-            $stuAllList = Db::name("stu_detail") 
+            $classAllList = Db::name("stu_detail") 
                     -> where("YXDM",$YXDM)
                     -> where('XH','like',"$NJ%")
-                    -> order("BJDM")
+                    -> group("BJDM")
                     -> where("XSLBDM",3)
                     -> select();
             $infoShow = array(
@@ -149,18 +159,19 @@ class Form extends Frontend
                 "YXDM" => $YXDM,
                 "NJ" => $NJ,
             );
-            foreach ($stuAllList as $key => $value) {
-                $info = Db::name("form_result")->where("user_id",$value["XH"])->find();
-                if (empty($info)) {
-                    $temp = [
-                        "XH" => $value["XH"],
-                        "BJ" => empty($value["BJDM"])?"":$value["BJDM"],
-                        "YXDM" => $YXDM,
-                        "NJ" => $NJ,
-                        "XM" => $value["XM"],        
-                    ];
-                    $infoShow["student"][] = $temp;
-                }
+            foreach ($classAllList as $key => $value) {
+                $finishedCount = Db::view("form_result")
+                                    -> view("stu_detail","YXDM,XH,BJDM","form_result.user_id = stu_detail.XH")
+                                    -> group("user_id")
+                                    -> where("form_id",1)
+                                    -> where("stu_detail.BJDM",$value["BJDM"])
+                                    -> where("stu_detail.YXDM",$YXDM)
+                                    -> count();
+                $temp = [
+                    "name"  =>  $value["BJDM"],
+                    "count" =>  $finishedCount,
+                ];
+                $infoShow["class"][] = $temp;
             }
             $this->view->assign(["info"=>$infoShow]);
             return $this->view->fetch();

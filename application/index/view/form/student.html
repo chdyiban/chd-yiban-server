@@ -14,9 +14,10 @@
         <div class="weui-panel__hd">{$info.YXJC} - {$info.NJ}级</div>
         <a class="weui-cell weui-cell_access" href="./detail?college={$info.YXDM}&name={$info.YXJC}">返回</a>
         <div class="weui-panel__bd">
-            {foreach name="$info.student" item="vo"}   
+            {foreach name="$info.class" item="vo"}   
                 <div class="weui-media-box weui-media-box_text">
-                    <p class="weui-media-box__desc">姓名<strong>{$vo.XM}</strong> 学号：<strong>{$vo.XH}</strong>班级：<strong>{$vo.BJ}</strong></p>
+                    <p class="weui-media-box__desc">班级：<strong>{$vo.name}</strong></p>
+                    <p class="weui-media-box__desc">完成人数：<strong>{$vo.count}</strong></p>
                 </div>
             <!-- </a> -->
             {/foreach}
