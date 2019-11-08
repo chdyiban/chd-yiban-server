@@ -50,7 +50,7 @@ class RecordContent extends Model
         $first_insert_res = $this->insert($insertData);
         $second_insert_res = Db::name("record_stuinfo") -> where("ID",$param["ID"]) -> setInc('THCS');
         $third_insert_res = $this->UpdateLatestTime($param["ID"]);
-        return $first_insert_res&&$second_insert_res&&$third_insert_res;
+        return $first_insert_res&&$second_insert_res;
     }
 
     //更新最近谈话时间
