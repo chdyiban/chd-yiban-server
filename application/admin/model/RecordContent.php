@@ -66,6 +66,11 @@ class RecordContent extends Model
         return $resulUpdate;
     }
 
+    //表关联获取本人谈话记录
+    public function getcontent()
+    {
+        return $this->belongsTo('RecordStuinfo', 'XSID')-> setEagerlyType(0);
+    }
     //获取本人最近的谈话记录
     public function getTableData($adminId,$offset,$limit)
     {
@@ -81,13 +86,6 @@ class RecordContent extends Model
                 -> where("admin_id",$adminId)
                 -> order("record_content.THSJ desc")
                 -> count();
-        // dump($info); 
-        // foreach ($college as $key => $value) {
-        //     $college_id = $value['YXDM'];
-        //     $finished_num = $this -> where('YXDM', $college_id) -> where('status', 'finished') -> count();
-        //     $college[$key]['finished_num'] = $finished_num;
-        //     $college[$key]['rest_num'] = $value['bed_num'] - $finished_num;
-        // }
         return ['data' => $info, 'count' => $count];
     }
     //获取管理员谈话统计信息
@@ -253,6 +251,8 @@ class RecordContent extends Model
         $weekStuArrayMap  = array();
         //每天谈话次数
         $weekNumArrayMap  = array();
+        //累积谈话次数
+        $allCountArray   = array();
         foreach ($weekArray as $key => $value) {
             $weekDay = explode("~",$value);
             $startTimestamp = strtotime(date('Y')."-".$weekDay[0]);
@@ -274,14 +274,24 @@ class RecordContent extends Model
                                 -> count();
                                 // dump($allTalkWeekStuCount);
             // $mapKey = $num-$key-1;
+            //获取累积谈话次数
+            $allTalkCount = Db::view("record_stuinfo","XH,XM")
+                        -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                        -> where("admin_id",$adminId)
+                        -> where("THSJ",'<',$endTimestamp)
+                        -> count();
+
+
             $weekStuArrayMap[$key] = $allTalkWeekStuCount;
             $weekNumArrayMap[$key] = $allTalkWeekCount;
+            $allCountArray[$key] = $allTalkCount;
         }
        
         $result = [
             "label" => $weekArray,
             "numCount" => $weekNumArrayMap,
             "stuCount" => $weekStuArrayMap,
+            "allCount" => $allCountArray,
         ];
         return $result;
         
