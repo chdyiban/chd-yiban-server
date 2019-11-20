@@ -32,13 +32,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','chart'], function ($,
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 showToggle: false,
                 showColumns: false,
-                commonSearch: false,
+                // commonSearch: false,
                 search: false,
-                showExport: false,
+                // showExport: false,
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'THSJ', title: __('谈话时间'),width:100,formatter:function(value,row){ 
+                        {field: 'THSJ', title: __('谈话时间'),operate: 'RANGE', addclass: 'datetimerange',width:100,formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";
                             } else{
@@ -47,12 +47,33 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','chart'], function ($,
                                 return time; 
                             }
                         }},
-                        {field: 'XH', title: __('谈话人学号'),width:60},
-                        {field: 'XM', title: __('谈话人姓名'),width:40},
-                        {field: 'THNR', title: __('谈话内容')},
+                        {field: 'getcontent.XH', title: __('谈话人学号'),width:60,operate: 'LIKE %...%'},
+                        {field: 'getcontent.XM', title: __('谈话人姓名'),width:40,operate: 'LIKE %...%'},
+                        {field: 'THNR', title: __('谈话内容'),operate: 'LIKE %...%'},
+                        {field: 'getcontent.tags', title: __('谈话人标签'),width:40,operate: 'LIKE %...%',formatter:function(value,row){ 
+                            var flagArray = value.split(',');
+                            var str = ""
+                            $.each(flagArray,function(i,val){
+                                str = str + "<span class=\"badge bg-blue\">"+val+"</span>"
+                            })
+                            return str
+                            // searchList:$.getJSON("conversationrecord/tags/selectpage")
+                        }},
                         // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
-                ]
+                ],
+                queryParams: function (params) { //自定义搜索条件
+                    var filter = params.filter ? JSON.parse(params.filter) : {}; //判断当前是否还有其他高级搜索栏的条件
+                    var op = params.op ? JSON.parse(params.op) : {};  //并将搜索过滤器 转为对象方便我们追加条件
+                    params.filter = JSON.stringify(filter); //将搜索过滤器和操作方法 都转为JSON字符串
+                    params.op = JSON.stringify(op);
+                    params.sort = "THSJ";
+                    params.order = "desc";
+                    //如果希望忽略搜索栏搜索条件,可使用
+                    //params.filter = JSON.stringify({url: 'login'});
+                    //params.op = JSON.stringify({url: 'like'});
+                    return params;    
+                },
             });
 
             // 为表格绑定事件
@@ -97,6 +118,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','chart'], function ($,
                                     pointHighlightFill: "#fff",
                                     pointHighlightStroke: "rgba(151,187,205,1)",
                                     data: data.numCount,
+                                },
+                                {
+                                    label: "谈话总次数",
+                                    fillColor: "rgba(215,215,215,0.2)",
+                                    strokeColor: "rgba(215,215,215,1)",
+                                    pointColor: "rgba(215,215,215,1)",
+                                    pointStrokeColor: "#fff",
+                                    pointHighlightFill: "#fff",
+                                    pointHighlightStroke: "rgba(215,215,215,1)",
+                                    data: data.allCount,
                                 }
                             ]
                         };

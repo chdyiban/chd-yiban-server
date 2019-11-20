@@ -22,6 +22,7 @@ class Count extends Backend
     {
         parent::_initialize();
         $this->model = model('RecordContent');
+        $this->relationSearch = TRUE;
     }
     /**
      * 查看
@@ -34,27 +35,58 @@ class Count extends Backend
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax())
         {
+            $adminId = $this->auth->id;
             //如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('pkey_name'))
             {
                 return $this->selectpage();
             }
+            $getParam = $this->request->param();
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
-            
-            $info = $this -> model -> getTableData($adminId,$offset,$limit);
-            $total = $info['count'];
-            $data = $info['data'];
-            //遍历进行分页
-            // $list = array();
-            // foreach ($data as $key => $value) {
-            //     if ($key >=  $offset && $key < ($offset + $limit) ) {
-            //         $list[] = $value;
-            //     }
-            // } 
-            $result = array("total" => $total, "rows" => $data);
-            return json($result);
+            $total = $this->model
+                    ->with("getcontent")
+                    -> where("admin_id",$adminId)
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->count();
 
+            $list = $this->model
+                    ->with("getcontent")
+                    -> where("admin_id",$adminId)
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->limit($offset, $limit)
+                    ->select();
+
+            $list = collection($list)->toArray();
+            $result = array("total" => $total, "rows" => $list);
+
+            return json($result);
         }
+        // $this->request->filter(['strip_tags']);
+        // if ($this->request->isAjax())
+        // {
+        //     //如果发送的来源是Selectpage，则转发到Selectpage
+        //     if ($this->request->request('pkey_name'))
+        //     {
+        //         return $this->selectpage();
+        //     }
+        //     list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            
+        //     $info = $this -> model -> getTableData($adminId,$offset,$limit);
+        //     $total = $info['count'];
+        //     $data = $info['data'];
+        //     //遍历进行分页
+        //     // $list = array();
+        //     // foreach ($data as $key => $value) {
+        //     //     if ($key >=  $offset && $key < ($offset + $limit) ) {
+        //     //         $list[] = $value;
+        //     //     }
+        //     // } 
+        //     $result = array("total" => $total, "rows" => $data);
+        //     return json($result);
+
+        // }
         //获取累积谈话次数，累积谈话学生，本月谈话次数，本学谈话学生数量
         $countParam = $this->model->getCountParam($adminId);
         $this->view->assign([

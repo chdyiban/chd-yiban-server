@@ -37,7 +37,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                             })
                             return str
                         }},
-                        {field: 'JDSJ', title: __('建档时间'),operate: false,formatter:function(value,row){ 
+                        {field: 'JDSJ', title: __('建档时间'),operate: 'RANGE', sortable:true,width:100,addclass: 'datetimerange',formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";
                             } else{
@@ -46,7 +46,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                                 return time; 
                             }
                         }},
-                        {field: 'THCS', title: __('谈话次数'),operate: false},
+                        {field: 'THCS', title: __('谈话次数'),sortable:true,width:100, },
                         {field: 'THSJ', title: __('最近谈话时间'),operate: false,formatter:function(value,row){ 
                             if (value == 0) {
                                 return "无";

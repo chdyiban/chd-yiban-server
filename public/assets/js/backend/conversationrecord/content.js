@@ -63,8 +63,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','bootstrap-daterangepi
                     op.XH= "=";  //group_id的操作方法的为 找到相等的
                     params.filter = JSON.stringify(filter); //将搜索过滤器和操作方法 都转为JSON字符串
                     params.op = JSON.stringify(op);
-                    // params.sort = "";
-                    // params.order = "";
+                    params.sort = "THSJ";
+                    params.order = "desc";
                     //如果希望忽略搜索栏搜索条件,可使用
                     //params.filter = JSON.stringify({url: 'login'});
                     //params.op = JSON.stringify({url: 'like'});
