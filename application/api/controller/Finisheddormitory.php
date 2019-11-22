@@ -204,7 +204,7 @@ class Finisheddormitory extends Freshuser
                     $rooms = array_values($rooms);
                 }
             }
-
+            dump($person);
             $restNum = count($rooms);
             if($restNum == 0){
                 exit('没有剩余房源');
@@ -244,7 +244,7 @@ class Finisheddormitory extends Freshuser
                 'SSDM'=>$restRoom['SSDM'],
                 'CH'=>$bedNum,
                 'YXDM'=>$person['YXDM'],
-                'CWDM'=>"north-".$v["SSDM"]."-".$bedNum,
+                'CWDM'=>"north-".$restRoom["SSDM"]."-".$bedNum,
                 'SDSJ'=>time(),
                 'origin'=>'system',
                 'status'=>'finished',
@@ -351,7 +351,7 @@ class Finisheddormitory extends Freshuser
             'SSDM'=>$restRoom['SSDM'],
             'CH'=>$bedNum,
             'YXDM'=>$person['YXDM'],
-            'CWDM'=>"north-".$v["SSDM"]."-".$bedNum,
+            'CWDM'=>"north-".$restRoom["SSDM"]."-".$bedNum,
             'SDSJ'=>time(),
             'origin'=>'system',
             'status'=>'finished',

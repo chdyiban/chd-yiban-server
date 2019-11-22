@@ -19,32 +19,35 @@ class Vote extends Api
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            // return json($info);
         }else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         // $key = ["XH" => "2017902148"];
         $id = 1;
         $VoteModel = new VoteModel;
         $data = $VoteModel -> getInitData($key,$id);
-        $info = [
-            'status' => 200,
-            'msg' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        $this->success("success",$data);
+        // $info = [
+        //     'status' => 200,
+        //     'msg' => 'success',
+        //     'data' => $data,
+        // ];
+        // return json($info);
     }
 
     public function submit() {
@@ -54,16 +57,20 @@ class Vote extends Api
         $VoteModel = new VoteModel;
         $data = $VoteModel -> submit($key);
 
-        $info = [
-            'status' => 200,
-            'msg' => $data["msg"],
-            'data' => [
-                "voteStatus" => $data["status"],
-                "data" => $data["data"]
-            ],
+        $returnData = [
+            "voteStatus" => $data["status"],
+            "data" => $data["data"]
         ];
-
-        return json($info);
+        $this->success($data["msg"],$returnData);
+        // $info = [
+        //     'status' => 200,
+        //     'msg' => $data["msg"],
+        //     'data' => [
+        //         "voteStatus" => $data["status"],
+        //         "data" => $data["data"]
+        //     ],
+        // ];
+        // return json($info);
     }
     
 }

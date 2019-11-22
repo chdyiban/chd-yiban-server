@@ -22,7 +22,7 @@ class Dormitoryadmin extends Api
         $info = array();
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (!empty($key['XH'])) {
-            $data = Db::view('fresh_list') 
+            $data = Db::view('fresh_result') 
                     -> view('dict_college','YXDM,YXMC', 'fresh_list.YXDM = dict_college.YXDM')
                     -> where('XH', $key['XH']) 
                     -> find();

@@ -154,7 +154,7 @@ class User extends Api
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $UserModel = new UserModel();
         if (empty($key['qq'])) {
-            $this->error("params error!");
+            $this->error("请输入正确的QQ号!");
         }
         $qqInfo = parent::validate($key,'Userinfo.qq');
         if (gettype($qqInfo) == 'string') {

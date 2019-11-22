@@ -21,16 +21,23 @@ class Course extends Api
     public function index(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $course = $this->get_course($key);
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => [
-                'week' => get_weeks(),
-                'day' => date("w"),
-                'lessons' => $course,
-                'is_vacation' => 'F',
-            ]
+        $data = [
+            'week' => get_weeks(),
+            'day' => date("w"),
+            'lessons' => $course,
+            'is_vacation' => 'F',
         ];
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => [
+        //         'week' => get_weeks(),
+        //         'day' => date("w"),
+        //         'lessons' => $course,
+        //         'is_vacation' => 'F',
+        //     ]
+        // ];
+        $this->success("success",$data);
         return json($info);
     }
 
