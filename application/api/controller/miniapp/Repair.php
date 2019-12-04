@@ -58,11 +58,12 @@ class Repair extends Api
             ];	
             $res = $this -> sendTemplate($template_id,$url,$data,$open_id);
         }
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-        ];
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        // ];
+        $this->success("success");
+        // return json($info);
     }
 
     private function isNotice()
@@ -89,13 +90,13 @@ class Repair extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $repair = new RepairlistModel;
         $data = $repair->getRepairList($key['id']); 
-        //dump($list);
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
+        // return json($info);
     }
 
     //获取报修工单的详细信息
@@ -104,12 +105,12 @@ class Repair extends Api
         $repair = new RepairlistModel;
         //dump($key);
         $data = $repair->getDetailList($key['bxID']); 
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
-
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
         /**
          * 刘涛看这里，评价函数你来补充
          * 没有评价时：$info['data']['comment']['status'] = false;
@@ -120,18 +121,19 @@ class Repair extends Api
         // $info['data']['comment']['star'] = 5;
         // $info['data']['comment']['message'] = '响应及时，终于维修好了，感谢！';
         
-        return json($info);
+        // return json($info);
     }
 
     public function get_repair_type(){
         $repair = new RepairlistModel;
         $data = $repair->getRepairType(); 
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
+        // return json($info);
     }
     //获取报修区域的信息
     public function get_repair_areas(){
@@ -144,12 +146,13 @@ class Repair extends Api
             $info['Id'] = $val['id'];
             $data[] = $info;
         }
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
+        // return json($info);
     }
 
     public function submit_rate(){
@@ -158,11 +161,13 @@ class Repair extends Api
         $repair -> star = $key['star'];
         $repair -> message = $key['message'];
         $res = $repair -> save();
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-        ];
-        return json($info);
+        $this->success("success");
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        // ];
+        // return json($info);
+
     }
     /**
      * 发送微信模板消息

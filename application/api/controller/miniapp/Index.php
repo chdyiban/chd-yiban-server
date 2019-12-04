@@ -33,12 +33,13 @@ class Index extends Api
                 "location"=>$value["location"],
             ];
         }
-        $info = [
-            'status' => 200,
-            'msg' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        $this->success("succcess",$data);
+        // $info = [
+        //     'status' => 200,
+        //     'msg' => 'success',
+        //     'data' => $data,
+        // ];
+        // return json($info);
     }
 
     /**
@@ -133,29 +134,30 @@ class Index extends Api
                 }
             }
         }
+        $this->success("success",$data);
     
-        $info = [
-            'status' => 200,
-            'msg' => 'success',
-            // 'data' => [
+        // $info = [
+        //     'status' => 200,
+        //     'msg' => 'success',
+        //     // 'data' => [
             
-            //     [
-            //         "icon" =>  'medalfill',
-            //         "color"=>  'orange',
-            //         "badge"=>   0,
-            //         "name" =>  '运动会',
-            //     ],
+        //     //     [
+        //     //         "icon" =>  'medalfill',
+        //     //         "color"=>  'orange',
+        //     //         "badge"=>   0,
+        //     //         "name" =>  '运动会',
+        //     //     ],
             
-            //     [
-            //         "icon" =>  'favorfill',
-            //         "color"=>  'mauve',
-            //         "badge"=>   0,
-            //         "name" =>  '最佳辅导员',
-            //     ],
+        //     //     [
+        //     //         "icon" =>  'favorfill',
+        //     //         "color"=>  'mauve',
+        //     //         "badge"=>   0,
+        //     //         "name" =>  '最佳辅导员',
+        //     //     ],
             
-            // ],
-            'data'  =>  $data,
-        ];
-        return json($info);
+        //     // ],
+        //     'data'  =>  $data,
+        // ];
+        // return json($info);
     }
 }

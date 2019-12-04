@@ -23,14 +23,18 @@ class Dormitoryhygiene extends Api
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            return json(['status' => 500 , 'msg' => "参数错误"]);
+            $this->error("params error!");
+            // return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
             // $key = "o5WD50Oc4KM3eSn35ibzPQ8TF6oY";
             // $key = $this->request->get("XH");
             $DormitoryhygieneModel = new DormitoryhygieneModel;
             $result = $DormitoryhygieneModel -> index($key);
             if ($result["status"]) {
-                return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);
+                $this->success($result["msg"],$result["data"]);
+                // return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);
+            } else {
+                $this->error($result["msg"],$result["data"]);
             }
             // return json($result);
         }
