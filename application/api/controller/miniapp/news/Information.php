@@ -67,13 +67,13 @@ class Information extends Api
             }
         }
         
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $list,
-        ];
-
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $list,
+        // ];
+        $this->success("success",$list);
+        // return json($info);
     }
 /**
      * 根据标签获取文章内容
@@ -180,13 +180,13 @@ class Information extends Api
         $commentList = Comment::getCommentList(['aid' => $archives['id']]);
 
         $list = ['archivesInfo' => $archives, 'channelInfo' => $channel, 'commentList' => $commentList->getCollection()];
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $list,
-        ];
-
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $list,
+        // ];
+        $this->success("success",$list);
+        // return json($info);
     }
     /**
      * 判断数据库中用户是否自定义标签修改
@@ -234,13 +234,15 @@ class Information extends Api
         //         ]
         //     ]
         // ];
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $list,
-        ];
 
-        return json($info);
+        $this->success("success",$list);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $list,
+        // ];
+
+        // return json($info);
 
     }
 
@@ -308,11 +310,12 @@ class Information extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $XH = $key["id"];
         if (empty($key["openid"]) || empty($XH)) {
-            $info = [
-                'status' => 500,
-                'message' => 'param error',
-                'data' => '',
-            ];
+            // $info = [
+            //     'status' => 500,
+            //     'message' => 'param error',
+            //     'data' => '',
+            // ];
+            $this->error("params error");
         } else {
             $userTags = array();
             // $userChannel = array();
@@ -332,37 +335,41 @@ class Information extends Api
                 $res = Db::name("cms_user_tags")->where("XH",$XH) -> update(["tag" => $userTags]);
                 //没有更新
                 if ($res) {
-                    $info = [
-                        'status' => 200,
-                        'message' => 'success',
-                        'data' => '',
-                    ];
+                    // $info = [
+                    //     'status' => 200,
+                    //     'message' => 'success',
+                    //     'data' => '',
+                    // ];
+                    $this->success("success");
                 } else {
-                    $info = [
-                        'status' => 200,
-                        'message' => '未更新标签',
-                        'data' => '',
-                    ];
+                    // $info = [
+                    //     'status' => 200,
+                    //     'message' => '未更新标签',
+                    //     'data' => '',
+                    // ];
+                    $this->success("未更新标签");
                 }
             } else {
                 $res = Db::name("cms_user_tags")-> insert(["XH" => $XH,"tag" => $userTags]);
                 if ($res) {
-                    $info = [
-                        'status' => 200,
-                        'message' => 'success',
-                        'data' => '',
-                    ];
+                    // $info = [
+                    //     'status' => 200,
+                    //     'message' => 'success',
+                    //     'data' => '',
+                    // ];
+                    $this->success("success");
                 } else {
-                    $info = [
-                        'status' => 500,
-                        'message' => 'data error',
-                        'data' => '',
-                    ];
+                    // $info = [
+                    //     'status' => 500,
+                    //     'message' => 'data error',
+                    //     'data' => '',
+                    // ];
+                    $this->error("data error");
                 }
             }
            
         }
-        return json($info);
+        // return json($info);
     }
 
     public function tags()
@@ -378,13 +385,14 @@ class Information extends Api
             $value["storage"] = [];
             $i = $i+1;
         }
+        $this->success("success",$tagsList);
         // $tagsList = $list["value"];
-        $info = [
-            "status" => 200,
-            "message" => "success",
-            "data"    => $tagsList,
-        ];
-        return json($info);
+        // $info = [
+        //     "status" => 200,
+        //     "message" => "success",
+        //     "data"    => $tagsList,
+        // ];
+        // return json($info);
 
     }
 }

@@ -19,15 +19,18 @@ class Clock extends Api
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            return json(['status' => 500 , 'msg' => "参数错误"]);
+            $this->error("params error!");
+            // return json(['status' => 500 , 'msg' => "参数错误"]);
         } else {
             // $key = ["openid" => "o5WD50I1ZhBv7aztZUsaPZRLE30Q","activity_id" => "1"];
             $ClockModel = new ClockModel;
             $result = $ClockModel -> index($key);
             if ($result["status"]) {
-                return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);
+                $this->success($result["msg"],$result["data"]);
+                // return json(["status" => 200,"msg" => $result["msg"],"data" => $result["data"]]);
             } else {
-                return json(["status" => 500,"msg" => $result["msg"],"data" => $result["data"]]);
+                $this->error($result["msg"],$result["data"]);
+                // return json(["status" => 500,"msg" => $result["msg"],"data" => $result["data"]]);
             }
         }
     }

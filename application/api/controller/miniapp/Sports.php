@@ -64,20 +64,22 @@ class Sports extends Api
         $SportsModel = new SportsModel;  
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            $this->error("params error");
+            // return json($info);
         }else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         $info = [];
@@ -86,12 +88,13 @@ class Sports extends Api
         $info['score']['list'] = $collegeRankList;
         $info['hot']['me'] = $SportsModel -> getStuInfo($key);
         $info['hot']['list'] = $SportsModel -> getCollegeStepsRank();
-        $result = [
-            'status' => 200,
-            'msg'    => 'success',
-            'data'   => $info,
-        ];
-        return json($result);
+        $this->success("success",$info);
+        // $result = [
+        //     'status' => 200,
+        //     'msg'    => 'success',
+        //     'data'   => $info,
+        // ];
+        // return json($result);
     }
 
     public function detail()
@@ -99,38 +102,42 @@ class Sports extends Api
         $SportsModel = new SportsModel;
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid']) || empty($key['collegeid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            // return json($info);
         }else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         
         $returnData = $SportsModel -> getCollegeDetail($key);
         if (!$returnData['status']) {
-            $info = [
-                'status' => 200,
-                'msg' => 'error',
-                'data' => $returnData['data'],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'msg' => 'error',
+            //     'data' => $returnData['data'],
+            // ];
+            $this->error("error",$returnData['data']);
         } else {
-            $info = [
-                'status' => 200,
-                'msg' => 'success',
-                'data' => $returnData['data'],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'msg' => 'success',
+            //     'data' => $returnData['data'],
+            // ];
+            $this->success("success",$returnData['data']);
         }
-        return json($info);
+        // return json($info);
 
     }
     /**
@@ -141,36 +148,44 @@ class Sports extends Api
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            // return json($info);
         } else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         $stu_id = $dbResult['portal_id'];
         //验证是否捐过检验学号以及openid
         $checkResult = $this->checkDonate($stu_id,$key['openid']);
         if ($checkResult['status']) {
-            $info = [
-                'status' => 200,
-                'msg'  => '今日已经捐过',
-                'data' => [
-                    'donate_status' => false,
-                    'steps'  => $checkResult['data']['steps'],
-                    'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
-                ],
+            $data = [
+                'donate_status' => false,
+                'steps'  => $checkResult['data']['steps'],
+                'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
             ];
-            return json($info);
+            $this->success("今日已经捐过",$data);
+            // $info = [
+            //     'status' => 200,
+            //     'msg'  => '今日已经捐过',
+            //     'data' => [
+            //         'donate_status' => false,
+            //         'steps'  => $checkResult['data']['steps'],
+            //         'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
+            //     ],
+            // ];
+            // return json($info);
         } 
         $appid = Config::get('wx.appId');
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
@@ -184,66 +199,85 @@ class Sports extends Api
             //步数超过一万步则双倍
             $stepScoreToday = $stepListToday >= 10000 ? 2*$stepListToday : $stepListToday;
             $stuHeat = $this->getStuHeat($stu_id,$stepScoreToday);
-           
-            $info = [
-                'status' => 200,
-                'msg'  => 'success',
-                'data' => [
-                    'donate_status' => true,
-                    'steps' => $stepListToday,
-                    'heat_grow' => $stuHeat,
-                ],
-            ];
+            
             //将用户步数放入缓存,存放时间为一天
             Cache::set($stu_id."_steps", $stepScoreToday, 86400);
-            return json($info);
+
+            $data = [
+                'donate_status' => true,
+                'steps' => $stepListToday,
+                'heat_grow' => $stuHeat,
+            ];
+            $this->error("success",$data);
+            // $info = [
+            //     'status' => 200,
+            //     'msg'  => 'success',
+            //     'data' => [
+            //         'donate_status' => true,
+            //         'steps' => $stepListToday,
+            //         'heat_grow' => $stuHeat,
+            //     ],
+            // ];
+            // return json($info);
 
         } else {
-            $info = [
-                'status' => 500,
-                'code'   => $errCode,
-                'msg'    => '获取步数失败',
-            ];
-            return json($info);
+
+            $this->error("获取步数失败");
+            // $info = [
+            //     'status' => 500,
+            //     'code'   => $errCode,
+            //     'msg'    => '获取步数失败',
+            // ];
+            // return json($info);
         }
 
     }
+
     //捐献步数api
     public function donate()
     {
         
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            // return json($info);
         } else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         $stu_id = $dbResult['portal_id'];
         $checkResult = $this->checkDonate($stu_id,$key['openid']);
         //再次验证是否捐过
         if ($checkResult['status']) {
-            $info = [
-                'status' => 200,
-                'msg'  => '今日已经捐过',
-                'data' => [
-                    'donate_status' => false,
-                    'steps'  => $checkResult['data']['steps'],
-                    'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
-                ],
+            
+            $data = [
+                'donate_status' => false,
+                'steps'  => $checkResult['data']['steps'],
+                'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
             ];
-            return json($info);
+            $this->success("今日已经捐过",$data);
+            // $info = [
+            //     'status' => 200,
+            //     'msg'  => '今日已经捐过',
+            //     'data' => [
+            //         'donate_status' => false,
+            //         'steps'  => $checkResult['data']['steps'],
+            //         'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
+            //     ],
+            // ];
+            // return json($info);
         }
         
         if (strlen($stu_id) == 6) {
@@ -255,13 +289,14 @@ class Sports extends Api
         $stepListToday = Cache::get($stu_id."_steps");
         //获取缓存是否有该学生步数
         if (empty($stepListToday)) {
-            $info = [
-                'status' => 500,
-                'msg'    => '非法请求',
-                'data'   => [],
-            ];
+            $this->error("请求失败");
+            // $info = [
+            //     'status' => 500,
+            //     'msg'    => '非法请求',
+            //     'data'   => [],
+            // ];
 
-            return json($info);
+            // return json($info);
         }
 
         $tempDetail = [
@@ -299,19 +334,21 @@ class Sports extends Api
         if ($insertFlag && $updateFlag) {
             //删除缓存
             $stepListToday = Cache::rm($stu_id."_steps");
-            $info = [
-                'status' => 200,
-                'msg'    => 'success',
-                'data'   => [],
-            ];
+            $this->success("success");
+            // $info = [
+            //     'status' => 200,
+            //     'msg'    => 'success',
+            //     'data'   => [],
+            // ];
         } else {
-            $info = [
-                'status' => 500,
-                'msg'  => '捐献失败，请稍后再试',
-                'data' => [],
-            ];
+            $this->error("捐献失败，请稍后再试");
+            // $info = [
+            //     'status' => 500,
+            //     'msg'  => '捐献失败，请稍后再试',
+            //     'data' => [],
+            // ];
         }
-        return json($info);
+        // return json($info);
 
     }
 
@@ -320,32 +357,36 @@ class Sports extends Api
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'msg' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'msg' => '参数有误',
+            // ];
+            // return json($info);
         } else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
-                $info = [
-                    'status' => 500,
-                    'msg' => 'authority error',
-                ];
-                return json($info);
+                $this->error("authority error");
+                // $info = [
+                //     'status' => 500,
+                //     'msg' => 'authority error',
+                // ];
+                // return json($info);
             }
         }
         $SportsModel = new SportsModel;  
         $scheduleList = $SportsModel -> getSchedule();
-        $info = [
-            'status' => 200,
-            'msg'    => 'success',
-            'data'   => $scheduleList,
-        ];
-        return json($info);
+        $this->success("success",$scheduleList);
+        // $info = [
+        //     'status' => 200,
+        //     'msg'    => 'success',
+        //     'data'   => $scheduleList,
+        // ];
+        // return json($info);
 
     }
+    
     // public function insertDate()
     // {
     //     $insertList = Db::name('sports_date_back') -> select();

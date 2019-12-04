@@ -44,18 +44,19 @@ class Yiban extends Api
         }
         $info = [];
         if($result['code'] == 200){
-            $info = [
-                'status' => 200,
-                'message' => 'success',
-                'data'=>$ret_data
-            ];
-            
-        }else{
-            $info = [
-                'status' => -1,
-                'message' => 'error',
-            ];
+            $this->success("success",$ret_data);
+            // $info = [
+            //     'status' => 200,
+            //     'message' => 'success',
+            //     'data'=>$ret_data
+            // ];
+        } else {
+            $this->error("error");
+            // $info = [
+            //     'status' => -1,
+            //     'message' => 'error',
+            // ];
         } 
-        return json($info);
+        // return json($info);
     }
 }

@@ -28,11 +28,12 @@ class Portal extends Api
         $key = json_decode(base64_decode($this->request->post('key')),true);
         $Ykt = new YktModel;
         $data = $Ykt -> get_yikatong_data($key);
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
         return json($info);
     }
     //查询当前借阅信息
@@ -55,19 +56,22 @@ class Portal extends Api
         $Books = new BooksModel;
         $data = $Books -> get_books_data($key);
         if ($data['status']) {     
-            $info = [
-                'status' => 200,
-                'message' => 'success',
-                'data' => $data['data'],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'message' => 'success',
+            //     'data' => $data['data'],
+            // ];
+            $this->success("success",$data["data"]);
         } else {
-            $info = [
-                'status' => 500,
-                'message' => 'param error',
-                'data' => $data['data'],
-            ];
+            // $info = [
+            //     'status' => 500,
+            //     'message' => 'param error',
+            //     'data' => $data['data'],
+            // ];
+            $this->error("params error",$data["data"]);
+
         }
-        return json($info);
+        // return json($info);
     }
     //查询历史借阅信息
 
@@ -85,20 +89,23 @@ class Portal extends Api
         $dbet_data = $Books -> get_dbet_data($key);
         $result['dbet'] = $dbet_data['data']['dbet'];
         if ($data['status']) {     
-            $info = [
-                'status' => 200,
-                'message' => 'success',
-                'data' => $result,
+            // $info = [
+            //     'status' => 200,
+            //     'message' => 'success',
+            //     'data' => $result,
 
-            ];
+            // ];
+            $this->success("success",$result);
         } else {
-            $info = [
-                'status' => 500,
-                'message' => 'param error',
-                'data' => $result,
-            ];
+            // $info = [
+            //     'status' => 500,
+            //     'message' => 'param error',
+            //     'data' => $result,
+            // ];
+            $this->error("params error",$result);
+            
         }
-        return json($info);
+        // return json($info);
     }
 
     //续借
@@ -109,20 +116,21 @@ class Portal extends Api
         $Books = new BooksModel;
         $data = $Books -> renew_books($key);
         if ($data['status']) {
-            $info = [
-                'status' => 200,
-                'message' => 'success',
-                'data' => $data['data'],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'message' => 'success',
+            //     'data' => $data['data'],
+            // ];
+            $this->success("success",$data["data"]);
         } else {
-            $info = [
-                'status' => 500,
-                'message' => 'param error',
-                'data' => $data['data'],
-            ];
-            
+            // $info = [
+            //     'status' => 500,
+            //     'message' => 'param error',
+            //     'data' => $data['data'],
+            // ];
+            $this->error("params error",$data["data"]);
         }
-        return json($info);
+        // return json($info);
     }
 
     //获取考试成绩
@@ -143,12 +151,13 @@ class Portal extends Api
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
         $data = array_reverse($score->getScore($params));
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
-        return json($info);
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success("success",$data);
+        // return json($info);
     }
 
     /**
@@ -165,19 +174,21 @@ class Portal extends Api
         $params = ["access_token" => $access_token,"XH" => $XH];
         $returnData = $score->getTcScore($params);
         if ($returnData["status"] == true) {
-            $info = [
-                'status' => 200,
-                'message' => 'success',
-                'data' => $returnData["data"],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'message' => 'success',
+            //     'data' => $returnData["data"],
+            // ];
+            $this->success("success",$returnData["data"]);
         } else {
-            $info = [
-                'status' => 200,
-                'message' => $returnData["msg"],
-                'data' => $returnData["data"],
-            ];
+            // $info = [
+            //     'status' => 200,
+            //     'message' => $returnData["msg"],
+            //     'data' => $returnData["data"],
+            // ];
+            $this->error($returnData["msg"],$returnData["data"]);
         }
-        return json($info);
+        // return json($info);
     }
     /**
      * 获取学生四六级成绩
@@ -192,11 +203,12 @@ class Portal extends Api
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
         $data = array_reverse($score->getSlScore($params));
-        $info = [
-            'status' => 200,
-            'message' => 'success',
-            'data' => $data,
-        ];
+        // $info = [
+        //     'status' => 200,
+        //     'message' => 'success',
+        //     'data' => $data,
+        // ];
+        $this->success('success',$data);
         return json($info);
     }
 
@@ -222,6 +234,7 @@ class Portal extends Api
                 ['room' => ['WM2501']]
             ]
         ];
+        
         return json($info);
     }
 }

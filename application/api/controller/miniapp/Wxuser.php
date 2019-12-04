@@ -71,6 +71,66 @@ class Wxuser extends Api
 
         return json($retData);
     }
+    /**
+     * 过渡阶段，将open_id存储本地，不返回open_id,只返回其余信息
+     * @time 2019/11/17
+     */
+
+    public function init_openid(){
+        $openid = $this->request->post('openid');
+        $retData = [];
+        $user = new WxuserModel;
+        $dbResult = $user->where('open_id', $openid)->find();
+        if (empty($dbResult)) {
+            $this->error("info missed","");
+        } else {
+            $data = $this->queryStuInfoByOpenId($openid);
+            $data['user']['info']['wxmobile'] = $dbResult['iswxbind'] == "1" ? true : false;
+            $returnData = base64_encode(json_encode($data));
+            $retData['msg'] = 'success';
+            $this->success("success",$returnData);
+        }
+    }
+
+    /**
+     * 修改返回值，code为0表示错误code为1表示正确
+     */
+    public function login() {
+        $code = $this->request->post('code');
+        $appid = Config::get('wx.appId');
+        $appsecret = Config::get('wx.appSecret');
+
+        $retData = [];
+
+        $params = [
+            'appid' => $appid,
+            'secret' => $appsecret,
+            'js_code' => $code,
+            'grant_type' => 'authorization_code'
+        ];
+        
+        $result = json_decode(Http::get(Wxuser::LOGIN_URL, $params),true);
+        if($result['openid'] != ''){
+            $user = new WxuserModel;
+            $dbResult = $user->where('open_id', $result['openid'])->find();
+            if($dbResult){
+                $user->save([
+                    'session_key' => $result['session_key'],
+                ],['open_id' => $result['openid']]);
+            }else{
+                $user->data([
+                    'open_id'  =>  $result['openid'],
+                    'session_key' =>  $result['session_key'],
+                ]);
+                $user->save();
+            }
+            $data = ["openid" => $result["openid"]];
+            $this->success("success",$data);
+        }else{
+            $this->error("open_id missed");
+        }
+    }
+
 
     /**
     * 预感要废弃
@@ -291,11 +351,12 @@ class Wxuser extends Api
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
         if (empty($key['openid'])) {
-            $info = [
-                'status' => 500,
-                'message' => '参数有误',
-            ];
-            return json($info);
+            $this->error("params error");
+            // $info = [
+            //     'status' => 500,
+            //     'message' => '参数有误',
+            // ];
+            // return json($info);
         }
         $appid = Config::get('wx.appId');
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
@@ -309,25 +370,28 @@ class Wxuser extends Api
                 'iswxbind'    => 1,
             ],['open_id' => $key['openid']]);
             if($bindStatus){
-                $info = [
-                    'status' => 200,
-                    'message' => '绑定成功',
-                    'mobile'  =>  $data['phoneNumber']
-                ];
+                $this->success("绑定成功",$data["phoneNumber"]);
+                // $info = [
+                //     'status' => 200,
+                //     'message' => '绑定成功',
+                //     'mobile'  =>  $data['phoneNumber']
+                // ];
             } else {
-                $info = [
-                    'status' => 200,
-                    'message' => '请稍后再试'
-                ];
+                $this->success("请稍后再试");
+                // $info = [
+                //     'status' => 200,
+                //     'message' => '请稍后再试'
+                // ];
             }
         } else {
-            $info = [
-                'status' => 200,
-                'code'   => $errCode,
-                'message' => '绑定失败',
-            ];
+            $this->success("绑定失败");
+            // $info = [
+            //     'status' => 200,
+            //     'code'   => $errCode,
+            //     'message' => '绑定失败',
+            // ];
         }
-        return json($info);
+        // return json($info);
 
     }
 
@@ -409,7 +473,7 @@ class Wxuser extends Api
                             'day' => date("w")
                         ],
                         // 'token' => rand_str_10(),
-                        'status' => 200,
+                        // 'status' => 200,
                     ];
                 } else {
                     $data = [
@@ -433,7 +497,7 @@ class Wxuser extends Api
                             'day' => date("w")
                         ],
                         // 'token' => rand_str_10(),
-                        'status' => 200,
+                        // 'status' => 200,
                     ];
                 }
             } else {
@@ -500,7 +564,7 @@ class Wxuser extends Api
                             'day' => date("w")
                         ],
                         // 'token' => rand_str_10(),
-                        'status' => 200,
+                        // 'status' => 200,
                     ];
                 } else {
                     //年级将学号的前四位截取
@@ -531,7 +595,7 @@ class Wxuser extends Api
                             'day' => date("w")
                         ],
                         // 'token' => rand_str_10(),
-                        'status' => 200,
+                        // 'status' => 200,
                     ];
                 }
             }
@@ -541,7 +605,7 @@ class Wxuser extends Api
                 'user' => [
                     'openid' =>  $open_id,
                 ],
-                'status' => 200,
+                // 'status' => 200,
             ];
         }
         
