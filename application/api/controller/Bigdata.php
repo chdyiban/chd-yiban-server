@@ -32,7 +32,7 @@ class Bigdata extends Api
         if (empty($access_token)) {
             $token_url = self::GET_TOKEN_URL;
             $post_data = ["key" => self::APPKEY,"secret" => self::APPSECRET];
-            $data = Http::post($token_url,$post_data);
+            $data = Http::get($token_url,$post_data);
             $res_hash = json_decode($data, true);
             if ($res_hash['message'] != 'ok') {
                 //错误处理
@@ -56,9 +56,10 @@ class Bigdata extends Api
      */
     public function getScore($params)
     {
-        $request_url = self::GET_SCORE_URL."?access_token=".$params["access_token"];
+        // $request_url = self::GET_SCORE_URL."?access_token=".$params["access_token"];
+        $request_url = self::GET_SCORE_URL;
 
-        $data = Http::post($request_url,$params);
+        $data = Http::get($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
         if ($data["code"] == "10000") {
@@ -67,7 +68,7 @@ class Bigdata extends Api
                 $returnData = [];
                 $params["page"] = $i;
                 sleep(0.1);
-                $returnData = Http::post($request_url,$params);
+                $returnData = Http::get($request_url,$params);
                 $returnData = json_decode($returnData,true);   
                 foreach ($returnData["result"]["data"] as $key => $value) {
                     $mykey = $value["XN"]." ".$value["XQ"];
@@ -101,9 +102,10 @@ class Bigdata extends Api
 
     public function getTcScore($params)
     {
-        $request_url = self::GET_TC_SCORE_URL."?access_token=".$params["access_token"];
+        // $request_url = self::GET_TC_SCORE_URL."?access_token=".$params["access_token"];
+        $request_url = self::GET_TC_SCORE_URL;
 
-        $data = Http::post($request_url,$params);
+        $data = Http::get($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
 
@@ -115,7 +117,7 @@ class Bigdata extends Api
             $returnData = [];
             $params["page"] = $i;
             sleep(0.1);
-            $returnData = Http::post($request_url,$params);
+            $returnData = Http::get($request_url,$params);
             $returnData = json_decode($returnData,true);   
             foreach ($returnData["result"]["data"] as $key => $value) {
                 $temp = [
@@ -139,9 +141,10 @@ class Bigdata extends Api
 
     public function getSlScore($params)
     {
-        $request_url = self::GET_SL_SCORE_URL."?access_token=".$params["access_token"];
+        // $request_url = self::GET_SL_SCORE_URL."?access_token=".$params["access_token"];
+        $request_url = self::GET_SL_SCORE_URL;
 
-        $data = Http::post($request_url,$params);
+        $data = Http::get($request_url,$params);
         $data = json_decode($data,true);
         $result = [];
         if ($data["message"] != "ok") {
@@ -151,7 +154,7 @@ class Bigdata extends Api
             $returnData = [];
             $params["page"] = $i;
             sleep(0.1);
-            $returnData = Http::post($request_url,$params);
+            $returnData = Http::get($request_url,$params);
             $returnData = json_decode($returnData,true);   
             foreach ($returnData["result"]["data"] as $key => $value) {
                 $result[] = $value;
