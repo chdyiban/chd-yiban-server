@@ -22,6 +22,12 @@ class Bigdata extends Api
     const GET_TC_SCORE_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxxsbkstzjkbzcsxx/full";
     //获取四六级成绩
     const GET_SL_SCORE_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxxsbksyysljcj/full";
+    //获取当前借阅信息
+    const GET_NOW_BOOK_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxtstsjy/full";
+    //获取历史借阅信息
+    const GET_HISTORY_BOOK_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxtsjyls/full";
+    //获取图书信息
+    const GET_BOOK_INFO_URL = "http://bigdata.chd.edu.cn:3003/open_api/customization/tgxtstsxx_alpha/full";
     
     const APPKEY = "201906132614147905";
     const APPSECRET = "83004580acbae7bfbae62235c983e5842bf9dbf5";
@@ -162,7 +168,67 @@ class Bigdata extends Api
         }
         return $result;
     }
+    /**
+     * 获取图书馆当前借阅信息
+     *  @param int ZJH
+     *  @param string access_token
+     *  @return array
+     */
+    public function getNowBook($params)
+    {
+        // $request_url = self::GET_SL_SCORE_URL."?access_token=".$params["access_token"];
+        $request_url = self::GET_NOW_BOOK_URL;
+        $params["page"] = empty($params["page"]) ? 0 : $params["page"];
 
+        $data = Http::get($request_url,$params);
+        $data = json_decode($data,true);
+        $result = [];
+        if ($data["message"] != "ok") {
+            return ["status" => false, "msg" => $data["message"]];
+        }
+        $result["extra"] = ["page" => $params["page"],"total" => $data["result"]["total"],"max_page"=>$data["result"]["max_page"]];
+        foreach ($data["result"]["data"] as $key => $value) {
+            sleep(0.1);
+            $bookUrl = self::GET_BOOK_INFO_URL;
+            $bookInfo = ["TSTM" => $value["TSTM"],"access_token" => $params["access_token"]];
+            $returnData = Http::get($bookUrl,$bookInfo);
+            $returnData = json_decode($returnData,true);   
+            $result["data"][] = ["book" => $returnData["result"]["data"][0]["TM"],"jsrq" => $value["JCRQ"],"yhrq" => $value["YHRQ"] ];
+        }
+        return ["status" => true,"data" => $result,"msg" => "success"];
+    }
+
+    /**
+     * 获取历史借阅信息
+     *  @param int ZJH
+     *  @param string access_token
+     *  @param int page
+     *  @return array
+     */
+    public function getHistoryBook($params)
+    {
+        // $request_url = self::GET_SL_SCORE_URL."?access_token=".$params["access_token"];
+        $request_url = self::GET_HISTORY_BOOK_URL;
+
+        $params["page"] = empty($params["page"]) ? 0 : $params["page"];
+
+        $data = Http::get($request_url,$params);
+        $data = json_decode($data,true);
+        if ($data["message"] != "ok") {
+            return ["status" => false, "msg" => $data["message"]];
+        }
+
+        $result["extra"] = ["page" => $params["page"],"total" => $data["result"]["total"],"max_page"=>$data["result"]["max_page"]];
+            
+        foreach ($data["result"]["data"] as $key => $value) {
+            $bookUrl = self::GET_BOOK_INFO_URL;
+            $bookInfo = ["TSTM" => $value["TSTM"],"access_token" => $params["access_token"]];
+            $returnData = Http::get($bookUrl,$bookInfo);
+            $returnData = json_decode($returnData,true);   
+            $result["data"][] = ["book" => $returnData["result"]["data"][0]["TM"],"jsrq" => $value["JCRQ"],"yhrq" => $value["YHRQ"] ];
+        }
+        return ["status" => true,"data" => $result,"msg" => "success"];
+    }
 
 
 }

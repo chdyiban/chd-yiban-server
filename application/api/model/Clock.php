@@ -343,7 +343,7 @@ class Clock extends Model
             ->view("dict_college","YXDM,YXMC","stu_detail.YXDM = dict_college.YXDM")
             ->where("XH",$stu_id)
             ->find();
-        // dump($NJDM);
+
         if (empty($userInfo)) {
             return ['status' => false, 'msg' => "信息缺失","data" => []];
         }

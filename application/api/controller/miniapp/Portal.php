@@ -11,6 +11,8 @@ use app\api\model\Ykt as YktModel;
 use app\api\model\Books as BooksModel;
 use app\api\model\Score as ScoreModel;
 use app\api\controller\Bigdata as BigdataController;
+use app\common\library\Token;
+
 /**
  * 获取课表
  */
@@ -23,20 +25,37 @@ class Portal extends Api
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
 
+    /**
+     * @param token
+     * @type 不加密
+     */
     public function yikatong(){
         //解析后应对签名参数进行验证
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
         $Ykt = new YktModel;
         $data = $Ykt -> get_yikatong_data($key);
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
         $this->success("success",$data);
-        return json($info);
     }
     //查询当前借阅信息
+    /**
+     * 查询当前借阅量
+     * @param token
+     * @type 不加密
+     */
     public function books(){
         
         /*$info示例
@@ -52,60 +71,102 @@ class Portal extends Api
             'nothing'   =>  true   //当前是否有借阅
         ] */
         //解析后应对签名参数进行验证
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        $Books = new BooksModel;
-        $data = $Books -> get_books_data($key);
-        if ($data['status']) {     
-            // $info = [
-            //     'status' => 200,
-            //     'message' => 'success',
-            //     'data' => $data['data'],
-            // ];
-            $this->success("success",$data["data"]);
-        } else {
-            // $info = [
-            //     'status' => 500,
-            //     'message' => 'param error',
-            //     'data' => $data['data'],
-            // ];
-            $this->error("params error",$data["data"]);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
 
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
-        // return json($info);
-    }
-    //查询历史借阅信息
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
 
+        $book = new BigdataController;
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $ZJH = $userInfo["portal_id"];
+        $access_token = $book->getAccessToken();
+        $access_token = $access_token["access_token"];
+        $params = ["access_token" => $access_token,"ZJH" => $ZJH];
+        $nowData = $book->getNowBook($params);
+        $historyData = $book->getHistoryBook($params);
+        if ($nowData["status"] == false) {
+            $this->error($nowData["msg"]);
+        }
+        if ($historyData["status"] == false) {
+            $this->error($historyData["msg"]);
+        }
+        $return = [
+            "book_list" => $nowData["data"]["data"],
+            "books_num" =>  $nowData["data"]["extra"]["total"],
+            "history"   =>  $historyData["data"]["extra"]["total"],
+            "nothing"   =>  $nowData["data"]["extra"]["total"] == 0 ? false : true,
+            "dbet"      =>  "",
+        ];
+        $this->success("success",$return);
+    }
+
+
+    
+    /**
+     * 查询历史借阅信息
+     * @param token
+     * @param page
+     * @type 不加密
+     */
     public function history_books(){
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        $Books = new BooksModel;
-        $data = $Books -> get_history_data($key);
-        $nowResult = $Books -> get_books_data($key);
-        $result = [];
-        $result['nothing'] = $data['data']['history_count'] == 0 ? false : true ;
-        $result['book_list'] = $data['data']['history_list'];
-        $result['books_num'] = $nowResult['data']['books_num'];
-        $result['history'] = $data['data']['history_count'];
-        $dbet_data = $Books -> get_dbet_data($key);
-        $result['dbet'] = $dbet_data['data']['dbet'];
-        if ($data['status']) {     
-            // $info = [
-            //     'status' => 200,
-            //     'message' => 'success',
-            //     'data' => $result,
-
-            // ];
-            $this->success("success",$result);
-        } else {
-            // $info = [
-            //     'status' => 500,
-            //     'message' => 'param error',
-            //     'data' => $result,
-            // ];
-            $this->error("params error",$result);
-            
+        // $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
-        // return json($info);
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
+        $book = new BigdataController;
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $ZJH = $userInfo["portal_id"];
+        $access_token = $book->getAccessToken();
+        $access_token = $access_token["access_token"];
+        $page = empty($key["page"]) ? 0 : $key["page"];
+        $params = ["access_token" => $access_token,"ZJH" => $ZJH,"page" => $page];
+        $nowData = $book->getNowBook($params);
+        $historyData = $book->getHistoryBook($params);
+    
+        if ($historyData['status'] == false) {     
+            $this->error($historyData["msg"]);
+        }
+        if ($nowData['status'] == false) {     
+            $this->error($nowData["msg"]);
+        }
+
+        $result = [
+            "nothing"   =>  $historyData["data"]["extra"]["total"] == 0 ? false : true,
+            "book_list" =>  $historyData["data"]["data"],
+            "books_num" =>  $nowData["data"]["extra"]["total"],
+            "history"   =>  $historyData["data"]["extra"]["total"],
+            "dbet"      =>  "",
+            "page"      =>  $historyData["data"]["extra"]["page"],
+            "max_page"  =>  $historyData["data"]["extra"]["max_page"],
+        ];
+
+        $this->success("success",$result);
+
     }
 
     //续借
@@ -113,101 +174,132 @@ class Portal extends Api
     {
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
         $Books = new BooksModel;
         $data = $Books -> renew_books($key);
         if ($data['status']) {
-            // $info = [
-            //     'status' => 200,
-            //     'message' => 'success',
-            //     'data' => $data['data'],
-            // ];
             $this->success("success",$data["data"]);
-        } else {
-            // $info = [
-            //     'status' => 500,
-            //     'message' => 'param error',
-            //     'data' => $data['data'],
-            // ];
-            $this->error("params error",$data["data"]);
         }
-        // return json($info);
+        $this->error("params error",$data["data"]);
     }
 
-    //获取考试成绩
+    /**
+     * 获取考试成绩
+     * @param token
+     * @type 不加密
+     */
     public function score(){
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        // $score = new ScoreModel;
-        // $data = $score -> get_score($key);
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
-        // return json($info);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
         $score = new BigdataController;
         $Wxuser = new WxuserModel;
-        $XH = $key["id"];
+        // $XH = $key["id"];
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $XH = $userInfo["portal_id"];
         $access_token = $score->getAccessToken();
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
         $data = array_reverse($score->getScore($params));
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
         $this->success("success",$data);
-        // return json($info);
     }
 
     /**
      * 获取学生体测成绩
+     * @param token
+     * @type 不加密
      */
 
     public function tcscore()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+
         $score = new BigdataController;
-        $XH = $key["id"];
+        $XH = $userInfo["portal_id"];
         $access_token = $score->getAccessToken();
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
         $returnData = $score->getTcScore($params);
         if ($returnData["status"] == true) {
-            // $info = [
-            //     'status' => 200,
-            //     'message' => 'success',
-            //     'data' => $returnData["data"],
-            // ];
             $this->success("success",$returnData["data"]);
-        } else {
-            // $info = [
-            //     'status' => 200,
-            //     'message' => $returnData["msg"],
-            //     'data' => $returnData["data"],
-            // ];
-            $this->error($returnData["msg"],$returnData["data"]);
-        }
-        // return json($info);
+        } 
+
+        $this->error($returnData["msg"],$returnData["data"]);
+
     }
     /**
      * 获取学生四六级成绩
+     * @param token
+     * @type 不加密
      */
 
     public function slscore()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+
         $score = new BigdataController;
-        $XH = $key["id"];
+        $XH = $key["portal_id"];
         $access_token = $score->getAccessToken();
         $access_token = $access_token["access_token"];
         $params = ["access_token" => $access_token,"XH" => $XH];
         $data = array_reverse($score->getSlScore($params));
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
+ 
         $this->success('success',$data);
         return json($info);
     }

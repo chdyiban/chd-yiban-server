@@ -13,7 +13,7 @@ use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Repairlist as RepairlistModel;
 use app\common\library\Sms as Smslib;
-
+use app\common\library\Token;
 /**
  * 报修
  */
@@ -31,6 +31,19 @@ class Repair extends Api
 
     public function submit(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
         //将数据写入数据库
         $repair = new RepairlistModel;
         $listId = $repair->saveData($key);
@@ -58,12 +71,8 @@ class Repair extends Api
             ];	
             $res = $this -> sendTemplate($template_id,$url,$data,$open_id);
         }
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        // ];
+
         $this->success("success");
-        // return json($info);
     }
 
     private function isNotice()
@@ -82,59 +91,57 @@ class Repair extends Api
     }
 
     public function get_pic(){
-
         Http::post(Wxuser::LOGIN_URL, $params);
     }
     //获取报修工单的列表
     public function get_list(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $key["openid"] = $userInfo["open_id"];
+        $key["id"] = $userInfo["portal_id"];
         $repair = new RepairlistModel;
         $data = $repair->getRepairList($key['id']); 
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
         $this->success("success",$data);
-        // return json($info);
     }
 
     //获取报修工单的详细信息
     public function get_repair_detail(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+
         $repair = new RepairlistModel;
         //dump($key);
         $data = $repair->getDetailList($key['bxID']); 
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
+
         $this->success("success",$data);
-        /**
-         * 刘涛看这里，评价函数你来补充
-         * 没有评价时：$info['data']['comment']['status'] = false;
-         * 有评价时见如下：
-         */
-        //$info['data']['comment']['status'] = false;
-        // $info['data']['comment']['status'] = true;
-        // $info['data']['comment']['star'] = 5;
-        // $info['data']['comment']['message'] = '响应及时，终于维修好了，感谢！';
-        
-        // return json($info);
     }
 
     public function get_repair_type(){
         $repair = new RepairlistModel;
         $data = $repair->getRepairType(); 
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
         $this->success("success",$data);
-        // return json($info);
     }
+
     //获取报修区域的信息
     public function get_repair_areas(){
         $list = Db::name('repair_areas')
@@ -146,28 +153,31 @@ class Repair extends Api
             $info['Id'] = $val['id'];
             $data[] = $info;
         }
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        //     'data' => $data,
-        // ];
         $this->success("success",$data);
-        // return json($info);
     }
 
     public function submit_rate(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $key["openid"] = $userInfo["open_id"];
+        $key["id"] = $userInfo["portal_id"];
         $repair = RepairlistModel::get((int)$key['bxID']);
         $repair -> star = $key['star'];
         $repair -> message = $key['message'];
         $res = $repair -> save();
         $this->success("success");
-        // $info = [
-        //     'status' => 200,
-        //     'message' => 'success',
-        // ];
-        // return json($info);
-
     }
     /**
      * 发送微信模板消息

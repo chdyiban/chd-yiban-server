@@ -4,7 +4,7 @@ namespace app\api\controller\miniapp;
 use app\common\controller\Api;
 use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Vote as VoteModel;
-
+use app\common\library\Token;
 /**
  * 投票api
  */
@@ -14,46 +14,56 @@ class Vote extends Api
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
-
+    /**
+     * 初始化
+     * @param token
+     * @type 不加密
+     */
     public function init() {
         //解析后应对签名参数进行验证
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            // return json($info);
-        }else {
-            $user = new WxuserModel;
-            $dbResult = $user->where('open_id', $key['openid'])->find();
-            if (empty($dbResult)) {
-                $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
-            }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
-        // $key = ["XH" => "2017902148"];
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key['openid'] = $userInfo["open_id"];
+
         $id = 1;
         $VoteModel = new VoteModel;
         $data = $VoteModel -> getInitData($key,$id);
         $this->success("success",$data);
-        // $info = [
-        //     'status' => 200,
-        //     'msg' => 'success',
-        //     'data' => $data,
-        // ];
-        // return json($info);
+
     }
 
+    /**
+     * @param token
+     * @param vote_id
+     * @param option
+     * @type 加密
+     */
     public function submit() {
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        // dump($key);
+        
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key['openid'] = $userInfo["open_id"];
+
         $VoteModel = new VoteModel;
         $data = $VoteModel -> submit($key);
 
@@ -62,15 +72,6 @@ class Vote extends Api
             "data" => $data["data"]
         ];
         $this->success($data["msg"],$returnData);
-        // $info = [
-        //     'status' => 200,
-        //     'msg' => $data["msg"],
-        //     'data' => [
-        //         "voteStatus" => $data["status"],
-        //         "data" => $data["data"]
-        //     ],
-        // ];
-        // return json($info);
     }
     
 }
