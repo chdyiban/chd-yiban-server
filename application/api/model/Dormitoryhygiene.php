@@ -79,7 +79,6 @@ class Dormitoryhygiene extends Model
             "dormitory" => $dormitoryInfo["LH"]."#".$dormitoryInfo["SSH"],
             "roommates" => $roommatesName,
         ];
-        return [];
         return $myPanel;
     }
 
@@ -128,7 +127,6 @@ class Dormitoryhygiene extends Model
             $result[$key]["date"] = date("Y-m-d",$value["time"]);
             $result[$key]["score"] = $value["WSQK"];
         }
-        return [];
         return $result;
     }
 

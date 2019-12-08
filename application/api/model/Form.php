@@ -21,11 +21,18 @@ class Form extends Model
             return ['status' => 'false', 'msg' => "请求非法"];
         }
         $stu_id = $safe["portal_id"];
-        $userInfo = Db::name("stu_detail")->where("XH",$stu_id)->field("YXDM,BJDM")->find();
-        $NJDM = substr($stu_id,0,4);
-        $YXDM = $userInfo["YXDM"];
-        $BJDM = $userInfo["BJDM"];
-        // dump($NJDM);
+        if (strlen($stu_id) == 6) {
+            $userInfo = Db::name("teacher_detail")->where("ID",$stu_id)->find();
+        } else {
+            $userInfo = Db::name("stu_detail")->where("XH",$stu_id)->field("YXDM,BJDM")->find();
+        }
+        if (strlen($stu_id) == 6) {
+            $NJDM = "0";
+        } else {
+            $NJDM = substr($stu_id,0,4);
+        }
+        $YXDM = empty($userInfo["YXDM"]) ? "0" : $userInfo["YXDM"];
+        $BJDM = empty($userInfo["BJDM"]) ? "0" : $userInfo["BJDM"];
         if (empty($userInfo)) {
             return ['status' => 'false', 'msg' => "信息缺失","data" => []];
         }
@@ -381,7 +388,7 @@ class Form extends Model
         $stu_id = $safe["portal_id"];
         $form_id = Db::name("form_config")->where("ID",$param["id"])->field("form_id")->find();
         if (empty($form_id)) {
-            return ['status' => false, 'msg' => "请求错误","data" => []];
+            return ['status' => false, 'msg' => "问卷不存在","data" => []];
         }
         $form_id = $form_id["form_id"];
 
