@@ -8,7 +8,10 @@ use fast\Http;
 use think\Db;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
-
+use app\common\library\Token;
+use fast\Random;
+use think\Hook;
+use think\Cache;
 
 /**
  * 微信小程序登录接口
@@ -18,6 +21,11 @@ class Wxuser extends Api
 
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
+
+    protected $_token = '';
+    //Token默认有效时长
+    protected $keeptime = 2592000;
+
 
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const TEST_URL = "http://202.117.64.236:8080/auth/login";
@@ -91,6 +99,30 @@ class Wxuser extends Api
             $this->success("success",$returnData);
         }
     }
+    /**
+     * 过渡阶段，将token存储本地，不返回token,只返回其余信息
+     * @time 2019/11/28
+     */
+    public function init_token(){
+        $token = $this->request->param()["token"];
+        $retData = [];
+        $user = new WxuserModel;
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $dbResult = $user->where('id',$tokenInfo['user_id'])->find();
+        $openid = $dbResult["open_id"];
+        if (empty($dbResult)) {
+            $this->error("info missed");
+        } else {
+            $data = $this->queryStuInfoByOpenId($openid);
+            $data['user']['info']['wxmobile'] = $dbResult['iswxbind'] == "1" ? true : false;
+            $returnData = base64_encode(json_encode($data));
+            $retData['msg'] = 'success';
+            $this->success("success",$returnData);
+        }
+    }
 
     /**
      * 修改返回值，code为0表示错误code为1表示正确
@@ -124,11 +156,38 @@ class Wxuser extends Api
                 ]);
                 $user->save();
             }
-            $data = ["openid" => $result["openid"]];
+            //验证该用户是否有token
+            // $open_id = $result["openid"];
+            // $token_old = Cache::get("wx_user_$open_id");
+            // if ($token_old) {
+            //     $info = Token::delete($token_old);
+            // }
+            $userId = $user->where('open_id', $result['openid'])->field("id")->find()["id"];
+            $this->_token = Random::uuid();
+            Token::set($this->_token, $userId, $this->keeptime);
+            // Cache::set("wx_user_$open_id",$this->_token, $this->keeptime);
+            // $data = ["openid" => $result["openid"]];
+            $data = ["token" => $this->_token];
             $this->success("success",$data);
         }else{
             $this->error("open_id missed");
         }
+    }
+
+    /**
+     * 验证token有效性
+     * @param token
+     */
+    public function check_token() {
+        $param = $this->request->param();
+        if (empty($param["token"])) {
+            $this->error("param error");
+        }
+        $openid = Token::get($param["token"]);
+        if (empty($openid)) {
+            $this->error("Token expired");
+        }
+        $this->success("success");
     }
 
 
@@ -283,6 +342,17 @@ class Wxuser extends Api
     public function append(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
         
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
 
         $user = new WxuserModel;
         $appendStatus = $user->save([
@@ -292,23 +362,37 @@ class Wxuser extends Api
         ],['open_id' => $key['openid']]);
 
         if($appendStatus){
-            $data = [
-                'status' => 200,
-                'message' => '更新成功',
-            ];
+            // $data = [
+            //     'status' => 200,
+            //     'message' => '更新成功',
+            // ];
+            $this->success("更新成功");
         }else{
-            $data = [
-                'status' => 404,
-                'message' => '更新错误',
-            ];
+            // $data = [
+            //     'status' => 404,
+            //     'message' => '更新错误',
+            // ];
+            $this->error("更新失败");
         }
         
 
-        return json($data);
+        // return json($data);
     }
 
     public function bind(){
         $key = json_decode(base64_decode($this->request->post('key')),true);
+
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
 
         $bindInfo = $this->checkBind($key['stuid'],$key['passwd']);
         $pwd =  _token_encrypt($key['passwd'], $key['openid']);
@@ -325,24 +409,27 @@ class Wxuser extends Api
                 'room'      => $roomData['SSH'],
             ],['open_id' => $key['openid']]);
             if($bindStatus){
-                $info = [
-                    'status' => 200,
-                    'message' => '绑定成功'
-                ];
+                // $info = [
+                //     'status' => 200,
+                //     'message' => '绑定成功'
+                // ];
+                $this->success("绑定成功");
             }else{
-                $info = [
-                    'status' => 200,
-                    'message' => '请稍后再试'
-                ];
+                // $info = [
+                //     'status' => 200,
+                //     'message' => '请稍后再试'
+                // ];
+                $this->success("请稍后再试");
             }
         }else{
-            $info = [
-                'status' => 404,
-                'message' => $bindInfo['message']
-            ];
+            // $info = [
+            //     'status' => 404,
+            //     'message' => $bindInfo['message']
+            // ];
+            $this->error($bindInfo["msg"]);
         }
         
-        return json($info);
+        // return json($info);
     }
     /**
      * 获取用户联系方式api
@@ -350,14 +437,19 @@ class Wxuser extends Api
     public function wxmobile()
     {
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'message' => '参数有误',
-            // ];
-            // return json($info);
+
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+
         $appid = Config::get('wx.appId');
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
         $pc = new WXBizDataCrypt($appid, $sessionKey);
@@ -371,28 +463,12 @@ class Wxuser extends Api
             ],['open_id' => $key['openid']]);
             if($bindStatus){
                 $this->success("绑定成功",$data["phoneNumber"]);
-                // $info = [
-                //     'status' => 200,
-                //     'message' => '绑定成功',
-                //     'mobile'  =>  $data['phoneNumber']
-                // ];
             } else {
                 $this->success("请稍后再试");
-                // $info = [
-                //     'status' => 200,
-                //     'message' => '请稍后再试'
-                // ];
             }
         } else {
             $this->success("绑定失败");
-            // $info = [
-            //     'status' => 200,
-            //     'code'   => $errCode,
-            //     'message' => '绑定失败',
-            // ];
         }
-        // return json($info);
-
     }
 
     /**
@@ -401,25 +477,57 @@ class Wxuser extends Api
      * @param $key["avatarUrl"]
      * @param $key["nickName"]
      */
-    public function avatar()
+    public function userinfo()
     {
         //   解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("参数错误");
-        } else {
-            $open_id = $key["openid"];
-            $avatar = empty($key["avatarUrl"]) ? "" : $key["avatarUrl"]; 
-            $nickName = empty($key["nickName"]) ? "" : $key["nickName"]; 
-            $user = new WxuserModel;
-            $result = $user->where("open_id",$open_id)->update(["avatar" => $avatar,"nickname" => $nickName,"update_time" => time()]);
-            
-            if ($result) {
-               $this->success("更新成功");
-            } else {
-                $this->error("请稍后再试");
-            }
+        // $pc = new WXBizDataCrypt($appid, $result['session_key']);
+        // $errCode = $pc->decryptData($encryptedData, $iv, $data);
+
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key["openid"] = $userInfo["open_id"];
+        $open_id = $key["openid"];
+
+        $appid = Config::get('wx.appId');
+        $sessionKey = $userInfo["session_key"];
+        $pc = new WXBizDataCrypt($appid, $sessionKey);
+        $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );
+
+        if ($errCode == 0) {
+            $user = new WxuserModel;
+            $data = json_decode($data,true);
+            $bindStatus = $user->save([
+                'avatar'        =>  $data['avatarUrl'],
+                'nickname'      =>  $data['nickName'],
+                "update_time"   =>  time(),
+            ],['open_id' => $open_id]);
+            if($bindStatus){
+                $this->success("更新成功");
+            } 
+            $this->success("请稍后再试");
+        } 
+
+        $this->error("获取授权失败，请稍后再试");
+
+        // $avatar = empty($key["avatarUrl"]) ? "" : $key["avatarUrl"]; 
+        // $nickName = empty($key["nickName"]) ? "" : $key["nickName"]; 
+        // $user = new WxuserModel;
+        // $result = $user->where("open_id",$open_id)->update(["avatar" => $avatar,"nickname" => $nickName,"update_time" => time()]);
+        
+        // if ($result) {
+        //     $this->success("更新成功");
+        // } 
+        // $this->error("请稍后再试");
+        
     }
 
 
@@ -817,9 +925,9 @@ class Wxuser extends Api
         $response = json_decode($response,true);
         $return['status'] = $response['success'] == "true" ? true:false;
         if ($return['status']) {
-            $return['message'] = "绑定成功!";
+            $return['msg'] = "绑定成功!";
         } else {
-            $return['message'] = "绑定失败，请检查用户名或密码!";
+            $return['msg'] = "绑定失败，请检查用户名或密码!";
             
         }
         return $return;

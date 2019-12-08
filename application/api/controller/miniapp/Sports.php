@@ -10,7 +10,7 @@ use fast\Http;
 use wechat\wxBizDataCrypt;
 use app\api\model\Wxuser as WxuserModel;
 use app\api\model\Sports as SportsModel;
-
+use app\common\library\Token;
 /**
  * 运动会接口
  */
@@ -58,30 +58,40 @@ class Sports extends Api
             '0001'  =>  170,
 
     ];
+
+    /**
+     * @param token
+     * @param 不加密
+     */
     public function index()
     {
         date_default_timezone_set('PRC');
         $SportsModel = new SportsModel;  
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            $this->error("params error");
-            // return json($info);
-        }else {
-            $user = new WxuserModel;
-            $dbResult = $user->where('open_id', $key['openid'])->find();
-            if (empty($dbResult)) {
-                $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
-            }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $key["openid"] = $userInfo["open_id"];
+
+
+        $user = new WxuserModel;
+        $dbResult = $user->where('open_id', $key['openid'])->find();
+        if (empty($dbResult)) {
+            $this->error("authority error");
+        }
+        
         $info = [];
         $collegeRankList = $SportsModel -> getCollegeScoreRank();
         $info['score']['update_time'] =  date("Y-m-d H:i",time());
@@ -89,83 +99,79 @@ class Sports extends Api
         $info['hot']['me'] = $SportsModel -> getStuInfo($key);
         $info['hot']['list'] = $SportsModel -> getCollegeStepsRank();
         $this->success("success",$info);
-        // $result = [
-        //     'status' => 200,
-        //     'msg'    => 'success',
-        //     'data'   => $info,
-        // ];
-        // return json($result);
     }
 
+    /**
+     * @param token
+     * @param collegeid
+     * @type 加密
+     */
     public function detail()
     {
         $SportsModel = new SportsModel;
         $key = json_decode(base64_decode($this->request->post('key')),true);
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $key["openid"] = $userInfo["open_id"];
+
         if (empty($key['openid']) || empty($key['collegeid'])) {
             $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            // return json($info);
         }else {
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $key['openid'])->find();
             if (empty($dbResult)) {
                 $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
             }
         }
         
         $returnData = $SportsModel -> getCollegeDetail($key);
         if (!$returnData['status']) {
-            // $info = [
-            //     'status' => 200,
-            //     'msg' => 'error',
-            //     'data' => $returnData['data'],
-            // ];
             $this->error("error",$returnData['data']);
-        } else {
-            // $info = [
-            //     'status' => 200,
-            //     'msg' => 'success',
-            //     'data' => $returnData['data'],
-            // ];
-            $this->success("success",$returnData['data']);
-        }
-        // return json($info);
-
+        } 
+        $this->success("success",$returnData['data']);
     }
     /**
      * 获取用户捐献步数api
+     * @param token
+     * @type 不加密
      */
 
     public function steps()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            // return json($info);
-        } else {
-            $user = new WxuserModel;
-            $dbResult = $user->where('open_id', $key['openid'])->find();
-            if (empty($dbResult)) {
-                $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
-            }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+        $key["openid"] = $userInfo["open_id"];
+
+        $user = new WxuserModel;
+        $dbResult = $user->where('open_id', $key['openid'])->find();
+        if (empty($dbResult)) {
+            $this->error("authority error");
+        }
+    
         $stu_id = $dbResult['portal_id'];
         //验证是否捐过检验学号以及openid
         $checkResult = $this->checkDonate($stu_id,$key['openid']);
@@ -176,16 +182,6 @@ class Sports extends Api
                 'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
             ];
             $this->success("今日已经捐过",$data);
-            // $info = [
-            //     'status' => 200,
-            //     'msg'  => '今日已经捐过',
-            //     'data' => [
-            //         'donate_status' => false,
-            //         'steps'  => $checkResult['data']['steps'],
-            //         'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
-            //     ],
-            // ];
-            // return json($info);
         } 
         $appid = Config::get('wx.appId');
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
@@ -209,55 +205,36 @@ class Sports extends Api
                 'heat_grow' => $stuHeat,
             ];
             $this->error("success",$data);
-            // $info = [
-            //     'status' => 200,
-            //     'msg'  => 'success',
-            //     'data' => [
-            //         'donate_status' => true,
-            //         'steps' => $stepListToday,
-            //         'heat_grow' => $stuHeat,
-            //     ],
-            // ];
-            // return json($info);
-
         } else {
-
             $this->error("获取步数失败");
-            // $info = [
-            //     'status' => 500,
-            //     'code'   => $errCode,
-            //     'msg'    => '获取步数失败',
-            // ];
-            // return json($info);
         }
 
     }
 
-    //捐献步数api
+    /**
+     * 捐献步数api
+     * @param token
+     * @type 不加密
+     */
     public function donate()
     {
-        
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            // return json($info);
-        } else {
-            $user = new WxuserModel;
-            $dbResult = $user->where('open_id', $key['openid'])->find();
-            if (empty($dbResult)) {
-                $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
-            }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
-        $stu_id = $dbResult['portal_id'];
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        if (empty($userInfo["portal_id"])) {
+            $this->error("请先绑定学号！");
+        }
+
+        $stu_id = $userInfo["portal_id"];
         $checkResult = $this->checkDonate($stu_id,$key['openid']);
         //再次验证是否捐过
         if ($checkResult['status']) {
@@ -268,16 +245,6 @@ class Sports extends Api
                 'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
             ];
             $this->success("今日已经捐过",$data);
-            // $info = [
-            //     'status' => 200,
-            //     'msg'  => '今日已经捐过',
-            //     'data' => [
-            //         'donate_status' => false,
-            //         'steps'  => $checkResult['data']['steps'],
-            //         'donate_time'  => date("Y-m-d H:i",$checkResult['data']['time']),
-            //     ],
-            // ];
-            // return json($info);
         }
         
         if (strlen($stu_id) == 6) {
@@ -290,13 +257,6 @@ class Sports extends Api
         //获取缓存是否有该学生步数
         if (empty($stepListToday)) {
             $this->error("请求失败");
-            // $info = [
-            //     'status' => 500,
-            //     'msg'    => '非法请求',
-            //     'data'   => [],
-            // ];
-
-            // return json($info);
         }
 
         $tempDetail = [
@@ -335,55 +295,30 @@ class Sports extends Api
             //删除缓存
             $stepListToday = Cache::rm($stu_id."_steps");
             $this->success("success");
-            // $info = [
-            //     'status' => 200,
-            //     'msg'    => 'success',
-            //     'data'   => [],
-            // ];
-        } else {
-            $this->error("捐献失败，请稍后再试");
-            // $info = [
-            //     'status' => 500,
-            //     'msg'  => '捐献失败，请稍后再试',
-            //     'data' => [],
-            // ];
         }
-        // return json($info);
-
+        $this->error("捐献失败，请稍后再试");
     }
 
-
+    /**
+     * @param token
+     * 获取日程表
+     * @type 不加密
+     */
     public function schedule()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        if (empty($key['openid'])) {
-            $this->error("params error");
-            // $info = [
-            //     'status' => 500,
-            //     'msg' => '参数有误',
-            // ];
-            // return json($info);
-        } else {
-            $user = new WxuserModel;
-            $dbResult = $user->where('open_id', $key['openid'])->find();
-            if (empty($dbResult)) {
-                $this->error("authority error");
-                // $info = [
-                //     'status' => 500,
-                //     'msg' => 'authority error',
-                // ];
-                // return json($info);
-            }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
+        if (empty($key['token'])) {
+            $this->error("access error");
         }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }      
         $SportsModel = new SportsModel;  
         $scheduleList = $SportsModel -> getSchedule();
         $this->success("success",$scheduleList);
-        // $info = [
-        //     'status' => 200,
-        //     'msg'    => 'success',
-        //     'data'   => $scheduleList,
-        // ];
-        // return json($info);
 
     }
     
