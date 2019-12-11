@@ -33,7 +33,7 @@ class index extends Controller
         if($user == ''){
             die('unkown error');
         }
-        $user=$this->request->param("ID");
+        // $user=$this->request->param("ID");
         //如果为老师
         if(strlen($user) == 6){
             $row = Db::view("teacher_detail")
