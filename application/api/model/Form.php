@@ -34,7 +34,7 @@ class Form extends Model
         $YXDM = empty($userInfo["YXDM"]) ? "0" : $userInfo["YXDM"];
         $BJDM = empty($userInfo["BJDM"]) ? "0" : $userInfo["BJDM"];
         if (empty($userInfo)) {
-            return ['status' => 'false', 'msg' => "信息缺失","data" => []];
+            return ['status' => 'false', 'msg' => "NEED_PORTAL_LOGIN","data" => []];
         }
         //查询已完成列表
         $formFinishedList = Db::view("form")

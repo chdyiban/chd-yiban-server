@@ -29,7 +29,7 @@ class Clock extends Model
             ->find();
         // dump($NJDM);
         if (empty($userInfo)) {
-            return ['status' => false, 'msg' => "信息缺失","data" => []];
+            return ['status' => false, 'msg' => "NEED_PORTAL_LOGIN","data" => []];
         }
         //首先判断当前是否有可以报名的活动
         $activityList = Db::name("clock_activity_list")->where("JSSJ",">=",time())->order("jSSJ asc")->select();
@@ -287,7 +287,7 @@ class Clock extends Model
             ->find();
         // dump($NJDM);
         if (empty($userInfo)) {
-            return ['status' => false, 'msg' => "信息缺失","data" => []];
+            return ['status' => false, 'msg' => "NEED_PORTAL_LOGIN","data" => []];
         }
         //获取活动id
         $activity_id = 0;
@@ -345,7 +345,7 @@ class Clock extends Model
             ->find();
 
         if (empty($userInfo)) {
-            return ['status' => false, 'msg' => "信息缺失","data" => []];
+            return ['status' => false, 'msg' => "NEED_PORTAL_LOGIN","data" => []];
         }
         //获取活动id
         $activity_id = 0;
