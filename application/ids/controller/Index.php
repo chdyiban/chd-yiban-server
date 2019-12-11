@@ -10,31 +10,30 @@ class index extends Controller
 {
     public function index()
     {
-        // header("Content-Type: text/html; charset=utf-8");
-        // session_start();
-        // Loader::import('CAS.phpCAS');
-        // $phpCAS = new \phpCAS();
-        // $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
-        // $phpCAS->setNoCasServerValidation();
-        // $phpCAS->handleLogoutRequests();
-        // $phpCAS->forceAuthentication(); 
+        header("Content-Type: text/html; charset=utf-8");
+        session_start();
+        Loader::import('CAS.phpCAS');
+        $phpCAS = new \phpCAS();
+        $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
+        $phpCAS->setNoCasServerValidation();
+        $phpCAS->handleLogoutRequests();
+        $phpCAS->forceAuthentication(); 
 
-        // if(isset($_GET['logout'])){
-        //     $param = array('service'=>'http://ids.chddata.com/');
-        //     $phpCAS->logout($param);
-        //     exit;
-        // }
-        // $ismobile = '';
-        // if(isset($_GET['mobile'])){
-        //     $ismobile = ($_GET['mobile'] == '1') ? true : false;
-        // }
+        if(isset($_GET['logout'])){
+            $param = array('service'=>'http://ids.chddata.com/');
+            $phpCAS->logout($param);
+            exit;
+        }
+        $ismobile = '';
+        if(isset($_GET['mobile'])){
+            $ismobile = ($_GET['mobile'] == '1') ? true : false;
+        }
         
-        // $user = $phpCAS->getUser();
-        // if($user == ''){
-        //     die('unkown error');
-        // }
+        $user = $phpCAS->getUser();
+        if($user == ''){
+            die('unkown error');
+        }
         $user=$this->request->param("ID");
-        $ismobile = 0;
         //如果为老师
         if(strlen($user) == 6){
             $row = Db::view("teacher_detail")
