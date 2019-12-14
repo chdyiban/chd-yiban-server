@@ -55,7 +55,9 @@ class Comment Extends Model
             // throw new Exception("请绑定账号后进行评论");
             return ["status" => false, "msg" => "请绑定账号后进行评论"];
         }
-
+        if (empty($safe["mobile"]) || $safe["iswxbind"] == 0 ) {
+            return ["status" => false, "msg" => "请前往个人信息界面绑定手机后进行评论"];
+        }
         if (!isset($params['aid']) || !isset($params['content'])) {
             // throw new Exception("内容不能为空");
             return ["status" => false, "msg" => "内容不能为空"];

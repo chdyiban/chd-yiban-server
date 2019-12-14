@@ -1,0 +1,147 @@
+<link rel="stylesheet" href="__CDN__/assets/addons/calendar/fullcalendar/dist/fullcalendar.css">
+<style>
+    .fc-day.selected {
+        background:#e0f2be!important;
+    }
+    .fc-event.fc-completed {
+        text-decoration:line-through;
+    }
+    .fc-event.fc-expired {
+        background:#999!important;
+        border-color:#999!important;
+    }
+    .calendar-trash {
+        position:absolute;top:0;left:0;
+        display: inline-block;
+        width:100%;
+        height:52px;
+        text-align:center;
+        line-height:52px;
+        color: #e74c3c;
+        background-color: #f2dede;
+        display:none;
+    }
+    .fc .fc-toolbar .calendar-trash .fa{font-size: 20px;display:inline-block;vertical-align:middle;}
+    .fc .fc-toolbar .calendar-trash > * {float:none}
+    body .dialog-event .layui-layer-content{
+        padding:15px;
+    }
+    #add-form .msg-box {
+        position:absolute;
+        top:-25px;
+        right:0;
+    }
+    #add-form.n-default .msg-wrap {
+        position:relative;
+    }
+    ul.fc-color-picker li a {
+        position:relative;
+    }
+    ul.fc-color-picker li a.active:after {
+        font-family: FontAwesome;
+        content: "\f00c";
+        position: absolute;
+        z-index: 1000;
+        top: 4px;
+        left: 7px;
+        font-size: 11px;
+        color: #fff;
+    }
+</style>
+
+<section class="">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h4 class="box-title">{:__('Exist event')}</h4>
+                </div>
+
+                <div class="box-body">
+                    <!-- the events -->
+                    <div id="external-events">
+                        {foreach $eventList as $k=>$v}
+                        <div class="external-event" data-id="{$v.id}" data-title="{$v.title}" data-background="{$v.background}" style="background-color:{$v.background};color:#fff;">{$v.title}</div>
+                        {/foreach}
+                        <div class="checkbox">
+                            <label for="drop-remove">
+                                <input type="checkbox" id="drop-remove">
+                                {:__('Remove after drop')}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /. box -->
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{:__('Add event')}</h3>
+                </div>
+                <div class="box-body">
+                    <form id="add-form" action="calendar/addevent" role="form" method="post">
+                        <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
+                            <input type="hidden" name="row[background]" value="#18bc9c" />
+                            <ul class="fc-color-picker" id="color-chooser">
+                                <li><a class="text-green active" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-aqua" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-blue" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-light-blue" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-teal" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-yellow" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-orange" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-red" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-purple" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-fuchsia" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-muted" href="#"><i class="fa fa-square"></i></a></li>
+                                <li><a class="text-navy" href="#"><i class="fa fa-square"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <span class="input-group-addon"><i class="fa fa-list-ol fa-fw"></i></span>
+                            <input id="event-title" name="row[title]" data-rule="required" type="text" class="form-control" placeholder="{:__('Title tips')}">
+                        </div>
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <span class="input-group-addon"><i class="fa fa-link fa-fw"></i></span>
+                            <input id="event-url" name="row[url]" class="form-control" type="text" placeholder="{:__('Link tips')}">
+                        </div>
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <span class="input-group-addon"><i class="fa fa-tags fa-fw"></i></span>
+                            <select name="row[classname]" class="form-control" id="">
+                                <option value="">{:__('None')}</option>
+                                <option value="btn-dialog">{:__('New Dialog')}</option>
+                                <option value="btn-addtabs">{:__('New Addtabs')}</option>
+                                <option value="btn-ajax">{:__('New Ajax')}</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <label for="c-type-event"> <input id="c-type-event" name="type" value="event" type="radio" checked=""> {:__('Add to event')}</label> &nbsp;
+                            <label for="c-type-calendar"> <input id="c-type-calendar" name="type" value="calendar" type="radio"> {:__('Add to calendar')}</label>
+                        </div>
+                        <div class="input-group" id="daterange" style="margin-bottom:10px;display:none;">
+                            <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
+                            <input id="c-starttime" style="margin-bottom:-1px;" data-rule="required" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[starttime]" type="text" value="{:date('Y-m-d 00:00:00')}">
+                            <input id="c-endtime" data-rule="required" class="form-control datetimepicker" data-date-format="YYYY-MM-DD 00:00:00" data-use-current="true" name="row[endtime]" type="text" value="{:date('Y-m-d 00:00:00')}">
+                        </div>
+                        <div class="">
+                            <button type="submit" class="btn btn-primary">{:__('Add')}</button>
+                            <button type="reset" class="btn btn-default">{:__('Reset')}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-md-9">
+            <div class="box box-solid">
+                <div class="box-body no-padding">
+                    <div id="calendar"></div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /. box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
