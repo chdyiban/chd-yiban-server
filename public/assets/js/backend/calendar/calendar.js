@@ -182,7 +182,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                     if ($(".fc-all-button.fc-state-active,.fc-my-button.fc-state-active").size() == 0) {
                         $(".fc-toolbar").append('<div id="calendarTrash" class="calendar-trash"><i class="fa fa-trash-o"></i><b>' + __('Drag here to delete') + '</b></div>');
                         $(".fc-all-button").addClass("fc-state-active");
-                        $(".fc-toolbar .fc-left").append('<form class="form-inline"><input type="text" id="c-admin_id" name="admin_id" placeholder="' + __('Please select a user') + '" class="form-control input-sm selectpage" /></form>');
+                        // $(".fc-toolbar .fc-left").append('<form class="form-inline"><input type="text" id="c-admin_id" name="admin_id" placeholder="' + __('Please select a user') + '" class="form-control input-sm selectpage" /></form>');
                         $(".fc-toolbar .fc-left .selectpage").data("source", Config.admins);
                         Form.events.selectpage($(".fc-toolbar .fc-left form"));
                     }
