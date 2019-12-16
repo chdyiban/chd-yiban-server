@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\controller;
+namespace app\admin\controller\calendar;
 
 use app\admin\model\Admin;
 use app\admin\model\CalendarEvent;
