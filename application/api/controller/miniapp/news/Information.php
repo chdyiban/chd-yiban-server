@@ -307,8 +307,8 @@ class Information extends Api
      */
     public function nav()
     {
-        // $key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = $this->request->param();
         if (empty($key['token'])) {
             $this->error("access error");
         }
