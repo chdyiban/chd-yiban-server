@@ -51,18 +51,35 @@ class Calendar extends Backend
                 $admin_id = $type == 'my' ? $this->auth->id : 0;
             }
             $adminIds = $admin_id ? [$admin_id] : $this->childrenAdminIds;
-
-            $list = $this->model
-                ->where('admin_id', 'in', $adminIds)
-                ->where(function ($query) use ($start, $end) {
-                    $startTime = strtotime($start);
-                    $endTime = strtotime($end);
-                    $query->where("`starttime` BETWEEN {$startTime} AND {$endTime}");
-                    $query->whereOr("`endtime` BETWEEN {$startTime} AND {$endTime}");
-                    $query->whereOr("`starttime` < {$startTime} AND `endtime` > {$endTime}");
-                })
-                ->order('id desc')
-                ->select();
+            //查看全体事件
+           if ($type == "all") {
+               $list = $this->model
+                //    ->where('admin_id', 'in', $adminIds)
+                   ->where(function ($query) use ($start, $end) {
+                       $startTime = strtotime($start);
+                       $endTime = strtotime($end);
+                       $query->where("`starttime` BETWEEN {$startTime} AND {$endTime}");
+                       $query->whereOr("`endtime` BETWEEN {$startTime} AND {$endTime}");
+                       $query->whereOr("`starttime` < {$startTime} AND `endtime` > {$endTime}");
+                   })
+                   ->where("type",$type)
+                   ->order('id desc')
+                   ->select();
+           } else {
+               //查看个人事件
+               $list = $this->model
+                   ->where('admin_id', 'in', $adminIds)
+                   ->where(function ($query) use ($start, $end) {
+                       $startTime = strtotime($start);
+                       $endTime = strtotime($end);
+                       $query->where("`starttime` BETWEEN {$startTime} AND {$endTime}");
+                       $query->whereOr("`endtime` BETWEEN {$startTime} AND {$endTime}");
+                       $query->whereOr("`starttime` < {$startTime} AND `endtime` > {$endTime}");
+                   })
+                //    ->where("type",$type)
+                   ->order('id desc')
+                   ->select();
+           }
             $result = [];
             $time = time();
             foreach ($list as $k => $v) {
@@ -72,6 +89,7 @@ class Calendar extends Backend
         }
         $eventList = CalendarEvent::where('admin_id', $this->auth->id)->order('id desc')->select();
         $this->view->assign("eventList", $eventList);
+        $this->view->assign("adminId", $this->auth->id);
         return $this->view->fetch();
     }
 
@@ -128,11 +146,51 @@ class Calendar extends Backend
             } else {
                 $params = $this->request->post("row/a");
             }
-            if ($params) {
+            if ($params && $params["eventtype"] == "my") {
                 foreach ($params as $k => &$v) {
                     $v = is_array($v) ? implode(',', $v) : $v;
                 }
                 $params['status'] = 'normal';
+                $params["type"]   = $params["eventtype"];
+                unset($params["eventtype"]);
+                try {
+                    $params['admin_id'] = $this->auth->id;
+                    $row = model('Calendar');
+                    $row->allowField(true)->save($params);
+                    $data = $row->render;
+                    $this->success('', null, $data);
+                } catch (PDOException $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        return $this->view->fetch();
+    }
+
+    /**
+     * 添加全体事件日历，便于进行权限控制
+     */
+    public function addAll($ids = NULL)
+    {
+        if ($this->request->isPost()) {
+            if ($ids) {
+                $params = CalendarEvent::get($ids);
+                if ($params) {
+                    $params = $params->toArray();
+                    unset($params['id']);
+                    $params = array_merge($params, $this->request->post("row/a"));
+                }
+            } else {
+                $params = $this->request->post("row/a");
+            }
+            if ($params && $params["eventtype"] == "all") {
+                foreach ($params as $k => &$v) {
+                    $v = is_array($v) ? implode(',', $v) : $v;
+                }
+                $params['status'] = 'normal';
+                $params["type"]   = $params["eventtype"];
+                unset($params["eventtype"]);
                 try {
                     $params['admin_id'] = $this->auth->id;
                     $row = model('Calendar');
