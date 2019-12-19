@@ -134,7 +134,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                         });
                     } else if (eventType == "my" ){
                         Fast.api.ajax({
-                            url: "calendar/calendar/addAll/ids/" + id,
+                            url: "calendar/calendar/add/ids/" + id,
                             data: {'row[starttime]': date.format(), 'row[endtime]': date.format(),'row[eventtype]':eventType,}
                         }, function (data, ret) {
                             append_calendar(data);
