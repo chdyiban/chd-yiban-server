@@ -211,7 +211,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                         // $(".fc-toolbar .fc-left .selectpage").data("source", Config.admins);
                         // Form.events.selectpage($(".fc-toolbar .fc-left form"));
                     }
-                    console.log(11);
                     $("a.fc-event[href]").attr("target", "_blank");
                 }
             });
@@ -226,9 +225,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
             });
             $(document).on("click", "input[name=type]", function (e) {
                 var value = $(this).val();
+                //判断当前事件是个人还是全体
+                var eventType = $(".fc-my-button.fc-state-active").size() > 0 ? 'my' : 'all';
                 $("#daterange").toggle(value === 'calendar');
-                $("#add-form").attr("action", value === 'calendar' ? "calendar/calendar/add" : "calendar/calendar/addevent");
+                if (value === "calendar" && eventType === 'all') {
+                    $("#event-type").attr("value",  "all");
+                    $("#add-form").attr("action",  "calendar/calendar/addAll");
+                } else if (value === "calendar" && eventType === 'my') {
+                    $("#event-type").attr("value",  "my");
+                    $("#add-form").attr("action", "calendar/calendar/add");
+                } else {
+                    $("#event-type").attr("value",  "");
+                    $("#add-form").attr("action", "calendar/calendar/addevent");
+                }
             });
+
             $(document).on("change", "input[name='admin_id']", function () {
                 $('#calendar').fullCalendar('refetchEvents');
             });
@@ -245,6 +256,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                     $('#external-events').prepend(event);
                     ini_events(event);
                 } else {
+                    console.log(data);
                     append_calendar(data);
                 }
                 $(this).trigger("reset");
