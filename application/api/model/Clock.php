@@ -18,16 +18,17 @@ class Clock extends Model
     public function index($key){
         // $stu_id = "2017902148";
         $open_id = $key['openid'];
+        $user_id =  $key["user_id"];
         $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
         if (empty($safe)) {
-            return ['status' => false, 'msg' => "请求非法"];
+            return ['status' => false, 'msg' => "请先绑定学号"];
         }
         $stu_id = $safe["portal_id"];
         $userInfo = Db::view("stu_detail","YXDM,XH,BJDM")
             ->view("dict_college","YXDM,YXMC","stu_detail.YXDM = dict_college.YXDM")
             ->where("XH",$stu_id)
             ->find();
-        // dump($NJDM);
+
         if (empty($userInfo)) {
             return ['status' => false, 'msg' => "NEED_PORTAL_LOGIN","data" => []];
         }
@@ -45,7 +46,8 @@ class Clock extends Model
         } 
         $activityList = $activityList[0];
         //判断是否报名
-        $applyInfo = Db::name("clock_apply_list")->where("XH",$userInfo["XH"])->where("HDID",$activityList["ID"])->find();
+        // $applyInfo = Db::name("clock_apply_list")->where("XH",$userInfo["XH"])->where("HDID",$activityList["ID"])->find();
+        $applyInfo = Db::name("clock_apply_list")->where("user_id",$user_id)->where("HDID",$activityList["ID"])->find();
         if (empty($applyInfo)) {            
             $data = [
                 "clock_status"  =>  [
@@ -55,7 +57,7 @@ class Clock extends Model
                     "activity_id"	=>	$activityList["ID"],//活动ID
                     "start_time"    =>  date("Y-m-d H:i",$activityList["KSSJ"]),
                 ],
-                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
                 "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
             ];
             return ["status"=>true,"msg"=>"尚未报名活动，请先报名","data"=>  $data ];
@@ -97,7 +99,7 @@ class Clock extends Model
                     "activity_id"	=>	$activityList["ID"],//活动ID
                     "can_dk"		=>	false,//是否可以打卡
                 ],
-                "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
                 "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
             ];
             return ["status"=>true,"msg"=>"success","data"=>  $data ];
@@ -106,7 +108,8 @@ class Clock extends Model
         //当前活动开启并且用户也已经报名
         //判断用户是否已经打卡
         $clockInfo  =   Db::name("clock_user_list")
-                    ->where("XH",$userInfo["XH"])
+                    // ->where("XH",$userInfo["XH"])
+                    ->where("user_id",$user_id)
                     ->where("HDID",$activityList["ID"])
                     ->where("DKSJ",">=",$startClockTime)
                     ->where("DKSJ","<=",$endClockTime)
@@ -129,7 +132,7 @@ class Clock extends Model
                         "activity_id"	=>	$activityList["ID"],//活动ID
                         "can_dk"		=>  false,//是否可以打卡
                     ],
-                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
                     "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
                 ];
             } elseif (time() >= $startClockTime && time() <= $endClockTime ) {
@@ -145,7 +148,7 @@ class Clock extends Model
                         "activity_id"	=>	$activityList["ID"],//活动ID
                         "can_dk"		=>  true,//是否可以打卡
                     ],
-                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
                     "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
                 ];
             } elseif (time() > $endClockTime ) {
@@ -160,7 +163,7 @@ class Clock extends Model
                         "activity_id"	=>	$activityList["ID"],//活动ID
                         "can_dk"		=>  false,//是否可以打卡
                     ],
-                    "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+                    "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
                     "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
                 ];
             }
@@ -176,7 +179,7 @@ class Clock extends Model
                 "activity_id"	=>	$activityList["ID"],//活动ID
                 "dk_start_time"	=>	$timeFarNext,//下次打卡的时间
             ],
-            "personal_info" =>  $this->getPersonalInfo($userInfo["XH"],$activityList["ID"],$open_id)["data"],
+            "personal_info" =>  $this->getPersonalInfo($user_id,$activityList["ID"])["data"],
             "rank_info"     =>  $this->getRankInfo($activityList["ID"])["data"],
         ];
         return ["status"=>true,"msg"=>"success","data"=>  $data ];
@@ -185,13 +188,13 @@ class Clock extends Model
 
     /**
      * 获取个人基本信息
-     * @param int XH
+     * @param int user_id
      * @param int activity_id
      */
-    public function getPersonalInfo($XH,$ID,$open_id)
+    public function getPersonalInfo($user_id,$ID)
     {
-        $returnData = Db::name("clock_apply_list")->where("XH",$XH)->where("HDID",$ID)->find();
-        $userInfo   = Db::name("wx_user")->where("open_id",$open_id)->find();
+        $returnData = Db::name("clock_apply_list")->where("user_id",$user_id)->where("HDID",$ID)->find();
+        $userInfo   = Db::name("wx_user")->where("id",$user_id)->find();
         if (empty($returnData)) {
             return ["status"=>false,"msg"=>"error","data" => []];
         } else {
@@ -214,8 +217,9 @@ class Clock extends Model
     {
         //获取当天打卡时间前十
         $todayList = Db::view("clock_user_list")
-                ->view("stu_detail","XH,XM,YXDM,BJDM","clock_user_list.XH = stu_detail.XH")
-                ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
+                // ->view("stu_detail","XH,XM,YXDM,BJDM","clock_user_list.XH = stu_detail.XH")
+                ->view("wx_user","nickname,avatar","clock_user_list.user_id = wx_user.id")
+                // ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
                 ->where("DKSJ",">=",strtotime( date("Y-m-d",time()) ))
                 ->where("HDID",$ID)
                 ->order("DKSJ desc")
@@ -227,10 +231,12 @@ class Clock extends Model
         foreach ($todayList as $k => $v) {
             $temp = [
                 "rank"  =>  $i,
-                "XM"    =>  $v["XM"],
-                "XH"    =>  $v["XH"],
-                "LXTS"  =>  Db::name("clock_apply_list")->where("XH",$v["XH"])->where("HDID",$v["HDID"])->field("LXTS")->find()["LXTS"],
-                "YXMC"  =>  $v["YXMC"],
+                "XM"    =>  $v["nickname"],
+                // "XH"    =>  $v["XH"],
+                "nickName"  =>  $v["nickname"],
+                "avatar"    =>  $v["avatar"],
+                "LXTS"  =>  Db::name("clock_apply_list")->where("user_id",$v["user_id"])->where("HDID",$v["HDID"])->field("LXTS")->find()["LXTS"],
+                // "YXMC"  =>  $v["YXMC"],
                 "DKSJ"  =>  date("H:i",$v["DKSJ"]),
             ];
             $i++;
@@ -238,21 +244,32 @@ class Clock extends Model
         }
 
         //当前活动累积打卡次数排名
-        $totalActivityList = Db::view("clock_apply_list")
-                ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
-                ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
-                ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
-                ->where("HDID",$ID)
-                ->order("LJTS desc")
-                ->select();
+        // $totalActivityList = Db::view("clock_apply_list")
+        //         ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
+        //         ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
+        //         ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
+        //         ->where("HDID",$ID)
+        //         ->order("LJTS desc")
+        //         ->select();
         //当前活动连续打卡次数排名
         $runningList = Db::view("clock_apply_list")
-                ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
-                ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
-                ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
+                ->view("wx_user","avatar,nickname","clock_apply_list.user_id = wx_user.id")
                 ->where("HDID",$ID)
                 ->order("LXTS desc")
                 ->select();
+        $runningResult = [];
+        $i = 1;
+        foreach ($runningList as $k => $v) {
+            $temp = [
+                "rank"  =>  $i,
+                "XM"    =>  $v["nickname"],
+                "nickName"  =>  $v["nickname"],
+                "avatar"    =>  $v["avatar"],
+                "LXTS"  =>  $v["LXTS"],
+            ];
+            $i++;
+            $runningResult[] = $temp;
+        }     
 
         
         return [
@@ -263,7 +280,7 @@ class Clock extends Model
             //     "total_list"    =>  $totalActivityList,
             //     "runnging_list" =>  $runningList,
             // ],
-            "data"      =>  [ "0"=> $todayResult,"1" => $runningList],
+            "data"      =>  [ "0"=> $todayResult,"1" => $runningResult],
         ];
     }
 
@@ -274,7 +291,7 @@ class Clock extends Model
      */
     public function apply($key)
     {
-        // $stu_id = "2017902148";
+        $user_id = $key["user_id"];
         $open_id = $key['openid'];
         $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
         if (empty($safe)) {
@@ -302,16 +319,17 @@ class Clock extends Model
                 ->where("ID",$activity_id)
                 ->find();
         if (empty($activityList)) {
-            return ['status' => false, 'msg' => "报名活动有误","data" => []];
+            return ['status' => false, 'msg' => "当前活动未开始，不可以报名哝！","data" => []];
         }
         //判断用户是否报名
-        $check = Db::name("clock_apply_list")->where("XH",$stu_id)->where("HDID",$activity_id)->find();
+        $check = Db::name("clock_apply_list")->where("user_id",$user_id)->where("HDID",$activity_id)->find();
         if(!empty($check)){
             return ['status' => false, 'msg' => "不可重复报名","data" => []];
         }
     
         $insertData = [
-            "XH"    =>  $stu_id,
+            // "XH"    =>  $stu_id,
+            "user_id"   =>  $user_id,
             "HDID"  =>  $activity_id,
             "BMSJ"  =>  time(),
             "LJTS"  =>  0,
@@ -334,6 +352,7 @@ class Clock extends Model
     public function clock($key)
     {
         $open_id = $key['openid'];
+        $user_id = $key["user_id"];
         $safe = Db::name('wx_user') -> where('open_id',$open_id) -> field('portal_id') -> find();
         if (empty($safe)) {
             return ['status' => 'false', 'msg' => "请求非法"];
@@ -366,7 +385,7 @@ class Clock extends Model
         //判断用户是否报名
 
         $check = Db::name("clock_apply_list")
-                ->where("XH",$stu_id)
+                ->where("user_id",$user_id)
                 ->where("HDID",$activity_id)
                 ->find();
 
@@ -389,7 +408,7 @@ class Clock extends Model
             return ['status' => false, 'msg' => "当前时间不可以打卡！","data" => []];
         }
         $checkClock = Db::name("clock_user_list")
-                ->where("XH",$stu_id)
+                ->where("user_id",$user_id)
                 ->where("DKSJ",">=",$startClockTime)
                 ->where("DKSJ","<=",$endClockTime)
                 ->find();
@@ -404,7 +423,7 @@ class Clock extends Model
         try{
             //判断昨天是否打卡
             $checkLastClock = Db::name("clock_user_list")
-                        ->where("XH",$stu_id)
+                        ->where("user_id",$user_id)
                         ->where("HDID",$activity_id)
                         ->where("DKSJ",">=",$startLastClockTime)
                         ->where("DKSJ","<=",$endLastClockTime)
@@ -412,23 +431,23 @@ class Clock extends Model
 
             if (empty($checkLastClock)) {
                 $updateFlag1 = Db::name("clock_apply_list")
-                    ->where("XH",$stu_id)
+                    ->where("user_id",$user_id)
                     ->where("HDID",$activity_id)
                     ->update([ "LXTS" => 1]);
             } else{
                 $updateFlag1 = Db::name("clock_apply_list")
-                    ->where("XH",$stu_id)
+                    ->where("user_id",$user_id)
                     ->where("HDID",$activity_id)
                     ->setInc("LXTS", 1);
             }
 
             $updateFlag = Db::name("clock_apply_list")
-                    ->where("XH",$stu_id)
+                    ->where("user_id",$user_id)
                     ->where("HDID",$activity_id)
                     ->setInc("LJTS",1);
             
             $insertData = [
-                "XH"    =>  $stu_id,
+                "user_id"    =>  $user_id,
                 "HDID"  =>  $activity_id,
                 "DKSJ"  =>  time(),
             ];

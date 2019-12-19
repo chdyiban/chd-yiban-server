@@ -18,6 +18,8 @@ class Clock extends Api
     /**
      * @param token
      * @type 不加密
+     * 修改为以open_id为唯一值，数据表中存储user_id
+     * @time 2019/12/19
      */
     public function index()
     {
@@ -35,7 +37,7 @@ class Clock extends Api
         $userId = $tokenInfo['user_id'];
         $userInfo = WxuserModel::get($userId);
         $key["openid"] = $userInfo["open_id"];
-        // $key = ["openid" => "o5WD50I1ZhBv7aztZUsaPZRLE30Q","activity_id" => "1"];
+        $key["user_id"] = $userId;
         $ClockModel = new ClockModel;
         $result = $ClockModel -> index($key);
         if ($result["status"]) {
@@ -65,7 +67,7 @@ class Clock extends Api
         }
         $userId = $tokenInfo['user_id'];
         $userInfo = WxuserModel::get($userId);
-
+        $key["user_id"] = $userId;
         $key["openid"] = $userInfo["open_id"];
 
         $ClockModel = new ClockModel;
@@ -99,7 +101,7 @@ class Clock extends Api
         $userId = $tokenInfo['user_id'];
         $userInfo = WxuserModel::get($userId);
         $key["openid"] = $userInfo["open_id"];
-
+        $key["user_id"] =   $userId;
         $ClockModel = new ClockModel;
         $result = $ClockModel -> clock($key);
         if ($result["status"]) {
