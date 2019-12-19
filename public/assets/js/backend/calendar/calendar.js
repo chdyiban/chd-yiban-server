@@ -9,7 +9,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                 $special.draginit = $special.dragstart = $special.dragend = $special.drag = undefined;
             }
             var events = {
-                url: "calendar/index",
+                url: "calendar/calendar/index",
                 data: function () {
                     return {
                         type: $(".fc-my-button.fc-state-active").size() > 0 ? 'my' : 'all',
@@ -35,7 +35,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
             var append_calendar = function (data) {
                 $('#calendar').fullCalendar('renderEvent', data);
             };
-
+            //初始化左侧边事件
             var ini_events = function (ele) {
                 ele.each(function () {
                     var eventObject = $(this).data();
@@ -52,7 +52,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
             var toggle_button = function () {
                 $(".fc-all-button,.fc-my-button").removeClass("fc-state-active");
                 $(this).addClass("fc-state-active");
-                $('.selectpage').selectPageClear();
+                // $('.selectpage').selectPageClear();
                 $('#calendar').fullCalendar('refetchEvents');
             };
 
@@ -87,11 +87,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                         content: $("#add-form")
                     });
                 },
+                //用户单击事件修改事件状态为已完成或者未完成。
                 eventClick: function (calEvent, jsEvent, view) {
                     var that = this;
                     var status = $(this).hasClass("fc-completed") ? "normal" : "completed";
                     Fast.api.ajax({
-                        url: "calendar/multi/ids/" + calEvent.id,
+                        url: "calendar/calendar/multi/ids/" + calEvent.id,
                         data: {params: "status=" + status}
                     }, function () {
                         $(that).removeClass("fc-completed fc-normal");
@@ -105,27 +106,51 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                 navLinks: true, // can click day/week names to navigate views
                 editable: true,
                 droppable: true,
+                //将事件拖入日历中时触发该事件
                 drop: function (date, allDay) {
                     var that = this;
                     var id = $(this).data('id');
                     var title = $(this).data('title');
-                    Fast.api.ajax({
-                        url: "calendar/add/ids/" + id,
-                        data: {'row[starttime]': date.format(), 'row[endtime]': date.format()}
-                    }, function (data, ret) {
-                        append_calendar(data);
-                        if ($('#drop-remove').is(':checked')) {
-                            Fast.api.ajax({
-                                url: "calendar/delevent/ids/" + id
-                            }, function () {
-                                $(that).remove();
-                                return false;
-                            });
-                        }
-                        return false;
-                    }, function () {
+                    //判断当前事件是个人还是全体
+                    var eventType = $(".fc-my-button.fc-state-active").size() > 0 ? 'my' : 'all';
+                    if (eventType == "all") {
+                        //如果是全体则请求addAll方法
+                        Fast.api.ajax({
+                            url: "calendar/calendar/addAll/ids/" + id,
+                            data: {'row[starttime]': date.format(), 'row[endtime]': date.format(),'row[eventtype]':eventType,}
+                        }, function (data, ret) {
+                            append_calendar(data);
+                            if ($('#drop-remove').is(':checked')) {
+                                Fast.api.ajax({
+                                    url: "calendar/calendar/delevent/ids/" + id
+                                }, function () {
+                                    $(that).remove();
+                                    return false;
+                                });
+                            }
+                            return false;
+                        }, function () {
+    
+                        });
+                    } else if (eventType == "my" ){
+                        Fast.api.ajax({
+                            url: "calendar/calendar/addAll/ids/" + id,
+                            data: {'row[starttime]': date.format(), 'row[endtime]': date.format(),'row[eventtype]':eventType,}
+                        }, function (data, ret) {
+                            append_calendar(data);
+                            if ($('#drop-remove').is(':checked')) {
+                                Fast.api.ajax({
+                                    url: "calendar/calendar/delevent/ids/" + id
+                                }, function () {
+                                    $(that).remove();
+                                    return false;
+                                });
+                            }
+                            return false;
+                        }, function () {
 
-                    });
+                        });
+                    }
 
                 },
                 eventRender: function (event, $el) {
@@ -133,7 +158,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                 },
                 eventDrop: function (event, delta, revertFunc, jsEvent) {
                     Fast.api.ajax({
-                        url: "calendar/edit/ids/" + event.id,
+                        url: "calendar/calendar/edit/ids/" + event.id,
                         data: {'row[starttime]': event.start.format(), 'row[endtime]': event.end ? event.end.format() : event.start.format()}
                     }, function (data) {
                         $('#calendar').fullCalendar('refetchEvents');
@@ -157,7 +182,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                     var y1 = ofs.top;
                     var y2 = ofs.top + trashEl.outerHeight(true);
                     if (jsEvent.pageX >= x1 && jsEvent.pageX <= x2 && jsEvent.pageY >= y1 && jsEvent.pageY <= y2) {
-                        Fast.api.ajax({url: "calendar/del/ids/" + event.id}, function () {
+                        Fast.api.ajax({url: "calendar/calendar/del/ids/" + event.id}, function () {
                             $('#calendar').fullCalendar('removeEvents', event.id);
                             return false;
                         });
@@ -167,7 +192,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                 },
                 eventResize: function (event, delta, revertFunc) {
                     Fast.api.ajax({
-                        url: "calendar/edit/ids/" + event.id,
+                        url: "calendar/calendar/edit/ids/" + event.id,
                         data: {'row[starttime]': event.start.format(), 'row[endtime]': event.end ? event.end.format() : event.start.format()}
                     }, function (data) {
                         $('#calendar').fullCalendar('refetchEvents');
@@ -183,9 +208,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
                         $(".fc-toolbar").append('<div id="calendarTrash" class="calendar-trash"><i class="fa fa-trash-o"></i><b>' + __('Drag here to delete') + '</b></div>');
                         $(".fc-all-button").addClass("fc-state-active");
                         // $(".fc-toolbar .fc-left").append('<form class="form-inline"><input type="text" id="c-admin_id" name="admin_id" placeholder="' + __('Please select a user') + '" class="form-control input-sm selectpage" /></form>');
-                        $(".fc-toolbar .fc-left .selectpage").data("source", Config.admins);
-                        Form.events.selectpage($(".fc-toolbar .fc-left form"));
+                        // $(".fc-toolbar .fc-left .selectpage").data("source", Config.admins);
+                        // Form.events.selectpage($(".fc-toolbar .fc-left form"));
                     }
+                    console.log(11);
                     $("a.fc-event[href]").attr("target", "_blank");
                 }
             });
@@ -201,7 +227,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'jquery-u
             $(document).on("click", "input[name=type]", function (e) {
                 var value = $(this).val();
                 $("#daterange").toggle(value === 'calendar');
-                $("#add-form").attr("action", value === 'calendar' ? "calendar/add" : "calendar/addevent");
+                $("#add-form").attr("action", value === 'calendar' ? "calendar/calendar/add" : "calendar/calendar/addevent");
             });
             $(document).on("change", "input[name='admin_id']", function () {
                 $('#calendar').fullCalendar('refetchEvents');
