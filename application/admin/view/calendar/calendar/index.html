@@ -48,7 +48,7 @@
         color: #fff;
     }
 </style>
-
+<input id="c-admin-id" name="" value="{$adminId}" type="text" style="display: none;">
 <section class="">
     <div class="row">
         <div class="col-md-3">
@@ -79,7 +79,7 @@
                     <h3 class="box-title">{:__('Add event')}</h3>
                 </div>
                 <div class="box-body">
-                    <form id="add-form" action="calendar/addevent" role="form" method="post">
+                    <form id="add-form" action="calendar/calendar/addevent" role="form" method="post">
                         <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
                             <input type="hidden" name="row[background]" value="#18bc9c" />
                             <ul class="fc-color-picker" id="color-chooser">
@@ -100,6 +100,9 @@
                         <div class="input-group" style="margin-bottom:10px;">
                             <span class="input-group-addon"><i class="fa fa-list-ol fa-fw"></i></span>
                             <input id="event-title" name="row[title]" data-rule="required" type="text" class="form-control" placeholder="{:__('Title tips')}">
+                        </div>
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <input id="event-type" name="row[eventtype]" value="" style="display: none;" type="text" class="form-control">
                         </div>
                         <div class="input-group" style="margin-bottom:10px;">
                             <span class="input-group-addon"><i class="fa fa-link fa-fw"></i></span>
