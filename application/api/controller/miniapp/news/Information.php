@@ -307,7 +307,8 @@ class Information extends Api
      */
     public function nav()
     {
-        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        $key = $this->request->param();
         if (empty($key['token'])) {
             $this->error("access error");
         }
@@ -322,12 +323,8 @@ class Information extends Api
         // $XH = $user->where('open_id',$key["openid"])->value('portal_id');
         $user = new WxuserModel;
         $res = Db::name("cms_user_tags") -> where("XH",$XH) -> find();
-        if (empty($res)) {
-            $XH = "";
-            $list = $this->getNav($XH);
-        } else {
-            $list = $this->getNav($XH);
-        }
+        $XH = empty($res) ? "" : $XH;
+        $list = $this->getNav($XH);
         $this->success("success",$list);
     }
 
