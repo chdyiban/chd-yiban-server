@@ -244,31 +244,34 @@ class Clock extends Model
         }
 
         //当前活动累积打卡次数排名
-        // $totalActivityList = Db::view("clock_apply_list")
-        //         ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
-        //         ->view("wx_user","avatar,nickname","clock_apply_list.XH = wx_user.portal_id")
-        //         ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
-        //         ->where("HDID",$ID)
-        //         ->order("LJTS desc")
-        //         ->select();
-        //当前活动连续打卡次数排名
-        $runningList = Db::view("clock_apply_list")
+        $totalActivityList = Db::view("clock_apply_list")
+                // ->view("stu_detail","XH,XM,YXDM,BJDM","clock_apply_list.XH = stu_detail.XH")
                 ->view("wx_user","avatar,nickname","clock_apply_list.user_id = wx_user.id")
+                // ->view("dict_college","YXMC,YXDM","stu_detail.YXDM = dict_college.YXDM")
                 ->where("HDID",$ID)
-                ->order("LXTS desc")
+                ->order("LJTS desc")
+                ->where("LJTS",">","0")
                 ->select();
-        $runningResult = [];
+        //当前活动连续打卡次数排名
+        // $runningList = Db::view("clock_apply_list")
+        //         ->view("wx_user","avatar,nickname","clock_apply_list.user_id = wx_user.id")
+        //         ->where("HDID",$ID)
+        //         ->order("LXTS desc")
+        //         ->where("LXTS",">","0")
+        //         ->select();
+        $totalActivityResult = [];
         $i = 1;
-        foreach ($runningList as $k => $v) {
+        foreach ($totalActivityList as $k => $v) {
             $temp = [
-                "rank"  =>  $i,
-                "XM"    =>  $v["nickname"],
+                "rank"      =>  $i,
+                "XM"        =>  $v["nickname"],
                 "nickName"  =>  $v["nickname"],
                 "avatar"    =>  $v["avatar"],
-                "LXTS"  =>  $v["LXTS"],
+                "LJTS"      =>  $v["LJTS"],
+                "LXTS"      =>  $v["LXTS"],
             ];
             $i++;
-            $runningResult[] = $temp;
+            $totalActivityResult[] = $temp;
         }     
 
         
@@ -280,7 +283,7 @@ class Clock extends Model
             //     "total_list"    =>  $totalActivityList,
             //     "runnging_list" =>  $runningList,
             // ],
-            "data"      =>  [ "0"=> $todayResult,"1" => $runningResult],
+            "data"      =>  [ "0"=> $todayResult,"1" => $totalActivityResult],
         ];
     }
 
