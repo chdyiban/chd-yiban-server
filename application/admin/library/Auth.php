@@ -5,6 +5,7 @@ namespace app\admin\library;
 use app\admin\model\Admin;
 use fast\Random;
 use fast\Tree;
+use think\Db;
 use think\Config;
 use think\Cookie;
 use think\Request;
@@ -35,8 +36,9 @@ class Auth extends \fast\Auth
      * @param   string $password 密码
      * @param   int $keeptime 有效时长
      * @return  boolean
+     * @time 2019/12/20 为了cas认证，如果type=school则不验证密码
      */
-    public function login($username, $password, $keeptime = 0)
+    public function login($username, $password, $keeptime = 0,$type = null)
     {
         $admin = Admin::get(['username' => $username]);
         if (!$admin) {
@@ -47,11 +49,13 @@ class Auth extends \fast\Auth
             $this->setError('Please try again after 1 day');
             return false;
         }
-        if ($admin->password != md5(md5($password) . $admin->salt)) {
-            $admin->loginfailure++;
-            $admin->save();
-            $this->setError('Password is incorrect');
-            return false;
+        if ($type != "school") {
+            if ($admin->password != md5(md5($password) . $admin->salt)) {
+                $admin->loginfailure++;
+                $admin->save();
+                $this->setError('Password is incorrect');
+                return false;
+            }
         }
         $admin->loginfailure = 0;
         $admin->logintime = time();
