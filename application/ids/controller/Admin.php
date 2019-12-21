@@ -16,7 +16,7 @@ class Admin extends IndexController
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
-    public function index()
+    public function index($type = null)
     {
         header("Content-Type: text/html; charset=utf-8");
         // session_start();
@@ -26,10 +26,9 @@ class Admin extends IndexController
         $phpCAS->setNoCasServerValidation();
         $phpCAS->handleLogoutRequests();
         $phpCAS->forceAuthentication(); 
-
-        if(isset($_GET['logout'])){
-            $param = array('service'=>'http://ids.chddata.com/');
-            $phpCAS->logout($param);
+        if ($type == "logout") {
+            // $param = array('service'=>'http://yiban.chddata.com/');
+            $phpCAS->logout();
             exit;
         }
         $user = $phpCAS->getUser();
