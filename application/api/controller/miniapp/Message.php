@@ -28,16 +28,16 @@ class Message extends Api
     public function phone()
     {
         //解析后应对签名参数进行验证
-        $key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
-        if (empty($key['token'])) {
-            $this->error("access error");
-        }
-        $token = $key['token'];
-        $tokenInfo = Token::get($token);
-        if (empty($tokenInfo)) {
-            $this->error("Token expired");
-        }
+        // $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = $this->request->param();
+        // if (empty($key['token'])) {
+        //     $this->error("access error");
+        // }
+        // $token = $key['token'];
+        // $tokenInfo = Token::get($token);
+        // if (empty($tokenInfo)) {
+        //     $this->error("Token expired");
+        // }
 
         $MessageModel = new MessageModel;
         $result = $MessageModel -> getPhone();
