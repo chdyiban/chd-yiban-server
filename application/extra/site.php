@@ -37,6 +37,7 @@ return array (
   'mail_verify_type' => '2',
   'mail_from' => '10000@qq.com',
   'tagsShow' => '[{"channel": 7,"name": "门户通知","type_id": 0, "enabled":{"guest": true, "student": true, "teacher": true}},
+{"channel": 55,"name": "常用信息","type_id": 0, "enabled":{"guest": true, "student": true, "teacher": true}},
 {"channel": 4,"name": "官网新闻","type_id": 0 ,"enabled":{"guest": true, "student": true, "teacher": true}},
 {"channel": 3,"name": "易班","type_id": 0 ,"enabled":{"guest": true, "student": true, "teacher": true}},
 {"channel": 5,"name": "先锋家园","type_id": 0 ,"enabled":{"guest": true, "student": true, "teacher": true}},
