@@ -223,6 +223,7 @@ class Index extends Backend
           if ($this->auth->autologin()) {
             $this->redirect($url);
         }
+        
     }
 
     /**
