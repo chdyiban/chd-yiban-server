@@ -120,7 +120,7 @@ class Index extends Backend
                     else
                     {
                         // $this->error($this->model->getError());
-                        $this->error();
+                        $this->error("学生数据已经存在，请勿重复添加");
                     }
                 }
                 catch (\think\exception\PDOException $e)
