@@ -50,6 +50,14 @@ class RecordStuinfo extends Model
         $param['THCS'] = 0;
         $param['THSJ'] = 0;
         $param['admin_id'] = $adminId;
+        //判断学生是否已经添加过
+        $check = Db::name("user")
+                ->where("XH",$param["XH"])
+                ->where("admin_id",$param["admin_id"])
+                ->find();
+        if (!empty($check)) {
+            return false;
+        }
         $result = $this->insert($param);
         $XSID = Db::name('user')->getLastInsID();
         $this -> updateCourseFlag($param['CXKC'], $XSID);
