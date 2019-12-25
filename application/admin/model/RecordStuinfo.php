@@ -51,7 +51,7 @@ class RecordStuinfo extends Model
         $param['THSJ'] = 0;
         $param['admin_id'] = $adminId;
         //判断学生是否已经添加过
-        $check = Db::name("user")
+        $check = Db::name("record_stuinfo")
                 ->where("XH",$param["XH"])
                 ->where("admin_id",$param["admin_id"])
                 ->find();
