@@ -27,7 +27,7 @@ class Admin extends IndexController
         $phpCAS->handleLogoutRequests();
         $phpCAS->forceAuthentication(); 
         if ($type == "logout") {
-            // $param = array('service'=>'http://yiban.chddata.com/');
+            $param = array('service'=>'http://yiban.chd.edu.cn/');
             $phpCAS->logout();
             exit;
         }
