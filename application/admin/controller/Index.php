@@ -95,6 +95,7 @@ class Index extends Backend
                 $result = $this->auth->login($username, $password, $keeplogin ? 86400 : 0);
                 if ($result === true) {
                     Hook::listen("admin_login_after", $this->request);
+                    Cookie::set("loginType","normal",86400);
                     $this->success(__('Login successful'), $url, ['url' => $url, 'id' => $this->auth->id, 'username' => $username, 'avatar' => $this->auth->avatar]);
                 } else {
                     $msg = $this->auth->getError();
@@ -242,6 +243,7 @@ class Index extends Backend
             $this->auth->logout();
             Hook::listen("admin_logout_after", $this->request);
         }
+        Cookie::delete("loginType");
         $this->success(__('Logout successful'), 'index/login');
     }
 

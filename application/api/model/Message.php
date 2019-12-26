@@ -13,10 +13,23 @@ class Message extends Model
     /**
      * 获取常用电话
      */
-    public function getPhone()
+    public function getPhone($param)
     {
         $pinyin = new Pinyin();
-        $list = Db::name("school_phone")->select();
+        $XH = $param["XH"];
+        $check = Db::name("teacher_detail") -> where("ID",$XH)->find();
+        if (empty($check)) {
+            $list = Db::name("school_phone")
+                    -> where("power","all")
+                    -> whereOr("power","")
+                    -> select();
+        } else {
+            $list = Db::name("school_phone")
+                    -> where("power", "all")
+                    -> whereOr("power","teacher")
+                    -> whereOr("power","")
+                    -> select();
+        }
         $data = [];
         $help = [];
         foreach ($list as $key => $value) {

@@ -38,9 +38,15 @@ class Message extends Api
         // if (empty($tokenInfo)) {
         //     $this->error("Token expired");
         // }
-
+        // $userId = $tokenInfo['user_id'];
+        // $userWxInfo = WxuserModel::get($userId);
+        // if (empty($userWxInfo["portal_id"])) {
+        //     $this->error("请先绑定学号！");
+        // }
+        // $param["XH"] = $userWxInfo["portal_id"];
+        $param["XH"] = "2017902148";
         $MessageModel = new MessageModel;
-        $result = $MessageModel -> getPhone();
+        $result = $MessageModel -> getPhone($param);
 
         if ($result["status"]) {
             $this->success($result["msg"],$result["data"]);
