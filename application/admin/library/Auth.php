@@ -56,6 +56,8 @@ class Auth extends \fast\Auth
                 $this->setError('Password is incorrect');
                 return false;
             }
+        } else {
+            Cookie::set('loginType', "cas", 86400);
         }
         $admin->loginfailure = 0;
         $admin->logintime = time();
