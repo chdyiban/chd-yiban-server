@@ -236,7 +236,8 @@ class Index extends Backend
         $loginType = Cookie::get('loginType');
         if ($loginType == "cas") {
             $adminController = new AdminController();
-            $adminController->logout("logout");
+            $this->auth->logout();
+            $adminController->index("logout");
         } else {
             $this->auth->logout();
             Hook::listen("admin_logout_after", $this->request);
