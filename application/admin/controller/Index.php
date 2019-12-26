@@ -12,7 +12,8 @@ use app\common\controller\Backend;
 use think\Config;
 use think\Hook;
 use think\Validate;
-
+use think\Cookie;
+use app\ids\controller\Admin as AdminController;
 /**
  * 后台首页
  * @internal
@@ -223,7 +224,7 @@ class Index extends Backend
           if ($this->auth->autologin()) {
             $this->redirect($url);
         }
-        
+
     }
 
     /**
@@ -231,8 +232,16 @@ class Index extends Backend
      */
     public function logout()
     {
-        $this->auth->logout();
-        Hook::listen("admin_logout_after", $this->request);
+        
+        $loginType = Cookie::get('loginType');
+        if ($loginType == "cas") {
+            $adminController = new AdminController();
+            $this->auth->logout();
+            $adminController->index("logout");
+        } else {
+            $this->auth->logout();
+            Hook::listen("admin_logout_after", $this->request);
+        }
         $this->success(__('Logout successful'), 'index/login');
     }
 
