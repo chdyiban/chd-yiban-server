@@ -320,16 +320,22 @@ class RecordContent extends Model
                     $keyNumArray[$value["BJDM"]] = $keyNumArray[$value["BJDM"]] + $value["THCS"];
                     $keyStuArray[$value["BJDM"]]++;
                 } else {
-                    $keyArray[] = $value["BJDM"];
+                    $keyArray[] = (int)$value["BJDM"];
                     $keyNumArray[$value["BJDM"]] = $value["THCS"];
                     $keyStuArray[$value["BJDM"]] = 1;
                 }
             }
         }
-        //班级谈话总次数
+        //排序
+        asort($keyArray);
+        ksort($keyNumArray);
+        ksort($keyStuArray);
+        foreach ($keyArray as $key => $value) {
+            $resultKeyArray[] = (string)$value;
+        }
        
         $result = [
-            "label" => $keyArray,
+            "label" => $resultKeyArray,
             "numCount" => $keyNumArray,
             "stuCount" => $keyStuArray,
         ];
