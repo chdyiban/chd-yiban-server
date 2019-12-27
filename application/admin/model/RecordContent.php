@@ -315,14 +315,14 @@ class RecordContent extends Model
         $keyStuArray = [];
         foreach ($classResult as $key => $value) {
             if (!empty($value["BJDM"])) {   
-                $flag = array_search($value["BJDM"],$keyArray);
-                if ($flag == true) {
-                    $keyNumArray[$value["BJDM"]] = $keyNumArray[$value["BJDM"]] + $value["THCS"];
-                    $keyStuArray[$value["BJDM"]]++;
-                } else {
+                $flag = in_array($value["BJDM"],$keyArray);
+                if ($flag == false) {
                     $keyArray[] = (int)$value["BJDM"];
                     $keyNumArray[$value["BJDM"]] = $value["THCS"];
                     $keyStuArray[$value["BJDM"]] = 1;
+                } else {
+                    $keyNumArray[$value["BJDM"]] = $keyNumArray[$value["BJDM"]] + $value["THCS"];
+                    $keyStuArray[$value["BJDM"]]++;
                 }
             }
         }
