@@ -104,7 +104,12 @@ class Count extends Backend
         if ($this->request->isAjax()){
            //设置过滤方法
             $adminId = $this->auth->id;
-            $info = $this->model->getChartData($adminId);
+            $type = $this->request->get("type");
+            if ($type == "count") {
+                $info = $this->model->getChartData($adminId);
+            } else {
+                $info = $this->model->getChartClassData($adminId);
+            }
             return json($info);
         } else {
             $this -> error("请求错误");

@@ -296,4 +296,44 @@ class RecordContent extends Model
         return $result;
         
     }
+
+    /**
+     * 获取班级统计信息
+     */
+    public function getChartClassData($adminId)
+    {
+        
+
+        //keyArray用来存放图表信息
+        $keyArray = array();
+        $classResult = Db::view("record_stuinfo","XH,XM,THCS")
+                        -> view("stu_detail","BJDM,XH","stu_detail.XH = record_stuinfo.XH")
+                        -> where("admin_id",$adminId)
+                        -> select();
+        //班级谈话学生数量
+        $keyNumArray = [];
+        $keyStuArray = [];
+        foreach ($classResult as $key => $value) {
+            if (!empty($value["BJDM"])) {   
+                $flag = array_search($value["BJDM"],$keyArray);
+                if ($flag == true) {
+                    $keyNumArray[$value["BJDM"]] = $keyNumArray[$value["BJDM"]] + $value["THCS"];
+                    $keyStuArray[$value["BJDM"]]++;
+                } else {
+                    $keyArray[] = $value["BJDM"];
+                    $keyNumArray[$value["BJDM"]] = $value["THCS"];
+                    $keyStuArray[$value["BJDM"]] = 1;
+                }
+            }
+        }
+        //班级谈话总次数
+       
+        $result = [
+            "label" => $keyArray,
+            "numCount" => $keyNumArray,
+            "stuCount" => $keyStuArray,
+        ];
+        return $result;
+        
+    }
 }
