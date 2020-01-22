@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>绑定门户账号</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="weui-panel weui-panel_access">
+        <input class="weui-input hidden" id="openid" value="{$openid}">
+        <input class="weui-input hidden" id="state" value="{$state}">
+        <div class="weui-panel__hd">绑定门户账号</div>
+        <div class="weui-panel__bd">
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">门户账号</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" id="portal_id" value="" type="" placeholder="请输入学号">
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">门户密码</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" id="portal_pwd" value="" type="password">
+                </div>
+            </div>
+        </div>
+        <div class="weui-panel__ft">
+            <div class="weui-btn-area">
+                <a class="weui-btn weui-btn_primary" href="javascript:" id="submit">绑定</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+    <!-- <script src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script> -->
+    <script>
+         $('#submit').on('click',function () {
+
+            $.confirm("是否确定绑定", function() {
+                var portal_id = $("#portal_id").val();
+                var portal_pwd = $("#portal_pwd").val();
+                var openid = $("#openid").val();
+                var state = $("#state").val();
+                var url = "{:url('index/offiaccount/portal')}";
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data:{
+                        'portal_id' :   portal_id,
+                        'portal_pwd':   portal_pwd,
+                        'openid'    :   openid,
+                        'state'     :   state,
+                    },
+                    success: function(data) {
+                        if (data["code"] == 1) {
+                            $.toast(data["msg"], "success");
+                            var url = "{:url('index/offiaccount/"+data["data"]["state"]+"')}";
+                            window.location.href = url;
+                        } else {
+                            $.toast(data["msg"], "cancel");
+                        }
+                    }
+                });
+            }, function() {
+                //点击取消后的回调函数
+
+            });
+        });
+
+    </script>
+</body>
+
+</html>
