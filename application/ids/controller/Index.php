@@ -8,28 +8,29 @@ use think\Controller;
 
 class index extends Controller
 {
-    public function index()
+    public function index($user = null)
     {
-        header("Content-Type: text/html; charset=utf-8");
-        session_start();
-        Loader::import('CAS.phpCAS');
-        $phpCAS = new \phpCAS();
-        $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
-        $phpCAS->setNoCasServerValidation();
-        $phpCAS->handleLogoutRequests();
-        $phpCAS->forceAuthentication(); 
-
-        if(isset($_GET['logout'])){
-            $param = array('service'=>'http://ids.chddata.com/');
-            $phpCAS->logout($param);
-            exit;
+        if (empty($user)) {
+            header("Content-Type: text/html; charset=utf-8");
+            session_start();
+            Loader::import('CAS.phpCAS');
+            $phpCAS = new \phpCAS();
+            $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
+            $phpCAS->setNoCasServerValidation();
+            $phpCAS->handleLogoutRequests();
+            $phpCAS->forceAuthentication(); 
+    
+            if(isset($_GET['logout'])){
+                $param = array('service'=>'http://ids.chddata.com/');
+                $phpCAS->logout($param);
+                exit;
+            }
+            $user = $phpCAS->getUser();
         }
         $ismobile = '';
         if(isset($_GET['mobile'])){
             $ismobile = ($_GET['mobile'] == '1') ? true : false;
         }
-        
-        $user = $phpCAS->getUser();
         if($user == ''){
             die('unkown error');
         }
@@ -237,7 +238,7 @@ class index extends Controller
                 );
                 
                 //YB_Uis::getInstance()->run($infoArr,'',$ismobile,'http://f.yiban.cn/iapp195437');
-                YB_Uis::getInstance()->run($infoArr,'',$ismobile,'http://proj.yiban.cn/project/invest/test.php');
+                YB_Uis::getInstance()->run($infoArr,'',$ismobile,'http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552');
             }else{
                 die('暂不支持认证');
             }
