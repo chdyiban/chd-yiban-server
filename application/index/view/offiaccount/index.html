@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>权限鉴定中...</title>
+
+    <script>
+        var appId = "{$appid}";
+        var state = "{$state}";
+        var redirect_uri = "{$domain}/index/offiaccount/{$func}?openid={$openid}";
+        // var redirect_uri = "{$domain}/index/offiaccount/{$func}?openid={$openid}";
+        console.log(redirect_uri);
+        // redirect_uri = encodeURIComponent(redirect_uri)
+        window.location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?appid="+appId+"&redirect_uri="+redirect_uri+"&response_type=code&scope=snsapi_base&state="+state+"#wechat_redirect";
+    </script>    
+</head>
+<body>
+    
+</body>
+</html>
