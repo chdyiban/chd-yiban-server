@@ -1,32 +1,45 @@
 <?php
 namespace app\ids\controller;
 
-use app\ids\controller\YB_Uis;
 use think\Db;
 use think\Loader;
+use think\Config;
+use think\Session;
+// use app\common\controller\Backend;
 use think\Controller;
+use app\ids\controller\Index as IndexController;
+/**
+ * cas认证登录公众号
+ */
+class Offiaccount extends IndexController {
+    protected $noNeedLogin = ['*'];
+    protected $noNeedRight = ['*'];
 
-class index extends Controller
-{
-    public function index($user = null)
+    public function index($type = null)
     {
-        if (empty($user)) {
-            header("Content-Type: text/html; charset=utf-8");
-            session_start();
-            Loader::import('CAS.phpCAS');
-            $phpCAS = new \phpCAS();
-            $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
-            $phpCAS->setNoCasServerValidation();
-            $phpCAS->handleLogoutRequests();
-            $phpCAS->forceAuthentication(); 
-    
-            if(isset($_GET['logout'])){
-                $param = array('service'=>'http://yiban.chd.edu.cn/');
-                $phpCAS->logout($param);
-                exit;
-            }
-            $user = $phpCAS->getUser();
+        header("Content-Type: text/html; charset=utf-8");
+        // session_start();
+        Loader::import('CAS.phpCAS');
+        $phpCAS = new \phpCAS();
+        $phpCAS->client(CAS_VERSION_2_0,'ids.chd.edu.cn',80,'authserver',false);
+        $phpCAS->setNoCasServerValidation();
+        $phpCAS->handleLogoutRequests();
+        $phpCAS->forceAuthentication(); 
+        if ($type == "logout") {
+            // $param = array('service'=>'http://ids.chd.edu.cn/authserver/login?service=https%3A%2F%2Fyiban.chd.edu.cn%2Fids%2Fadmin%2Findex');
+            $phpCAS->logout();
         }
+        $user = $phpCAS->getUser();
+
+        return $user;
+    }
+
+    /**
+     * 登录易班
+     * @param $user 学号
+     */
+    public function yiban($user)
+    {
         $ismobile = '';
         if(isset($_GET['mobile'])){
             $ismobile = ($_GET['mobile'] == '1') ? true : false;
@@ -78,9 +91,9 @@ class index extends Controller
                 return $this->fetch("index");
             }
         }
-
     }
-    /**
+
+  /**
      * 完善用户信息接口
      */
     public function updateInfo()
@@ -258,10 +271,5 @@ class index extends Controller
                     -> select();
         return $collegeList;
     }
+
 }
-
-
-
-
-
-

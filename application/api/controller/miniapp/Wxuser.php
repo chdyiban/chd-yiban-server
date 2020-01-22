@@ -39,8 +39,8 @@ class Wxuser extends Api
      */
     public function init(){
         $code = $this->request->post('code');
-        $appid = Config::get('wx.appId');
-        $appsecret = Config::get('wx.appSecret');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
+        $appsecret = Config::get('wechat.miniapp_chdyiban')["appSecret"];
 
         $retData = [];
 
@@ -129,8 +129,8 @@ class Wxuser extends Api
      */
     public function login() {
         $code = $this->request->post('code');
-        $appid = Config::get('wx.appId');
-        $appsecret = Config::get('wx.appSecret');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
+        $appsecret = Config::get('wechat.miniapp_chdyiban')["appSecret"];
 
         $retData = [];
 
@@ -142,7 +142,7 @@ class Wxuser extends Api
         ];
         
         $result = json_decode(Http::get(Wxuser::LOGIN_URL, $params),true);
-        if($result['openid'] != ''){
+        if(!empty($result['openid'])){
             $user = new WxuserModel;
             $dbResult = $user->where('open_id', $result['openid'])->find();
             if($dbResult){
@@ -450,7 +450,7 @@ class Wxuser extends Api
         $userInfo = WxuserModel::get($userId);
         $key["openid"] = $userInfo["open_id"];
 
-        $appid = Config::get('wx.appId');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
         $pc = new WXBizDataCrypt($appid, $sessionKey);
         $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );
@@ -497,7 +497,7 @@ class Wxuser extends Api
         $key["openid"] = $userInfo["open_id"];
         $open_id = $key["openid"];
 
-        $appid = Config::get('wx.appId');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
         $sessionKey = $userInfo["session_key"];
         $pc = new WXBizDataCrypt($appid, $sessionKey);
         $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );

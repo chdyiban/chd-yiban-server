@@ -24,8 +24,8 @@ class Wxcode extends Api
 
     public function getAccessToken()
     {
-        $appid = Config::get('wx.appId');
-        $appsecret = Config::get('wx.appSecret');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
+        $appsecret = Config::get('wechat.miniapp_chdyiban')["appSecret"];
         $param = [
             'grant_type' => 'client_credential',
             'appid'      => $appid,
