@@ -27,8 +27,8 @@ class Admin extends IndexController
         $phpCAS->handleLogoutRequests();
         $phpCAS->forceAuthentication(); 
         if ($type == "logout") {
-            $param = array('service'=>'https://yiban.chd.edu.cn/yibanht.php');
-            $phpCAS->logout();
+            $param = array('service'=>'http://ids.chd.edu.cn/authserver/login?service=https%3A%2F%2Fyiban.chd.edu.cn%2Fids%2Fadmin%2Findex');
+            $phpCAS->logout($param);
             // $url = $this->request->get('url', 'yibanht.php/index/index');
             // $this->success(__('退出成功'), $url);
         }
