@@ -183,7 +183,7 @@ class Sports extends Api
             ];
             $this->success("今日已经捐过",$data);
         } 
-        $appid = Config::get('wx.appId');
+        $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
         $pc = new WXBizDataCrypt($appid, $sessionKey);
         $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );
