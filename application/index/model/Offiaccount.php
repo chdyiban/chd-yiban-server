@@ -61,20 +61,6 @@ class Offiaccount extends Model {
         }
     }
 
-    /**
-     * 绑定门户信息，将portal_id存至对应人
-     * @param $params["openid"]
-     * @param $params["portal_id"]
-     * @return bool
-     */
-    public function bindPortalInfo($params)
-    {
-        $result = $this->where("open_id",$params["openid"])->update(["portal_id" => $params["portal_id"]]);
-        if (!empty($result)) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 将用户所有信息插入数据库

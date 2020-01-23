@@ -7,15 +7,15 @@ use think\Config;
 use think\Session;
 // use app\common\controller\Backend;
 use think\Controller;
-use app\ids\controller\Index as IndexController;
+
 /**
  * cas认证登录公众号
  */
-class Offiaccount extends IndexController {
+class Offiaccount extends Controller {
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
-    public function index($type = null)
+    public function index()
     {
         header("Content-Type: text/html; charset=utf-8");
         // session_start();
@@ -30,15 +30,28 @@ class Offiaccount extends IndexController {
             $phpCAS->logout();
         }
         $user = $phpCAS->getUser();
+        $openid = $this->request->param("openid");
+        $url    =   base64_decode($this->request->param("url"));
+        if (empty($openid) || empty($url)) {
+            $this->error("request error!");
+        }
+        $params = [
+            "portal_id" =>  $user,
+            "openid"    =>  $openid
+        ];
+        $check = $this->bindPortalInfo($params);
+        if ($check) {
+            $this->yiban($user,$url);
+        }
 
-        return $user;
     }
 
     /**
      * 登录易班
      * @param $user 学号
+     * @param $url 跳转到的地址
      */
-    public function yiban($user)
+    public function yiban($user,$url)
     {
         $ismobile = '';
         if(isset($_GET['mobile'])){
@@ -56,7 +69,7 @@ class Offiaccount extends IndexController {
                     -> find();
 
             if (!empty($row) && !empty($row["SJH"]) ) {
-                $this->uis($user,$ismobile);
+                $this->uis($user,$ismobile,$url);
             } else {
                 // $row["role"] = "teacher";
                 $collegeList = $this->getCollege();
@@ -65,6 +78,7 @@ class Offiaccount extends IndexController {
                     "infoList"    => $row,
                     "user"        => $user,
                     "role"        => "teacher",
+                    "url"         => $url,
                 ];
                 $this->view->assign($assignMap);
                 return $this->fetch("index");
@@ -78,7 +92,7 @@ class Offiaccount extends IndexController {
                     -> where("XH",$user)
                     -> find();
             if(!empty($row) && !empty($row["SJH"]) ){
-                $this->uis($user,$ismobile);
+                $this->uis($user,$ismobile,$url);
             } else {
                 $collegeList = $this->getCollege();
                 $assignMap = [
@@ -86,6 +100,7 @@ class Offiaccount extends IndexController {
                     "infoList"    => $row,
                     "user"        => $user,
                     "role"        => "student",
+                    "url"         => $url,
                 ];
                 $this->view->assign($assignMap); 
                 return $this->fetch("index");
@@ -93,41 +108,42 @@ class Offiaccount extends IndexController {
         }
     }
 
-  /**
+    /**
      * 完善用户信息接口
      */
     public function updateInfo()
     {
 
-            $params = $this->request->param();
-            if (empty($params["phone"]) || empty($params["college"]) || empty($params["user"]) ) {
-                return json(["code" => 1, "msg" => "param error!","data" => null]);
-            }
-            $college = $params["college"];
-            $phone   = $params["phone"];
-            $user    = $params["user"];
-            if (strlen($user) == 6) {
-                $result = Db::name("teacher_detail")->where("ID",$user)->update(["YXDM" => $college,"SJH" => $phone]);
-                if ($result) {
-                    $ismobile = '';
-                    if(isset($_GET['mobile'])){
-                        $ismobile = ($_GET['mobile'] == '1') ? true : false;
-                    }
-                    $this->uis($user,$ismobile);
-                    // return json(["code" => 0, "msg" => "success","data" => null]);
+        $params = $this->request->param();
+        if (empty($params["phone"]) || empty($params["college"]) || empty($params["user"]) ) {
+            return json(["code" => 1, "msg" => "param error!","data" => null]);
+        }
+        $college = $params["college"];
+        $phone   = $params["phone"];
+        $user    = $params["user"];
+        $url    =   $params["url"];
+        if (strlen($user) == 6) {
+            $result = Db::name("teacher_detail")->where("ID",$user)->update(["YXDM" => $college,"SJH" => $phone]);
+            if ($result) {
+                $ismobile = '';
+                if(isset($_GET['mobile'])){
+                    $ismobile = ($_GET['mobile'] == '1') ? true : false;
                 }
-            } else {
-                $result = Db::name("stu_detail")->where("XH",$user)->update(["YXDM" => $college,"SJH" => $phone]);
-                if ($result) {
-                    $ismobile = '';
-                    if(isset($_GET['mobile'])){
-                        $ismobile = ($_GET['mobile'] == '1') ? true : false;
-                    }
-                    $this->uis($user,$ismobile);
-                    // return json(["code" => 0, "msg" => "success","data" => null]);
-                }
+                $this->uis($user,$ismobile,$url);
+                // return json(["code" => 0, "msg" => "success","data" => null]);
             }
-    
+        } else {
+            $result = Db::name("stu_detail")->where("XH",$user)->update(["YXDM" => $college,"SJH" => $phone]);
+            if ($result) {
+                $ismobile = '';
+                if(isset($_GET['mobile'])){
+                    $ismobile = ($_GET['mobile'] == '1') ? true : false;
+                }
+                $this->uis($user,$ismobile,$url);
+                // return json(["code" => 0, "msg" => "success","data" => null]);
+            }
+        }
+
         return json(["code" => 1, "msg" => "error","data" => null]);
     }
 
@@ -147,6 +163,7 @@ class Offiaccount extends IndexController {
             $name    = $params["name"];
             $sex     = $params["sex"];
             $role    = $params["role"];
+            $url    =   $params["url"];
             if (strlen($user) == 6) {
                 $insertData = [
                     "ID" => $user,
@@ -162,7 +179,7 @@ class Offiaccount extends IndexController {
                     if(isset($_GET['mobile'])){
                         $ismobile = ($_GET['mobile'] == '1') ? true : false;
                     }
-                    $this->uis($user,$ismobile);
+                    $this->uis($user,$ismobile,$url);
                     // return json(["code" => 0, "msg" => "success","data" => null]);
                 }
             } else {
@@ -180,19 +197,35 @@ class Offiaccount extends IndexController {
                     if(isset($_GET['mobile'])){
                         $ismobile = ($_GET['mobile'] == '1') ? true : false;
                     }
-                    $this->uis($user,$ismobile);
+                    $this->uis($user,$ismobile,$url);
                 }
             }
         }
         return json(["code" => 1, "msg" => "error","data" => null]);
+    }
+    
+    /**
+     * 绑定门户信息，将portal_id存至对应人
+     * @param $params["openid"]
+     * @param $params["portal_id"]
+     * @return bool
+     */
+    private function bindPortalInfo($params)
+    {
+        $result = Db::name("wx_unionid_user")->where("open_id",$params["openid"])->update(["portal_id" => $params["portal_id"]]);
+        if (!empty($result)) {
+            return true;
+        }
+        return false;
     }
 
     /**
      * 向易班发送数据包
      * @param int  $user 学号
      * @param bool $ismobile 是否为移动端
+     * @param string url
      */
-    public function uis($user,$ismobile)
+    public function uis($user,$ismobile,$url)
     {
         if(strlen($user) == 6){
             $row = Db::view("teacher_detail")
@@ -211,7 +244,8 @@ class Offiaccount extends IndexController {
                     'sex'       =>$row['XBDM'],
                     'college'   =>$row['yb_group_id'],//学院
                 );
-                YB_Uis::getInstance()->run($infoArr,'',$ismobile);
+                // YB_Uis::getInstance()->run($infoArr,'',$ismobile);
+                YB_Uis::getInstance()->run($infoArr,'',$ismobile,$url);
             } else {
                 echo "工号为$user的老师您好，易班后台还未同步您的数据，请联系信息学院杨加玉处理。联系电话：15029484116，感谢您对易班工作的支持！";
             }
@@ -251,7 +285,7 @@ class Offiaccount extends IndexController {
                 );
                 
                 //YB_Uis::getInstance()->run($infoArr,'',$ismobile,'http://f.yiban.cn/iapp195437');
-                YB_Uis::getInstance()->run($infoArr,'',$ismobile,'http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552');
+                YB_Uis::getInstance()->run($infoArr,'',$ismobile,$url);
             }else{
                 die('暂不支持认证');
             }
