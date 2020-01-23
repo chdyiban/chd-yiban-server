@@ -25,10 +25,10 @@ class Offiaccount extends Controller {
         $phpCAS->setNoCasServerValidation();
         $phpCAS->handleLogoutRequests();
         $phpCAS->forceAuthentication(); 
-        if ($type == "logout") {
-            // $param = array('service'=>'http://ids.chd.edu.cn/authserver/login?service=https%3A%2F%2Fyiban.chd.edu.cn%2Fids%2Fadmin%2Findex');
-            $phpCAS->logout();
-        }
+        // if ($type == "logout") {
+        //     // $param = array('service'=>'http://ids.chd.edu.cn/authserver/login?service=https%3A%2F%2Fyiban.chd.edu.cn%2Fids%2Fadmin%2Findex');
+        //     $phpCAS->logout();
+        // }
         $user = $phpCAS->getUser();
         $openid = $this->request->param("openid");
         $url    =   base64_decode($this->request->param("url"));
