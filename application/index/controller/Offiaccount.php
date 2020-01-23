@@ -54,10 +54,10 @@ class Offiaccount extends Frontend
                 exit;
             } else if ($return["step"] == 1) {
 
-                $this->redirect("index/offiaccount/portal?openid=$openid&state=$state");
+                $this->redirect("portal?openid=$openid&state=$state");
 
             } else if ($return["step"] == 2) {
-                $this->redirect("index/offiaccount/$state?openid=$openid");
+                $this->redirect("yiban?openid=$openid&state=$state");
             }
             
         }
@@ -89,14 +89,12 @@ class Offiaccount extends Frontend
                 $location_url = self::REDIRECT_URL."?appid=$appid&redirect_uri=$redirect_url&response_type=code&scope=snsapi_userinfo&state=$state#wechat_redirect";
                 header("Location:$location_url");
                 exit;
-                // return $this->view->fetch();
             } else if ($return["step"] == 1) {
-
-                $this->redirect("index/offiaccount/portal?openid=$openid&state=$state");
+                $this->redirect("portal?openid=$openid&state=$state");
 
             } else if ($return["step"] == 2) {
 
-                $this->redirect("index/offiaccount/$state?openid=$openid");
+                $this->redirect("yiban?openid=$openid&state=$state");
             }
             
         }
@@ -150,18 +148,12 @@ class Offiaccount extends Frontend
         // ]);
         // return $this->view->fetch();
         $open_id = $this->request->param("openid");
-        $state   = $this->request->param("state");
-        $ids = new offiaccountController;
-        $user = $ids->index();
-        $offiaccountModel = new offiaccountModel;
-        $params = [
-            "portal_id" => $user,
-            "openid"    =>  $open_id,
-        ];
-        $return = $offiaccountModel->bindPortalInfo($params);
-        if ($return) {
-            $this->redirect("offiaccount/$state", ['openid' => $open_id]);
+        $state   = base64_encode($this->request->param("state"));
+        if (empty($open_id) || empty($state)) {
+            $this->error("request error!");
         }
+        // $url     =  "http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552";
+        $this->redirect("ids/offiaccount/index",["url" => $state,"openid" => $open_id,]);
     }
 
     /**
@@ -170,9 +162,10 @@ class Offiaccount extends Frontend
     public function yiban()
     {
         $open_id = $this->request->param("openid");
+        $state = $this->request->param("state");
         $portal_id = Db::name("wx_unionid_user")->where("open_id",$open_id)->field("portal_id")->find()["portal_id"];
         $ids = new offiaccountController;
-        $ids->yiban($portal_id);
+        $ids->yiban($portal_id,$state);
         exit;
     }
 
