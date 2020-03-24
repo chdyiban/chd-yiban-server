@@ -19,6 +19,7 @@ class User extends Api
 
     public function _initialize()
     {
+        header('Access-Control-Allow-Origin:*'); 
         parent::_initialize();
     }
 
@@ -38,8 +39,10 @@ class User extends Api
      */
     public function login()
     {
-        $account = $this->request->request('account');
-        $password = $this->request->request('password');
+        $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
+
+        $account = $key['account'];
+        $password = $key['password'];
         if (!$account || !$password)
         {
             $this->error(__('Invalid parameters'));

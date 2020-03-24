@@ -20,6 +20,10 @@ class Index extends Api
     public function get_group()
     {
         $result = Db::name("police_category")->select();
+        foreach ($result as $key => &$value) {
+          $value["latitudes"] = floatval($value["latitudes"]);
+          $value["longitudes"] = floatval($value["longitudes"]);
+        }
         $this->success("success",$result);
     }
     /**
@@ -35,6 +39,9 @@ class Index extends Api
         $result = Db::name("police_people")
                 -> where("category_id",$key["id"])
                 -> select();
+        foreach ($result as $key => &$value) {
+          $value["key"] = $value["id"];
+        }
         $this->success("success",$result);
     }
 

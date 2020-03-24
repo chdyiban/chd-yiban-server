@@ -134,7 +134,7 @@ class People extends Backend
             $count = 0;
             foreach ($list as $k => $v)
             {
-                Db::name("police_category")->where("id",$v["category_id"])->setDec("num");
+                Db::name("police_category")->where("id",$v["category_id"])->setDec("count");
                 $count += $v->delete();
             }
             if ($count)
