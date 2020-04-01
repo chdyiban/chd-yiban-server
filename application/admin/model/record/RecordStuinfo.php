@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\model;
+namespace app\admin\model\record;
 
 use think\Model;
 use think\Db;
@@ -65,6 +65,64 @@ class RecordStuinfo extends Model
         $result = true;
         return $result;
     }
+    /**
+     * 共享学生管理信息录入
+     * @param $params["stu_ids"]
+     * @param $params["admin"]
+     * @param $params["admin_id"]
+     */
+    public function insertShareInfo($params)
+    {
+        $insertData = [];
+        $params["stu_ids"] = json_decode($params["stu_ids"],true);
+        $params["admin"] = explode(",",$params["admin"]);
+        foreach ($params["admin"] as $key => $value) {
+            foreach ($params["stu_ids"] as $k => $v) {
+                $temp = [
+                    "share_id"  =>  $params["admin_id"],
+                    "accept_id" =>  $value,
+                    "stu_id"    =>  $v,
+                ];
+                $insertData[] = $temp;
+            }
+        }
+        //先获取数据表中已经共享的记录，去重
+        $adminIdArray = array_column($insertData, "accept_id");
+        $stuIdArray = array_column($insertData, "stu_id");
+        $shareList = Db::name("record_share")
+                ->where("share_id",$params["admin_id"])
+                ->where("accept_id","IN",$adminIdArray)
+                ->where("stu_id","IN",$stuIdArray)
+                ->select();
+        if (!empty($shareList)) {
+            foreach ($insertData as $key => $value) {
+                foreach ($shareList as $k => $v) {
+                    if ($v["accept_id"] == $value["accept_id"] && $v["stu_id"] == $value["stu_id"] ) {
+                        unset($insertData[$key]);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (empty($insertData)) {
+            return ["status" => false,"msg" => "共享学生重复"];
+        }
+
+        $updateData = [];
+        foreach ($insertData as $key => $value) {
+            $updateData[] = $value["stu_id"];
+        }
+        
+        $update_flag = Db::name("record_stuinfo")->where("ID","IN",$updateData)->update(["is_share"=>1]);
+        $insert_flag = Db::name("record_share")->insertAll($insertData);
+
+        if ($insert_flag) {
+            return ["status" => true,"msg" => "共享成功"];
+        }
+        return ["status" => false,"msg" => "请稍后再试"];
+    }
+
 
     /**
      * 更新个人评价标签
