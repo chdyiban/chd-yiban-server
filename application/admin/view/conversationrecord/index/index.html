@@ -9,6 +9,7 @@
                         <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('conversationrecord/index/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
                         <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('conversationrecord/index/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('conversationrecord/index/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
+                        <!-- <a href="javascript:;" class="btn btn-primary btn-share " title="{:__('转移管理权限')}" ><i class="fa fa-users"></i> {:__('共享管理权限')}</a> -->
                     </div>
                     <table id="table" class="table table-striped table-bordered table-hover" 
                            data-operate-edit="{:$auth->check('conversationrecord/index/edit')}" 

@@ -6,6 +6,7 @@ use app\common\controller\Backend;
 use think\Db;
 use think\Cache;
 use app\api\controller\Bigdata as BigdataController;
+use app\admin\model\record\RecordContent as RecordContentModel;
 
 /**
  * 
@@ -20,7 +21,7 @@ class Score extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('RecordContent');
+        $this->model = new RecordContentModel();
 
     }
     
