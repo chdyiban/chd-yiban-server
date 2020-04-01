@@ -3,6 +3,7 @@
 namespace app\admin\controller\conversationrecord;
 
 use app\common\controller\Backend;
+use app\admin\model\record\RecordStuinfo as RecordStuinfoModel;
 use fast\Tree;
 use app\admin\model\Channel;
 use think\Db;
@@ -23,7 +24,7 @@ class Index extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('RecordStuinfo');
+        $this->model = new RecordStuinfoModel();
          //获取总控的id
         $this -> control_id = Db::view('auth_group') 
                         -> view('auth_group_access','uid,group_id','auth_group.id = auth_group_access.group_id')
@@ -231,6 +232,33 @@ class Index extends Backend
         }
         $this->error(__('Parameter %s can not be empty', 'ids'));
     }
+
+    /**
+     * 添加
+     */
+    public function share()
+    {
+        if ($this->request->isAjax())
+        {
+            $params = $this->request->post("row/a");
+            if ( !empty($params) || !empty($params["admin"]) || !empty($params["stu_ids"]) )
+            {
+                $params["admin_id"] = $this->auth->id;
+                $result = $this->model->insertShareInfo($params);
+                if ($result["status"] !== false)
+                {
+                    $this->success($result["msg"]);
+                }
+                    $this->error($result["msg"]);
+            }
+            $this->error("分配人以及学生不可为空！");
+        } else {
+            $stu_ids = $this->request->param("stu_ids");
+            $this->view->assign(["stu_ids" => $stu_ids]);
+            return $this->view->fetch();
+        }
+    }
+
      /**
      * 查找学生信息通过学号
      * @param XH
@@ -298,6 +326,34 @@ class Index extends Backend
         } else {
             $this->error('请求错误');
         }
+    }
+    //获取可以共享的管理员名称
+    public function getAdminName()
+    {
+        $group_id_array = Db::name('auth_group')
+            ->where('pid|id',"IN",function($query){
+                $query->name('auth_group')->where('name',"教工组")->field('id');
+            })
+            ->field("id")
+            ->select();
+        $temp_array = [];
+        foreach ($group_id_array as $key => $value) {
+            $temp_array[] = $value["id"];
+        }
+        // array_unique($temp_array); //去除重复ID
+
+        $result = Db::view("admin","nickname,id,username")
+                -> view("auth_group_access","uid,group_id","admin.id = auth_group_access.uid")
+                -> where("group_id","IN",$temp_array)
+                -> group("id")
+                -> select();
+        $return = ["list" => [],"total" => 0];
+        foreach ($result as $key => $value) {
+            $value["name"] = $value["nickname"];
+            $return["list"][] = $value;
+            $return["total"]++;
+        }
+        return json($return);
     }
 
 }
