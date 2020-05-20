@@ -4,7 +4,7 @@ namespace app\admin\model\record;
 
 use think\Model;
 use think\Db;
-
+use app\admin\model\record\RecordStuinfo as RecordStuinfoModel;
 class RecordContent extends Model
 {
     // 表名
@@ -24,7 +24,8 @@ class RecordContent extends Model
     
     public function getStuInfo($ID)
     {
-        $stuInfo = model("RecordStuinfo") -> get($ID);
+        $RecordStuinfoModel = new RecordStuinfoModel();
+        $stuInfo = $RecordStuinfoModel -> get($ID);
         $stuExtraInfo = Db::name("stu_detail") -> where("XH",$stuInfo["XH"])->find();
         // $stuFamilyInfo = Db::name("fresh_family_info")
         $stuFamilyInfo = Db::name("fresh_questionnaire_family")

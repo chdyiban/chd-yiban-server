@@ -4,6 +4,8 @@ namespace app\admin\model\record;
 
 use think\Model;
 use think\Db;
+use app\admin\model\record\RecordTags as RecordTagsModel;
+use app\admin\model\record\RecordCourse as RecordCourseModel;
 
 class RecordStuinfo extends Model
 {
@@ -130,6 +132,7 @@ class RecordStuinfo extends Model
      */
     public function updatePersonnalFlag($XSPJ,$XSID)
     {
+        $RecordTagsModel = new RecordTagsModel();
         if (empty($XSPJ)) {
             return true;
         }
@@ -138,14 +141,14 @@ class RecordStuinfo extends Model
             return true;
         } else {
             foreach ($flagArray as $key => $value) {
-                $isexist = model("RecordTags") -> where("name",$value) -> find();
+                $isexist =   $RecordTagsModel  -> where("name",$value) -> find();
                 //此标签数据库中存在则更新反之则新建标签
                 if (!empty($isexist)) {
                     $oldArray = explode(",",$isexist["student"]);
                     if (in_array($XSID,$oldArray)) {
                         continue;
                     } else {
-                        $res = model("RecordTags") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                        $res =  $RecordTagsModel  -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
                     }
                 } else {
                     $insertData = [
@@ -153,7 +156,7 @@ class RecordStuinfo extends Model
                         "student" => $XSID,
                         "nums"    => 1,
                     ];
-                    $res = model("RecordTags")->insert($insertData);
+                    $res =   $RecordTagsModel ->insert($insertData);
                 }
 
             }
@@ -164,6 +167,7 @@ class RecordStuinfo extends Model
      */
     public function updateCourseFlag($CXKC,$XSID)
     {
+        $RecordCourseModel = new RecordCourseModel();
         if (empty($CXKC)) {
             return true;
         }
@@ -172,13 +176,13 @@ class RecordStuinfo extends Model
             return true;
         } else {
             foreach ($flagArray as $key => $value) {
-                $isexist = model("RecordCourse") -> where("name",$value) -> find();
+                $isexist = $RecordCourseModel -> where("name",$value) -> find();
                 if (!empty($isexist)) {
                     $oldArray = explode(",",$isexist["student"]);
                     if (in_array($XSID,$oldArray)) {
                         continue;
                     } else {
-                        $res = model("RecordCourse") -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
+                        $res = $RecordCourseModel -> where("name",$value) -> update(["nums" => $isexist["nums"]+1,"student" => $isexist["student"].",$XSID"]);
                     }
                 } else {
                     $insertData = [
@@ -186,7 +190,7 @@ class RecordStuinfo extends Model
                         "student" => $XSID,
                         "nums"    => 1,
                     ];
-                    $res = model("RecordCourse")->insert($insertData);
+                    $res = $RecordCourseModel->insert($insertData);
                 }
             }
         }
