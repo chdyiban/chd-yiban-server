@@ -20,7 +20,8 @@ class PolicePeople extends Model
     protected $append = [
         'sex_text',
         'type_text',
-        'status_text'
+        'status_text',
+        'police_place_text'
     ];
 
     //获取所属分类名称
@@ -44,12 +45,30 @@ class PolicePeople extends Model
 
     public function getTypeList()
     {
-        return ['0' => __('Type 0'),'1' => __('Type 1'),'2' => __('Type 2'),'3' => __('Type 3'),'4' => __('Type 4')];
+        return [
+            '0' => __('正常'),
+            '1' => __('易肇事肇祸精神病人'),
+            '2' => __('两牢释放'),
+            '3' => __('在逃'),
+            '4' => __('流氓'),
+            '5' => __('党员'),
+            '6' => __('留守儿童'),
+            '7' => __('孤残老人'),
+            '8' => __('打击处理人员家属'),
+            '9' => __('贫困人员'),
+            '10' => __('吸毒人员'),
+            '11' => __('涉访重点人'),
+        ];
     }     
 
     public function getStatusList()
     {
         return ['1' => __('Status 1'),'2' => __('Status 2'),'0' => __('Status 0')];
+    }    
+
+    public function getPolicePlaceList()
+    {
+        return ["0" => "双槐中心警务室","1" => "太和中心警务室","2" => "白马杨中心警务室","3" => "白王村中心警务室"];
     }     
 
 
@@ -73,6 +92,13 @@ class PolicePeople extends Model
     {        
         $value = $value ? $value : $data['status'];
         $list = $this->getStatusList();
+        return isset($list[$value]) ? $list[$value] : '';
+    }
+
+    public function getPolicePlaceTextAttr($value, $data)
+    {        
+        $value = $value ? $value : $data['status'];
+        $list = $this->getPolicePlaceList();
         return isset($list[$value]) ? $list[$value] : '';
     }
 
