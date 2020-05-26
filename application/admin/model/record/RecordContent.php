@@ -1,10 +1,10 @@
 <?php
 
-namespace app\admin\model;
+namespace app\admin\model\record;
 
 use think\Model;
 use think\Db;
-
+use app\admin\model\record\RecordStuinfo as RecordStuinfoModel;
 class RecordContent extends Model
 {
     // 表名
@@ -24,7 +24,8 @@ class RecordContent extends Model
     
     public function getStuInfo($ID)
     {
-        $stuInfo = model("RecordStuinfo") -> get($ID);
+        $RecordStuinfoModel = new RecordStuinfoModel();
+        $stuInfo = $RecordStuinfoModel -> get($ID);
         $stuExtraInfo = Db::name("stu_detail") -> where("XH",$stuInfo["XH"])->find();
         // $stuFamilyInfo = Db::name("fresh_family_info")
         $stuFamilyInfo = Db::name("fresh_questionnaire_family")
@@ -126,7 +127,7 @@ class RecordContent extends Model
      * 获取到今天为止的图表统计信息
      * @return  { "label":[5.1,5.2,5.3,5.4],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
      */
-    /* 改为以月份为统计单位
+    /*
     public function getChartData($adminId)
     {
         $days = date("d");
@@ -180,7 +181,7 @@ class RecordContent extends Model
      * 获取到本月为止的图表统计信息
      * @return  { "label":[1,2,3,4,5],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
      */
-    /* 调整为以周围统计单位
+    /* 
     public function getChartData($adminId)
     {
         $month = date("n");
@@ -228,13 +229,78 @@ class RecordContent extends Model
             "stuCount" => $monthsStuArrayMap,
         ];
         return $result;
-    }*/
+    }
+    */
+     /**
+     * 获取最近12个月的图表统计信息
+     * @return  { "label":[1,2,3,4,5],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
+     */
+    public function getChartData($adminId)
+    {
+        $num = 12;
+        $monthArray = array();
+        for ($i = 0; $i < $num ; $i++) { 
+            $temp1 =  date("Y-n",strtotime("-$i month",strtotime("today")));
+            // $keyMap = $num-$i;
+            $monthArray[$i] = $temp1;
+        }
+        $monthArray = array_reverse($monthArray);
+        //每月谈话学生数
+        $monthStuArrayMap  = array();
+        //每月谈话次数
+        $monthNumArrayMap  = array();
+        $length = count($monthArray);
 
+        for ($i=0; $i < $length - 1; $i++) {
+            $startTimestamp = strtotime($monthArray[$i]);
+            $endTimestamp = strtotime($monthArray[$i+1]);
+            $allTalkWeekCount = Db::view("record_stuinfo","XH,XM")
+                                -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                -> where("admin_id",$adminId)
+                                -> where("THSJ",'>',$startTimestamp)
+                                -> where("THSJ",'<',$endTimestamp)
+                                -> count();
+                                // dump($allTalkWeekCount);
+            //当月谈话学生数量
+            $allTalkWeekStuCount = Db::view("record_stuinfo","XH,XM")
+                                -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                -> group("XSID")
+                                -> where("admin_id",$adminId)
+                                -> where("THSJ",'>',$startTimestamp)
+                                -> where("THSJ",'<',$endTimestamp)
+                                -> count();
+                                // dump($allTalkWeekStuCount);
+            // $mapKey = $num-$key-1;
+            $monthStuArrayMap[$i] = $allTalkWeekStuCount;
+            $monthNumArrayMap[$i] = $allTalkWeekCount;
+        }
+
+        $monthStuArrayMap[$length - 1] = Db::view("record_stuinfo","XH,XM")
+                                            -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                            -> where("admin_id",$adminId)
+                                            -> where("THSJ",'>',strtotime(date("Y-n",strtotime("today"))))
+                                            -> where("THSJ",'<',time())
+                                            -> count();
+        $monthNumArrayMap[$length - 1] = Db::view("record_stuinfo","XH,XM")
+                                            -> view("record_content","XSID,THNR,THSJ","record_stuinfo.ID = record_content.XSID")
+                                            -> group("XSID")
+                                            -> where("admin_id",$adminId)
+                                            -> where("THSJ",'>',strtotime(date("Y-n",strtotime("today"))))
+                                            -> where("THSJ",'<',time())
+                                            -> count();  
+        $result = [
+            "label" => $monthArray,
+            "numCount" => $monthNumArrayMap,
+            "stuCount" => $monthStuArrayMap,
+        ];
+        return $result;
+        
+    }
      /**
      * 获取本周之前三周的统计信息
      * @return  { "label":[5.13-5.19,5.20-5.26,5.27-6.2,6.3-6.7],"stuCount":[1,0,1,0],"numCount":[1,1,0,1]}
      */
-
+    /*
     public function getChartData($adminId)
     {
         
@@ -296,7 +362,7 @@ class RecordContent extends Model
         return $result;
         
     }
-
+    */
     /**
      * 获取班级统计信息
      */
@@ -336,6 +402,46 @@ class RecordContent extends Model
        
         $result = [
             "label" => $resultKeyArray,
+            "numCount" => $keyNumArray,
+            "stuCount" => $keyStuArray,
+        ];
+        return $result;
+        
+    }
+    /**
+     * 获取标签统计信息
+     */
+    public function getChartTagsData($adminId)
+    {
+        
+
+        //keyArray用来存放图表信息
+        $keyArray = array();
+        $tagsAll = Db::name("record_tags") -> select();
+        //标签谈话次数
+        $keyNumArray = [];
+        //标签学生数
+        $keyStuArray = [];
+
+        foreach ($tagsAll as $key => $value) {
+            $value = $value["name"];
+            $tempStuCount = Db::name("record_stuinfo")
+                        -> where("tags","LIKE","%$value%")
+                        -> where("admin_id",$adminId)
+                        -> count();
+            if ($tempStuCount != 0) {
+                $keyArray[] = $value;
+                $keyStuArray[] = $tempStuCount;
+                $tempNumCount = Db::name("record_stuinfo")
+                            -> where("tags","LIKE","%$value%")
+                            -> where("admin_id",$adminId)
+                            -> sum("THCS");
+                $keyNumArray[] = $tempNumCount;
+            }
+        }
+
+        $result = [
+            "label" => $keyArray,
             "numCount" => $keyNumArray,
             "stuCount" => $keyStuArray,
         ];

@@ -4,6 +4,7 @@ namespace app\admin\controller\conversationrecord;
 use think\Db;
 use think\Config;
 use app\common\controller\Backend;
+use app\admin\model\record\RecordContent as RecordContentModel;
 
 /**
  * 
@@ -21,7 +22,7 @@ class Count extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('RecordContent');
+        $this->model = new RecordContentModel();
         $this->relationSearch = TRUE;
     }
     /**
@@ -107,7 +108,9 @@ class Count extends Backend
             $type = $this->request->get("type");
             if ($type == "count") {
                 $info = $this->model->getChartData($adminId);
-            } else {
+            } else if ($type == "tags") {
+                $info = $this->model->getChartTagsData($adminId);
+            } else if ($type == "class"){
                 $info = $this->model->getChartClassData($adminId);
             }
             return json($info);

@@ -3,6 +3,7 @@
 namespace app\admin\controller\conversationrecord;
 
 use app\common\controller\Backend;
+use app\admin\model\record\RecordCourse as RecordCourseModel;
 
 /**
  * 标签管理
@@ -21,7 +22,7 @@ class Course extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('RecordCourse');
+        $this->model = new RecordCourseModel();
 
     }
     

@@ -11,6 +11,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                     edit_url: 'conversationrecord/index/edit',
                     del_url: 'conversationrecord/index/del',
                     multi_url: 'conversationrecord/index/multi',
+                    share_url: 'conversationrecord/index/share',
                     table: 'record_stuinfo',
                 }
             });
@@ -25,7 +26,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                 search:false,
                 columns: [
                     [
-                        // {checkbox: true},
+                        {checkbox: true},
                         {field: 'ID', title: __('ID'),operate: false, visible:false},
                         {field: 'XH', title: __('学号'),operate: 'LIKE %...%'},
                         {field: 'XM', title: __('姓名'),operate: 'LIKE %...%'},
@@ -100,6 +101,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                 ]
             });
 
+            //  //共享管理权限
+            //  $('.btn-share').on('click',function () {
+            //     var ids = Table.api.selectedids(table);
+            //     if (ids == false) {
+            //         alert("请选择转移管理权限的学生");
+            //     } else {
+            //         Fast.api.open($.fn.bootstrapTable.defaults.extend.share_url+"?stu_ids="+JSON.stringify(ids),'共享管理权限');
+            //     }
+                
+            // });
             // 为表格绑定事件
             Table.api.bindevent(table);
         },
@@ -274,6 +285,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','validator','bootstrap
                 "startDate": time,
             }, );
             Controller.api.bindevent();
+        },
+        //共享管理权限
+        share: function () {     
+            //共享管理权限
+            // $('.btn-share').on('click',function () {
+            //     var ids = Table.api.selectedids(table);
+            //     if (ids == false) {
+            //         alert("请选择共享管理的学生");
+            //     } else {
+            //         Fast.api.open($.fn.bootstrapTable.defaults.extend.share_url+"?stu_ids="+JSON.stringify(ids),'共享管理权限');
+            //     }
+                
+            // });
+            Controller.api.bindevent();
+            
         },
         api: {
             bindevent: function () {
