@@ -21,8 +21,8 @@ class PolicePeople extends Model
         'sex_text',
         'type_text',
         'status_text',
-        'police_place_text',
-        
+        'police_station_text',
+
     ];
 
     //获取所属分类名称
@@ -67,9 +67,9 @@ class PolicePeople extends Model
         return ['1' => __('Status 1'),'2' => __('Status 2'),'0' => __('Status 0')];
     }    
 
-    public function getPolicePlaceList()
+    public function getPoliceStationList()
     {
-        return ["0" => "双槐中心警务室","1" => "太和中心警务室","2" => "白马杨中心警务室","3" => "白王村中心警务室"];
+        return ["1" => "双槐中心警务室","2" => "太和中心警务室","3" => "白马杨中心警务室","4" => "白王村中心警务室"];
 
     }     
 
@@ -97,10 +97,10 @@ class PolicePeople extends Model
         return isset($list[$value]) ? $list[$value] : '';
     }
 
-    public function getPolicePlaceTextAttr($value, $data)
+    public function getPoliceStationTextAttr($value, $data)
     {        
-        $value = $value ? $value : $data['status'];
-        $list = $this->getPolicePlaceList();
+        $value = $value ? $value : $data['police_station'];
+        $list = $this->getPoliceStationList();
         return isset($list[$value]) ? $list[$value] : '';
     }
 
