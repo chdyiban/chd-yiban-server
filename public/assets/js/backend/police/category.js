@@ -33,6 +33,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'image', title: __('Image'), operate:false,formatter: Table.api.formatter.image},
                         {field: 'longitudes', title: __('Longitudes'), operate:false},
                         {field: 'latitudes', title: __('Latitudes'), operate:false},
+                        {field: 'color', title: __('标注颜色'), operate:false},
                         {field: 'count', title: __('人数')},
                         {field: 'weigh', title: __('Weigh'),operate:false},
                         {field: 'createtime', title: __('Createtime'), operate:false, addclass:'datetimerange', formatter: Table.api.formatter.datetime},
