@@ -43,6 +43,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'updatetime', title: __('Updatetime'), operate:false, addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'status', title: __('Status'), visible:false, searchList: {"1":__('Status 1'),"2":__('Status 2'),"0":__('Status 0')}},
                         {field: 'status_text', title: __('Status'), operate:false},
+                        {field: 'police_police', title: __('警务室类型名称'), visible:false, searchList: {"0":"双槐中心警务室","1":"太和中心警务室","2":"白马杨中心警务室","3":"白王村中心警务室"}},
+                        {field: 'police_place_text', title: __('警务室类型名称'), operate:false},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
