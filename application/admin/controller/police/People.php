@@ -96,7 +96,7 @@ class People extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = Db::name("police_category")->where("id",$params["category_id"])->setInc("num");
+                    $result = Db::name("police_category")->where("id",$params["category_id"])->setInc("count");
                     $result = $this->model->allowField(true)->save($params);
                     if ($result !== false)
                     {
