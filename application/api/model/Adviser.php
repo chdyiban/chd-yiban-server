@@ -10,7 +10,7 @@ class Adviser extends Model
 {
     // 表名
     protected $name = 'bzr_adviser';
-    const Q_ID = 4;
+    const Q_ID = 2;
 
     public function getStatus($key){
         //判断有无班主任
