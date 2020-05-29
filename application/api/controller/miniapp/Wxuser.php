@@ -576,7 +576,7 @@ class Wxuser extends Api
                             'name' => "暂无数据",
                         ],
                         'time' => [
-                            'term' => '2019-2020 第1学期',
+                            'term' => '2019-2020 第2学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -600,7 +600,7 @@ class Wxuser extends Api
                             'name' => $info['XM']
                         ],
                         'time' => [
-                            'term' => '2019-2020 第1学期',
+                            'term' => '2019-2020 第2学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -667,7 +667,7 @@ class Wxuser extends Api
                             'name' => "暂无数据",
                         ],
                         'time' => [
-                            'term' => '2019-2020 第1学期',
+                            'term' => '2019-2020 第2学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],
@@ -698,7 +698,7 @@ class Wxuser extends Api
                             'name' => $info['XM']
                         ],
                         'time' => [
-                            'term' => '2019-2020 第1学期',
+                            'term' => '2019-2020 第2学期',
                             'week' => get_weeks(),
                             'day' => date("w")
                         ],

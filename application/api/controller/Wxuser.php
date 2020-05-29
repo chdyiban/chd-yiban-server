@@ -31,8 +31,8 @@ class Wxuser extends Api
      */
     public function init(){
         $code = $this->request->post('code');
-        $appid = Config::get('wx.appId');
-        $appsecret = Config::get('wx.appSecret');
+        $appid = Config::get('wechat.miniapp_chdyiban.appId');
+        $appsecret = Config::get('wechat.miniapp_chdyiban.appSecret');
 
         $retData = [];
 
@@ -297,7 +297,7 @@ class Wxuser extends Api
             ];
             return json($info);
         }
-        $appid = Config::get('wx.appId');
+        $appid = Config::get('wechat.miniapp_chdyiban.appId');
         $sessionKey = Db::name('wx_user') -> where('open_id',$key['openid']) -> field('session_key') ->find()['session_key'];
         $pc = new WXBizDataCrypt($appid, $sessionKey);
         $errCode = $pc->decryptData($key['encryptedData'], $key['iv'], $data );
