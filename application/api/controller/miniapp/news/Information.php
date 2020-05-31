@@ -47,7 +47,6 @@ class Information extends Api
         $user = new WxuserModel;
         $userId = $user->where('open_id',$openid)->value('portal_id');
         $params = [];
-
         if(strlen($userId) == 6){
             //$params['power'] = 'teacher';
         } else {
@@ -79,8 +78,10 @@ class Information extends Api
             $list = ArchivesModel::getArchivesList($params);
             //$list = ArchivesModel::getWeAppArchivesList($params);
             foreach ($list as $key => &$value) {
-                $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
-                $value['style_id'] = $style_id;
+                $content_info = Db::name('cms_addonnews')->where('id', $value['id'])->field('style,video_id,author')->find();
+                $value['style_id'] = $content_info["style"];
+                $value["video_id"]  =   $content_info["video_id"];
+                $value["author"]  =   $content_info["author"];
                 $value['create_date'] = date("Y-m-d", $value['createtime']);
                 // if ($value['power'] != $params['power']) {
                 //     unset($list[$key]);
@@ -146,8 +147,10 @@ class Information extends Api
                     ->limit($limit)
                     ->select();
         foreach ($pagelist as $key => &$value) {
-            $style_id = Db::name('cms_addonnews')->where('id', $value['id'])->field('style')->find()['style'];
-            $value['style_id'] = $style_id;
+            $content_info = Db::name('cms_addonnews')->where('id', $value['id'])->field('style,video_id,author')->find();
+            $value['style_id'] = $content_info["style"];
+            $value['video_id'] = $content_info["video_id"];
+            $value['author'] = $content_info["author"];
             $value['create_date'] = date("Y-m-d", $value['createtime']);
             // if ($value['power'] != $params['power']) {
             //     unset($list[$key]);
