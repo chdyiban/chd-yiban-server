@@ -68,7 +68,6 @@ class Form extends Api
         if (empty($key["id"])) {
             $this->error("params error");
         } else {
-            // $key = ["openid" => "o5WD50I1ZhBv7aztZUsaPZRLE30Q","id" => "1"];
             $FormModel = new FormModel;
             $result = $FormModel -> detail($key);
             if ($result["status"]) {
