@@ -150,7 +150,7 @@ class Form extends Model
         $questionList = Db::name("form_questionnaire")->where("form_id",$form_id)->select();
 
         //为表单补充额外的信息
-        $extra_info = [];
+        $extra_info = ["name" => "辅导员"];
         // if ($param["id"] == 3) {
         //     $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
         //     $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
