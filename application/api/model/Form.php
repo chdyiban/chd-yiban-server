@@ -151,19 +151,19 @@ class Form extends Model
 
         //为表单补充额外的信息
         $extra_info = [];
-        if ($param["id"] == 3) {
-            $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
-            $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
-            //判断班主任提交问卷
-            $adviser_name = $adviserInfoList['XM'];
-            $extra_info = [];
-            $college =   Db::view('stu_detail')
-                        ->where('XH', $stu_id)
-                        ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
-                        ->find();
-            $college_name = !empty($college["YXJC"]) ? $college["YXJC"] : "暂未获取到学院信息，请联系负责人员";
-            $extra_info = ["name" => $adviser_name,"college" => $college_name];
-        }
+        // if ($param["id"] == 3) {
+        //     $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
+        //     $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
+        //     //判断班主任提交问卷
+        //     $adviser_name = $adviserInfoList['XM'];
+        //     $extra_info = [];
+        //     $college =   Db::view('stu_detail')
+        //                 ->where('XH', $stu_id)
+        //                 ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
+        //                 ->find();
+        //     $college_name = !empty($college["YXJC"]) ? $college["YXJC"] : "暂未获取到学院信息，请联系负责人员";
+        //     $extra_info = ["name" => $adviser_name,"college" => $college_name];
+        // }
 
         //判断用户是否完成该表单
         $userResult   = Db::name("form_result")
@@ -296,8 +296,8 @@ class Form extends Model
                     "placeholder"   => $v["placeholder"],
                     "validate"	    => $v["validate"],
                     //当选项为第一个选项时，下标为0，empty会判断为空
-                    // "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
-                    "value"         => 3,
+                    "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                    // "value"         => "",
                 ];
                 $questionArray[] = $temp_back;
 
@@ -328,7 +328,6 @@ class Form extends Model
                     "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
                 ];
                 $questionArray[] = $temp_back;
-
             } 
             // //将数据库文字选项转换为下标
             // $options = json_decode($v["options"],true);
