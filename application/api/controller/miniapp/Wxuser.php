@@ -916,9 +916,25 @@ class Wxuser extends Api
                 }
             } 
         }
+                
+        // 2020-06-11 LDAP验证更新，需要新传入type字段。
+        $type = "";
+        if (strlen($username) == 6) {
+            $type = "JZG";
+        } else {
+            $userInfo = Db::name("stu_detail")->where("XH",$username)->field("XSLBDM")->find();
+            if (empty($userInfo)) {
+                $return["status"] = "false";
+                $return["message"] = "信息缺失，请联系管理员。";
+                return $return;
+            }
+            $type = $userInfo["XSLBDM"] == '3' ? "BZKZ" : "YJS";
+        }
+
         $post_data = [
             'userName' => $username,
             'pwd' => $password,
+            'type' => $type,
         ];
         $return = [];
         $response = Http::post(self::TEST_URL,$post_data);
