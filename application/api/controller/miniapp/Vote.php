@@ -22,19 +22,19 @@ class Vote extends Api
     public function init() {
         //解析后应对签名参数进行验证
         // $key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
-        if (empty($key['token'])) {
-            $this->error("access error");
-        }
-        $token = $key['token'];
-        $tokenInfo = Token::get($token);
-        if (empty($tokenInfo)) {
-            $this->error("Token expired");
-        }
-        $userId = $tokenInfo['user_id'];
-        $userInfo = WxuserModel::get($userId);
-        $key['openid'] = $userInfo["open_id"];
-
+        // $key = $this->request->param();
+        // if (empty($key['token'])) {
+        //     $this->error("access error");
+        // }
+        // $token = $key['token'];
+        // $tokenInfo = Token::get($token);
+        // if (empty($tokenInfo)) {
+        //     $this->error("Token expired");
+        // }
+        // $userId = $tokenInfo['user_id'];
+        // $userInfo = WxuserModel::get($userId);
+        // $key['openid'] = $userInfo["open_id"];
+        $key["openid"] = "o5WD50Oc4KM3eSn35ibzPQ8TF6oY";
         $id = 1;
         $VoteModel = new VoteModel;
         $data = $VoteModel -> getInitData($key,$id);
@@ -63,6 +63,7 @@ class Vote extends Api
         $userId = $tokenInfo['user_id'];
         $userInfo = WxuserModel::get($userId);
         $key['openid'] = $userInfo["open_id"];
+        $key["id"] = $userInfo["portal_id"];
 
         $VoteModel = new VoteModel;
         $data = $VoteModel -> submit($key);
