@@ -80,7 +80,7 @@ class Channel Extends Model
         $typeid = !isset($tag['typeid']) ? '' : $tag['typeid'];
         $model = !isset($tag['model']) ? '' : $tag['model'];
         $condition = empty($tag['condition']) ? '' : $tag['condition'];
-        $field = empty($params['field']) ? '*' : $params['field'];
+        $field = empty($tag['field']) ? '*' : $tag['field'];
         $row = empty($tag['row']) ? 10 : (int)$tag['row'];
         $orderby = empty($tag['orderby']) ? 'weigh' : $tag['orderby'];
         $orderway = empty($tag['orderway']) ? 'desc' : strtolower($tag['orderway']);
