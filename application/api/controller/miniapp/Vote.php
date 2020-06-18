@@ -22,7 +22,7 @@ class Vote extends Api
     public function init() {
         //解析后应对签名参数进行验证
         $key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
+        // $key = $this->request->param();
         if (empty($key['token'])) {
             $this->error("access error");
         }
