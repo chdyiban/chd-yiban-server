@@ -50,7 +50,8 @@ class User extends Api
             $this->success(__('Please Bind Portal Account First'), $returnData["data"]);
         } else {
             // 派发token
-            $userid = $userModel->where("XH",$returnData["data"]["user_info"]["portal_id"])->field("ID")->find()["ID"];
+            $userid = $userModel->where("XH",$returnData["data"]["wxuser"]["portal_id"])->field("ID")->find()["ID"];
+            unset($returnData["wxuser"]["portal_id"]);
             $token_old = Cache::get("dormitory_user_$userid");
             if ($token_old) {
                 $info = Token::delete($token_old);
@@ -65,7 +66,6 @@ class User extends Api
         // $userInfo = $this-> me();
         // $returnData["user_portal_info"] = $userInfo["data"]["user_info"];
         $returnData = $returnData["data"];
-        Log::write('返回的数据为'.json_encode($returnData)."时间为".date("Y-m-d h:i:s",time()));
         $this->success("success",$returnData);
     }
      /**
