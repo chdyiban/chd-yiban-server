@@ -68,7 +68,7 @@ class Wxuser extends Model {
         $returnArray["is_bind_mobile"] = !empty($infoList["mobile"]) ? true : false;
         $returnArray["open_id"] = $accessInfo["openid"];
         $returnArray["wxuser"] = [
-            "nickname"  =>  $userInfo["nickname"],
+            "nickname"  =>  base64_decode($userInfo["nickname"]),
             "avatar"    =>  $userInfo["headimgurl"],
         ];
         if(!empty($infoList["portal_id"])) {
@@ -151,7 +151,7 @@ class Wxuser extends Model {
             "refresh_token"     =>  $params["refresh_token"],
             "expires_time"      =>  $params["expires_in"],
             "avatar"            =>  $params['headimgurl'],
-            "nickname"          =>  $params["nickname"],
+            "nickname"          =>  base64_encode($params["nickname"]),
             "mobile"            =>  "",
             "update_time"       =>  time(),
         ];
@@ -172,7 +172,7 @@ class Wxuser extends Model {
             "refresh_token"     =>  $params["refresh_token"],
             "expires_time"      =>  $params["expires_in"],
             "avatar"            =>  !empty($params['headimgurl']) ?$params['headimgurl'] :"",
-            "nickname"          =>  $params["nickname"],
+            "nickname"          =>  base64_encode($params["nickname"]),
             "update_time"       =>  time(),
         ];  
         $result = Db::name("wx_unionid_user")
