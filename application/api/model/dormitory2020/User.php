@@ -22,12 +22,12 @@ class User extends Model
             "user_info" => [],
             "user_step" => [],
             "dormitory" => [],
+            "wxuser"    =>  [],
         ];
         if (empty($param["XH"])) {
             return ["status" => false,"msg" =>"param error!","data" => null];
         }
-        
-        $result["user_info"] = Db::view("fresh_info","XM,XH,YXDM,ZYMC,XBDM,LXDH,QQ,avatar,SYD,BJDM")
+        $result["user_info"] = Db::view("fresh_info","XM,XH,YXDM,ZYMC,XBDM,LXDH,QQ,avatar,SYD,BJDM,unionid")
                             -> view("dict_college","YXDM,YXMC","fresh_info.YXDM = dict_college.YXDM")
                             -> where("fresh_info.XH",$param["XH"])
                             -> find();
@@ -41,7 +41,8 @@ class User extends Model
         $result["user_step"] = $nowData;
         //读取配置文件决定选宿舍状态，迁移至基类getstep方法下
         $result["dormitory"] = $param["step"];
-
+        $result["wxuser"] = Db::name("wx_unionid_user")->where("unionid",$result["user_info"]["unionid"])->field("avatar","nickname")->find();
+        unset($result["user_info"]["unionid"]);
         return ["status" => true, "msg" => null, "data" => $result];
     }
 
