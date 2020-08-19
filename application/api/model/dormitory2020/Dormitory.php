@@ -732,7 +732,7 @@ class Dormitory extends Model
             $SSDM = $personalResult["SSDM"];
             $listStatus = $personalResult["status"];
             $roommateList = Db::view("fresh_result","CH,XH")
-                            -> view("fresh_info","XH,XM,QQ,avatar","fresh_result.XH = fresh_info.XH")
+                            -> view("fresh_info","XH,XM,QQ,avatar,unionid","fresh_result.XH = fresh_info.XH")
                             -> where("XH","<>",$XH)
                             -> where("XQ",$XQ)
                             -> where("SSDM",$SSDM)
@@ -744,7 +744,7 @@ class Dormitory extends Model
                         "CH"     => $value["CH"]."号床",
                         "QQ"     => empty($value["QQ"]) ? "未填写" : $value["QQ"],
                         "XM"     => mb_substr($value['XM'], 0, 1, 'utf-8').'**',
-                        "avatar" => $value["avatar"],
+                        "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($unionid) : $value["avatar"],
                     ];
                     $returnList[] = $temp;
                 }
@@ -762,6 +762,16 @@ class Dormitory extends Model
                 return ["status" => true, "msg"=>"查询成功","data" => ["roommate" => $returnList] ];
             }
         }
+    }
+    /**
+     * 获取用户微信头像url
+     */
+    private function getUsreAvatar($unionid) {
+        $result = Db::name("wx_unionid_user")->where("unionid",$unionid)->field("avatar")->find();
+        if (!empty($result["avatar"])) {
+            return $result["avatar"];
+        }
+        return "#icon-default";
     }
 
     /**
