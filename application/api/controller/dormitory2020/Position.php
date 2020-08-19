@@ -1,9 +1,9 @@
 <?php
 
-namespace app\api\controller\dormitory2019;
+namespace app\api\controller\dormitory2020;
 
-use app\api\controller\dormitory2019\Api;
-use app\api\model\dormitory\Position as PositionModel;
+use app\api\controller\dormitory2020\Api;
+use app\api\model\dormitory2020\Position as PositionModel;
 
 
 /**
