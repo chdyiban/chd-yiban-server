@@ -96,7 +96,7 @@ class Api
             exit;
         }
         header('Access-Control-Allow-Origin:*');  
-        // header('Access-Control-Max-Age: 600');
+        header('Access-Control-Max-Age: 600');
         $modulename = $this->request->module();
         $controllername = strtolower($this->request->controller());
         $actionname = strtolower($this->request->action());

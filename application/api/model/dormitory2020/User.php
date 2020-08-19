@@ -41,7 +41,7 @@ class User extends Model
         $result["user_step"] = $nowData;
         //读取配置文件决定选宿舍状态，迁移至基类getstep方法下
         $result["dormitory"] = $param["step"];
-        $result["wxuser"] = Db::name("wx_unionid_user")->where("unionid",$result["user_info"]["unionid"])->field("avatar","nickname")->find();
+        $result["wxuser"] = Db::name("wx_unionid_user")->where("unionid",$result["user_info"]["unionid"])->field("avatar,nickname")->find();
         $result["wxuser"]["nickname"] = base64_decode($result["wxuser"]["nickname"]);
         unset($result["user_info"]["unionid"]);
         return ["status" => true, "msg" => null, "data" => $result];
