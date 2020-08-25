@@ -32,10 +32,10 @@ class Dormitory extends Model
             }
         }
         $JTZC = "";
-        if (empty($param['form2'][7])) {
+        if (empty($param['form2'][8])) {
             $JTZC = '';
         } else{
-            foreach ($param['form2'][7] as $k => $v) {
+            foreach ($param['form2'][8] as $k => $v) {
                 $JTZC = $k == 0 ? $v : $JTZC.",".$v;
             }
         }
