@@ -793,7 +793,7 @@ class Dormitory extends Model
 
     private function getSteps($userXh){
         //判断信息是否完善
-        $isInfoExist = Db::name('fresh_questionnaire_base') -> where('XH', $userXh) -> field('ID,XH') -> find();
+        $isInfoExist = Db::name('fresh_questionnaire_first') -> where('XH', $userXh) -> field('ID,XH') -> find();
         $isListExist = Db::name('fresh_result') -> where('XH', $userXh) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
             return 'QUE';
@@ -836,7 +836,7 @@ class Dormitory extends Model
      */
     private function checkSGTZBed($userInfo)
     {
-        $check = Db::name("fresh_questionnaire_base")
+        $check = Db::name("fresh_questionnaire_first")
                 -> where("LH",$building)
                 -> where("SSH",$room)
                 -> where("YXDM",$userInfo["YXDM"])

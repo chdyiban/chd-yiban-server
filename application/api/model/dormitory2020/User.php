@@ -90,7 +90,7 @@ class User extends Model
     private function getSteps($param){
         //判断信息是否完善
         $userXh = $param["XH"];
-        $isInfoExist = Db::name('fresh_questionnaire_base') -> where('XH', $userXh) -> field('ID,XH') -> find();
+        $isInfoExist = Db::name('fresh_questionnaire_first') -> where('XH', $userXh) -> field('ID,XH') -> find();
         $isListExist = Db::name('fresh_result') -> where('XH', $userXh) -> field('ID,XH,status') -> find();
         if (empty($isInfoExist)) {
             return 'QUE';
