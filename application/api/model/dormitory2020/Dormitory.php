@@ -19,69 +19,60 @@ class Dormitory extends Model
      */
     public function setinfo($param,$userInfo)
     {
-        $exit_info = Db::name('fresh_questionnaire_base') -> where('XH', $userInfo['XH']) -> field('ID') -> find();
+        $exit_info = Db::name('fresh_questionnaire_first') -> where('XH', $userInfo['XH']) -> field('ID') -> find();
         if (!empty($exit_info)) {
             return ['status' => false, 'msg' => "信息已经完善", 'data' => null];
         } 
         $ZCYF = '';
-        if (empty($param['form2'][7])) {
+        if (empty($param['form2'][14])) {
             $ZCYF = '';
         } else{
-            foreach ($param['form2'][7] as $k => $v) {
+            foreach ($param['form2'][14] as $k => $v) {
                 $ZCYF = $k == 0 ? $v : $ZCYF.",".$v;
             }
         }
-        if ($param["form1"]['JTRKS'] == 0) {
-            return ['status' => false, 'msg' => "这样子不太好哦！", 'data' => null];
-        }
-        $data['XH'] =   $userInfo['XH'];
-        $data['SFGC'] = !empty($param["form1"]['SFGC']) ? $param["form1"]['SFGC'] : null;
-        $data['RXQHK'] = !empty($param["form1"]['RXQHK']) ? $param["form1"]['RXQHK'] : null;
-        $data['JTRKS'] = !empty($param["form1"]['JTRKS']) ? $param["form1"]['JTRKS'] : null;
-        $data['YZBM'] = !empty($param["form1"]['YZBM']) ? $param["form1"]['YZBM'] : null;
-        $data['SZDQ'] = !empty($param["form1"]['SZDQ_CN']) ? $param["form1"]['SZDQ_CN'] : null;
-        $data['XXDZ'] = !empty($param["form1"]['XXDZ']) ? $param["form1"]['XXDZ'] : null;
-        $data['BRDH'] = !empty($param["form1"]['BRDH']) ? $param["form1"]['BRDH'] : null;
-        $data['BRQQ'] = !empty($param["form1"]['QQ']) ? $param["form1"]['QQ'] : null;
-        $data['ZP'] =  !empty($param["form1"]['ZP'][0]['url']) ? $param["form1"]['ZP'][0]['url'] : 'http://';
-        $data['ZSR'] = !empty($param["form1"]['ZSR']) ? $param["form1"]['ZSR'] : 0;
-        //$data['RJSR'] = $RJSR;
-        if (empty($param['form2'][0]) ||empty($param['form2'][1]) ||empty($param['form2'][2]) ||empty($param['form2'][3]) ||empty($param['form2'][4]) ||empty($param['form2'][5]) ||empty($param['form2'][6]) ) {
-            return ['status' => false, 'msg' => "请完成家庭经济情况调查", 'data' => null];
-        } 
-        $data['FQZY']   = $param['form2'][0][0];
-        $data['MQZY']   = $param['form2'][1][0];
-        $data['FQLDNL'] = $param['form2'][2][0];
-        $data['MQLDNL'] = $param['form2'][3][0];
-        $data['YLZC']   = $param['form2'][4][0];
-        $data['SZQK']   = $param['form2'][5][0];
-        $data['JTBG']   = $param['form2'][6][0];
-        $data['ZCYF']   = $ZCYF; 
-        if (empty($param["form1"]['member']) || empty($param["form1"]['member'][0]) ) {
-            $family_info = array();
-            $info_family = array();
-        } else {
-            $info_family = array(); 
-            $family_info = array();
-            foreach ($param["form1"]['member'] as $k => $v) {
-                //这里income不是纯数字的时候还存在bug
-                $data['ZSR'] += $v["income"];
-                $family_info = array(
-                    'XH'   => $userInfo['XH'],
-                    'XM'   => $v['name'],
-                    'NL'   => $v['age'],
-                    'GX'   => $v['relation'],
-                    'GZDW' => $v['unit'],
-                    'ZY'   => $v['job'],
-                    'NSR'  => $v['income'],
-                    'JKZK' => $v['health'],
-                    'LXDH' => $v['mobile'],
-                );
-                $info_family[] = $family_info;
+        $JTZC = "";
+        if (empty($param['form2'][7])) {
+            $JTZC = '';
+        } else{
+            foreach ($param['form2'][7] as $k => $v) {
+                $JTZC = $k == 0 ? $v : $JTZC.",".$v;
             }
         }
-        return ['status' => true, 'msg' => "填写成功", 'data' => $data, 'info' => $info_family];
-        
+        $data['XH'] =   $userInfo['XH'];
+        $data['BRSG'] = !empty($param["form1"]['BRSG']) ? $param["form1"]['BRSG'] : null;
+        $data['BRTZ'] = !empty($param["form1"]['BRTZ']) ? $param["form1"]['BRTZ'] : null;
+        $data['BRDH'] = !empty($param["form1"]['BRDH']) ? $param["form1"]['BRDH'] : null;
+        $data['BRQQ'] = !empty($param["form1"]['QQ']) ? $param["form1"]['QQ'] : null;
+        $data['BRSG'] = !empty($param["form1"]['BRSG']) ? $param["form1"]['BRSG'] : null;
+        $data['BRTZ'] = !empty($param["form1"]['BRTZ']) ? $param["form1"]['BRTZ'] : null;
+
+        $data['RXQHK'] = !empty($param["form1"]['RXQHK']) ? $param["form1"]['RXQHK'] : null;
+        $data['SFGC'] = !empty($param["form1"]['SFGC']) ? $param["form1"]['SFGC'] : null;
+        $data['SZDQ'] = !empty($param["form1"]['SZDQ_CN']) ? $param["form1"]['SZDQ_CN'] : null;
+        $data['XXDZ'] = !empty($param["form1"]['XXDZ']) ? $param["form1"]['XXDZ'] : null;
+
+      
+        if (empty($param['form2'][0]) ||empty($param['form2'][1]) ||empty($param['form2'][2]) ||empty($param['form2'][3]) ||empty($param['form2'][4]) ||empty($param['form2'][5]) ||empty($param['form2'][6]) ||empty($param['form2'][8])||empty($param['form2'][9])||empty($param['form2'][10])||empty($param['form2'][11])||empty($param['form2'][12])||empty($param['form2'][13]) ) {
+            return ['status' => false, 'msg' => "请完成家庭经济情况调查", 'data' => null];
+        } 
+        $data['CXCY']   = $param['form2'][0][0];
+        $data['FQZY']   = $param['form2'][1][0];
+        $data['FQLDNL']   = $param['form2'][2][0];
+        $data['MQZY']   = $param['form2'][3][0];
+        $data['MQLDNL'] = $param['form2'][4][0];
+        $data['JTRK']   = $param['form2'][5][0];
+        $data['JTNSR']   = $param['form2'][6][0];
+
+        $data['JTZF']   = $param['form2'][7][0];
+        $data['JTZC']   = $JTZC;
+        $data['JDQK']   = $param['form2'][9][0];
+        $data['SYQK']   = $param['form2'][10][0];
+        $data['YLZC']   = $param['form2'][11][0];
+        $data['SZQK']   = $param['form2'][12][0];
+        $data['JTBG']   = $param['form2'][13][0]; 
+        $data['ZCYF']   = $ZCYF;
+        return ['status' => true, 'msg' => "填写成功", 'data' => $data];
     }
     /**
      * 返回学生家庭信息基本信息
@@ -165,27 +156,15 @@ class Dormitory extends Model
 
 
     /**
-     * 向fa_fresh_questionnaire_base中插入数据
+     * 向fa_fresh_questionnaire_first中插入数据
      */
-    public function insertBase($data)
+    public function insertFirst($data)
     {
-        $res = Db::name("fresh_questionnaire_base") ->insert($data);
+        $res = Db::name("fresh_questionnaire_first") ->insert($data);
         $response  = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"],"LXDH" => $data["BRDH"]]);
 
         return $res;
     }  
-    
-    /**
-     * 向fa_fresh_questionnaire_family中插入数据
-     */
-    public function insertFamily($data)
-    {
-        $res = Db::name("fresh_questionnaire_family") ->insertAll($data);
-        return $res;
-
-    }
-
-
 
     public function room($userInfo)
     {
@@ -839,6 +818,25 @@ class Dormitory extends Model
     private function checkDormitory($building,$room,$bed,$userInfo)
     {
         $check = Db::name("fresh_dormitory_".$userInfo["XQ"])
+                -> where("LH",$building)
+                -> where("SSH",$room)
+                -> where("YXDM",$userInfo["YXDM"])
+                -> where("XB",$userInfo["XBDM"])
+                -> where("SYRS",">",0)
+                -> field("ID")
+                -> find();
+        return empty($check) ? false : true;
+    }
+
+    /**
+     * 检查用户床位与身高和体重的影响
+     * @param array $userInfo
+     * @param 
+     * @return bool
+     */
+    private function checkSGTZBed($userInfo)
+    {
+        $check = Db::name("fresh_questionnaire_base")
                 -> where("LH",$building)
                 -> where("SSH",$room)
                 -> where("YXDM",$userInfo["YXDM"])
