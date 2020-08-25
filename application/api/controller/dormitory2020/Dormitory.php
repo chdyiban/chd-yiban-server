@@ -16,7 +16,7 @@ use think\Db;
  */
 class Dormitory extends Api
 {
-    protected $noNeedBindPortal = [];
+    protected $noNeedBindPortal = ["setinfo"];
     protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
 
@@ -28,64 +28,29 @@ class Dormitory extends Api
     {
         $key = json_decode(urldecode(base64_decode($this->request->post('key'))),true);
         $DormitoryModel = new DormitoryModel();
-        // dump($key);
-        if (!empty($key["form1"]['member'])) {   
-            foreach ($key["form1"]['member'] as $k => $v) {
-                $incomeInfo = parent::validate($v,'Userinfo.familyincome');
-                if (gettype($incomeInfo) == "string") {
-                    $this->error($incomeInfo);
-                }
-            }
-        }
         $result = $DormitoryModel -> setinfo($key, $this->_user);
         if (!$result['status']) {
             $this -> error($result['msg'], $result['data']);
         } else {
             $data = $result['data'];
-            $info = $result['info'];
-            $Userinfo = parent::validate($data,'Userinfo.user');
-            $Family[0] = $Userinfo;
-            if (empty($info)) {
-                if (gettype($Userinfo) == 'string') {
-                    $this->error($Userinfo);
-                } 
-                $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
-                $data['RJSR'] = round($data['RJSR'], 2);
-                // $res = model('fresh_questionnaire_base') -> insert($data);
-                $res = $DormitoryModel->insertBase($data);
-                $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
+            if (empty($data["BRSG"])) {
+                $this->error("请填写身高");
             } else {
-                foreach ($info as $key => $value) {
-                    $Familyinfo = parent::validate($value,'Userinfo.family');
-                    $Family[] = $Familyinfo;
-                }
-                foreach ($Family as $key => $value) {
-                    if (gettype($value) == "string") {
-                        $this->error($value);
-                    }
-                }
-                $data['RJSR'] = $data['ZSR']/$data['JTRKS'];
-                $data['RJSR'] = round($data['RJSR'], 2);
-                $insert_flag_one = false;
-                $insert_flag_two = false;
-                Db::startTrans();
-                try{  
-                // $res = model('fresh_questionnaire_base') -> insert($data);
-                    $insert_flag_one = $DormitoryModel->insertBase($data);
-                    $insert_flag_two = $DormitoryModel->insertFamily($info);
-                    //提交事务
-                    Db::commit();    
-                } catch (\Exception $e) {
-                    // 回滚事务
-                    Db::rollback();
-                }  
-                if ($insert_flag_one && $insert_flag_two) {
-                    $this -> success("信息录入成功");
-                }else {
-                    $this -> error("信息录入失败");
-                }
+                $data["BRSG"] = (int)$data["BRSG"];
             }
-        }
+            if (empty($data["BRTZ"])) {
+                $this->error("请填写体重");
+            } else {
+                $data["BRTZ"] = (float)$data["BRTZ"];
+            }
+            $Userinfo = parent::validate($data,'Userinfo.user');
+            if (gettype($Userinfo) == 'string') {
+                $this->error($Userinfo);
+            }
+
+            $res = $DormitoryModel->insertFirst($data);
+            $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
+        }  
     }
 
 	/**
