@@ -10,7 +10,7 @@ use fast\Random;
 use app\common\library\Sms as Smslib;
 use app\api\model\dormitory2020\User as userModel;
 use app\api\model\dormitory2020\Yiban as yibanModel;
-use app\ids\controller\Offiaccount as offiaccountController;
+use app\ids\controller\Fresh as FreshController;
 
 
 /**
@@ -61,10 +61,10 @@ class Yiban extends Api
                 $this->error("请先绑定门户账号！");
             }
             if ($_bindStatus["is_bind_mobile"] == false) {
-                $this->error("请绑定手机号");
+                $this->error("请完成家庭问卷调查表");
             }
             $portal_id = $userInfo["XH"];
-            $ids = new offiaccountController;
+            $ids = new FreshController;
             $ids->yiban($portal_id,$url);
             exit;
         } else {

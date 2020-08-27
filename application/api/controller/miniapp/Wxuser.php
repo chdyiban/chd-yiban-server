@@ -41,7 +41,6 @@ class Wxuser extends Api
         $code = $this->request->post('code');
         $appid = Config::get('wechat.miniapp_chdyiban')["appId"];
         $appsecret = Config::get('wechat.miniapp_chdyiban')["appSecret"];
-
         $retData = [];
 
         $params = [
@@ -925,7 +924,7 @@ class Wxuser extends Api
             $userInfo = Db::name("stu_detail")->where("XH",$username)->field("XSLBDM")->find();
             if (empty($userInfo)) {
                 $return["status"] = "false";
-                $return["message"] = "信息缺失，请联系管理员。";
+                $return["msg"] = "信息缺失，请联系管理员。";
                 return $return;
             }
             $type = $userInfo["XSLBDM"] == '3' ? "BZKZ" : "YJS";
