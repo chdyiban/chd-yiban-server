@@ -53,7 +53,7 @@ class Dormitory extends Model
         $data['XXDZ'] = !empty($param["form1"]['XXDZ']) ? $param["form1"]['XXDZ'] : null;
 
       
-        if (empty($param['form2'][0]) ||empty($param['form2'][1]) ||empty($param['form2'][2]) ||empty($param['form2'][3]) ||empty($param['form2'][4]) ||empty($param['form2'][5]) ||empty($param['form2'][6]) ||empty($param['form2'][8])||empty($param['form2'][9])||empty($param['form2'][10])||empty($param['form2'][11])||empty($param['form2'][12])||empty($param['form2'][13]) ) {
+        if (empty($param['form2'][0]) ||empty($param['form2'][1]) ||empty($param['form2'][2]) ||empty($param['form2'][3]) ||empty($param['form2'][4]) ||empty($param['form2'][5]) ||empty($param['form2'][6]) ||empty($param['form2'][7])||empty($param['form2'][9])||empty($param['form2'][10])||empty($param['form2'][11])||empty($param['form2'][12])||empty($param['form2'][13]) ) {
             return ['status' => false, 'msg' => "请完成家庭经济情况调查", 'data' => null];
         } 
         $data['CXCY']   = $param['form2'][0][0];
@@ -158,11 +158,11 @@ class Dormitory extends Model
     /**
      * 向fa_fresh_questionnaire_first中插入数据
      */
-    public function insertFirst($data)
+    public function insertFirst($data,$userInfo)
     {
         $res = Db::name("fresh_questionnaire_first") ->insert($data);
         $response  = Db::name("fresh_info") -> where("XH",$data["XH"]) -> update(["QQ" => $data["BRQQ"],"LXDH" => $data["BRDH"]]);
-
+        $respon  = Db::name("wx_unionid_user") -> where("unionid",$userInfo["unionid"]) -> update(["mobile" => $data["BRDH"]]);
         return $res;
     }  
 
@@ -943,6 +943,27 @@ class Dormitory extends Model
         }
     }
 
-
-
+    /**
+     * 获取用户信息
+     * @param $openid
+     * @return array
+     * ["subscribe"] => 1,关注公众号。
+     * ["subscribe"] => 0,未关注公众号。
+     */
+    public function getUserInfo($openid)
+    {
+        try {
+            $config = Config::Get('wechatConfig');
+            // 实例对应的接口对象
+            $user = \We::WeChatUser($config);
+            // 调用接口对象方法
+            $list = $user->getUserInfo($openid);
+            // 处理返回的结果
+            return $list;
+            
+        } catch (Exception $e) {
+            // 出错啦，处理下吧
+            echo $e->getMessage() . PHP_EOL;
+        }
+    }
 }

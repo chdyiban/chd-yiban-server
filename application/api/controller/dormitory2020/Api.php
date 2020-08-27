@@ -229,6 +229,8 @@ class Api
             }
 
             $is_bind_mobile = $this->checkMobileBind($userInfo["unionid"]);
+            $openid = Db::name("wx_unionid_user")->where("unionid",$userInfo["unionid"])->field("open_id")->find();
+            $userInfo["openid"] = $openid["open_id"];
             $userInfo["XQ"] = $userInfo["type"] == 0 ? "north" : "south";
             $userInfo["step"] = $this->getStep($userInfo);
             $this->_user    = $userInfo;
