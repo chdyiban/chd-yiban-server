@@ -11,6 +11,7 @@ use think\Response;
 use app\api\model\dormitory2020\User as userModel;
 use app\api\model\dormitory2020\Wxuser as wxUserModel;
 use think\Config;
+use think\Db;
 
 /**
  * 订阅号API控制器基类
