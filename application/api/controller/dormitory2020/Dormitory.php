@@ -16,7 +16,7 @@ use think\Db;
  */
 class Dormitory extends Api
 {
-    protected $noNeedBindPortal = ["setinfo"];
+    protected $noNeedBindPortal = [""];
     protected $AppSecretKey = "0paIib2iL0L6tirAVigty0Q";
 
 
@@ -48,7 +48,7 @@ class Dormitory extends Api
                 $this->error($Userinfo);
             }
 
-            $res = $DormitoryModel->insertFirst($data);
+            $res = $DormitoryModel->insertFirst($data,$this->_user);
             $res == 1 ? $this -> success('信息录入成功'): $this -> error('信息录入失败');
         }  
     }
@@ -146,7 +146,10 @@ class Dormitory extends Api
         $DormitoryModel = new DormitoryModel();
         $data = $DormitoryModel->confirm($key,$this->_user);
         if ($data["status"]) {
-            $DormitoryModel->sendMsg($this->_user);
+            $userInfo = $DormitoryModel->getUserInfo($this->_user["openid"]);
+            if ($userInfo["subscribe"] == 1) {
+                $DormitoryModel->sendMsg($this->_user);
+            }
             $this->success($data["msg"],$data["data"]);
         } else {
             $this->error($data["msg"],$data["data"]);
