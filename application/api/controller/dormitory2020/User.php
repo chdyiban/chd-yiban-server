@@ -51,7 +51,7 @@ class User extends Api
         } else {
             // 派发token
             $userid = $userModel->where("XH",$returnData["data"]["wxuser"]["portal_id"])->field("ID")->find()["ID"];
-            unset($returnData["wxuser"]["portal_id"]);
+            unset($returnData["data"]["wxuser"]["portal_id"]);
             $token_old = Cache::get("dormitory_user_$userid");
             if ($token_old) {
                 $info = Token::delete($token_old);
