@@ -68,13 +68,12 @@ class Wxuser extends Model {
         $returnArray["is_bind_mobile"] = !empty($infoList["mobile"]) ? true : false;
         $returnArray["open_id"] = $accessInfo["openid"];
         $returnArray["wxuser"] = [
-            "nickname"  =>  base64_decode($userInfo["nickname"]),
+            "nickname"  =>  $userInfo["nickname"],
             "avatar"    =>  $userInfo["headimgurl"],
         ];
         if(!empty($infoList["portal_id"])) {
             $returnArray["wxuser"]["portal_id"] = $infoList["portal_id"];
         }
-       
 
         return ["status" => true,"data" => $returnArray];
     }
