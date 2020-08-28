@@ -99,7 +99,7 @@ class Fresh extends Controller {
                 //认证项，至少填一项，建议学工号
 
                 //学生身份必填项
-                "phone"     =>$row["SJH"],
+                "phone"     =>$row["LXDH"],
                 //'instructor_id'=>'',//辅导员工号
                 'status'    =>'0',//（0-在读、1-休学、2-离校）
                 'schooling' =>'4',//（2.5/3/4/5/7/8）
