@@ -43,6 +43,7 @@ class Dormitory extends Model
         $data['BRSG'] = !empty($param["form1"]['BRSG']) ? $param["form1"]['BRSG'] : null;
         $data['BRTZ'] = !empty($param["form1"]['BRTZ']) ? $param["form1"]['BRTZ'] : null;
         $data['BRDH'] = !empty($param["form1"]['BRDH']) ? $param["form1"]['BRDH'] : null;
+        $data['JTDH'] = !empty($param["form1"]['JTDH']) ? $param["form1"]['JTDH'] : null;
         $data['BRQQ'] = !empty($param["form1"]['QQ']) ? $param["form1"]['QQ'] : null;
         $data['BRSG'] = !empty($param["form1"]['BRSG']) ? $param["form1"]['BRSG'] : null;
         $data['BRTZ'] = !empty($param["form1"]['BRTZ']) ? $param["form1"]['BRTZ'] : null;
@@ -80,7 +81,6 @@ class Dormitory extends Model
     public function getBaseInfo($param)
     {
         $XH = $param["XH"];
-        // $XH = "2019901872";
         $userInfo = Db::name("fresh_questionnaire_base")->where("XH",$XH)->find();
         $familyInfo = Db::name("fresh_questionnaire_family")->where("XH",$XH)->select();
         if (empty($userInfo)) {
@@ -723,7 +723,7 @@ class Dormitory extends Model
                         "CH"     => $value["CH"]."号床",
                         "QQ"     => empty($value["QQ"]) ? "未填写" : $value["QQ"],
                         "XM"     => mb_substr($value['XM'], 0, 1, 'utf-8').'**',
-                        "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($unionid) : $value["avatar"],
+                        // "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($value["unionid"]) : $value["avatar"],
                     ];
                     $returnList[] = $temp;
                 }
@@ -734,7 +734,7 @@ class Dormitory extends Model
                         "CH"     => $value["CH"]."号床",
                         "QQ"     => empty($value["QQ"]) ? "未填写" : $value["QQ"],
                         "XM"     => $value['XM'],
-                        "avatar" => $value["avatar"],
+                        // "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($value["unionid"]) : $value["avatar"],
                     ];
                     $returnList[] = $temp;
                 }
@@ -745,13 +745,13 @@ class Dormitory extends Model
     /**
      * 获取用户微信头像url
      */
-    private function getUsreAvatar($unionid) {
-        $result = Db::name("wx_unionid_user")->where("unionid",$unionid)->field("avatar")->find();
-        if (!empty($result["avatar"])) {
-            return $result["avatar"];
-        }
-        return "#icon-default";
-    }
+    // private function getUserAvatar($unionid) {
+    //     $result = Db::name("wx_unionid_user")->where("unionid",$unionid)->field("avatar")->find();
+    //     if (!empty($result["avatar"])) {
+    //         return $result["avatar"];
+    //     }
+    //     return "#icon-default";
+    // }
 
     /**
      * 用来验证民族选择情况
