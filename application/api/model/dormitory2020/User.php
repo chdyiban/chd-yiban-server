@@ -33,6 +33,10 @@ class User extends Model
                             -> find();
         //标记床位
         $markList = Db::name("fresh_mark")->field("SSDM,CH")->where("XH",$param["XH"])->find();
+        //身高体重
+        // $userBodyInfo = Db::name("fresh_questionnaire_first")->where("XH",$param["XH"])->field("BRSG,BRTZ")->find();
+        // $result["user_info"]["BRSG"] = empty($userBodyInfo["BRSG"]) ? "" : $userBodyInfo["BRSG"];
+        // $result["user_info"]["BRTZ"] = empty($userBodyInfo["BRTZ"]) ? "" : $userBodyInfo["BRTZ"];
         $result["user_info"]["BJCW"] = empty($markList) ? "" : $markList["SSDM"]."-".$markList["CH"]; 
         $nowStep = $this->getSteps($param);
         $nowData = $this->getStepData($nowStep,$param["XH"]);
