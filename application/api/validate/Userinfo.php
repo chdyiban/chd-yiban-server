@@ -12,6 +12,7 @@ class Userinfo extends Validate
         'SFGC'  => 'require',
         'RXQHK' => 'require|checkHK:',
         'BRDH'  => 'require|/^[1][3,4,5,6,7,8,9][0-9]{9}$/',
+        'JTDH'  => 'require|/^[1][3,4,5,6,7,8,9][0-9]{9}$/',
 		'BRQQ'  => 'number|length:5,14',
 		
         'BRSG'  => 'require|number|between:100,230',
@@ -44,6 +45,7 @@ class Userinfo extends Validate
         'SFGC' 	=> '请选择是否孤残',
         'RXQHK' => "请选择入学前户口",
         'BRDH' 	=> "请输入有效联系方式",
+        'JTDH' 	=> "请输入有效的家庭联系方式",
         'BRQQ'  => '请填写正确的QQ号码',
         'BRSG.require'  => '身高不可以为空',
         'BRSG.between'  => '请填写正确的身高数值',
@@ -93,7 +95,7 @@ class Userinfo extends Validate
     ];
     protected $scene = [
         'qq'     =>  ['qq'],
-        'user'   =>  ['XH','SFGC','RXQHK','BRDH','BRQQ','BRSG','BRTZ', 'SZDQ','XXDZ','CXCY', 'FQZY','FQLDNL','MQZY','MQLDNL',"JTRK","JTNSR","JTZF","JTZC","JDQK","SYQK",'YLZC','SZQK','JTBG','ZCYF', ],
+        'user'   =>  ['XH','SFGC','RXQHK','BRDH','JTDH','BRQQ','BRSG','BRTZ', 'SZDQ','XXDZ','CXCY', 'FQZY','FQLDNL','MQZY','MQLDNL',"JTRK","JTNSR","JTZF","JTZC","JDQK","SYQK",'YLZC','SZQK','JTBG','ZCYF', ],
     ];
      // 自定义验证规则
      protected function checkHK($value)
