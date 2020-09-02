@@ -28,7 +28,7 @@ class Position extends Model
         $roommateLocation = [];
         $meLocation       = [];
         $roommatesInfo =  Db::view("fresh_result")
-                        -> view("fresh_info","XH,XM,QQ,avatar","fresh_result.XH = fresh_info.XH")
+                        -> view("fresh_info","XH,XM,QQ,avatar,unionid","fresh_result.XH = fresh_info.XH")
                         -> order("CH")
                         -> where("status","finished")
                         -> where("XQ",$XQ)
@@ -43,18 +43,20 @@ class Position extends Model
                             "0" => $value["longitude"],
                             "1" => $value["latitude"]
                         ],
-                        "avatar" => $value["avatar"],
+                        "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($value["unionid"]) : $value["avatar"],
                         "CH"     => $value["CH"],
                         "XM"     => $value["XM"],
+                        "avatar_type"   =>  $value["avatar"] == "#icon-default" ? "image" : "iconfont",
                         "status" => true,
                     ];
                 } else {
                     //本人没有授权位置信息
                     $meLocation = [
                         "position"   => [],
-                        "avatar" => $value["avatar"],
+                        "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($value["unionid"]) : $value["avatar"],
                         "CH"     => $value["CH"],
                         "XM"     => $value["XM"],
+                        "avatar_type"   =>  $value["avatar"] == "#icon-default" ? "image" : "iconfont",
                         "status" => false,
                     ];
                 }
@@ -67,9 +69,10 @@ class Position extends Model
                         "0" => $value["longitude"],
                         "1" => $value["latitude"]
                     ],
-                    "avatar" => $value["avatar"],
+                    "avatar" => $value["avatar"] == "#icon-default" ? $this->getUserAvatar($value["unionid"]) : $value["avatar"],
                     "CH"     => $value["CH"],
                     "XM"     => $value["XM"],
+                    "avatar_type"   =>  $value["avatar"] == "#icon-default" ? "image" : "iconfont",
                     "status" => true,
                 ];
             } else {
@@ -79,11 +82,10 @@ class Position extends Model
                     "avatar" => "#icon-question-circle",
                     "CH"     => $value["CH"],
                     "XM"     => $value["XM"],
+                    "avatar_type"   =>  "iconfont",
                     "status" => false,
                 ];
             }
-            
-
         }
 
         $returnData = [
@@ -93,7 +95,16 @@ class Position extends Model
         return ["status" => true,"msg" => "", "data" => $returnData];
     }
 
-
+     /**
+     * 获取用户微信头像url
+     */
+    private function getUserAvatar($unionid) {
+        $result = Db::name("wx_unionid_user")->where("unionid",$unionid)->field("avatar")->find();
+        if (!empty($result["avatar"])) {
+            return $result["avatar"];
+        }
+        return "#icon-default";
+    }
     /**
      * 提交位置信息
      * @param array 用户经纬度
