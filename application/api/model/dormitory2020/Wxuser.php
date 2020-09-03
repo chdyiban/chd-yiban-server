@@ -149,7 +149,7 @@ class Wxuser extends Model {
             "access_token"      =>  $params["access_token"],
             "refresh_token"     =>  $params["refresh_token"],
             "expires_time"      =>  $params["expires_in"],
-            "avatar"            =>  $params['headimgurl'],
+            "avatar"            =>  substr_replace($params['headimgurl'],"https://",0,7),
             "nickname"          =>  base64_encode($params["nickname"]),
             "mobile"            =>  "",
             "update_time"       =>  time(),
@@ -170,7 +170,8 @@ class Wxuser extends Model {
             "access_token"      =>  $params["access_token"],
             "refresh_token"     =>  $params["refresh_token"],
             "expires_time"      =>  $params["expires_in"],
-            "avatar"            =>  !empty($params['headimgurl']) ?$params['headimgurl'] :"",
+            // "avatar"            =>  !empty($params['headimgurl']) ?$params['headimgurl'] :"",
+            "avatar"            =>  !empty($params['headimgurl']) ?substr_replace($params['headimgurl'],"https://",0,7) :"",
             "nickname"          =>  base64_encode($params["nickname"]),
             "update_time"       =>  time(),
         ];  
@@ -319,5 +320,5 @@ class Wxuser extends Model {
             }
         }
     }
- 
+
 }
