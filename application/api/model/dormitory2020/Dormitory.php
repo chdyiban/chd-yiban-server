@@ -359,8 +359,8 @@ class Dormitory extends Model
                 return ['status' => false, 'msg' => $checkResult["msg"], 'data' => null];            
             }
 
-            //如果是少数民族验证要选的宿舍是否满足要求
-            if ($nation != "汉族") {
+            //如果是少数民族验证要选的宿舍是否满足要求，并且不是预科学院
+            if ($nation != "汉族" && $college_id != "7100") {
                 $msg = $this -> checkNation($XQ,$dormitory_id, $nation);
                 if (!$msg) {
                     return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];
