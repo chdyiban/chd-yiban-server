@@ -10,7 +10,7 @@ class Extra extends Model
 {
     // 表名
     // protected $name = 'fresh_info';
-    const MAP_URL = "http://cdn.knocks.tech/college_2020/";
+    const MAP_URL = "https://2019.yibancdn.ohao.ren/college_2020/";
     
     /**
      * 获取选宿问题说明
