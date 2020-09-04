@@ -27,41 +27,45 @@ class Index extends Api
                 ->group("fresh_result.YXDM")
                 ->column("YXJC,COUNT(*),dict_college.YXDM");
                 
-        $collegeOldList = Db::name("fresh_dormitory_back")
-                -> group("YXDM")
+        $collegeOldList = Db::view("fresh_dormitory_back")
+                -> view("dict_college","YXMC,YXDM","fresh_dormitory_back.YXDM = dict_college.YXDM")
+                -> group("fresh_dormitory_back.YXDM")
                 -> order("sum(SYRS) desc")
-                -> column("YXDM,sum(SYRS)");
+                -> column("YXMC,fresh_dormitory_back.YXDM,sum(SYRS)");
         // SELECT `YXDM`,COUNT(*) FROM `fa_fresh_result` GROUP BY `YXDM`
-        $return = array_keys($collegeList);
+        $return = array_keys($collegeOldList);
         $data = [];
         $collegeList["马克思主义学院"] = empty($collegeList["马克思主义学院"]) ? 0 : $collegeList["马克思主义学院"];
         $collegeList["马院"] = $collegeList["马克思主义学院"];
+        $collegeOldList["马院"] = $collegeOldList["马克思主义学院"];
         unset($collegeList["马克思主义学院"]);
+        unset($collegeOldList["马克思主义学院"]);
         foreach ($return as $key => $value) {
             if($value == "马克思主义学院"){
                 $value = "马院";
             }
-            $YXDM = $collegeList[$value]["YXDM"];
+            $YXDM = $collegeOldList[$value]["YXDM"];
             $startTime = strtotime(Config::get("dormitory.$YXDM"));
             $nowTime = time();
-            if ($nowTime >= $startTime) {
+            $number  = !empty($collegeList[$value]["COUNT(*)"])?$collegeList[$value]["COUNT(*)"]:0;
+            // if ($nowTime >= $startTime) {
                 $temp = [
                     // "content" => $value,
                     // "value"   => $collegeList[$value], 
                     "x" => $value,
-                    "y"   => $collegeList[$value]["COUNT(*)"]   , 
+                    "y"   => $number, 
                     "s" =>  "2",
                 ];
                 $temp2 = [
                     // "content" => $value,
                     // "value"   => $collegeList[$value], 
                     "x" => $value,
-                    "y"   => $collegeOldList[$YXDM] - $collegeList[$value]["COUNT(*)"], 
+                    "y"   => $collegeOldList[$value]["sum(SYRS)"] - $number, 
                     "s" =>  "1",
                 ];
                 $data[] = $temp;
                 $data[] = $temp2;
-            }
+            // }
         }
         // dump($data);
         return json($data);
@@ -70,7 +74,6 @@ class Index extends Api
     // 已经完成选宿的所有人，气泡图
     public function myMap()
     {
- 
         $mapList= Db::view("fresh_result","XH")
                 ->view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
                 ->order("fresh_info.ID desc")
@@ -693,16 +696,16 @@ class Index extends Api
             $YXDM = $value["YXDM"];
             $startTime = strtotime(Config::get("dormitory.$YXDM"));
             $nowTime = time();
-            if ($nowTime >= $startTime) {
-                $temp = [
-                    "time"  =>  date("m-n H:i:s",time()),
-                    "XH"  => $value["XH"],
-                    "XM"  => $value["XM"],
-                    "SYD"  => $value["SYD"],
-                    "YXMC"  => $value["YXJC"],
-                ];
-                $returnData[] = $temp;
-            }
+            //if ($nowTime >= $startTime) {
+            $temp = [
+                "time"  =>  date("m-n H:i:s",time()),
+                "XH"  => $value["XH"],
+                "XM"  => $value["XM"],
+                "SYD"  => $value["SYD"],
+                "YXMC"  => $value["YXJC"],
+            ];
+            $returnData[] = $temp;
+            //}
 		}
 		return json($returnData);
     }
@@ -756,43 +759,55 @@ class Index extends Api
             case 'CPU':
                 return json(
                     [
-                        "aims" => "1",
-                        "actual"    =>  $result["cpu_usage"],
+                        [
+                            "aims" => "100",
+                            "actual"    =>  $result["cpu_usage"]
+                        ],
                     ]
                 );
             case 'CPUNum':
                 return json(
                     [
-                        "name" => "CPU使用率",
-                        "value"    =>   $result["cpu_usage"],
+                        [
+                            "name" => "CPU使用率",
+                            "value"    =>   $result["cpu_usage"],
+                        ],
                     ]
                 );
             case "Mem":
                 return json(
                     [
-                        "aims" => "1",
-                        "actual"    =>  $result["mem_usage"],
+                        [
+                            "aims" => "100",
+                            "actual"    =>  $result["mem_usage"],
+                        ],
                     ]
                 );
             case "MemNum":
                 return json(
                     [
-                        "name" => "内存使用率",
-                        "value" => $result["mem_usage"],
+                        [
+                            "name" => "内存使用率",
+                            "value" => $result["mem_usage"],
+                        ],
                     ]
                 );
             case "Hd":
                 return json(
                     [
-                        "aims" => "1",
-                        "actual"    =>  $result["hd_usage"],
+                        [
+                            "aims" => "100",
+                            "actual"    =>  $result["hd_usage"],
+                        ],
                     ]
                 );
             case "HdNum":
                 return json(
                     [
-                        "name"  =>  "硬盘使用率",
-                        "value" =>  $result["hd_usage"],
+                        [
+                            "name"  =>  "硬盘使用率",
+                            "value" =>  $result["hd_usage"],
+                        ]
                     ]
                 );
             default:
