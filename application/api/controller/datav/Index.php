@@ -31,7 +31,7 @@ class Index extends Api
                 -> view("dict_college","YXMC,YXDM","fresh_dormitory_back.YXDM = dict_college.YXDM")
                 -> group("fresh_dormitory_back.YXDM")
                 -> order("sum(SYRS) desc")
-                -> column("YXMC,fresh_dormitory_back.YXDM,sum(SYRS)");
+                -> column("YXJC,fresh_dormitory_back.YXDM,sum(SYRS)");
         // SELECT `YXDM`,COUNT(*) FROM `fa_fresh_result` GROUP BY `YXDM`
         $return = array_keys($collegeOldList);
         $data = [];
@@ -40,9 +40,17 @@ class Index extends Api
         $collegeOldList["马院"] = $collegeOldList["马克思主义学院"];
         unset($collegeList["马克思主义学院"]);
         unset($collegeOldList["马克思主义学院"]);
+        $collegeList["长安都柏林国际交通学院"] = empty($collegeList["长安都柏林国际交通学院"]) ? 0 : $collegeList["长安都柏林国际交通学院"];
+        $collegeList["国际学院"] = $collegeList["长安都柏林国际交通学院"];
+        $collegeOldList["国际学院"] = $collegeOldList["长安都柏林国际交通学院"];
+        unset($collegeList["长安都柏林国际交通学院"]);
+        unset($collegeOldList["长安都柏林国际交通学院"]);
         foreach ($return as $key => $value) {
             if($value == "马克思主义学院"){
                 $value = "马院";
+            }
+            if($value == "长安都柏林国际交通学院"){
+                $value = "国际学院";
             }
             $YXDM = $collegeOldList[$value]["YXDM"];
             $startTime = strtotime(Config::get("dormitory.$YXDM"));
