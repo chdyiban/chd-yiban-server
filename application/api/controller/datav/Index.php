@@ -5,6 +5,7 @@ namespace app\api\controller\datav;
 use app\common\controller\Api;
 use think\Db;
 use think\Config;
+use fast\Http;
 
 use app\api\model\Adviser as AdviserModel;
 
@@ -17,39 +18,143 @@ class Index extends Api
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
 
+    public $baiduAPI = "http://api.map.baidu.com/geocoding/v3/";    
+
     public function college()
     {
         $collegeList = Db::view("fresh_result")
                 ->view("dict_college","YXMC,YXDM","fresh_result.YXDM = dict_college.YXDM")
                 ->group("fresh_result.YXDM")
-                ->column("YXMC,COUNT(*),dict_college.YXDM");
-
+                ->column("YXJC,COUNT(*),dict_college.YXDM");
+                
+        $collegeOldList = Db::name("fresh_dormitory_back")
+                -> group("YXDM")
+                -> order("sum(SYRS) desc")
+                -> column("YXDM,sum(SYRS)");
         // SELECT `YXDM`,COUNT(*) FROM `fa_fresh_result` GROUP BY `YXDM`
         $return = array_keys($collegeList);
         $data = [];
+        $collegeList["马克思主义学院"] = empty($collegeList["马克思主义学院"]) ? 0 : $collegeList["马克思主义学院"];
+        $collegeList["马院"] = $collegeList["马克思主义学院"];
+        unset($collegeList["马克思主义学院"]);
         foreach ($return as $key => $value) {
+            if($value == "马克思主义学院"){
+                $value = "马院";
+            }
             $YXDM = $collegeList[$value]["YXDM"];
             $startTime = strtotime(Config::get("dormitory.$YXDM"));
             $nowTime = time();
             if ($nowTime >= $startTime) {
                 $temp = [
-                    "content" => $value,
-                    "value"   => $collegeList[$value], 
+                    // "content" => $value,
+                    // "value"   => $collegeList[$value], 
+                    "x" => $value,
+                    "y"   => $collegeList[$value]["COUNT(*)"]   , 
+                    "s" =>  "2",
+                ];
+                $temp2 = [
+                    // "content" => $value,
+                    // "value"   => $collegeList[$value], 
+                    "x" => $value,
+                    "y"   => $collegeOldList[$YXDM] - $collegeList[$value]["COUNT(*)"], 
+                    "s" =>  "1",
                 ];
                 $data[] = $temp;
+                $data[] = $temp2;
             }
         }
         // dump($data);
         return json($data);
     }
 
+    // 已经完成选宿的所有人，气泡图
+    public function myMap()
+    {
+ 
+        $mapList= Db::view("fresh_result","XH")
+                ->view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
+                ->order("fresh_info.ID desc")
+                ->select();
+        $result = [];
+        foreach ($mapList as $key => $value) {
+            $temp = [
+                "lng"   => $value["longitude"],
+                "lat"   => $value["latitude"],
+                "value" => 1,
+            ];
+            $result[] = $temp;
+        }
+        return json_encode($result);
+    }
+    /**
+     * 查看最近选宿的学生
+     * 流式气泡层
+     * 
+     */
+    public function getStuMap()
+    {
+        $mapList= Db::view("fresh_result","XH")
+                ->view("fresh_info","XH,XM,SYD,longitude,latitude","fresh_info.XH = fresh_result.XH")
+                ->limit(10)
+                ->order("fresh_info.ID desc")
+                ->select();
+        $result = [];
+        foreach ($mapList as $key => $value) {
+            $temp = [
+                "lng"   => $value["longitude"],
+                "lat"   => $value["latitude"],
+                "info" => $value["XM"]."-".$value["SYD"],
+            ];
+            $result[] = $temp;
+        }
+        return json_encode($result);
+    }
+    /**
+     * 调用百度api获取经纬度信息
+     */
+    private function getMapInfo($value)
+    {
+        $body = [ 
+            "address"   =>  $value,
+            "output"    =>  "json",
+            // "callback"  =>  "showLocation",
+            "ak"        =>  "B8IRbrz1aQ5RsSvb60zLwOghdHUKyUf9",
+        ];
+        $result = json_decode(Http::Get($this->baiduAPI,$body),true);
+        if (isset($result["status"]) && $result["status"] == 0) {
+            return $result;
+        } else {
+            $result = ["result" => ["location" => ["lng" => 108.911429,"lat" => 34.376742 ]]];
+            return $result;
+        }
+    }
+    /**
+     * 流线图分布
+     */
+    public function myFloatMap()
+    {
+        $mapList= Db::view("fresh_result","XH")
+                ->view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
+                ->order("fresh_info.ID desc")
+                ->select();
+        $result = [];
+        foreach ($mapList as $key => $value) {
+            $temp = [
+                "from" => $value["longitude"].",".$value["latitude"],
+                "to"   => "108.911429,34.376742",
+                "value" => 1,
+            ];
+            $result[] = $temp;
+        }
+        return json_encode($result);
+    }
     /**
      * 查看已经上墙学生经纬度分布
      */
     public function map()
     {
-        $maplist= Db::view("fresh_result","XH,latitude,longitude")
-                    -> view("fresh_info","XH,XM","fresh_info.XH = fresh_result.XH")
+        $maplist= Db::view("fresh_result","XH")
+                    -> view("fresh_info","XH,XM,latitude,longitude","fresh_info.XH = fresh_result.XH")
                     -> view("dict_college","YXDM,YXMC","fresh_info.YXDM = dict_college.YXDM")
                     -> where("latitude","<>","")
                     -> select();
@@ -60,6 +165,7 @@ class Index extends Api
                 "id"   =>  $i,
                 "lng"  =>  $value["longitude"],
                 "lat"  =>  $value["latitude"],
+                "value"=>   1,
                 "info" =>  $value["XM"]."(".$value["YXMC"].")",
             ];
 
@@ -141,7 +247,8 @@ class Index extends Api
         $start = Db::name("fresh_result")->min("SDSJ");
         // $end   = 1534251600;
         // $end   = Db::name("fresh_result")->max("SDSJ");
-        $end    = time();
+        // $end    = time();
+        $end    = "1597828080";
         $inside = (int)($end - $start) / 10;
 
         //每小时日期
@@ -204,79 +311,6 @@ class Index extends Api
     }
 
     /**
-     * 获取linux服务器状态
-     */
-    public function getLinuxStatus()
-    {
-        $fp = popen('top -b -n 2 | grep -E "^(Cpu|Mem|Tasks)"',"r");//获取某一时刻系统cpu和内存使用情况
-        $rs = "";
-        while(!feof($fp)){
-            $rs .= fread($fp,1024);
-        }
-        pclose($fp);
-        $sys_info = explode("\n",$rs);
-        $tast_info = explode(",",$sys_info[3]);//进程 数组
-        $cpu_info = explode(",",$sys_info[4]);  //CPU占有量  数组
-        $mem_info = explode(",",$sys_info[5]); //内存占有量 数组
-        
-        //正在运行的进程数
-        $tast_running = trim(trim($tast_info[1],'running'));
-        //CPU占有量
-        $cpu_usage = trim(trim($cpu_info[0],'Cpu(s): '),'%us');  //百分比
-        
-        //内存占有量
-        $mem_total = trim(trim($mem_info[0],'Mem: '),'k total'); 
-        $mem_used = trim($mem_info[1],'k used');
-        $mem_usage = round(100*intval($mem_used)/intval($mem_total),2);  //百分比
-        
-        /*硬盘使用率 begin*/
-        $fp = popen('df -lh | grep -E "^(/)"',"r");
-        $rs = fread($fp,1024);
-        pclose($fp);
-        $rs = preg_replace("/\s{2,}/",' ',$rs);  //把多个空格换成 “_”
-        $hd = explode(" ",$rs);
-        $hd_avail = trim($hd[3],'G'); //磁盘可用空间大小 单位G
-        $hd_usage = trim($hd[4],'%'); //挂载点 百分比
-        //print_r($hd);
-        /*硬盘使用率 end*/  
-        
-        //检测时间
-        $fp = popen("date +\"%Y-%m-%d %H:%M\"","r");
-        $rs = fread($fp,1024);
-        pclose($fp);
-        $detection_time = trim($rs);
-        
-        /*获取IP地址  begin*/
-        /*
-        $fp = popen('ifconfig eth0 | grep -E "(inet addr)"','r');
-        $rs = fread($fp,1024);
-        pclose($fp);
-        $rs = preg_replace("/\s{2,}/",' ',trim($rs));  //把多个空格换成 “_”
-        $rs = explode(" ",$rs);
-        $ip = trim($rs[1],'addr:');
-        */
-        /*获取IP地址 end*/
-        /*
-        $file_name = "/tmp/data.txt"; // 绝对路径: homedata.dat 
-        $file_pointer = fopen($file_name, "a+"); // "w"是一种模式，详见后面
-        fwrite($file_pointer,$ip); // 先把文件剪切为0字节大小， 然后写入
-        fclose($file_pointer); // 结束
-        */
-        
-        $result = [
-            'cpu_usage' => $cpu_usage,
-            'mem_usage' => $mem_usage,
-            'hd_avail'  => $hd_avail,
-            'hd_usage'  => $hd_usage,
-            'tast_running'=>$tast_running,
-            'detection_time'=>$detection_time
-		];
-		dump($result);
-        return json($result);
-           
-    }
-
-    /**
      * 获取雷达图各指标
      * 1:男生 2:女生
      * 登录，问卷填写，标记床位，选宿，取消，易班报名，推荐
@@ -285,13 +319,13 @@ class Index extends Api
     {
         $returnData = [];
         //问卷填写
-        $questionBoy = Db::view("fresh_questionnaire_base","XH")
-                        -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_questionnaire_base.XH")
+        $questionBoy = Db::view("fresh_questionnaire_first","XH")
+                        -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_questionnaire_first.XH")
                         -> where("XBDM","1")
                         -> count();
 
-        $questionGirl = Db::view("fresh_questionnaire_base","XH")
-                        -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_questionnaire_base.XH")
+        $questionGirl = Db::view("fresh_questionnaire_first","XH")
+                        -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_questionnaire_first.XH")
                         -> where("XBDM","2")
                         -> count();
         //标记床位
@@ -340,16 +374,6 @@ class Index extends Api
                         -> where("XBDM","2")
                         -> count();
         $returnData = [
-            // [
-            //     "x" => "登录",
-            //     "y" => "3400",
-            //     "s" => "1",
-            // ],
-            // [
-            //     "x" => "登录",
-            //     "y" => "2800",
-            //     "s" => "2",
-            // ],
             [
                 "x" => "问卷填写",
                 "y" => $questionBoy,
@@ -442,11 +466,66 @@ class Index extends Api
             return json([["value" => $percent]]);
         } elseif ($param == "questionnaire") {
             //获取问卷填写总数
-            $questionNumber = Db::name("fresh_questionnaire_base")->count();
+            $questionNumber = Db::name("fresh_questionnaire_first")->count();
             return json([["value" => $questionNumber]]);
+        } elseif ($param == "chart") {
+            $today = "1534204800";//2018-08-14 8:00
+            $todayCount = Db::name("fresh_result")->where("SDSJ",">=",$today)->where("status","finished")->count();
+            $questionNumber = Db::name("fresh_questionnaire_first")->count();
+            $result = [
+                [
+                    "x"  =>  "完成选宿",
+                    "y"  =>   $count,
+                    "s"  =>  "1",
+                ],[
+                    "x"  =>  "今日新增",
+                    "y"  =>  $todayCount,
+                    "s"  =>  "1",
+                ], [
+                    "x"  =>  "填写问卷",
+                    "y"  =>  $questionNumber,
+                    "s"  =>  "1",
+                ]
+            ];
+            return json($result);
         }
     }
-
+    public function getSexNumber() {
+		// 完成选宿男生数量
+		$resultBoy = Db::view("fresh_result","XH")
+			-> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+			-> where("XBDM","1")
+			-> count();
+		// 男生总数
+		$resultAllBoy = Db::name("fresh_info")
+			-> where("XBDM","1")
+			-> count();
+		//	完成选宿女生数
+		$resultAllGirl = Db::name("fresh_info")
+			-> where("XBDM","2")
+			-> count();
+		$resultGirl = Db::view("fresh_result","XH")
+			-> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+			-> where("XBDM","2")
+			-> count();
+		$return = [
+			[
+				"type"		=>	"男生剩余",
+				"value"		=>	$resultAllBoy-$resultBoy
+            ],
+            [
+				"type"		=>	"男生完成",
+				"value"		=>	$resultBoy,
+			],[
+				"type"		=>	"女生剩余",
+				"value"		=>	$resultAllGirl-$resultGirl,
+			],[
+				"type"		=>	"女生完成",
+				"value"		=>	$resultGirl
+			],
+		];
+		return json($return);
+    }
 	/**
 	 * 获取每栋楼的统计信息
 	 */
@@ -470,13 +549,13 @@ class Index extends Api
                 $temp = [
                     "x"  => $key."#",
                     "y"  => 0,
-                    "s"  => 1,
+                    "s"  => "1",
                 ];
             } else {
                 $temp = [
                     "x"  => $key."#",
                     "y"  => $value-$buildingNowList[$key],
-                    "s"  => 1,
+                    "s"  => "1",
                 ];
             }
 			$returnData[] = $temp;
@@ -489,8 +568,8 @@ class Index extends Api
 	 */
 	public function getQuestionCount()
 	{
-		$questionList = Db::view("fresh_questionnaire_base","XH")
-						-> view("fresh_info","YXDM,XH","fresh_questionnaire_base.XH = fresh_info.XH")
+		$questionList = Db::view("fresh_questionnaire_first","XH")
+						-> view("fresh_info","YXDM,XH","fresh_questionnaire_first.XH = fresh_info.XH")
 						-> view("dict_college","YXJC,YXDM","fresh_info.YXDM = dict_college.YXDM")
 						-> group("YXJC")
 						-> column("YXJC,count(*)");
@@ -531,11 +610,12 @@ class Index extends Api
 			return json([["value" => 33 ]]);
 		} elseif ($param == "labelContent") {
             $labelList = ["篮球","足球","跑步","二次元","王者荣耀","乐器","文艺","手游","绘画","K歌","佛系","逛街","自拍","星座","桌游","懒癌患者",'美妆', '抖音','直播', '网购', '动漫', '二次元', '正能量', '旅行', '夜猫子', '音乐', '仙气十足','bilibili', '选择恐惧症', '宅男', '追剧', '我爱学习', '吃饱才有力气减肥'];
+            // $labelList = ["篮球","足球","跑步","二次元","王者荣耀","乐器","文艺","手游"];
             $label = [];
             foreach ($labelList as $key => $value) {
                 $temp = [
                     "name" => $value,
-                    "value"=> Db::name("fresh_recommend_question")->where("label","LIKE","%".$value."%")->count(),
+                    "value"=> Db::name("fresh_recommend_question")->where("label","LIKE","%".$value."%")->count()+10,
                     "type" => 0,
                 ];
                 $label[] = $temp;
@@ -552,7 +632,7 @@ class Index extends Api
 	 */
 	public function getTimeResult()
 	{
-		$resultList = Db::view("fresh_result","XH,SSDM,CH")
+		$resultList = Db::view("fresh_result","XH,SSDM,CH,SDSJ")
 				-> view("fresh_info","XH,XM,YXDM","fresh_result.XH = fresh_info.XH")
 				-> view("dict_college","YXJC,YXDM","fresh_info.YXDM = dict_college.YXDM")
 				-> order("fresh_result.ID desc")
@@ -566,9 +646,11 @@ class Index extends Api
             $nowTime = time();
             if ($nowTime >= $startTime) {
                 $temp = [
+                    "time"  =>  date("m-n H:i:s",$value["SDSJ"]),
                     "name"  => $value["XM"],
                     "YXMC"  => $value["YXJC"],
-                    "result"=> $value["SSDM"]."-".$value["CH"],
+                    "SSDM"  => $value["SSDM"],
+                    "CH"    => $value["CH"],
                 ];
                 $returnData[] = $temp;
             }
@@ -586,11 +668,137 @@ class Index extends Api
 			$restBed = Db::name("fresh_dormitory_north")->sum("SYRS");
 			$return = [
 				[
-					"总床位数"=>$allBed,
-					"剩余床位数" => $restBed,
-				]
+                    "x" => "已分配位数",
+                    "y" => $allBed-$restBed,
+                ],[
+                    "x" => "剩余床位数",
+                    "y" => $restBed,
+                ],
 			];
 			return json($return);
-	}
+    }
+    /**
+     * 获取新填写的问卷
+     */
+    public function getTimeQuestionnaire()
+    {
+        $resultList = Db::view("fresh_questionnaire_first","XH")
+				-> view("fresh_info","XH,XM,YXDM,SYD","fresh_questionnaire_first.XH = fresh_info.XH")
+				-> view("dict_college","YXJC,YXDM","fresh_info.YXDM = dict_college.YXDM")
+				-> order("fresh_questionnaire_first.ID desc")
+				-> limit(10)
+				-> select();
+        $returnData = [];
+		foreach ($resultList as $key => $value) {
+            $YXDM = $value["YXDM"];
+            $startTime = strtotime(Config::get("dormitory.$YXDM"));
+            $nowTime = time();
+            if ($nowTime >= $startTime) {
+                $temp = [
+                    "time"  =>  date("m-n H:i:s",time()),
+                    "XH"  => $value["XH"],
+                    "XM"  => $value["XM"],
+                    "SYD"  => $value["SYD"],
+                    "YXMC"  => $value["YXJC"],
+                ];
+                $returnData[] = $temp;
+            }
+		}
+		return json($returnData);
+    }
+
+    function getUsedStatus(){
+        $fp = popen('top -b -n 2 | grep -E "^(%Cpu|KiB Mem|Tasks)"',"r");//获取某一时刻系统cpu和内存使用情况
+        $rs = "";
+        while(!feof($fp)){
+            $rs .= fread($fp,1024);
+        }
+        pclose($fp);
+        $sys_info = explode("\n",$rs);
+        $tast_info = explode(",",$sys_info[3]);//进程 数组
+         
+        $cpu_info = explode(",",$sys_info[4]); //CPU占有量 数组
+        $mem_info = explode(",",$sys_info[5]); //内存占有量 数组
+        //正在运行的进程数
+        $tast_running = trim(trim($tast_info[1],'running'));
+        //CPU占有量
+        $cpu_usage = trim(trim($cpu_info[0],'%Cpu(s): '),'%us'); //百分比
+        //内存占有量
+        $mem_total = trim(trim($mem_info[0],'KiB Mem: '),'k total');
+        $mem_used = trim($mem_info[1],'k used');
+        $mem_usage = round(100*intval($mem_used)/intval($mem_total),2); //百分比
+
+        /*硬盘使用率 begin*/
+        $fp = popen('df -lh | grep -E "^(/)"',"r");
+        $rs = fread($fp,1024);
+        pclose($fp);
+        $rs = preg_replace("/\s{2,}/",' ',$rs); //把多个空格换成 “_”
+        $hd = explode(" ",$rs);
+        $hd_avail = trim($hd[3],'G'); //磁盘可用空间大小 单位G
+        $hd_usage = trim($hd[4],'%'); //挂载点 百分比
+        //print_r($hd);
+        /*硬盘使用率 end*/
+        //检测时间
+        // $fp = popen("date +\"%Y-%m-%d %H:%M\"","r");
+        // $rs = fread($fp,1024);
+        // pclose($fp);
+        // $detection_time = trim($rs);
+        $result = [
+            "cpu_usage" =>  $cpu_usage,
+            "mem_usage" =>  $mem_usage,
+            "hd_avail"  =>  $hd_avail,
+            "hd_usage"  =>  $hd_usage,
+            'tast_running'=>$tast_running,
+        ];
+
+        $param = $this->request->get("action");
+        switch ($param) {
+            case 'CPU':
+                return json(
+                    [
+                        "aims" => "1",
+                        "actual"    =>  $result["cpu_usage"],
+                    ]
+                );
+            case 'CPUNum':
+                return json(
+                    [
+                        "name" => "CPU使用率",
+                        "value"    =>   $result["cpu_usage"],
+                    ]
+                );
+            case "Mem":
+                return json(
+                    [
+                        "aims" => "1",
+                        "actual"    =>  $result["mem_usage"],
+                    ]
+                );
+            case "MemNum":
+                return json(
+                    [
+                        "name" => "内存使用率",
+                        "value" => $result["mem_usage"],
+                    ]
+                );
+            case "Hd":
+                return json(
+                    [
+                        "aims" => "1",
+                        "actual"    =>  $result["hd_usage"],
+                    ]
+                );
+            case "HdNum":
+                return json(
+                    [
+                        "name"  =>  "硬盘使用率",
+                        "value" =>  $result["hd_usage"],
+                    ]
+                );
+            default:
+                return json($result);
+        }
+
+    }
 
 }
