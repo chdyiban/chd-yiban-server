@@ -25,7 +25,7 @@ class Fresh extends Api
         $user_id = intval($data['user_id']);
         $userInfo = Db::view("fresh_info")
 				-> view("dict_college","YXDM,yb_group_id,YXMC","fresh_info.YXDM = dict_college.YXDM")
-				-> view("fresh_questionnaire_base","BRDH,XH","fresh_info.XH = fresh_questionnaire_base.XH")
+				-> view("fresh_questionnaire_first","BRDH,XH","fresh_info.XH = fresh_questionnaire_first.XH")
                 -> where("fresh_info.ID",$user_id)
                 -> find();
         if (empty($userInfo)) {
@@ -55,7 +55,8 @@ class Fresh extends Api
         );
         // $goto = 'https://www.yiban.cn/forum/article/show/channel_id/70896/puid/5370552/article_id/45394140/group_id/0';
         if ($type == "join") {
-            $goto = "https://www.yiban.cn/forum/article/show/channel_id/70896/puid/5370552/article_id/87061346/";
+            // $goto = "https://www.yiban.cn/forum/article/show/channel_id/70896/puid/5370552/article_id/87061346/";
+            $goto = "https://www.yiban.cn/forum/article/show/article_id/131872564/channel_id/70896/puid/5370552";
         } else {
             $goto = 'http://www.yiban.cn/Org/orglistShow/type/forum/puid/5370552';
         }
