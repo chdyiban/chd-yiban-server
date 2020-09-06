@@ -17,16 +17,17 @@ class Index extends Api
 
     protected $noNeedLogin = ['*'];
     protected $noNeedRight = ['*'];
+    protected $startTime = 1599440400;
 
     public $baiduAPI = "http://api.map.baidu.com/geocoding/v3/";    
 
     public function college()
     {
         $collegeList = Db::view("fresh_result")
-                ->view("dict_college","YXMC,YXDM","fresh_result.YXDM = dict_college.YXDM")
-                ->group("fresh_result.YXDM")
-                ->column("YXJC,COUNT(*),dict_college.YXDM");
-                
+                -> view("dict_college","YXMC,YXDM","fresh_result.YXDM = dict_college.YXDM")
+                -> group("fresh_result.YXDM")
+                -> where("fresh_result.SDSJ",">=",$this->startTime)
+                -> column("YXJC,COUNT(*),dict_college.YXDM");
         $collegeOldList = Db::view("fresh_dormitory_back")
                 -> view("dict_college","YXMC,YXDM","fresh_dormitory_back.YXDM = dict_college.YXDM")
                 -> group("fresh_dormitory_back.YXDM")
@@ -83,9 +84,10 @@ class Index extends Api
     public function myMap()
     {
         $mapList= Db::view("fresh_result","XH")
-                ->view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
-                ->order("fresh_info.ID desc")
-                ->select();
+                -> view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
+                -> where("fresh_result.SDSJ",">=",$this->startTime)
+                -> order("fresh_info.ID desc")
+                -> select();
         $result = [];
         foreach ($mapList as $key => $value) {
             $temp = [
@@ -106,6 +108,7 @@ class Index extends Api
     {
         $mapList= Db::view("fresh_result","XH")
                 ->view("fresh_info","XH,XM,SYD,longitude,latitude","fresh_info.XH = fresh_result.XH")
+                -> where("fresh_result.SDSJ",">=",$this->startTime)
                 ->limit(10)
                 ->order("fresh_info.ID desc")
                 ->select();
@@ -146,6 +149,7 @@ class Index extends Api
     {
         $mapList= Db::view("fresh_result","XH")
                 ->view("fresh_info","XH,XM,longitude,latitude","fresh_result.XH = fresh_info.XH")
+                -> where("fresh_result.SDSJ",">=",$this->startTime)
                 ->order("fresh_info.ID desc")
                 ->select();
         $result = [];
@@ -167,6 +171,8 @@ class Index extends Api
         $maplist= Db::view("fresh_result","XH")
                     -> view("fresh_info","XH,XM,latitude,longitude","fresh_info.XH = fresh_result.XH")
                     -> view("dict_college","YXDM,YXMC","fresh_info.YXDM = dict_college.YXDM")
+                    -> where("fresh_result.SDSJ",">=",$this->startTime)
+                    
                     -> where("latitude","<>","")
                     -> select();
         $i = 0;
@@ -228,8 +234,9 @@ class Index extends Api
             "香港" =>  "810000",
             "澳门" =>  "820000",
         ];
-        $resultList = Db::view("fresh_result","status,XH")
+        $resultList = Db::view("fresh_result","status,XH,SDSJ")
                     -> view("fresh_info","SYD,XH","fresh_result.XH = fresh_info.XH")
+                    -> where("fresh_result.SDSJ",">=",$this->startTime)
                     -> where("status","finished")
                     -> group("SYD")
                     -> column("SYD,count(*)");
@@ -349,12 +356,14 @@ class Index extends Api
                         -> where("XBDM","2")
                         -> count();
         //选宿
-        $resultBoy = Db::view("fresh_result","XH")
+        $resultBoy = Db::view("fresh_result","XH,SDSJ")
                         -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+                        -> where("fresh_result.SDSJ",">=",$this->startTime)
                         -> where("XBDM","1")
                         -> count();
-        $resultGirl = Db::view("fresh_result","XH")
+        $resultGirl = Db::view("fresh_result","XH,SDSJ")
                         -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+                        -> where("fresh_result.SDSJ",">=",$this->startTime)
                         -> where("XBDM","2")
                         -> count();
         //取消
@@ -455,7 +464,7 @@ class Index extends Api
     public function getFinishStu()
     {
         $param = $this->request->get("action");
-        $count = Db::name("fresh_result")->where("status","finished")->count();
+        $count = Db::name("fresh_result")->where("status","finished")-> where("SDSJ",">=",$this->startTime)->count();
         $allStu = Db::name("fresh_info")->count();
         if ($param == "number") {
             //返回完成人数
@@ -468,7 +477,7 @@ class Index extends Api
             return json([["value" =>($allStu-$count)]]);
         } elseif ($param == "todayIncrease") {
             //今日新增
-            $today = "1534204800";//2018-08-14 8:00
+            $today = $this->startTime;
             $todayCount = Db::name("fresh_result")->where("SDSJ",">=",$today)->where("status","finished")->count();
             return json([["value" => $todayCount]]);
         } elseif ($param == "percent") {
@@ -480,7 +489,7 @@ class Index extends Api
             $questionNumber = Db::name("fresh_questionnaire_first")->count();
             return json([["value" => $questionNumber]]);
         } elseif ($param == "chart") {
-            $today = "1534204800";//2018-08-14 8:00
+            $today = $this->startTime;
             $todayCount = Db::name("fresh_result")->where("SDSJ",">=",$today)->where("status","finished")->count();
             $questionNumber = Db::name("fresh_questionnaire_first")->count();
             $result = [
@@ -503,8 +512,9 @@ class Index extends Api
     }
     public function getSexNumber() {
 		// 完成选宿男生数量
-		$resultBoy = Db::view("fresh_result","XH")
-			-> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+		$resultBoy = Db::view("fresh_result","XH,SDSJ")
+            -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+            -> where("fresh_result.SDSJ",">=",$this->startTime)
 			-> where("XBDM","1")
 			-> count();
 		// 男生总数
@@ -515,8 +525,9 @@ class Index extends Api
 		$resultAllGirl = Db::name("fresh_info")
 			-> where("XBDM","2")
 			-> count();
-		$resultGirl = Db::view("fresh_result","XH")
-			-> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+		$resultGirl = Db::view("fresh_result","XH,SDSJ")
+            -> view("fresh_info","XH,XBDM","fresh_info.XH = fresh_result.XH")
+            -> where("fresh_result.SDSJ",">=",$this->startTime)
 			-> where("XBDM","2")
 			-> count();
 		$return = [
@@ -556,19 +567,11 @@ class Index extends Api
 		ksort($buildingOldList);
         foreach ($buildingOldList as $key => $value) {
             $time = time();
-            if ($key == "9" && $time <= 1565676000) {
-                $temp = [
-                    "x"  => $key."#",
-                    "y"  => 0,
-                    "s"  => "1",
-                ];
-            } else {
-                $temp = [
-                    "x"  => $key."#",
-                    "y"  => $value-$buildingNowList[$key],
-                    "s"  => "1",
-                ];
-            }
+            $temp = [
+                "x"  => $key."#",
+                "y"  => ($value-$buildingNowList[$key]) >= 5 ? ($value-$buildingNowList[$key]) : 0,
+                "s"  => "1",
+            ];
 			$returnData[] = $temp;
 		}
 		return json($returnData);
@@ -646,7 +649,8 @@ class Index extends Api
 		$resultList = Db::view("fresh_result","XH,SSDM,CH,SDSJ")
 				-> view("fresh_info","XH,XM,YXDM","fresh_result.XH = fresh_info.XH")
 				-> view("dict_college","YXJC,YXDM","fresh_info.YXDM = dict_college.YXDM")
-				-> order("fresh_result.ID desc")
+                -> order("fresh_result.ID desc")
+                -> where("fresh_result.SDSJ",">=",$this->startTime)
 				-> where("status","finished")
 				-> limit(10)
 				-> select();
@@ -675,18 +679,18 @@ class Index extends Api
 	public function getBedCount()
 	{
 		$param = $this->request->get("action");
-			$allBed = Db::name("fresh_dormitory_back")->sum("SYRS");
-			$restBed = Db::name("fresh_dormitory_north")->sum("SYRS");
-			$return = [
-				[
-                    "x" => "已分配位数",
-                    "y" => $allBed-$restBed,
-                ],[
-                    "x" => "剩余床位数",
-                    "y" => $restBed,
-                ],
-			];
-			return json($return);
+        $allBed = Db::name("fresh_dormitory_back")->sum("SYRS");
+        $restBed = Db::name("fresh_dormitory_north")->sum("SYRS");
+        $return = [
+            [
+                "x" => "已分配位数",
+                "y" => ($allBed-$restBed) >=8 ? $allBed-$restBed : 0,
+            ],[
+                "x" => "剩余床位数",
+                "y" => $restBed,
+            ],
+        ];
+        return json($return);
     }
     /**
      * 获取新填写的问卷
