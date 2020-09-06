@@ -281,7 +281,7 @@ class Dormitory extends Model
             $start_college_time = Config::get("dormitory.$YXDM");
             $start_college_time_back = strtotime($start_college_time);
             $time_now = time();
-            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 3) ) {
+            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 4) ) {
                 foreach ($roommate as $key => $value) {
                     $k = $value["CH"] - 1;
                     $list[$k]["disabled"]   = false;
@@ -322,7 +322,7 @@ class Dormitory extends Model
             $start_college_time = Config::get("dormitory.$YXDM");
             $start_college_time_back = strtotime($start_college_time);
             $time_now = time();
-            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 3) ) {
+            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 4) ) {
                 foreach ($roommate as $key => $value) {
                     $k = $value["CH"] - 1;
                     $list[$k]["disabled"]   = false;
@@ -452,7 +452,7 @@ class Dormitory extends Model
                 if($insert_flag == 1 && $update_flag == 1){
                     return ['status' => true, 'msg' => "成功选择宿舍", 'data' => null];
                 }else{
-                    return ['status' => false, 'msg' => "未成功选择", 'data' => null];
+                    return ['status' => false, 'msg' => "该床位已经被选了", 'data' => null];
                 }
             } else {
                 return ['status' => false, 'msg' => "你已经选择过宿舍", 'data' => null];
@@ -836,7 +836,7 @@ class Dormitory extends Model
                 -> where("SSH",$room)
                 -> where("YXDM",$userInfo["YXDM"])
                 -> where("XB",$userInfo["XBDM"])
-                -> where("SYRS",">",0)
+                -> where("SYRS",">=",0)
                 -> field("ID")
                 -> find();
         return empty($check) ? false : true;
