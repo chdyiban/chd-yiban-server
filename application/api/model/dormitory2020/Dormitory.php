@@ -190,7 +190,7 @@ class Dormitory extends Model
                         "value"   => $value["SSH"],
                         // "selected"=> strlen($value["CPXZ"])-$value["SYRS"]."/".strlen($value["CPXZ"]),
                         "selected"=> "0/".strlen($value["CPXZ"]),
-                        "free"    => $value["SYRS"] == 0 ? false : true, 
+                        "free"    => true, 
                     ];
                 }
             } else {
