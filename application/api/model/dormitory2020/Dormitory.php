@@ -177,7 +177,12 @@ class Dormitory extends Model
                     ->field("SSH,CPXZ,SYRS,LH")
                     ->select();
             $temp = [];
-            if ($userInfo["step"]["step"] == "NST") {
+            // 遮盖。。。
+            $YXDM = $userInfo["YXDM"];
+            $start_college_time = Config::get("dormitory.$YXDM");
+            $start_college_time_back = strtotime($start_college_time);
+            $time_now = time();
+            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 3) ) {
                 foreach ($roomList as $key => $value) {
                     $LH = $value["LH"];
                     $temp[$LH][] = [
@@ -271,7 +276,12 @@ class Dormitory extends Model
                 }
             }
             //若未开始则。。。
-            if ($userInfo["step"]["step"] == "NST") {
+            // 获取用户的开启时间
+            $YXDM = $userInfo["YXDM"];
+            $start_college_time = Config::get("dormitory.$YXDM");
+            $start_college_time_back = strtotime($start_college_time);
+            $time_now = time();
+            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 3) ) {
                 foreach ($roommate as $key => $value) {
                     $k = $value["CH"] - 1;
                     $list[$k]["disabled"]   = false;
@@ -308,7 +318,11 @@ class Dormitory extends Model
                     $list[$i]["type"] = "下铺(靠门)";
                 }
             }
-            if ($userInfo["step"]["step"] == "NST") {
+            $YXDM = $userInfo["YXDM"];
+            $start_college_time = Config::get("dormitory.$YXDM");
+            $start_college_time_back = strtotime($start_college_time);
+            $time_now = time();
+            if ($userInfo["step"]["step"] == "NST" || $time_now <= ($start_college_time_back + 3) ) {
                 foreach ($roommate as $key => $value) {
                     $k = $value["CH"] - 1;
                     $list[$k]["disabled"]   = false;
@@ -367,7 +381,7 @@ class Dormitory extends Model
                 }
             }
             //如果不是陕西省的学生，则需要判断该宿同省人数
-            if ($place != "陕西") {
+            if ($place != "陕西" && $college_id != "7100") {
                 $msg = $this -> checkPlace($XQ,$dormitory_id, $place);
                 if (!$msg) {
                     return ['status' => false, 'msg' => "不符合学校相关住宿规定，无法选择该宿舍！", 'data' => null];                    
