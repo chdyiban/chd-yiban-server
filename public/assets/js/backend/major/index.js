@@ -8,6 +8,7 @@ define(['jquery', 'bootstrap', 'https://cdn.bootcss.com/jquery.qrcode/1.0/jquery
                 var GH = $("#GH").val();
                 var XM = $("#XM").val();
                 var type = $("#type").val();
+                var YXJC = $("#YXJC").val();
                 var KC = $("input[name='place']:checked").val();
                 // var worker_id = $("#worker").val();
                 if (typeof(KC) == "undefined") {
@@ -21,6 +22,7 @@ define(['jquery', 'bootstrap', 'https://cdn.bootcss.com/jquery.qrcode/1.0/jquery
                             'KC' : KC,
                             'XM' : XM,
                             'type' : type,
+                            'YXJC' : YXJC,
                         },
                         success: function(data) {
                             if (data.status == true) {
