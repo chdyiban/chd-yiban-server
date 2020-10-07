@@ -26,6 +26,7 @@ class Major extends Frontend
         $basicInfo = Db::view("admin","username,id")
                     -> view("teacher_detail","YXDM,XM,XBDM,ID","admin.username = teacher_detail.ID")
                     -> view("dict_college","YXJC,YXDM","teacher_detail.YXDM = dict_college.YXDM")
+                    -> view("fdy_type","GH,XM,type","admin.username = fdy_type.GH")
                     -> where("admin.id",$adminId)
                     -> find();
         if (empty($basicInfo)) {
