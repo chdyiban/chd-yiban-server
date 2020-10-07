@@ -60,6 +60,7 @@ class Index extends Backend
             $insertData = [
                 "GH"    =>  $param["GH"],
                 "XM"    =>  $param["XM"],
+                "YXJC"    =>  $param["YXJC"],
                 "image" =>  "",
                 "KC"    =>  $infoArray["JS"],
                 "ZH"    =>  $infoArray["ZH"],
