@@ -42,12 +42,13 @@ class Index extends Backend
         {
     
             $param = $this->request->param();
-            if (empty($param["GH"]) || empty($param["KC"])) {
+            if (empty($param["GH"]) || empty($param["KC"]) || empty($param["type"]) ) {
                 $this->error("params error!");
             }
             //获取可选座号列表
             $seatArray = Db::name("fdy_major_kc")
                     ->where("KC",$param["KC"])
+                    ->where("type",$param["type"])
                     ->where("GH","")
                     ->select();
             $length = count($seatArray);
@@ -64,7 +65,8 @@ class Index extends Backend
                 "ZH"    =>  $infoArray["ZH"],
                 "place" =>  $infoArray["JS"]."-".$infoArray["ZH"],
                 "card"  =>  "",
-                "time"  =>  "",
+                "time"  =>  time(),
+                "type"  =>  $param["type"],
             ];
             $update_flag = false;
             $insert_flag = false;
@@ -94,6 +96,7 @@ class Index extends Backend
         $basicInfo = Db::view("admin","username,id")
                     -> view("teacher_detail","YXDM,XM,XBDM,ID","admin.username = teacher_detail.ID")
                     -> view("dict_college","YXJC,YXDM","teacher_detail.YXDM = dict_college.YXDM")
+                    -> view("fdy_type","GH,XM,type","admin.username = fdy_type.GH")
                     -> where("admin.id",$adminId)
                     -> find();
         if (empty($basicInfo)) {
