@@ -242,7 +242,7 @@ class RecordStuinfo extends Model
         $stuInfo = Db::view('stu_detail','XM,XH,YXDM,XBDM')
                     -> view('dict_college','YXDM,YXJC','stu_detail.YXDM = dict_college.YXDM')
                     -> where('XM','like',$name)
-                    -> where('XH',['like','2015%'],['like','2016%'],['like','2017%'],['like','2018%'],['like',"2019%"],'or')
+                    -> where('XH',['like','2015%'],['like','2016%'],['like','2017%'],['like','2018%'],['like',"2019%"],['like',"2020%"],'or')
                     -> limit(20)
                     -> select();
         $resultInfo = [];

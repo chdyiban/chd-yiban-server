@@ -379,6 +379,7 @@ class RecordContent extends Model
         //班级谈话学生数量
         $keyNumArray = [];
         $keyStuArray = [];
+        $resultKeyArray = [];
         foreach ($classResult as $key => $value) {
             if (!empty($value["BJDM"])) {   
                 $flag = in_array($value["BJDM"],$keyArray);
