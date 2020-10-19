@@ -23,40 +23,44 @@ class Sports extends Api
     const LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session';
     const PORTAL_URL = 'http://ids.chd.edu.cn/authserver/login';
     const COLLEGE_PERSON_ARRAY  = [
-            //公路学院
-            '2100'  =>  3073,
-            //汽车学院
-            '2200'  =>  2434,
-            //机械学院
-            '2500'  =>  2061,
-            //经管学院
-            '2300'  =>  2092,
-            //电控学院
-            '3200'  =>  1885,
-            //信息学院
-            '2400'  =>  2270,
-            //地测学院
-            '2600'  =>  1930,
-            //资源学院
-            '2700'  =>  1035,
-            //建工学院
-            '2800'  =>  2412,
-            //环工学院
-            '2900'  =>  1026,
-            //建筑学院
-            '4100'  =>  957,
-            //材料学院
-            '3100'  =>  1368,
-            //政治学院，马院，文传学院，外语学院，理学院，体育系
-            '1100'  =>  430,
-            '1600'  =>  123,
-            '3300'  =>  678,
-            '1300'  =>  237,
-            '1200'  =>  586,
-            '1400'  =>  116,
-            //学工部，预科生
-            '0001'  =>  170,
-
+        //公路学院
+        '2100'  =>  '4878',
+        //汽车学院
+        '2200'  =>  '2541',
+        //机械学院
+        '2500'  =>  '2708',
+        //经管学院
+        '2300'  =>  '2948',
+        //电控学院
+        '3200'  =>  '2387',
+        //信息学院
+        '2400'  =>  '2971',
+        //地测学院
+        '2600'  =>  '2737',
+        //资源学院
+        '2700'  =>  '1042',
+        //建工学院
+        '2800'  =>  '2931',
+        //水环学院
+        '2900'  =>  '1441',
+        //建筑学院
+        '4100'  =>  '1288',
+        //材料学院
+        '3100'  =>  '1737',
+        //运输学院
+        '3400'  =>  '817',
+        //土地学院
+        '3500'  =>  '340',
+        //人文学院，马院，，外语学院，理学院，体育系
+        '1100'  =>  '1718',
+        '1600'  =>  '267',
+        '1300'  =>  '282',
+        '1200'  =>  '783',
+        '1400'  =>  '118',
+        //学工部，预科生，长安都柏林国际交通学院
+        '0001'  =>  '211',
+        '3600'  =>  '361',
+        '7100'  =>  '59',
     ];
 
     /**
@@ -144,13 +148,15 @@ class Sports extends Api
     /**
      * 获取用户捐献步数api
      * @param token
-     * @type 不加密
+     * @param $key["encryptedData"]
+     * @param $key["iv"]
+     * @type 加密
      */
 
     public function steps()
     {
-        // $key = json_decode(base64_decode($this->request->post('key')),true);
-        $key = $this->request->param();
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        // $key = $this->request->param();
         if (empty($key['token'])) {
             $this->error("access error");
         }
@@ -204,7 +210,7 @@ class Sports extends Api
                 'steps' => $stepListToday,
                 'heat_grow' => $stuHeat,
             ];
-            $this->error("success",$data);
+            $this->success("success",$data);
         } else {
             $this->error("获取步数失败");
         }
@@ -235,7 +241,8 @@ class Sports extends Api
         }
 
         $stu_id = $userInfo["portal_id"];
-        $checkResult = $this->checkDonate($stu_id,$key['openid']);
+        $openid = $userInfo["open_id"];
+        $checkResult = $this->checkDonate($stu_id,$openid);
         //再次验证是否捐过
         if ($checkResult['status']) {
             
@@ -262,7 +269,7 @@ class Sports extends Api
         $tempDetail = [
             'YXDM'     =>  $stuInfo['YXDM'],
             'stu_id'   =>  $stu_id,
-            'open_id'  =>  $key['openid'],
+            'open_id'  =>  $openid,
             'steps'    =>  $stepListToday,
             'time'     =>  time(),
         ];
@@ -294,7 +301,10 @@ class Sports extends Api
         if ($insertFlag && $updateFlag) {
             //删除缓存
             $stepListToday = Cache::rm($stu_id."_steps");
-            $this->success("success");
+            $data = [
+                'donate_status' => true,
+            ];
+            $this->success("success",$data);
         }
         $this->error("捐献失败，请稍后再试");
     }
