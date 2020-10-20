@@ -6,8 +6,8 @@ use think\config;
  * @return 
  */
 function get_weeks(){
-    return date('W') - 8;
-    // return date('W') - 34;
+    //return date('W') - 8;
+    return date('W') - 35;
 }
 
 /**
