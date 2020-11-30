@@ -12,7 +12,8 @@ class Restaurant extends Model
     // 表名
     protected $name = '';
 
-    const GET_MSG_URL = 'http://canteen.chd.edu.cn/restaurantbackstage/restaurant/visitorsFloweate/selectRestaurantVisitorsFloweateWithNow';
+    // const GET_MSG_URL = 'http://canteen.chd.edu.cn/restaurantbackstage/restaurant/visitorsFloweate/selectRestaurantVisitorsFloweateWithNow';
+    const GET_MSG_URL = 'http://canteen.chd.edu.cn/restaurantbackstage/restaurant/visitorsFloweate/selectRestaurantIndex';
 
     /**
      * 获取餐厅拥挤情况数据
