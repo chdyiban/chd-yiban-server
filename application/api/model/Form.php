@@ -150,20 +150,20 @@ class Form extends Model
         $questionList = Db::name("form_questionnaire")->where("form_id",$form_id)->select();
 
         //为表单补充额外的信息
-        $extra_info = ["name" => "辅导员"];
-        // if ($param["id"] == 3) {
-        //     $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
-        //     $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
-        //     //判断班主任提交问卷
-        //     $adviser_name = $adviserInfoList['XM'];
-        //     $extra_info = [];
-        //     $college =   Db::view('stu_detail')
-        //                 ->where('XH', $stu_id)
-        //                 ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
-        //                 ->find();
-        //     $college_name = !empty($college["YXJC"]) ? $college["YXJC"] : "暂未获取到学院信息，请联系负责人员";
-        //     $extra_info = ["name" => $adviser_name,"college" => $college_name];
-        // }
+        $extra_info = ["name" => "暂时未获取到辅导员信息，请联系管理员。"];
+        if ($param["id"] == 4) {
+            $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
+            $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
+            //判断班主任提交问卷
+            $adviser_name = $adviserInfoList['XM'];
+            $extra_info = [];
+            $college =   Db::view('stu_detail')
+                        ->where('XH', $stu_id)
+                        ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
+                        ->find();
+            $college_name = !empty($college["YXJC"]) ? $college["YXJC"] : "暂未获取到学院信息，请联系负责人员";
+            $extra_info = ["name" => $adviser_name,"college" => $college_name];
+        }
 
         //判断用户是否完成该表单
         $userResult   = Db::name("form_result")
@@ -258,14 +258,13 @@ class Form extends Model
             } elseif ($v["type"] == "radio" || $v["type"] == "star" ) {
                 //题目类型为单选
                 $options = json_decode($v["options"],true);
-                // dump($v);                
+               
                 //当用户填写过问卷时
                 $returnOptions = [];
-                // dump($userResultArray);
+
                 if (!empty($userResultArray[$v["title"]])) {
                     $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
-                    // dump($userResultArray);
-                    // dump($options);
+
                     foreach ($options as $key => $value) {
                         $arrayTemp = [
                             "value"    => $value,
@@ -305,27 +304,43 @@ class Form extends Model
                 //题目类型为选择
 
                 $options = json_decode($v["options"],true);
-
+                $options_return = [];
+                $keys_array = array_keys($options);
+                foreach ($options as $key => $value) {
+                    $options_return[] = [
+                        "college" => $key,
+                        "list"  => $value,
+                    ];
+                }
                 //如果extra == selector并且用户完成表单
                 if (!empty($options) && !empty($userResultArray[$v["title"]])) {
-                    $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
-                
+                    $jsonToArrayFdyInfo = json_decode($userResultArray[$v["title"]],true);
+                    $extra_info["college"] = $jsonToArrayFdyInfo[0];
+                    $extra_info["name"] = $jsonToArrayFdyInfo[1];
+                    // $userResultArray[$v["title"]] = array_search($userResultArray[$v["title"]],$options);
+                    
                 } else {
                     //完成表单
                     $userResultArray[$v["title"]] = "";
                 }
 
+                $isCollegeExit = array_search($extra_info["college"],$keys_array);
+                $isNameExit = array_search($extra_info["name"],$options[$extra_info["college"]]);
                 $temp_back = [
                     "title"		    => $v["title"],
                     // "type"		=> $v["type"],
                     "type"		    => $v["type"] == "selector" ? $v["extra"] : $v["type"],
-                    "options"	    => $options,
+                    "options"	    => $options_return,
                     "status"	    => $v["status"] == 1 ? true : false,
                     "must"		    => $v["must"]   == 1 ? true : false,
                     "placeholder"   => $v["placeholder"],
                     "validate"	    => $v["validate"],
                     //当选项为第一个选项时，下标为0，empty会判断为空
-                    "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                    // "value"     => empty($userResultArray[$v["title"]]) && $userResultArray[$v["title"]] != 0 ? "" : $userResultArray[$v["title"]],
+                    "value"         =>  [
+                        $isCollegeExit == false ? 0 : $isCollegeExit,
+                        $isNameExit == false ? 0 : $isNameExit,
+                    ],
                 ];
                 $questionArray[] = $temp_back;
             } 
@@ -422,7 +437,7 @@ class Form extends Model
         }
         $questionList = Db::name("form_questionnaire")
                     ->where("form_id",$form_id)
-                    ->field("title,options,validate")
+                    ->field("title,options,validate,extra")
                     ->select();
         $insertData = [];
         $time = time();
@@ -437,8 +452,19 @@ class Form extends Model
                     return ["status" => false,"msg" => $checkSafe->getError(),"data"=>""];
                 };
             }
-            // dump($result);
-            if (gettype($value) == "array") {
+            // 处理辅导员评价，更正导员信息 @time 2020-12-13
+            if ($questionList[$key]["extra"] == "multiSelector") {
+                $options_return = [];
+                $keys_array = array_keys($result);
+                foreach ($result as $k => $v) {
+                    $options_return[] = [
+                        "college" => $k,
+                        "list"  => $v,
+                    ];
+                }
+                $valueArray = [$options_return[$value[0]]["college"],$options_return[$value[0]]["list"][$value[1]]];
+                $valueArray = json_encode($valueArray,JSON_UNESCAPED_UNICODE);
+            }else if (gettype($value) == "array") {
                 foreach ($value as $k => $v) {
                     if (!empty($result[$v])) {
                         $valueArray = $valueArray.$result[$v].",";
