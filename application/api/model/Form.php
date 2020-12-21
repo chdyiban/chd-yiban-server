@@ -153,15 +153,19 @@ class Form extends Model
         $extra_info = ["name" => "暂时未获取到辅导员信息，请联系管理员。"];
         if ($param["id"] == 4) {
             $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
-            $adviserInfoList = Db::name("bzr_adviser") -> where('class_id', $BJDM)->where("q_id",2) ->find();
+            $adviserInfoList = Db::view("fdy_info") 
+                            -> where('class_id', $BJDM) 
+                            -> where("type",3)
+                            -> view('dict_college','YXDM,YXMC,YXJC','fdy_info.YXDM = dict_college.YXDM')
+                            -> find();
             //判断班主任提交问卷
             $adviser_name = $adviserInfoList['XM'];
             $extra_info = [];
-            $college =   Db::view('stu_detail')
-                        ->where('XH', $stu_id)
-                        ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
-                        ->find();
-            $college_name = !empty($college["YXJC"]) ? $college["YXJC"] : "暂未获取到学院信息，请联系负责人员";
+            // $college =  Db::view('stu_detail')
+            //                 ->where('XH', $stu_id)
+            //                 ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
+            //                 ->find();
+            $college_name = !empty($adviserInfoList["YXJC"]) ? $adviserInfoList["YXJC"] : "暂未获取到学院信息，请联系负责人员";
             $extra_info = ["name" => $adviser_name,"college" => $college_name];
         }
 
