@@ -152,20 +152,31 @@ class Form extends Model
         //为表单补充额外的信息
         $extra_info = ["name" => "暂时未获取到辅导员信息，请联系管理员。"];
         if ($param["id"] == 4) {
-            $BJDM = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM') -> find()['BJDM'];
-            $adviserInfoList = Db::view("fdy_info") 
-                            -> where('class_id', $BJDM) 
-                            -> where("type",3)
-                            -> view('dict_college','YXDM,YXMC,YXJC','fdy_info.YXDM = dict_college.YXDM')
-                            -> find();
+            $extra = Db::name('stu_detail') -> where('XH',$stu_id) -> field('BJDM,XSLBDM,YXDM') -> find();
+            $BJDM = $extra["BJDM"];
+            $YXDM = $extra["YXDM"];
+            $XSLBDM = $extra["XSLBDM"];
+            $YXMC = Db::name("dict_college") -> where("YXDM",$YXDM)->field("YXJC")->find();
+            if ($XSLBDM == 3) {
+                $adviserInfoList = Db::view("fdy_info") 
+                        -> where('class_id', $BJDM) 
+                        -> where("type",3)
+                        -> view('dict_college','YXDM,YXMC,YXJC','fdy_info.YXDM = dict_college.YXDM')
+                        -> find();
+            } else if ($XSLBDM == 9) {
+                $adviserInfoList = Db::view("fdy_info") 
+                        -> where("YXDM",$YXDM)
+                        -> where("type",9)
+                        -> view('dict_college','YXDM,YXMC,YXJC','fdy_info.YXDM = dict_college.YXDM')
+                        -> find();
+            }
+           
             //判断班主任提交问卷
-            $adviser_name = $adviserInfoList['XM'];
+            $adviser_name = empty($adviserInfoList['XM']) ? "未获取辅导员信息，请联系管理员" : $adviserInfoList['XM'];
             $extra_info = [];
-            // $college =  Db::view('stu_detail')
-            //                 ->where('XH', $stu_id)
-            //                 ->view('dict_college','YXDM,YXMC,YXJC','stu_detail.YXDM = dict_college.YXDM')
-            //                 ->find();
-            $college_name = !empty($adviserInfoList["YXJC"]) ? $adviserInfoList["YXJC"] : "暂未获取到学院信息，请联系负责人员";
+            $college_name = !empty($adviserInfoList["YXJC"])
+                 ? $adviserInfoList["YXJC"] 
+                 : (!empty($YXMC["YXJC"]) ? $YXMC["YXJC"] : "暂未获取到学院信息，请联系负责人员");
             $extra_info = ["name" => $adviser_name,"college" => $college_name];
         }
 
@@ -327,9 +338,12 @@ class Form extends Model
                     //完成表单
                     $userResultArray[$v["title"]] = "";
                 }
-
                 $isCollegeExit = array_search($extra_info["college"],$keys_array);
-                $isNameExit = array_search($extra_info["name"],$options[$extra_info["college"]]);
+                if ($isCollegeExit == false) {
+                    $isNameExit =false;
+                } else {
+                    $isNameExit = array_search($extra_info["name"],$options[$extra_info["college"]]);
+                }
                 $temp_back = [
                     "title"		    => $v["title"],
                     // "type"		=> $v["type"],
