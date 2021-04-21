@@ -41,10 +41,11 @@ class Comment extends Api
 
         $aid = (int)$key["aid"];
         $page = (int)$key["page"];
+        $type = $key["type"];
         $pid = empty($key["pid"]) ? 0 : (int)$key["pid"] ; 
         $field = ["content","createtime","user_id","id"];
         Config::set('paginate.page', $page);    
-        $commentList = CommentModel::getCommentList(['aid' => $aid,"field" => $field,"pid" => $pid]);
+        $commentList = CommentModel::getCommentList(['aid' => $aid,"field" => $field,"pid" => $pid,"type" => $type]);
         $this->success('', ['commentList' => $commentList->getCollection()]);
     }
 
@@ -76,7 +77,7 @@ class Comment extends Api
         if ($result["status"]) {
             $this->success("评论成功");
         }
-        $this->error($result["msg"]);
+        $this->error($result["msg"],$result);
         // try {
         //     // $params = $this->request->post();
         //     CommentModel::postComment($key);
@@ -84,6 +85,58 @@ class Comment extends Api
         //     $this->error($e->getMessage(), null, ['token' => $key["token"]]);
         // }
         // $this->success(__('评论成功'));
+    }
+
+    public function set_comment_like(){
+        //解析后应对签名参数进行验证
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key['openid'] = $userInfo["open_id"];
+        $key["id"] = $userInfo["portal_id"];
+        $key["wxid"] = $tokenInfo['user_id'];
+        if(empty($key["id"])){ $this->error("请先绑定门户账号"); }
+
+        $SurveyModel = new CommentModel;
+        $data=$SurveyModel->set_comment_like($key);
+
+        if($data['status']){
+            $this->success($data);
+        }
+    }
+    
+    public function get_comment_like(){
+        //解析后应对签名参数进行验证
+        $key = json_decode(base64_decode($this->request->post('key')),true);
+        
+        if (empty($key['token'])) {
+            $this->error("access error");
+        }
+        $token = $key['token'];
+        $tokenInfo = Token::get($token);
+        if (empty($tokenInfo)) {
+            $this->error("Token expired");
+        }
+        $userId = $tokenInfo['user_id'];
+        $userInfo = WxuserModel::get($userId);
+        $key['openid'] = $userInfo["open_id"];
+        $key["id"] = $userInfo["portal_id"];
+        $key["wxid"] = $tokenInfo['user_id'];
+        if(empty($key["id"])){ $this->error("请先绑定门户账号"); }
+
+        $SurveyModel = new CommentModel;
+        $data=$SurveyModel->get_comment_like($key);
+
+        $this->success('success',$data);
     }
 
 }
