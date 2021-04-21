@@ -58,6 +58,9 @@ class Comment Extends Model
         if (empty($safe["mobile"]) || $safe["iswxbind"] == 0 ) {
             return ["status" => false, "msg" => "请前往个人信息界面绑定手机后进行评论"];
         }
+        if (empty($safe["nickname"]) || $safe["iswxbind"] == 0 ) {
+            return ["status" => false, "msg" => "未绑定微信信息","type"=>2];
+        }
         if (!isset($params['aid']) || !isset($params['content'])) {
             // throw new Exception("内容不能为空");
             return ["status" => false, "msg" => "内容不能为空"];
@@ -70,15 +73,15 @@ class Comment Extends Model
         $params['content'] = nl2br($params['content']);
         $params['content'] = trim($params['content']);
 
-        $archives = $params['type'] == 'archives' ? Archives::get($params['aid']) : Page::get($params['aid']);
-        if (!$archives || $archives['status'] == 'hidden') {
-            return ["status" => false, "msg" => "文档未找到"];
-            // throw new Exception("文档未找到");
+        // $archives = $params['type'] == 'archives' ? Archives::get($params['aid']) : Page::get($params['aid']);
+        // if (!$archives || $archives['status'] == 'hidden') {
+        //     return ["status" => false, "msg" => "文档未找到"];
+        //     // throw new Exception("文档未找到");
             
-        }
+        // }
 
         $rule = [
-            'type'      => 'require|in:archives,page',
+            'type'      => 'require|in:archives,page,survey',
             'pid'       => 'require|number',
             'user_id'   => 'require|number',
             'content'   => 'require|length:3,250',
@@ -105,7 +108,7 @@ class Comment Extends Model
         $params['status'] = 'normal';
         (new static())->allowField(true)->save($params);
 
-        $archives->setInc('comments');
+        // $archives->setInc('comments');
         // return true;
         return ["status" => true, "msg" => "success"];
 
@@ -181,6 +184,49 @@ class Comment Extends Model
     public function archives()
     {
         return $this->belongsTo("addons\cms\model\Archives", 'aid')->field('id,title,image,diyname,model_id,channel_id,likes,dislikes,tags,createtime')->setEagerlyType(1);
+    }
+
+
+    //点赞，取消点赞或不喜欢函数
+    public function set_comment_like($key){
+        $return=[];
+        $log=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where("user_id",$key['wxid'])->find();
+        $flag=false;
+        if(empty($log)){
+            $insertdata=[
+                'user_id'=>$key['wxid'],
+                'type'=>$key['type'],
+                'archives_id'=>$key["aid"],
+                'model_type'=>$key['modelType'],
+                'timestamp'=>time()
+            ];
+            $flag=Db::name("cms_archives_vote")->insert($insertdata);
+        }else{
+            $flag=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('user_id',$key['wxid'])
+            ->update(['type'=>$key['type'],'timestamp'=>time()]);
+        }
+
+        if($flag==1){
+            $return=['status'=>true,'msg'=>'提交成功'];
+        }else{
+            $return=['status'=>false,'msg'=>'提交失败'];
+        }
+        return $return;
+    }
+    //获取点赞数
+    public function get_comment_like($key){
+        $return=[];
+        $likenum=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('type','like')->count();
+        $dislikenum=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('type','dislike')->count();
+        $log=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where("user_id",$key['wxid'])->find();
+        if(empty($log)){
+            $return['type']='null';
+        }else{
+            $return['type']=$log['type'];
+        }
+        $return['likenum']=$likenum;
+        $return['dislikenum']=$dislikenum;
+        return $return;
     }
 
 }
