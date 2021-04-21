@@ -108,6 +108,10 @@ class Comment Extends Model
         $params['status'] = 'normal';
         (new static())->allowField(true)->save($params);
 
+        if($params['type']=='archives'){
+            $num=Db::name('cms_comment')->where('type','archives')->where('aid',$params['aid'])->count();
+            Db::name("cms_archives")->where('id',$key['aid'])->update(['comments'=>$num]);
+        }
         // $archives->setInc('comments');
         // return true;
         return ["status" => true, "msg" => "success"];
@@ -205,6 +209,14 @@ class Comment Extends Model
             $flag=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('user_id',$key['wxid'])
             ->update(['type'=>$key['type'],'timestamp'=>time()]);
         }
+
+        if($key['modelType'] == 'archives'){
+            $likenum=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('type','like')->count();
+            $dislikenum=Db::name("cms_archives_vote")->where('model_type',$key['modelType'])->where('archives_id',$key['aid'])->where('type','dislike')->count();
+            Db::name("cms_archives")->where('id',$key['aid'])->update(['likes'=>$likenum,'dislikes'=>$dislikenum]);
+        }
+        
+
 
         if($flag==1){
             $return=['status'=>true,'msg'=>'提交成功'];
